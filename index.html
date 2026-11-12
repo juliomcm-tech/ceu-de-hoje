@@ -187,7 +187,7 @@ textarea#dTxt{width:100%;background:var(--input);border:1px solid var(--line);bo
 .ilist{display:grid;gap:8px}.iit{display:flex;gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px;cursor:pointer}.iit img,.sug img{width:46px;height:66px;object-fit:cover;border-radius:6px;flex:none;background:var(--soft)}.ph0{width:46px;height:66px;border-radius:6px;background:var(--soft);display:grid;place-items:center;font-size:24px;flex:none}.iit div{min-width:0;flex:1}.iit b{display:block}.iit small{display:block;color:var(--mute);font-size:12px}.iit .stars{font-size:13px}.nx{color:var(--gold2)!important;font-weight:800}.flg{position:relative;overflow:hidden;isolation:isolate}.flg::before{content:'';position:absolute;inset:0;background:var(--fl);opacity:.16;-webkit-mask-image:linear-gradient(180deg,#000,transparent 85%);mask-image:linear-gradient(180deg,#000,transparent 85%);z-index:-1;pointer-events:none}.flg::after{content:'';position:absolute;left:0;right:0;top:0;height:4px;background:var(--fl);opacity:.75;pointer-events:none}.ihero.flg{border-radius:16px;padding:14px 8px 10px}.ph0.fl{font-size:32px;background:transparent}.ph1.fl{font-size:84px;background:transparent;height:110px}.astro .vd{font-size:16px;margin-bottom:8px}.astro p{margin:6px 0}
 .vt small{font-family:Manrope;font-size:13px;color:var(--mute)}
 .sug{display:flex;gap:10px;align-items:center;padding:7px 0;border-top:1px solid var(--line);cursor:pointer}.sug img{width:34px;height:50px}.sug .ph0{width:34px;height:50px;font-size:18px}.sug div{flex:1;min-width:0}.sug b{display:block;font-size:13.5px}.sug small{color:var(--mute);font-size:12px}
-.srch{margin-bottom:8px}.cvrow{display:flex;gap:12px;align-items:center;margin:6px 0 10px}#cvPrev{flex:0 0 74px;height:108px;border-radius:8px;background:var(--soft);display:grid;place-items:center;overflow:hidden;font-size:34px}#cvPrev img{width:100%;height:100%;object-fit:cover}.cvbtns{flex:1;min-width:0;display:grid;gap:6px}.cvbtns .btn{text-align:center;cursor:pointer}.cvbtns input[type=url]{width:100%;min-width:0}.wk{display:block;width:max-content;height:auto!important;min-height:0;margin:10px auto 0;line-height:1.4;font-size:13px;color:var(--gold);text-decoration:none;border:1px solid var(--line,#fff3);border-radius:20px;padding:3px 10px}#iRes{max-height:240px;overflow:auto}
+.srch{margin-bottom:8px}.hint a{color:var(--gold2);font-weight:700}.cvrow{display:flex;gap:12px;align-items:center;margin:6px 0 10px}#cvPrev{flex:0 0 74px;height:108px;border-radius:8px;background:var(--soft);display:grid;place-items:center;overflow:hidden;font-size:34px}#cvPrev img{width:100%;height:100%;object-fit:cover}.cvbtns{flex:1;min-width:0;display:grid;gap:6px}.cvbtns .btn{text-align:center;cursor:pointer}.cvbtns input[type=url]{width:100%;min-width:0}.wk{display:block;width:max-content;height:auto!important;min-height:0;margin:10px auto 0;line-height:1.4;font-size:13px;color:var(--gold);text-decoration:none;border:1px solid var(--line,#fff3);border-radius:20px;padding:3px 10px}#iRes{max-height:240px;overflow:auto}
 .rate{display:flex;gap:6px}.rate button{background:none;border:0;font-size:32px;color:#f2c76e44;cursor:pointer;padding:0 2px}.rate button.on{color:var(--gold)}
 .two{display:grid;grid-template-columns:1.4fr 1fr;gap:8px}
 textarea#iC{width:100%;background:var(--input);border:1px solid var(--line);border-radius:12px;padding:10px;color:var(--ink);font:14px/1.5 Manrope}
@@ -2427,6 +2427,45 @@ async function isbnLookup(isbn) {
   if (!best) try { const g = await jget(`https://www.googleapis.com/books/v1/volumes?q=${isbn}`); const v = g.items && g.items[0] && g.items[0].volumeInfo; if (v) better(gb(v)); } catch (e) { }
   return best;
 }
+// ===== Ler a capa (OCR) =====
+const COVER_NOISE = /\b(editora|edi[cç][oõ]es|editorial|leya|bertrand|presen[cç]a|porto|asa|quixote|alfaguara|planeta|booket|c[ií]rculo|gradiva|relógio|rel[oó]gio d.?[aá]gua|tinta.da.china|livros do brasil|penguin|vintage|harper|romance|best.?seller|vencedor|pr[eé]mio|autor[a]? de|milh[oõ]es|exemplares|edi[cç][aã]o|volume|livro|cole[cç][aã]o|bolso|traduç|tradu[cç][aã]o|pref[aá]cio|www|\.pt|\.com)\b/i;
+const tcase = s => s === s.toUpperCase() ? s.toLowerCase().replace(/(^|[\s\-'’])(\p{L})/gu, (m, a, b) => a + b.toUpperCase()).replace(/\b(De|Da|Do|Das|Dos|E|A|O|Os|As|Em|No|Na|Sobre|Para|Por|Com|Um|Uma|The|Of|And)\b/g, (w, _, i) => w.toLowerCase()).replace(/^\p{L}/u, c => c.toUpperCase()) : s;
+function parseCover(lines) {
+  // lines: [{text, conf, h, y}]
+  const L = lines.map(l => ({ ...l, text: l.text.replace(/[^\p{L}\p{N}'’\-:,.!? ]/gu, ' ').replace(/\s+/g, ' ').trim() }))
+    .filter(l => l.text.replace(/[^\p{L}]/gu, '').length >= 2 && l.conf >= 45 && !/^[\p{L}]{1,2}$/u.test(l.text)).sort((a, b) => a.y - b.y);
+  const G = [];
+  for (const l of L) { const g = G[G.length - 1]; if (g && Math.abs(l.h - g.h) / g.h < .22 && l.y - g.yEnd < g.h * 1.1) { g.text += ' ' + l.text; g.yEnd = l.y + l.h; g.n++; } else G.push({ text: l.text, h: l.h, y: l.y, yEnd: l.y + l.h, n: 1, conf: l.conf }); }
+  const clean = G.filter(g => !COVER_NOISE.test(g.text));
+  const nameLike = g => { const w = g.text.split(' ').filter(Boolean); return g.n === 1 && w.length >= 2 && w.length <= 5 && !/\d/.test(g.text) && w.every(x => /^\p{Lu}/u.test(x) || /^(de|da|do|dos|das|e|van|von|del)$/i.test(x)); };
+  const bySize = [...clean].sort((a, b) => b.h - a.h);
+  let title = bySize[0] || null, author = null;
+  const names = clean.filter(nameLike);
+  if (title && nameLike(title) && bySize[1]) { // autor em grande (ex.: SARAMAGO no topo)? o título costuma ser o bloco grande que não é nome
+    const alt = bySize.find(g => g !== title && !nameLike(g) && g.h > title.h * .55);
+    if (alt) { author = title; title = alt; }
+  }
+  if (!author) author = names.filter(g => g !== title).sort((a, b) => b.h - a.h)[0] || null;
+  return { title: title ? tcase(title.text) : '', by: author ? tcase(author.text) : '', query: [title && title.text, author && author.text].filter(Boolean).join(' ') || bySize.slice(0, 2).map(g => g.text).join(' '), raw: G.map(g => g.text) };
+}
+
+let _ocrW = null;
+function loadScript(src) { return new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = rej; document.head.appendChild(s); }); }
+async function ocrWorker() {
+  if (_ocrW) return _ocrW;
+  if (!window.Tesseract) await loadScript('https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js');
+  _ocrW = await Tesseract.createWorker('por', 1); return _ocrW;
+}
+function fileToCanvas(file, max = 1400, invert = false) {
+  return new Promise((res, rej) => { const u = URL.createObjectURL(file), im = new Image(); im.onerror = rej; im.onload = () => { const k = Math.min(1, max / Math.max(im.width, im.height)), c = document.createElement('canvas'); c.width = Math.round(im.width * k); c.height = Math.round(im.height * k); const g = c.getContext('2d'); if (invert) g.filter = 'invert(1) grayscale(1) contrast(1.4)'; else g.filter = 'grayscale(1) contrast(1.25)'; g.drawImage(im, 0, 0, c.width, c.height); URL.revokeObjectURL(u); res(c); }; im.src = u; });
+}
+async function ocrCover(file) {
+  const w = await ocrWorker(), run = async inv => { const { data } = await w.recognize(await fileToCanvas(file, 1400, inv), {}, { blocks: true }); return (data.blocks || []).flatMap(b => b.paragraphs.flatMap(p => p.lines)).map(l => ({ text: l.text, conf: l.confidence, h: l.bbox.y1 - l.bbox.y0, y: l.bbox.y0 })); };
+  let r = parseCover(await run(false));
+  if (!r.title || r.raw.length < 2) { const r2 = parseCover(await run(true)); if (r2.raw.length > r.raw.length || (!r.title && r2.title)) r = r2; }
+  return r;
+}
+
 function wookLink(q) { return `https://www.google.com/search?q=${encodeURIComponent(q + ' site:wook.pt')}`; }
 function photoToCover(file) {
   return new Promise((res, rej) => { const fr = new FileReader(); fr.onerror = rej; fr.onload = () => { const im = new Image(); im.onerror = rej; im.onload = () => { const w = 200, h = Math.round(im.height * w / im.width), c = document.createElement('canvas'); c.width = w; c.height = Math.min(h, 320); c.getContext('2d').drawImage(im, 0, 0, w, h); res(c.toDataURL('image/jpeg', .78)); }; im.src = fr.result; }; fr.readAsDataURL(file); });
@@ -2455,7 +2494,7 @@ function editEstante(e) {
 }
 
 // ===== App de telemóvel =====
-const APP_VERSION = '13.11.2026 00:20';
+const APP_VERSION = '13.11.2026 00:55';
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const G = g => `${g}&#xFE0E;`;
@@ -2808,7 +2847,7 @@ function openItem(t, id, edit, preset) {
   }
   const gOpt = GENRES[t].map(g => `<option${g === x.genre ? ' selected' : ''}>${g}</option>`).join('');
   $('#intBody').innerHTML = `${ONLINE() && t !== 'viagens' ? `<div class="srch"><input type="search" id="iQ" placeholder="🔎 Procurar ${t === 'livros' ? 'livro ou autor' : 'série'} na internet…"><div id="iRes"></div></div>` : ''}
-    ${t === 'livros' ? `${x.notFound ? `<p class="hint">📕 Não encontrei o ISBN ${esc(x.isbn)} nas bases abertas. Escreve o título, ou <a href="${wookLink(x.isbn)}" target="_blank" rel="noopener">vê-o na Wook</a> e copia de lá.</p>` : ''}<div class="cvrow"><div id="cvPrev">${x.cover ? `<img src="${esc(x.cover)}" alt="">` : '<span>📕</span>'}</div><div class="cvbtns"><label class="btn ghost">📷 Fotografar a capa<input type="file" id="cvFile" accept="image/*" capture="environment" hidden></label><input type="url" id="cvUrl" placeholder="ou cola o link da imagem da capa" value="${x.cover && !x.cover.startsWith('data:') ? esc(x.cover) : ''}"><button class="btn ghost" id="cvDel" type="button"${x.cover ? '' : ' hidden'}>Tirar capa</button></div></div>` : ''}
+    ${t === 'livros' ? `${x.notFound ? `<p class="hint">📕 Não encontrei o ISBN ${esc(x.isbn)} nas bases abertas. <b>Carrega em 📷 e tira uma foto à capa</b>: eu leio o título e o autor, tu só confirmas. Ou <a href="${wookLink(x.isbn)}" target="_blank" rel="noopener">vê-o na Wook</a>.</p>` : ''}<div class="cvrow"><div id="cvPrev">${x.cover ? `<img src="${esc(x.cover)}" alt="">` : '<span>📕</span>'}</div><div class="cvbtns"><label class="btn ${x.notFound ? 'main' : 'ghost'}">📷 Fotografar a capa<input type="file" id="cvFile" accept="image/*" capture="environment" hidden></label><input type="url" id="cvUrl" placeholder="ou cola o link da imagem da capa" value="${x.cover && !x.cover.startsWith('data:') ? esc(x.cover) : ''}"><button class="btn ghost" id="cvDel" type="button"${x.cover ? '' : ' hidden'}>Tirar capa</button></div></div><div id="ocrBox"></div>` : ''}
     <div class="form"><label>${t === 'viagens' ? 'Destino / nome da viagem' : 'Título'}<input type="text" id="iT" maxlength="80" value="${esc(x.title)}"></label>
     <label>${C.by}<input type="text" id="iB" maxlength="60" value="${esc(x.by)}"></label>${t === 'viagens' ? `<label>Cidade / lugar<input type="text" id="iP" maxlength="60" value="${esc(x.place || '')}"></label>` : ''}
     ${t === 'livros' ? `<div class="two"><label>Nº de páginas<input type="number" id="iPg" min="1" max="5000" inputmode="numeric" value="${x.pages || ''}"></label><label>Página atual<input type="number" id="iCp" min="0" max="5000" inputmode="numeric" value="${x.page || ''}"></label></div>` : ''}
@@ -2822,7 +2861,16 @@ function openItem(t, id, edit, preset) {
     ${t === 'livros' ? (() => { const S = SHELF.get(), pe = x.pos ? x.pos.e : +(store.get('ceu_lastshelf') || '0').split(',')[0] || 0, pp = x.pos ? x.pos.p : +(store.get('ceu_lastshelf') || '0,0').split(',')[1] || 0; return `<label>Lugar na estante</label><div class="two"><select id="iPE">${[...Array(S.e)].map((_, i) => `<option value="${i}"${i === pe ? ' selected' : ''}>${esc(S.names[i] || 'Estante ' + (i + 1))}</option>`).join('')}</select><select id="iPP">${[...Array(S.p)].map((_, i) => `<option value="${i}"${i === pp ? ' selected' : ''}>Prateleira ${i + 1}</option>`).join('')}</select></div>`; })() : ''}</div>`;
   let rating = x.rating || 0, cover = x.cover || '', tvm = x.tvmaze || null;
   const setCv = c => { cover = c || ''; if ($('#cvPrev')) { $('#cvPrev').innerHTML = cover ? `<img src="${esc(cover)}" alt="">` : '<span>📕</span>'; $('#cvDel').hidden = !cover; } };
-  if ($('#cvFile')) { $('#cvFile').onchange = async e => { const f = e.target.files[0]; if (!f) return; try { setCv(await photoToCover(f)); $('#cvUrl').value = ''; toast('Capa guardada 📕'); } catch (er) { toast('Não consegui ler a foto'); } }; $('#cvUrl').onchange = () => { const v = $('#cvUrl').value.trim(); if (/^https?:\/\//.test(v)) setCv(v); }; $('#cvDel').onclick = () => { setCv(''); $('#cvUrl').value = ''; }; }
+  if ($('#cvFile')) { $('#cvFile').onchange = async e => { const f = e.target.files[0]; if (!f) return; try { setCv(await photoToCover(f)); $('#cvUrl').value = ''; } catch (er) { toast('Não consegui ler a foto'); return; } if ($('#iT').value.trim()) { toast('Capa guardada 📕'); $('#ocrBox').innerHTML = `<button class="btn ghost" id="ocrGo" type="button">🔎 Ler título e autor desta capa</button>`; $('#ocrGo').onclick = () => readCover(f); } else readCover(f); };
+    const readCover = async f => { const ob = $('#ocrBox'); if (!ONLINE()) { ob.innerHTML = '<p class="hint">Para ler a capa abre a app pelo endereço do GitHub, com internet.</p>'; return; } ob.innerHTML = '<p class="hint ocrw">🔎 A ler a capa… <small>(a primeira vez demora um bocadinho)</small></p>';
+      try { const r = await ocrCover(f); if (!r.title && !r.by) { ob.innerHTML = '<p class="hint">Não consegui ler o texto da capa 😕 Tenta com mais luz e a capa direita, ou escreve à mão.</p>'; return; }
+        if (r.title) $('#iT').value = r.title; if (r.by) $('#iB').value = r.by;
+        ob.innerHTML = `<p class="hint">✍️ Li isto da capa: confirma ou corrige o título e o autor.</p><div id="ocrRes"><p class="hint">A procurar o livro…</p></div>`;
+        let R = []; try { R = await searchBooks(r.query); } catch (e2) { }
+        if (!R.length && r.title) try { R = await searchBooks(r.title); } catch (e3) { }
+        $('#ocrRes').innerHTML = R.length ? `<p class="hint"><b>É algum destes?</b> Toca para completar (a tua foto fica como capa).</p>${R.slice(0, 5).map((b, i) => `<div class="sug" data-i="${i}">${b.cover ? `<img src="${b.cover}" alt="">` : '<span class="ph0">📚</span>'}<div><b>${esc(b.title)}</b><small>${esc(b.by)}${b.year ? ' · ' + b.year : ''}${b.pages ? ' · ' + b.pages + ' pág.' : ''}</small></div></div>`).join('')}` : '';
+        $('#ocrRes').querySelectorAll('.sug').forEach(el => el.onclick = () => { const b = R[+el.dataset.i]; $('#iT').value = b.title; if (b.by) $('#iB').value = b.by; if (b.pages && $('#iPg') && !$('#iPg').value) $('#iPg').value = b.pages; if (!cover && b.cover) setCv(b.cover); $('#ocrRes').innerHTML = `<p class="hint">✓ ${esc(b.title)}</p>`; });
+      } catch (er) { ob.innerHTML = '<p class="hint">Não consegui ligar ao leitor de capas (precisa de internet).</p>'; } }; $('#cvUrl').onchange = () => { const v = $('#cvUrl').value.trim(); if (/^https?:\/\//.test(v)) setCv(v); }; $('#cvDel').onclick = () => { setCv(''); $('#cvUrl').value = ''; }; }
   document.querySelectorAll('.rate button').forEach(b => b.onclick = () => { rating = +b.dataset.r === rating ? 0 : +b.dataset.r; document.querySelectorAll('.rate button').forEach(z => z.classList.toggle('on', +z.dataset.r <= rating)); });
   if ($('#iQ')) $('#iQ').oninput = () => { clearTimeout(openItem.t); const q = $('#iQ').value.trim(); if (q.length < 3) { $('#iRes').innerHTML = ''; return; } openItem.t = setTimeout(async () => { try { $('#iRes').innerHTML = '<p class="hint">A procurar…</p>'; const R = t === 'livros' ? await searchBooks(q) : await searchShows(q); $('#iRes').innerHTML = R.map((r, i) => `<div class="sug" data-i="${i}">${r.cover ? `<img src="${r.cover}" alt="">` : `<span class="ph0">${C.ic}</span>`}<div><b>${esc(r.title)}</b><small>${esc(r.by)}${r.year ? ' · ' + r.year : ''}</small></div></div>`).join('') || '<p class="hint">Sem resultados.</p>'; $('#iRes').querySelectorAll('.sug').forEach(el => el.onclick = () => { const r = R[+el.dataset.i]; $('#iT').value = r.title; $('#iB').value = r.by; cover = r.cover; if ($('#cvPrev')) setCv(r.cover); if (r.pages && $('#iPg') && !$('#iPg').value) $('#iPg').value = r.pages; tvm = r.tvmaze || null; $('#iRes').innerHTML = `<p class="hint">✓ ${esc(r.title)}</p>`; }); } catch (e) { $('#iRes').innerHTML = '<p class="hint">Sem ligação à internet.</p>'; } }, 450); };
   $('#iS').onchange = () => { if ($('#iS').value === '2' && !$('#iED').value) $('#iED').value = todayStr(); };
