@@ -160,6 +160,12 @@ dialog{overflow-x:hidden}
 .tcard .av{width:48px;height:48px;border-radius:50%;background:color-mix(in srgb,var(--c) 30%,#14164a);display:grid;place-items:center;font:800 22px Manrope}.tcard .who b{display:block;font-family:Cinzel,serif;font-size:18px}.tcard .who small{color:#cfd0f0;font-size:12.5px}
 .tacts{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}.tacts .btn{padding:10px 4px;font-size:12.5px;text-align:center;text-decoration:none}
 .alerts .arow{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid #ffffff10}.alerts .arow:first-of-type{border-top:0}.alerts .arow>span{font-size:18px}.alerts .arow div{flex:1}.alerts .arow b{display:block;font-size:14px}.alerts .arow small{color:var(--mute);font-size:12px}.alerts .arow .btn{padding:8px 12px;font-size:13px}
+.pick{display:grid;grid-template-columns:1fr auto 1fr auto;gap:6px;align-items:center;margin:10px 0}.pick span{font-size:18px}.pick .btn{padding:11px 14px}
+.pair{position:relative;cursor:pointer}.pair .open{display:block;margin-top:6px;color:var(--gold2);font-size:12px;font-weight:800}.li[data-a]{cursor:pointer}
+.nonav .sheetnav{display:none}.nonav #sheetBody{height:calc(100% - 60px - var(--sat))}
+.phero{text-align:center;padding:6px 0}.phero .pg{font-size:54px}.phero .pg b{font-size:40px}.phero p{color:#d6d6f2;margin:6px 0}
+.pbar{display:grid;grid-template-columns:120px 1fr 44px;align-items:center;gap:8px;margin:7px 0;font-size:13.5px}.pbar i{height:12px;background:#ffffff14;border-radius:6px;overflow:hidden}.pbar i b{display:block;height:100%;background:linear-gradient(90deg,#ff6b98,#f2c76e);border-radius:6px}.pbar em{font-style:normal;font-weight:800;text-align:right}
+.wk{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;height:110px;align-items:end;margin:6px 0}.wk div{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:2px}.wk i{width:70%;background:#ff6b9866;border-radius:6px 6px 2px 2px}.wk .best i{background:linear-gradient(#f2c76e,#ff6b98)}.wk b{font-size:11px}.wk span{font-size:10.5px;color:var(--mute);text-transform:capitalize}
 footer.ft{color:#5d5e8f;font-size:11.5px;text-align:center;margin:18px 0 6px}
 </style>
 </head>
@@ -1772,6 +1778,55 @@ async function enableAlerts() {
   render();
 }
 
+// ---------- Pares em detalhe ----------
+const MODAL = ['cardinal', 'fixo', 'mutavel', 'cardinal', 'fixo', 'mutavel', 'cardinal', 'fixo', 'mutavel', 'cardinal', 'fixo', 'mutavel'];
+const MOD_TXT = { cardinal: 'gosta de começar e liderar', fixo: 'gosta de manter e ir até ao fim', mutavel: 'gosta de mudar e adaptar-se' };
+const EL_NAME = { fogo: 'Fogo', terra: 'Terra', ar: 'Ar', agua: 'Água' };
+const EL_PAIR = { 'fogo-fogo': 'Paixão e aventura a dobrar: nunca há tédio, mas cuidado com o orgulho.', 'fogo-terra': 'O fogo traz o entusiasmo, a terra os pés no chão: aprendem muito um com o outro, com paciência.', 'ar-fogo': 'O ar alimenta o fogo: ideias, gargalhadas e planos sem fim.', 'agua-fogo': 'Vapor! Atração forte, mas sensibilidades diferentes: falem muito.', 'terra-terra': 'Estabilidade total: constroem juntos, devagar e com segurança.', 'ar-terra': 'Um é prático, o outro sonhador: completam-se se respeitarem os ritmos.', 'agua-terra': 'A água nutre a terra: carinho, lealdade e um lar acolhedor.', 'ar-ar': 'Conversa infinita e liberdade: amigos acima de tudo.', 'agua-ar': 'Cabeça e coração: um pensa, o outro sente; a ponte é a empatia.', 'agua-agua': 'Ligação profunda e intuitiva: entendem-se só com o olhar.' };
+const K_FORCE = [['Entendem-se sem palavras', 'Os mesmos gostos e manias'], ['Completam-se no que falta a cada um', 'Ensinam-se coisas novas'], ['Comunicação fácil e muitas gargalhadas', 'Apoiam-se nos projetos'], ['Química e faíscas', 'Fazem-se crescer um ao outro'], ['Harmonia natural', 'Valores parecidos'], ['Curiosidade um pelo outro', 'Aprendem muito juntos'], ['Atração dos opostos', 'Equilibram-se mutuamente']];
+const K_CHAL = [['Podem amplificar os defeitos um do outro'], ['Ritmos diferentes no dia a dia'], ['Podem acomodar-se na zona de conforto'], ['Choques de vontade', 'Têm de aprender a ceder'], ['Às vezes falta um desafio'], ['Mal-entendidos frequentes', 'Exigem ajustes constantes'], ['Puxam para lados diferentes', 'Precisam de compromisso']];
+const K_AREAS = { amor: [75, 55, 82, 50, 92, 48, 70], amizade: [80, 60, 90, 55, 88, 58, 62], trabalho: [70, 72, 80, 58, 78, 64, 68], paixao: [70, 50, 72, 85, 80, 62, 90], comunicacao: [78, 58, 92, 52, 84, 50, 66] };
+function pairDetail(a, b, ds) {
+  const k = Math.min((b - a + 12) % 12, (a - b + 12) % 12), A = SIGNS[a], B = SIGNS[b], key = [A.el, B.el].sort().join('-');
+  const areas = {}; for (const n in K_AREAS) { let v = K_AREAS[n][k]; if (A.el === B.el) v += 4; if (n === 'comunicacao' && (key === 'agua-fogo' || key === 'ar-terra')) v -= 6; if (n === 'paixao' && (A.el === 'fogo' || B.el === 'fogo')) v += 4; if (n === 'trabalho' && (A.el === 'terra' || B.el === 'terra')) v += 4; areas[n] = Math.max(30, Math.min(99, v)); }
+  const PD = pairsDay(ds, ST.modern), lo = Math.min(a, b), hi = Math.max(a, b), today = PD.pairs.find(p => p.a === lo && p.b === hi).score;
+  const week = [...Array(7)].map((_, i) => { const d = dayStr(noonJd(ds) + i); return [d, pairsDay(d, ST.modern).pairs.find(p => p.a === lo && p.b === hi).score]; });
+  const best = week.slice().sort((x, y) => y[1] - x[1])[0];
+  const s = skyFor(ds), km = x => Math.min((s.moon.sign - x + 12) % 12, (x - s.moon.sign + 12) % 12);
+  const sky = [];
+  if ([0, 2, 4].includes(km(a)) && [0, 2, 4].includes(km(b))) sky.push(`A Lua em ${SIGN_IN[s.moon.sign]} aproxima-vos: dia de cumplicidade.`);
+  else if (km(a) === 3 || km(b) === 3) sky.push(`A Lua em ${SIGN_IN[s.moon.sign]} pode trazer pequenas irritações: paciência.`);
+  else sky.push(`A Lua está em ${SIGN_IN[s.moon.sign]}: dia de emoções tranquilas entre os dois.`);
+  if (s.venus.sign === a || s.venus.sign === b) sky.push(`Vénus está em ${SIGN_IN[s.venus.sign]}: o amor sorri a este par.`);
+  if (s.venus.rx) sky.push('Vénus retrógrada: bom para rever a relação, não para decisões grandes.');
+  if (s.mercury.rx) sky.push('Mercúrio retrógrado: atenção a mal-entendidos nas mensagens.');
+  const advice = today >= 80 ? 'Planeiem algo a dois hoje: um jantar, um passeio, uma surpresa.' : today >= 60 ? 'Bom dia para uma conversa tranquila e um gesto de carinho.' : 'Deem espaço um ao outro hoje e falem com calma.';
+  const rel = A.ruler === B.ruler ? `Os dois são regidos por ${PL[A.ruler].n}: falam a mesma língua.` : `${A.n} é regido por ${PL[A.ruler].n} (${PL[A.ruler].kw}), ${B.n} por ${PL[B.ruler].n} (${PL[B.ruler].kw}).`;
+  const mod = MODAL[a] === MODAL[b] ? `Os dois têm o mesmo ritmo: cada um ${MOD_TXT[MODAL[a]]}.` : `${A.n} ${MOD_TXT[MODAL[a]]}; ${B.n} ${MOD_TXT[MODAL[b]]}.`;
+  return { a, b, A, B, k, base: PAIR_BASE[k], today, week, best, areas, el: EL_PAIR[key], elLbl: `${EL_NAME[A.el]} + ${EL_NAME[B.el]}`, mod, rel, force: K_FORCE[k], chal: K_CHAL[k], sky, advice, summary: cap1(PAIR_TXT[k]).replace(/[.!]$/, '') };
+}
+function drawPairCard(D, fmt) {
+  const [c, ctx, W, H, S] = mk(fmt); bg(ctx, W, H, 'pc' + D.a + D.b + ST.date, ['#ff5a8a', '#5c1638']);
+  header(ctx, W, S, S ? 130 : 84, niceDate(ST.date));
+  const cy = S ? 380 : 270; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.font = `${S ? 150 : 130}px ${SYMF}`; ctx.fillStyle = EL_COL[D.A.el][0]; ctx.fillText(D.A.g + VS, W / 2 - 260, cy); ctx.fillStyle = EL_COL[D.B.el][0]; ctx.fillText(D.B.g + VS, W / 2 + 260, cy);
+  ctx.fillStyle = '#ff6b98'; ctx.font = `800 ${S ? 120 : 104}px Manrope`; ctx.fillText(D.today + '%', W / 2, cy); ctx.textBaseline = 'alphabetic';
+  let y = cy + (S ? 150 : 130); ctx.fillStyle = '#fff'; ctx.font = '700 56px Cinzel'; ctx.fillText(`${D.A.n.toUpperCase()} + ${D.B.n.toUpperCase()}`, W / 2, y);
+  y += 50; ctx.fillStyle = '#ffb3c9'; ctx.font = '600 28px Manrope'; ctx.fillText(`${D.elLbl} · ${D.summary}`, W / 2, y);
+  y += S ? 80 : 60; ctx.fillStyle = '#ffe3a3'; ctx.font = 'italic 600 40px "Cormorant Garamond"'; y = wrap(ctx, '“' + D.el + '”', W / 2, y, W - 150, 46, 2, 'center') + (S ? 40 : 24);
+  const L = [['Amor', 'amor'], ['Amizade', 'amizade'], ['Trabalho', 'trabalho'], ['Paixão', 'paixao'], ['Comunicação', 'comunicacao']];
+  ctx.textAlign = 'left';
+  for (const [l, k] of L) { const bw = W - 350 - 230; ctx.fillStyle = '#e6e6fb'; ctx.font = '700 27px Manrope'; ctx.fillText(l, 110, y + 10); ctx.fillStyle = '#ffffff18'; rr(ctx, 350, y - 12, bw, 26, 13); ctx.fill(); const gr = ctx.createLinearGradient(350, 0, 350 + bw, 0); gr.addColorStop(0, '#ff6b98'); gr.addColorStop(1, '#f2c76e'); ctx.fillStyle = gr; rr(ctx, 350, y - 12, bw * D.areas[k] / 100, 26, 13); ctx.fill(); ctx.fillStyle = '#fff'; ctx.font = '800 26px Manrope'; ctx.textAlign = 'right'; ctx.fillText(D.areas[k] + '%', W - 110, y + 10); ctx.textAlign = 'left'; y += S ? 70 : 58; }
+  y += 10; ctx.font = '600 27px Manrope';
+  ctx.fillStyle = '#7ee0a6'; ctx.fillText('✓ ' + D.force.join(' · '), 110, y); y += 44;
+  ctx.fillStyle = '#ffb36b'; ctx.fillText('! ' + D.chal.join(' · '), 110, y);
+  footer(ctx, W, H, S, 'Marca o teu par 💞  ·  Segue ' + brand());
+  return c;
+}
+function capPair(D) {
+  return [`💞 ${D.A.n} ${D.A.g} + ${D.B.n} ${D.B.g} · ${D.today}% hoje`, `${D.elLbl}: ${D.el}`, '', `❤️ Amor ${D.areas.amor}% · 🤝 Amizade ${D.areas.amizade}% · 💼 Trabalho ${D.areas.trabalho}% · 🔥 Paixão ${D.areas.paixao}% · 💬 Comunicação ${D.areas.comunicacao}%`, '', `✅ ${D.force.join(' · ')}`, `⚠️ ${D.chal.join(' · ')}`, '', `🌙 ${D.sky[0]}`, `💡 ${D.advice}`, '', `👇 Marca o teu par! · Segue ${brand()}`, '#compatibilidade #signos #amor'].join('\n');
+}
+
 // ===== App de telemóvel =====
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
@@ -1799,12 +1854,13 @@ function vTop() {
   return (ST.date === todayStr() ? bdayBanner() : '') + h;
 }
 function vPares() {
-  const P = pairsDay(ST.date, ST.modern);
-  let h = `<h2 class="vt">💞 Quem combina hoje</h2>`;
-  P.top.forEach((p, i) => h += `<div class="pair r${i + 1}"><div class="pg"><span style="color:${elc(SIGNS[p.a])}">${G(SIGNS[p.a].g)}</span><b>${p.score}%</b><span style="color:${elc(SIGNS[p.b])}">${G(SIGNS[p.b].g)}</span></div><div class="pn">${SIGNS[p.a].n} + ${SIGNS[p.b].n}</div><small>${cap1(PAIR_TXT[p.k])}</small></div>`);
-  h += `<div class="warn">Paciência hoje: ${G(SIGNS[P.worst.a].g)} ${SIGNS[P.worst.a].n} + ${G(SIGNS[P.worst.b].g)} ${SIGNS[P.worst.b].n} (${P.worst.score}%)</div>`;
+  const PR = pairsDay(ST.date, ST.modern);
+  const me = P.get(), mySi = me && me.d ? sunSignOf(me.d) : 0, sOpt = sel => SIGNS.map((s, i) => `<option value="${i}"${i === sel ? ' selected' : ''}>${s.n}</option>`).join('');
+  let h = `<div class="pick"><select id="pkA">${sOpt(ST.pkA ?? mySi)}</select><span>💞</span><select id="pkB">${sOpt(ST.pkB ?? 4)}</select><button class="btn main" id="pkGo">Ver</button></div><h2 class="vt">💞 Quem combina hoje</h2>`;
+  PR.top.forEach((p, i) => h += `<div class="pair r${i + 1}" data-a="${p.a}" data-b="${p.b}"><div class="pg"><span style="color:${elc(SIGNS[p.a])}">${G(SIGNS[p.a].g)}</span><b>${p.score}%</b><span style="color:${elc(SIGNS[p.b])}">${G(SIGNS[p.b].g)}</span></div><div class="pn">${SIGNS[p.a].n} + ${SIGNS[p.b].n}</div><small>${cap1(PAIR_TXT[p.k])}</small><span class="open">Ver tudo ›</span></div>`);
+  h += `<div class="warn">Paciência hoje: ${G(SIGNS[PR.worst.a].g)} ${SIGNS[PR.worst.a].n} + ${G(SIGNS[PR.worst.b].g)} ${SIGNS[PR.worst.b].n} (${PR.worst.score}%)</div>`;
   h += `<h2 class="vt">O par ideal de cada signo</h2><div class="list">`;
-  P.best.forEach((p, i) => { const o = p.a === i ? p.b : p.a; h += `<div class="li"><span class="g" style="color:${elc(SIGNS[i])}">${G(SIGNS[i].g)}</span><b>${SIGNS[i].n}</b><span class="hrt">♥</span><span class="g" style="color:${elc(SIGNS[o])}">${G(SIGNS[o].g)}</span><span>${SIGNS[o].n}</span><em>${p.score}%</em></div>`; });
+  PR.best.forEach((p, i) => { const o = p.a === i ? p.b : p.a; h += `<div class="li" data-a="${i}" data-b="${o}"><span class="g" style="color:${elc(SIGNS[i])}">${G(SIGNS[i].g)}</span><b>${SIGNS[i].n}</b><span class="hrt">♥</span><span class="g" style="color:${elc(SIGNS[o])}">${G(SIGNS[o].g)}</span><span>${SIGNS[o].n}</span><em>${p.score}%</em></div>`; });
   return h + '</div>';
 }
 function moonImg(e, px) { const c = document.createElement('canvas'); c.width = c.height = px * 2; drawMoon(c.getContext('2d'), px, px, px - 3, e); return c.toDataURL(); }
@@ -2025,6 +2081,7 @@ function render() {
   $('#when').textContent = ST.type === 'top' || ST.type === 'lua' ? periodLabel() : niceDate(ST.date);
   $('#view').innerHTML = VIEWS[ST.type]();
   if (ST.type === 'top') document.querySelectorAll('.sc').forEach(a => a.onclick = () => openSheet(+a.dataset.i));
+  if (ST.type === 'pares') { document.querySelectorAll('.pair,.li[data-a]').forEach(el => el.onclick = () => openPair(el.dataset.a, el.dataset.b)); $('#pkGo').onclick = () => { ST.pkA = +$('#pkA').value; ST.pkB = +$('#pkB').value; openPair(ST.pkA, ST.pkB); }; }
   bindBanner();
   if (ST.type === 'eu') bindEu();
   if (ST.type === 'anos') bindAnos();
@@ -2039,6 +2096,7 @@ function capOne(rd, i) {
     `👉 Segue ${brand()} · marca alguém de ${rd.sign.n}!`, `#horoscopo #signos #${rd.sign.tag}`].join('\n');
 }
 function openSheet(i, title) {
+  $('#sheet').classList.remove('nonav');
   SHEET = (i + 12) % 12; const rd = ST.rank[SHEET], v = verdict(rd);
   const keep = ST.fmt; ST.fmt = 'feed'; const c = drawSign(rd, SHEET); ST.fmt = keep;
   $('#sheetTitle').textContent = title || `${SHEET + 1}º · ${rd.sign.n}${rd.pet ? ' 🐾' : ''}`;
@@ -2050,6 +2108,23 @@ function openSheet(i, title) {
     ${rd.highlights && rd.highlights.length ? `<section><h4>📅 Em destaque</h4>${rd.highlights.map(x => `<p>${esc(x)}</p>`).join('')}</section>` : ''}</div>`;
   $('#sheetBody').scrollTop = 0; $('#sheet').dataset.canvas = '';
   $('#sheet')._canvas = c; $('#sheet')._cap = capOne(rd, SHEET); $('#sheet')._name = `${rd.sign.tag}-${ST.date}`;
+  if (!$('#sheet').open) $('#sheet').showModal();
+}
+
+function openPair(a, b) {
+  const D = pairDetail(+a, +b, ST.date), bar = (l, k) => `<div class="pbar"><span>${l}</span><i><b style="width:${D.areas[k]}%"></b></i><em>${D.areas[k]}%</em></div>`;
+  const nd = d => { const [y, m, dd] = dParts(d); return `${DIAS[new Date(Date.UTC(y, m - 1, dd)).getUTCDay()].toLowerCase().replace('-feira', '')}, ${dd}`; };
+  const c = drawPairCard(D, 'feed');
+  $('#sheetTitle').textContent = `${D.A.n} + ${D.B.n}`;
+  $('#sheetBody').innerHTML = `<div class="phero"><div class="pg"><span style="color:${elc(D.A)}">${G(D.A.g)}</span><b>${D.today}%</b><span style="color:${elc(D.B)}">${G(D.B.g)}</span></div><p>${D.elLbl} · ${D.summary}</p><p class="ph">“${esc(D.el)}”</p></div>
+    <div class="box"><h3>💞 Compatibilidade</h3>${bar('❤️ Amor', 'amor')}${bar('🤝 Amizade', 'amizade')}${bar('💼 Trabalho', 'trabalho')}${bar('🔥 Paixão', 'paixao')}${bar('💬 Comunicação', 'comunicacao')}</div>
+    <div class="box ok"><h3>Pontos fortes</h3>${D.force.map(x => `<p>✓ ${x}</p>`).join('')}</div><div class="box no"><h3>Desafios</h3>${D.chal.map(x => `<p>! ${x}</p>`).join('')}</div>
+    <div class="box"><h3>🌙 Hoje para os dois</h3>${D.sky.map(x => `<p>${esc(x)}</p>`).join('')}<p><b>💡 ${esc(D.advice)}</b></p></div>
+    <div class="box"><h3>📅 Esta semana</h3><div class="wk">${D.week.map(([d, v]) => `<div${d === D.best[0] ? ' class="best"' : ''}><i style="height:${Math.max(8, v - 30)}%"></i><b>${v}</b><span>${nd(d).split(',')[0].slice(0, 3)}</span></div>`).join('')}</div><p>Melhor dia para os dois: <b>${nd(D.best[0])}</b> (${D.best[1]}%).</p></div>
+    <div class="box"><h3>🪐 Ritmo e regentes</h3><p>${esc(D.mod)}</p><p>${esc(D.rel)}</p></div>
+    <img class="card" src="${c.toDataURL('image/jpeg', .9)}" alt="Cartão do par">`;
+  $('#sheet')._canvas = c; $('#sheet')._cap = capPair(D); $('#sheet')._name = `par-${D.A.tag}-${D.B.tag}`;
+  $('#sheet').classList.add('nonav'); $('#sheetBody').scrollTop = 0;
   if (!$('#sheet').open) $('#sheet').showModal();
 }
 
