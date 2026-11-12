@@ -139,6 +139,10 @@ dialog.sheet{width:100%;max-width:560px;height:100%;max-height:100%;margin:0 aut
 .petform{display:grid;grid-template-columns:1fr 64px;gap:6px;margin-top:8px}.petform input[type=date]{grid-column:1}.petform .btn{grid-column:2;grid-row:2;padding:8px}
 .poster{width:100%;border-radius:16px;margin-top:12px;border:1px solid var(--line);display:block}.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
 .li.bd{grid-template-columns:30px 1fr 0 0 auto auto;cursor:pointer}.li.bd span:nth-child(5){color:var(--mute);font-size:12px}
+.pet .em{font-size:30px;width:36px;text-align:center}.pet .g2{font-family:var(--sym);font-weight:400}.chev{color:var(--mute);font-size:22px}
+.bdrow{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#ffffff10;border-radius:12px;padding:8px 10px}.bdrow .btn{padding:8px 12px;font-size:13px}
+.pethero{text-align:center}.pethero .em{font-size:54px}.pethero h3{font-family:Cinzel,serif;font-size:24px;margin:4px 0}.pethero p{margin:4px 0;color:#d6d6f2;font-size:14px}.pethero b{font-family:Manrope,var(--sym)}
+.trait{color:#d6d6f2;font-size:14px;line-height:1.5;margin:10px 2px}
 footer.ft{color:#5d5e8f;font-size:11.5px;text-align:center;margin:18px 0 6px}
 </style>
 </head>
@@ -191,6 +195,11 @@ footer.ft{color:#5d5e8f;font-size:11.5px;text-align:center;margin:18px 0 6px}
   <div class="dlgfoot"><button class="btn" data-close>Fechar</button></div>
 </dialog>
 
+<dialog id="petDlg">
+  <h2 id="petTitle">Animal</h2>
+  <div id="petBody"></div>
+  <div class="dlgfoot"><button class="btn main" id="petSave">Guardar</button><button class="btn" data-close>Fechar</button></div>
+</dialog>
 <dialog id="installDlg">
   <h2>Instalar a app</h2>
   <p>Para instalar, abre esta página no <b>Chrome</b>:</p>
@@ -1578,12 +1587,13 @@ const REL_CAT = { pai: 'velho', mae: 'velho', avom: 'velho', avof: 'velho', tio:
 const REL_WISH = { velho: ['Obrigado por tudo o que me ensinaste.', 'És o meu exemplo de todos os dias.'], novo: ['Que nunca percas esse brilho.', 'O mundo é teu: vai com tudo!'], par: ['Cada dia ao teu lado é um presente.', 'És a minha pessoa favorita no universo.'], amigo: ['Obrigado por estares sempre lá.', 'Amigos assim são estrelas raras.'], irmao: ['Crescemos juntos e ainda bem!', 'Para sempre a minha equipa.'], trab: ['Obrigado pela boa energia de todos os dias.', 'Que este ano traga ainda mais conquistas.'], pet: ['Obrigado por todo o amor sem condições.', 'A casa é mais feliz contigo.'], eu: ['Que este novo ano astral seja o teu melhor.', 'Celebra-te: mereces tudo de bom.'] };
 const SIGN_FORCE = ['coragem', 'lealdade', 'alegria', 'ternura', 'generosidade', 'dedicação', 'elegância', 'intensidade', 'boa disposição', 'determinação', 'originalidade', 'sensibilidade'];
 function makeBday(o) {
-  const rel = RELS.find(r => r[0] === o.rel) || RELS[0], si = sunSignOf(o.d), cat = REL_CAT[rel[0]];
+  const rel = RELS.find(r => r[0] === o.rel) || RELS[0], si = o.t ? sunSignAt(o.d, o.t) : sunSignOf(o.d), cat = REL_CAT[rel[0]];
   const today = todayStr(), age = ageOn(o.d, today) + (daysToBirthday(o.d, today) === 0 ? 0 : 1);
   const [ty] = dParts(today), [, m, dd] = dParts(o.d), bd = `${daysToBirthday(o.d) > 300 && dParts(today)[1] > m ? ty + 1 : ty}-${String(m).padStart(2, '0')}-${String(dd).padStart(2, '0')}`;
   const B = birthday(bd, ST.modern), lp = lifePath(o.d), r = seeded(o.name + o.d + o.rel);
   const force = cat === 'pet' ? `Um ${SIGNS[si].n} que ${PET_TRAIT[si]}.` : `Toda a ${SIGN_FORCE[si]} de um ${SIGNS[si].n}.`;
-  return { ...o, rel, cat, si, sign: SIGNS[si], age, lp, B, dedication: rel[3], wish: pick(REL_WISH[cat], r), force, year: cat === 'pet' ? 'Um ano cheio de mimos, passeios e petiscos.' : `Este ano: ${B.headline.replace(/^Um ano/, 'um ano').replace(/\.$/, '')}.`, num: `Número da vida ${lp}: ${NUM_MEAN[lp]}` };
+  const cn = chineseSign(o.d);
+  return { ...o, rel, cat, si, sign: SIGNS[si], cn, age, lp, B, dedication: rel[3], wish: pick(REL_WISH[cat], r), force, year: cat === 'pet' ? 'Um ano cheio de mimos, passeios e petiscos.' : `Este ano: ${B.headline.replace(/^Um ano/, 'um ano').replace(/\.$/, '')}.`, num: `Número da vida ${lp}: ${NUM_MEAN[lp]}` };
 }
 const ease2 = (t, a, b) => Math.max(0, Math.min(1, (t - a) / (b - a)));
 function drawBdayFrame(ctx, W, H, S, Bd, t) {
@@ -1609,7 +1619,7 @@ function drawBdayFrame(ctx, W, H, S, Bd, t) {
   ctx.textBaseline = 'alphabetic';
   // signo e número
   let y = cy + (S ? 170 : 158) + (S ? 90 : 84);
-  ctx.globalAlpha = k(ease2(t, 3.6, 4.6)); ctx.fillStyle = c[0]; ctx.font = `700 ${S ? 34 : 30}px Manrope, ${SYMF}`; ctx.fillText(`${Bd.sign.g}${VS} ${Bd.sign.n}${Bd.cat === 'pet' ? '' : '  ·  ' + Bd.num.split(':')[0]}`, W / 2, y);
+  ctx.globalAlpha = k(ease2(t, 3.6, 4.6)); ctx.fillStyle = c[0]; ctx.font = `700 ${S ? 34 : 30}px Manrope, ${SYMF}`; ctx.fillText(`${Bd.sign.g}${VS} ${Bd.sign.n}  ·  ${Bd.cat === 'pet' ? 'Signo chinês: ' + Bd.cn.n : Bd.num.split(':')[0]}`, W / 2, y);
   y += S ? 90 : 86; const lines = [Bd.force, Bd.wish, Bd.year, Bd.cat === 'pet' ? '' : cap1(Bd.num.split(': ')[1]) + '.'].filter(Boolean);
   ctx.font = `italic 600 ${S ? 46 : 44}px "Cormorant Garamond"`;
   lines.forEach((l, i) => { ctx.globalAlpha = k(ease2(t, 4.6 + i * 0.7, 5.4 + i * 0.7)); ctx.fillStyle = i === 2 ? '#ffe3a3' : '#ececfb'; y = wrap(ctx, l, W / 2, y, W - 150, S ? 54 : 52, 2, 'center') + (S ? 18 : 16); });
@@ -1639,6 +1649,32 @@ const isStandalone = () => (window.matchMedia && matchMedia('(display-mode: stan
 const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent);
 async function doInstall() { if (BIP) { BIP.prompt(); const r = await BIP.userChoice.catch(() => null); BIP = null; if (r && r.outcome === 'accepted') toast('App instalada 🎉'); } else $('#installDlg').showModal(); }
 
+// ---------- Animais: espécies, idade humana, signo chinês ----------
+const SPECIES = [['cao', '🐶', 'Cão'], ['gato', '🐱', 'Gato'], ['coelho', '🐰', 'Coelho'], ['ave', '🐦', 'Pássaro'], ['hamster', '🐹', 'Hamster'], ['tartaruga', '🐢', 'Tartaruga'], ['peixe', '🐠', 'Peixe'], ['cavalo', '🐴', 'Cavalo'], ['outro', '🐾', 'Outro']];
+const spOf = a => SPECIES.find(s => s[0] === a.sp || s[1] === a.sp) || SPECIES[8];
+function sunSignAt(d, t, c = 0) { const [y, m, dd] = dParts(d), [h, mi] = (t || '12:00').split(':').map(Number), ci = CITIES[+c] || CITIES[0]; return Math.floor(sunLon(jdFromMs(localToUtcMs(y, m, dd, h, mi, ci[3]))) / 30); }
+function humanAge(a) {
+  const yrs = (Date.UTC(...dParts(todayStr()).map((v, i) => i === 1 ? v - 1 : v)) - Date.UTC(...dParts(a.d).map((v, i) => i === 1 ? v - 1 : v))) / (365.25 * 864e5), s = spOf(a)[0];
+  if (s !== 'cao' && s !== 'gato') return null;
+  const h = yrs <= 1 ? yrs * 15 : yrs <= 2 ? 15 + (yrs - 1) * 9 : 24 + (yrs - 2) * (s === 'cao' ? 5 : 4);
+  return Math.round(h);
+}
+const CN_ANIMALS = ['Rato', 'Boi', 'Tigre', 'Coelho', 'Dragão', 'Serpente', 'Cavalo', 'Cabra', 'Macaco', 'Galo', 'Cão', 'Porco'];
+const CN_EMO = ['🐀', '🐂', '🐅', '🐇', '🐉', '🐍', '🐎', '🐐', '🐒', '🐓', '🐕', '🐖'];
+const CN_EL = ['Metal', 'Metal', 'Água', 'Água', 'Madeira', 'Madeira', 'Fogo', 'Fogo', 'Terra', 'Terra'];
+function chineseNewYear(y) { // a Lua Nova entre 21 de janeiro e 20 de fevereiro
+  const ev = eventsBetween(`${y}-01-20`, `${y}-02-21`, false, true).find(e => e.type === 'lua' && e.kind === 'nova');
+  return ev ? dayStr(ev.jd + 1 / 3) : `${y}-02-05`; // hora da China (UTC+8)
+}
+function chineseSign(d) { let [y] = dParts(d); if (d < chineseNewYear(y)) y--; const i = ((y - 4) % 12 + 12) % 12; return { i, n: CN_ANIMALS[i], e: CN_EMO[i], el: CN_EL[y % 10] }; }
+function todaysBirthdays() {
+  const out = [], p = P.get();
+  if (p && p.d && daysToBirthday(p.d) === 0) out.push({ label: `${p.name ? p.name.split(' ')[0] : 'Tu'} (tu!) 🥳`, o: { name: p.name || 'Tu', rel: 'eu', d: p.d, showAge: true, from: '' } });
+  P.list('ceu_pets').forEach(a => { if (daysToBirthday(a.d) === 0) { const s = spOf(a); out.push({ label: `${s[1]} ${a.name}`, o: { name: a.name, rel: s[0] === 'cao' ? 'cao' : s[0] === 'gato' ? 'gato' : 'pet', d: a.d, showAge: true, from: p && p.name ? p.name.split(' ')[0] : '' } }); } });
+  P.list('ceu_bdays').forEach(x => { if (daysToBirthday(x.d) === 0) out.push({ label: `${(RELS.find(r => r[0] === x.rel) || RELS[0])[2]} ${x.name}`, o: { name: x.name, rel: x.rel, d: x.d, showAge: true, from: p && p.name ? p.name.split(' ')[0] : '' } }); });
+  return out;
+}
+
 // ===== App de telemóvel =====
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
@@ -1663,7 +1699,7 @@ function vTop() {
       <div class="ar4">${AREAS4(rd).map(([l, k, t]) => `<div><span>${l}</span>${starsH(rd.stars[k])}<p>${esc(firstSentence(t))}</p></div>`).join('')}</div>
       <div class="ex">${ex}</div><span class="more">Abrir ›</span></article>`;
   });
-  return h;
+  return (ST.date === todayStr() ? bdayBanner() : '') + h;
 }
 function vPares() {
   const P = pairsDay(ST.date, ST.modern);
@@ -1749,9 +1785,8 @@ function vEu() {
   const keepPets = ST.pets; ST.pets = false; computeTop(); ST.pets = keepPets; const pos = ST.rank.findIndex(r => r.si === si), rd = ST.rank[pos], v = verdict(rd);
   const dtb = daysToBirthday(p.d), lp = lifePath(p.d), py = personalYear(p.d, +today.slice(0, 4)), pdn = numDay(p.d, today);
   const cell = (l, s) => `<div class="trio"><span>${l}</span><b>${G(SIGNS[s].g)}</b><em>${SIGNS[s].n}</em></div>`;
-  let h = `<div class="hello"><div><small>${niceDate(today)}</small><h2>Olá${first ? ', ' + esc(first) : ''}! ${G(SIGNS[si].g)}</h2></div><button class="link" id="pEdit">editar</button></div>`;
-  if (dtb === 0) h += `<div class="party">🎂 <b>Feliz aniversário${first ? ', ' + esc(first) : ''}!</b> Hoje começa o teu novo ano astral.<button class="btn main" id="myPoster">Ver o meu cartaz</button></div>`;
-  else h += `<div class="count">🎂 Faltam <b>${dtb}</b> dia${dtb > 1 ? 's' : ''} para o teu aniversário</div>`;
+  let h = bdayBanner() + `<div class="hello"><div><small>${niceDate(today)}</small><h2>Olá${first ? ', ' + esc(first) : ''}! ${G(SIGNS[si].g)}</h2><small>Signo chinês: ${chineseSign(p.d).e} ${chineseSign(p.d).n} (${chineseSign(p.d).el})</small></div><button class="link" id="pEdit">editar</button></div>`;
+  if (dtb !== 0) h += `<div class="count">🎂 Faltam <b>${dtb}</b> dia${dtb > 1 ? 's' : ''} para o teu aniversário</div>`;
   h += `<article class="sc mine" id="myCard" style="--c:${elc(rd.sign)}"><div class="sc-h"><span class="rk">${pos + 1}º</span><span class="gl">${G(rd.sign.g)}</span><div class="nm"><b>${rd.sign.n} hoje</b><small>${pos + 1}º lugar no Top do Dia · toca para abrir</small></div>${starsH(toStars(rd.overall))}</div><div class="vd ${v.k}"><b>${v.icon}</b> ${esc(v.txt)}</div><p class="ph">“${esc(rd.headline)}”</p></article>`;
   h += `<div class="trios">${cell('Sol', PD.sunSign)}${cell('Lua', PD.moonSign)}${p.t ? cell('Ascendente', PD.ascSign) : '<div class="trio"><span>Ascendente</span><b>?</b><em>põe a hora</em></div>'}</div>`;
   h += `<div class="box"><h3>Hoje, só para ti</h3>${PD.aspects.filter(a => p.t || a.np !== 'asc').map(a => `<p>${esc(a.txt)}</p>`).join('') || '<p>Dia calmo no teu mapa: nenhum trânsito forte.</p>'}</div>`;
@@ -1760,10 +1795,44 @@ function vEu() {
   h += `<div class="box oracle"><h3>🔮 Oráculo</h3><p class="sub3">Pergunta o que quiseres sobre o teu dia. Responde com os cálculos do céu, sem internet.</p><div id="chat">${(ST.chat || []).map(c => `<div class="msg ${c.who}">${c.txt}</div>`).join('')}</div>
     <div class="chips">${ORACLE_SUGGEST.map(q => `<button class="qchip">${q}</button>`).join('')}</div><form id="askF" class="ask"><input type="text" id="askQ" placeholder="Escreve a tua pergunta…" autocomplete="off"><button class="btn main">↑</button></form></div>`;
   const pets = P.list('ceu_pets');
-  h += `<div class="box"><h3>🐾 Os meus animais</h3>${pets.map((a, i) => { const ps = sunSignOf(a.d), r2 = petize(readDay(ps, today, ST.modern)), v2 = petVerdict(r2); return `<div class="pet" data-k="${i}"><span class="g" style="color:${elc(SIGNS[ps])}">${G(SIGNS[ps].g)}</span><div><b>${a.sp} ${esc(a.name)}</b><small>${SIGNS[ps].n} · ${esc(r2.headline)}</small><small class="vv ${v2.k}">${esc(v2.txt)}</small></div><button class="link" data-del="${i}">✕</button></div>`; }).join('') || '<p>Ainda não juntaste nenhum.</p>'}
-    <div class="petform"><input type="text" id="petName" maxlength="20" placeholder="Nome"><select id="petSp"><option>🐶</option><option>🐱</option><option>🐰</option><option>🐦</option><option>🐹</option><option>🐢</option><option>🐾</option></select><input type="date" id="petDate" max="${todayStr()}"><button class="btn" id="petAdd">Juntar</button></div></div>`;
+  h += `<div class="box"><h3>🐾 Os meus animais</h3>${pets.map((a, i) => { const s = spOf(a), ps = sunSignAt(a.d, a.t), r2 = petize(readDay(ps, today, ST.modern)), v2 = petVerdict(r2), dd = daysToBirthday(a.d); return `<div class="pet" data-k="${i}"><span class="em">${s[1]}</span><div><b>${esc(a.name)} <span class="g2" style="color:${elc(SIGNS[ps])}">${G(SIGNS[ps].g)}</span></b><small>${s[2]} · ${SIGNS[ps].n} · ${dd === 0 ? '🎂 faz anos hoje!' : 'anos em ' + dd + ' dias'}</small><small class="vv ${v2.k}">${esc(v2.txt)}</small></div><span class="chev">›</span></div>`; }).join('') || '<p>Junta o teu animal para veres o signo, o dia dele e criares o cartaz de anos.</p>'}
+    <button class="btn" id="petNew" style="width:100%;margin-top:6px">＋ Juntar animal</button></div>`;
   return h;
 }
+function bdayBanner() {
+  const L = todaysBirthdays(); if (!L.length) return '';
+  return `<div class="party">🎂 <b>Hoje faz${L.length > 1 ? 'em' : ''} anos:</b>${L.map((x, i) => `<div class="bdrow"><span>${esc(x.label)}</span><button class="btn main bdmk" data-k="${i}">Criar cartaz</button></div>`).join('')}</div>`;
+}
+function bindBanner() { const L = todaysBirthdays(); document.querySelectorAll('.bdmk').forEach(b => b.onclick = e => { e.stopPropagation(); const o = L[+b.dataset.k].o; ST.type = 'anos'; render(); showBday(o, false); }); }
+function openPet(i, isNew, edit) {
+  const pets = P.list('ceu_pets'), a = isNew ? { name: '', sp: 'cao', d: '', t: '' } : pets[i];
+  const spOpts = SPECIES.map(s => `<option value="${s[0]}"${spOf(a)[0] === s[0] ? ' selected' : ''}>${s[1]} ${s[2]}</option>`).join('');
+  let h = `<div class="form"><label>Nome<input type="text" id="aName" maxlength="20" value="${esc(a.name)}" placeholder="Ex.: Bobi"></label><label>Espécie<select id="aSp">${spOpts}</select></label>
+    <label>Data de nascimento (ou de adoção)<input type="date" id="aDate" max="${todayStr()}" value="${a.d}"></label><label>Hora (opcional)<input type="time" id="aTime" value="${a.t || ''}"></label></div>`;
+  if (!isNew && a.d && !edit) {
+    const s = spOf(a), ps = sunSignAt(a.d, a.t), cn = chineseSign(a.d), age = ageOn(a.d), ha = humanAge(a), dd = daysToBirthday(a.d);
+    const r2 = petize(readDay(ps, todayStr(), ST.modern)), v2 = petVerdict(r2);
+    h = `<div class="pethero" style="--c:${elc(SIGNS[ps])}"><span class="em">${s[1]}</span><h3>${esc(a.name)}</h3><p>${s[2]} · <b>${G(SIGNS[ps].g)} ${SIGNS[ps].n}</b> · ${cn.e} ${cn.n} (${cn.el})</p>
+      <p>${age > 0 ? age + (age === 1 ? ' ano' : ' anos') : 'Menos de 1 ano'}${ha ? ` · ≈ ${ha} anos humanos` : ''} · ${dd === 0 ? '🎂 <b>faz anos hoje!</b>' : `🎂 anos em ${dd} dias`}</p></div>
+      <div class="vd ${v2.k}"><b>${v2.icon}</b> ${esc(v2.txt)}</div><p class="ph">“${esc(r2.headline)}”</p>
+      <div class="ar4" style="--c:${elc(SIGNS[ps])}">${AREAS4(r2).map(([l, k, t]) => `<div><span>${l}</span>${starsH(r2.stars[k])}<p>${esc(t)}</p></div>`).join('')}</div>
+      <p class="trait">Como bom ${SIGNS[ps].n}, ${esc(a.name)} ${PET_TRAIT[ps]}. No horóscopo chinês é ${cn.n}.</p>
+      <div class="tools"><button class="btn main" id="aPoster">🎉 Criar cartaz de parabéns</button><button class="btn" id="aCard">🃏 Abrir o cartão do dia</button><button class="btn" id="aEdit">✏️ Editar</button><button class="btn" id="aDel">🗑️ Apagar</button></div>`;
+  }
+  $('#petBody').innerHTML = h; $('#petTitle').textContent = isNew ? 'Juntar animal' : edit ? 'Editar ' + a.name : '';
+  $('#petSave').hidden = !(isNew || edit);
+  const save = () => { const n = $('#aName').value.trim(), d = $('#aDate').value; if (!n || !d) { toast('Nome e data do animal'); return; } const l = P.list('ceu_pets'), o = { name: n, sp: $('#aSp').value, d, t: $('#aTime').value }; if (isNew) l.push(o); else l[i] = o; P.setList('ceu_pets', l); $('#petDlg').close(); toast('Guardado 🐾'); render(); };
+  $('#petSave').onclick = save;
+  if ($('#aPoster')) {
+    const s = spOf(a), p = P.get();
+    $('#aPoster').onclick = () => { $('#petDlg').close(); ST.type = 'anos'; render(); showBday({ name: a.name, rel: s[0] === 'cao' ? 'cao' : s[0] === 'gato' ? 'gato' : 'pet', d: a.d, t: a.t, showAge: true, from: p && p.name ? p.name.split(' ')[0] : '' }, false); };
+    $('#aCard').onclick = () => { $('#petDlg').close(); const kp = ST.pets; ST.pets = true; computeTop(); ST.pets = kp; openSheet(ST.rank.findIndex(r => r.si === sunSignAt(a.d, a.t)), `${spOf(a)[1]} ${a.name}`); };
+    $('#aEdit').onclick = () => openPetEdit(i);
+    $('#aDel').onclick = () => { const l = P.list('ceu_pets'); l.splice(i, 1); P.setList('ceu_pets', l); $('#petDlg').close(); render(); };
+  }
+  if (!$('#petDlg').open) $('#petDlg').showModal();
+}
+function openPetEdit(i) { openPet(i, false, true); }
 function askOracle(q) {
   if (!q.trim()) return; const p = P.get(); ST.chat = (ST.chat || []).concat([{ who: 'me', txt: esc(q) }, { who: 'or', txt: oracle(q, p) }]).slice(-12);
   $('#chat').innerHTML = ST.chat.map(c => `<div class="msg ${c.who}">${c.txt}</div>`).join(''); $('#askQ').value = ''; $('#chat').lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -1773,12 +1842,11 @@ function bindEu() {
   $('#pEdit').onclick = () => { ST.editProfile = true; render(); };
   const p = P.get(), si = sunSignOf(p.d);
   $('#myCard').onclick = () => { const kp = ST.pets; ST.pets = false; computeTop(); ST.pets = kp; openSheet(ST.rank.findIndex(r => r.si === si)); };
-  if ($('#myPoster')) $('#myPoster').onclick = () => { ST.type = 'anos'; render(); showBday({ name: p.name || 'Tu', rel: 'eu', d: p.d, showAge: true, from: '' }, false); };
+  if (false) $('#myPoster').onclick = () => { ST.type = 'anos'; render(); showBday({ name: p.name || 'Tu', rel: 'eu', d: p.d, showAge: true, from: '' }, false); };
   $('#askF').onsubmit = e => { e.preventDefault(); askOracle($('#askQ').value); };
   document.querySelectorAll('.qchip').forEach(b => b.onclick = () => askOracle(b.textContent));
-  $('#petAdd').onclick = () => { const n = $('#petName').value.trim(), d = $('#petDate').value; if (!n || !d) { toast('Nome e data do animal'); return; } const l = P.list('ceu_pets'); l.push({ name: n, sp: $('#petSp').value, d }); P.setList('ceu_pets', l); render(); };
-  document.querySelectorAll('[data-del]').forEach(b => b.onclick = e => { e.stopPropagation(); const l = P.list('ceu_pets'); l.splice(+b.dataset.del, 1); P.setList('ceu_pets', l); render(); });
-  document.querySelectorAll('.pet').forEach(el => el.onclick = () => { const a = P.list('ceu_pets')[+el.dataset.k], ps = sunSignOf(a.d); const kp = ST.pets; ST.pets = true; computeTop(); ST.pets = kp; openSheet(ST.rank.findIndex(r => r.si === ps), `${a.sp} ${a.name}`); });
+  $('#petNew').onclick = () => openPet(0, true);
+  document.querySelectorAll('.pet').forEach(el => el.onclick = () => openPet(+el.dataset.k));
 }
 function bindAnos() {
   $('#bdGo').onclick = () => showBday({ name: $('#bdName').value.trim(), rel: $('#bdRel').value, d: $('#bdDate').value, showAge: $('#bdAge').checked, from: $('#bdFrom').value.trim() }, true);
@@ -1799,6 +1867,7 @@ function render() {
   $('#when').textContent = ST.type === 'top' || ST.type === 'lua' ? periodLabel() : niceDate(ST.date);
   $('#view').innerHTML = VIEWS[ST.type]();
   if (ST.type === 'top') document.querySelectorAll('.sc').forEach(a => a.onclick = () => openSheet(+a.dataset.i));
+  bindBanner();
   if (ST.type === 'eu') bindEu();
   if (ST.type === 'anos') bindAnos();
 }
