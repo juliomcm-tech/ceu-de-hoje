@@ -154,6 +154,12 @@ input::-webkit-date-and-time-value{text-align:left}
 .form label,dialog label{min-width:0;max-width:100%}
 dialog{overflow-x:hidden}
 .form{max-width:100%}
+.today{max-width:460px;background:linear-gradient(180deg,#2a1d5e,#0f1033 45%)}.today h2{text-align:center;font-size:24px;margin:2px 0 12px}.tbig{text-align:center;font-size:56px;animation:pop 1s ease}.tmh{color:var(--gold2);font-size:13px;letter-spacing:.06em;text-transform:uppercase;margin:16px 0 8px}
+@keyframes pop{0%{transform:scale(.3);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+.tcard{display:grid;grid-template-columns:48px 1fr;gap:6px 12px;align-items:center;background:#ffffff10;border:1px solid color-mix(in srgb,var(--c) 50%,transparent);border-radius:16px;padding:12px;margin-bottom:10px}.tcard.tom{opacity:.85}
+.tcard .av{width:48px;height:48px;border-radius:50%;background:color-mix(in srgb,var(--c) 30%,#14164a);display:grid;place-items:center;font:800 22px Manrope}.tcard .who b{display:block;font-family:Cinzel,serif;font-size:18px}.tcard .who small{color:#cfd0f0;font-size:12.5px}
+.tacts{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}.tacts .btn{padding:10px 4px;font-size:12.5px;text-align:center;text-decoration:none}
+.alerts .arow{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid #ffffff10}.alerts .arow:first-of-type{border-top:0}.alerts .arow>span{font-size:18px}.alerts .arow div{flex:1}.alerts .arow b{display:block;font-size:14px}.alerts .arow small{color:var(--mute);font-size:12px}.alerts .arow .btn{padding:8px 12px;font-size:13px}
 footer.ft{color:#5d5e8f;font-size:11.5px;text-align:center;margin:18px 0 6px}
 </style>
 </head>
@@ -206,6 +212,10 @@ footer.ft{color:#5d5e8f;font-size:11.5px;text-align:center;margin:18px 0 6px}
   <div class="dlgfoot"><button class="btn" data-close>Fechar</button></div>
 </dialog>
 
+<dialog id="todayDlg" class="today">
+  <div id="todayBody"></div>
+  <div class="dlgfoot"><button class="btn" data-close>Fechar</button></div>
+</dialog>
 <dialog id="perDlg">
   <h2 id="perTitle">Aniversário</h2>
   <div id="perBody"></div>
@@ -1736,6 +1746,32 @@ function icsAll() {
   L.push('END:VCALENDAR'); return L.join('\r\n');
 }
 
+// ---------- Alertas de aniversário ----------
+function bdaysOn(offset) {
+  const ds = dayStr(noonJd(todayStr()) + offset), md = ds.slice(5);
+  return agendaAll().filter(x => x.d.slice(5) === md || (md === '02-28' && x.d.slice(5) === '02-29' && !(+ds.slice(0, 4) % 4 === 0)));
+}
+async function syncAlertData() { // a agenda vai para o service worker poder avisar com a app fechada
+  try {
+    const data = agendaAll().map(x => ({ n: x.name, r: x.kind === 'me' ? 'tu' : relLabel(x).replace(/[^\p{L}\s]/gu, '').trim(), md: x.d.slice(5), y: +x.d.slice(0, 4) }));
+    const c = await caches.open('ceu-data'); await c.put('./__agenda.json', new Response(JSON.stringify(data), { headers: { 'Content-Type': 'application/json' } }));
+  } catch (e) { }
+  try { if ('setAppBadge' in navigator) { const n = bdaysOn(0).length; n ? navigator.setAppBadge(n) : navigator.clearAppBadge(); } } catch (e) { }
+}
+const alertState = () => !('Notification' in window) ? 'none' : Notification.permission;
+async function enableAlerts() {
+  if (!('Notification' in window)) { toast('Este telemóvel não deixa: usa os lembretes do calendário'); return; }
+  const perm = await Notification.requestPermission();
+  if (perm !== 'granted') { toast('Sem autorização para notificações'); render(); return; }
+  await syncAlertData();
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    if ('periodicSync' in reg) { try { await reg.periodicSync.register('ceu-bdays', { minInterval: 12 * 3600 * 1000 }); store.set('ceu_psync', '1'); } catch (e) { store.set('ceu_psync', '0'); } }
+    reg.showNotification('🔔 Alertas ligados', { body: 'Vais receber um aviso no dia de anos de quem guardaste.', icon: 'icon-192.png', badge: 'icon-192.png', tag: 'ceu-test' });
+  } catch (e) { new Notification('🔔 Alertas ligados', { body: 'Vais receber um aviso no dia de anos de quem guardaste.' }); }
+  render();
+}
+
 // ===== App de telemóvel =====
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
@@ -1814,8 +1850,12 @@ function vAgenda() {
   h += inMonth.length ? `<div class="aglist">${inMonth.map(x => { const age = ageOn(x.d, `${yy}-${x.d.slice(5)}`), si = x.t ? sunSignAt(x.d, x.t) : sunSignOf(x.d), dd = daysToBirthday(x.d); return `<div class="agi" data-kind="${x.kind}" data-k="${x.k ?? ''}" id="ag-${+x.d.slice(8)}"><span class="day">${+x.d.slice(8)}</span><div class="who"><b>${esc(x.name)}</b><small>${esc(relLabel(x))} · ${age > 0 ? 'faz ' + age : 'nasceu'} · ${G(SIGNS[si].g)} ${SIGNS[si].n}${dd === 0 ? ' · <em>HOJE</em>' : ''}</small></div><a class="ib" href="${waLink(x)}" target="_blank" rel="noopener" title="WhatsApp">💬</a><button class="ib mk" title="Cartaz">🎉</button></div>`; }).join('')}</div>` : '<p class="hint">Ninguém faz anos neste mês.</p>';
   const next = all.map(x => ({ ...x, dd: daysToBirthday(x.d) })).sort((a, b) => a.dd - b.dd).slice(0, 5);
   if (next.length) h += `<h2 class="vt">⏭️ Próximos</h2><div class="list">${next.map(x => `<div class="li bd"><span class="g">${esc(ico(x))}</span><b>${esc(x.name)}</b><span></span><span></span><span>${esc(relLabel(x))}</span><em>${x.dd === 0 ? 'HOJE 🎂' : x.dd === 1 ? 'amanhã' : 'em ' + x.dd + ' dias'}</em></div>`).join('')}</div>`;
-  h += `<div class="tools" style="margin-top:14px"><button class="btn main" id="agAdd">＋ Adicionar aniversário</button><button class="btn" id="agIcs">📲 Pôr lembretes no calendário do telemóvel</button></div>
-    <p class="hint">A app avisa sempre que a abres no dia. Para avisar mesmo com a app fechada, usa o botão dos lembretes: o calendário do telemóvel avisa todos os anos, no dia e na véspera.</p>`;
+  const st = alertState(), ps = store.get('ceu_psync') === '1';
+  h += `<div class="tools" style="margin-top:14px"><button class="btn main" id="agAdd">＋ Adicionar aniversário</button></div>
+    <div class="box alerts"><h3>🔔 Alertas</h3>
+    <div class="arow"><span>${'✅'}</span><div><b>Janela ao abrir a app</b><small>No dia (e na véspera) aparece logo à frente.</small></div></div>
+    <div class="arow"><span>${st === 'granted' ? '✅' : '⚪'}</span><div><b>Notificação no telemóvel</b><small>${st === 'granted' ? (ps ? 'Ligada: avisa mesmo com a app fechada (Android, app instalada).' : 'Ligada quando abres a app. Instala a app no Chrome para avisar também com ela fechada.') : st === 'denied' ? 'Bloqueada nas definições do Chrome.' : st === 'none' ? 'Não disponível neste telemóvel: usa o calendário.' : 'Desligada.'}</small></div>${st === 'default' ? '<button class="btn main" id="agNotif">Ligar</button>' : ''}</div>
+    <div class="arow"><span>📲</span><div><b>Calendário do telemóvel</b><small>O mais seguro, também no iPhone: avisa todos os anos às 9h do dia e na véspera.</small></div><button class="btn" id="agIcs">Pôr</button></div></div>`;
   return h;
 }
 function openPerson(k) {
@@ -1836,6 +1876,7 @@ function bindAgenda() {
   const sh = n => { const [y, m] = (ST.agMonth || todayStr().slice(0, 7)).split('-').map(Number), t = new Date(Date.UTC(y, m - 1 + n, 1)); ST.agMonth = t.toISOString().slice(0, 7); render(); };
   $('#agPrev').onclick = () => sh(-1); $('#agNext').onclick = () => sh(1);
   $('#agAdd').onclick = () => openPerson(null);
+  if ($('#agNotif')) $('#agNotif').onclick = enableAlerts;
   $('#agIcs').onclick = async () => { if (!agendaAll().filter(x => x.kind !== 'me').length) { toast('Adiciona primeiro aniversários'); return; } const f = new File([icsAll()], 'aniversarios-ceu-de-hoje.ics', { type: 'text/calendar' }); try { if (navigator.canShare && navigator.canShare({ files: [f] })) { await navigator.share({ files: [f] }); return; } } catch (e) { if (e.name === 'AbortError') return; } try { const a = document.createElement('a'); a.href = URL.createObjectURL(f); a.download = f.name; document.body.appendChild(a); a.click(); a.remove(); toast('Abre o ficheiro para juntar ao calendário'); } catch (e) { toast('Não foi possível aqui: abre a app no Chrome'); } };
   document.querySelectorAll('.ac.has').forEach(c => c.onclick = () => { const el = document.getElementById('ag-' + c.dataset.d); el && el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el && el.classList.add('flash'); setTimeout(() => el && el.classList.remove('flash'), 1200); });
   const all = agendaAll();
@@ -1972,6 +2013,7 @@ function bindAnos() {
 const VIEWS = { top: vTop, pares: vPares, lua: vLua, anos: vAnos, horas: vHoras, eu: vEu };
 
 function render() {
+  syncAlertData();
   if (!TABS[ST.type].includes(ST.mode)) ST.mode = TABS[ST.type][0];
   document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.t === ST.type));
   document.querySelectorAll('#modes button').forEach(b => { b.hidden = !TABS[ST.type].includes(b.dataset.m); b.classList.toggle('on', b.dataset.m === ST.mode); });
@@ -2028,6 +2070,25 @@ async function shareCurrent() {
   try { if (ST.type === 'anos' && ST.bd) { await shareCanvases([{ name: 'parabens', c: drawBday(ST.bd, ST.fmt === 'story' ? 'story' : 'feed') }], capBday(ST.bd)); return; } const { cs, cap } = buildPost(ST.type); await shareCanvases(cs, cap); } finally { btn.disabled = false; }
 }
 
+// ---------- Janela de aniversários ----------
+function showTodayDlg(force) {
+  const key = 'ceu_seen_' + todayStr(), T = bdaysOn(0), M = bdaysOn(1);
+  if (!T.length && !M.length) return false;
+  if (!force && store.get(key) === String(T.length + M.length)) return false;
+  const card = (x, tom) => { const si = x.t ? sunSignAt(x.d, x.t) : sunSignOf(x.d), age = ageOn(x.d, dayStr(noonJd(todayStr()) + (tom ? 1 : 0))), em = x.kind === 'a' ? spOf(P.list('ceu_pets')[x.k] || {})[1] : x.kind === 'me' ? '🥳' : (x.name[0] || '?').toUpperCase();
+    return `<div class="tcard${tom ? ' tom' : ''}" style="--c:${elc(SIGNS[si])}"><span class="av">${esc(em)}</span><div class="who"><b>${esc(x.kind === 'me' ? 'Tu!' : x.name)}</b><small>${esc(x.kind === 'me' ? 'O teu dia' : relLabel(x))} · ${age > 0 ? (tom ? 'faz ' : 'faz ') + age + (age === 1 ? ' ano' : ' anos') : ''} · ${G(SIGNS[si].g)} ${SIGNS[si].n}</small></div>
+      ${tom ? '' : `<div class="tacts"><button class="btn main" data-a="c">🎉 Cartaz</button><button class="btn" data-a="v">🎬 Vídeo</button>${x.kind === 'me' ? '' : `<a class="btn" href="${waLink(x)}" target="_blank" rel="noopener">💬 WhatsApp</a>`}</div>`}</div>`; };
+  $('#todayBody').innerHTML = (T.length ? `<div class="tbig">🎂</div><h2>Hoje é dia de festa!</h2>${T.map(x => card(x, false)).join('')}` : '') + (M.length ? `<h3 class="tmh">⏰ Amanhã faz${M.length > 1 ? 'em' : ''} anos</h3>${M.map(x => card(x, true)).join('')}` : '');
+  const from = ((P.get() || {}).name || '').split(' ')[0];
+  $('#todayBody').querySelectorAll('.tcard:not(.tom)').forEach((el, i) => {
+    const x = T[i], o = { name: x.kind === 'me' ? (x.name || 'Tu') : x.name, rel: x.rel, d: x.d, t: x.t, showAge: true, from: x.kind === 'me' ? '' : from };
+    el.querySelector('[data-a=c]').onclick = () => { $('#todayDlg').close(); ST.type = 'anos'; ST.anosView = 'criar'; render(); showBday(o, false); };
+    el.querySelector('[data-a=v]').onclick = () => { $('#todayDlg').close(); ST.type = 'anos'; ST.anosView = 'criar'; render(); showBday(o, false); setTimeout(() => $('#bdVideo') && $('#bdVideo').click(), 300); };
+  });
+  $('#todayDlg').onclose = () => store.set(key, String(T.length + M.length));
+  $('#todayDlg').showModal(); return true;
+}
+
 // ---------- Init ----------
 async function init() {
   $('#shareBtn').innerHTML = SHARE_SVG; $('#sheetShare').innerHTML = SHARE_SVG + '<span>Partilhar</span>';
@@ -2059,7 +2120,10 @@ async function init() {
   $('#reel').onclick = () => { $('#menu').close(); ST.type = 'top'; render(); makeReel(); };
   $('#copyCap').onclick = () => { const { cap } = buildPost(ST.type === 'eu' ? 'top' : ST.type); ST.cap = cap; copyCap(); };
   ST.date = todayStr();
+  if (/aniversarios/.test(location.search + location.hash)) { ST.type = 'anos'; ST.anosView = 'agenda'; }
   render();
+  setTimeout(() => showTodayDlg(false), 600);
+  setTimeout(() => { try { if (alertState() === 'granted' && navigator.serviceWorker && navigator.serviceWorker.controller) navigator.serviceWorker.controller.postMessage('check-bdays'); } catch (e) { } }, 1500);
   try { await Promise.race([Promise.all(['700 40px Cinzel', 'italic 600 40px "Cormorant Garamond"', '500 20px Manrope', '600 20px Manrope', '700 20px Manrope', '800 20px Manrope'].map(f => document.fonts.load(f)).concat([document.fonts.load('40px "Noto Sans Symbols"', '♈♉♊♋♌♍♎♏♐♑♒♓☉☽☿♀♂♃♄'), document.fonts.load('40px "Noto Sans Symbols 2"', '♅♆♇★✂✓✕')])), new Promise(r => setTimeout(r, 3000))]); } catch (e) { }
   if (/github\.io$/.test(location.hostname) && 'serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { });
 }
