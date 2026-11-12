@@ -193,6 +193,23 @@ textarea#dTxt{width:100%;background:var(--input);border:1px solid var(--line);bo
 textarea#iC{width:100%;background:var(--input);border:1px solid var(--line);border-radius:12px;padding:10px;color:var(--ink);font:14px/1.5 Manrope}
 .ihero{text-align:center}.ihero img{width:110px;height:160px;object-fit:cover;border-radius:10px;box-shadow:0 6px 20px #0005}.ph1{display:inline-grid;place-items:center;width:110px;height:140px;border-radius:12px;background:var(--soft);font-size:54px}.ihero h3{font-family:Cinzel,serif;margin:10px 0 2px;font-size:20px}.ihero p{color:var(--mute);margin:0 0 6px}.stars.big{font-size:22px;display:block;margin-bottom:6px}
 .favs p{margin:4px 0}
+.addrow{display:grid;grid-template-columns:1fr auto;gap:8px;margin:6px 0 10px}.addrow .btn{padding:13px 16px}
+.shtools{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;margin:4px 0 8px}.seg3{display:flex;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:3px}.seg3 button{background:none;border:0;color:var(--mute);padding:8px 10px;border-radius:9px;font:800 12.5px Manrope;cursor:pointer}.seg3 button.on{background:var(--btn2);color:var(--gold2)}
+.shcfg{display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:center;font-size:13px;color:var(--mute)}.shcfg b{color:var(--ink);min-width:16px;text-align:center}.shcfg .ib{width:32px;height:32px;font-size:16px}.shcfg span:nth-of-type(2){margin-left:10px}
+.estante{background:linear-gradient(#5a3a22,#3e2716);border-radius:14px;padding:10px 10px 4px;margin:10px 0;box-shadow:inset 0 0 0 3px #2c1a0e,0 6px 18px #0006}
+.eh{color:#f5e1c0;font:800 12px Manrope;letter-spacing:.08em;text-transform:uppercase;margin:0 2px 6px}
+.prat{display:flex;align-items:flex-end;gap:3px;min-height:96px;padding:8px 6px 0;margin-bottom:14px;background:linear-gradient(#24160c,#3a2515);border-radius:6px 6px 0 0;position:relative;overflow-x:auto;scrollbar-width:none}
+.prat::after{content:"";position:sticky;right:0}
+.prat{box-shadow:inset 0 10px 14px #0007;border-bottom:10px solid #8b5a34;border-bottom-color:#9c6a3f}
+.bk{position:relative;flex:none;cursor:grab;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;transition:transform .15s}
+.bk.cv img{width:56px;height:84px;object-fit:cover;border-radius:2px 4px 4px 2px;display:block;box-shadow:2px 2px 4px #0008,inset -3px 0 6px #0004}
+.bk.sp{background:linear-gradient(90deg,#00000030,transparent 20%,#ffffff1a 50%,transparent 80%,#00000030),var(--bc);border-radius:3px 3px 1px 1px;display:flex;align-items:center;justify-content:center;box-shadow:1px 0 2px #0008}
+.bk.sp span{writing-mode:vertical-rl;transform:rotate(180deg);color:#f8efe0;font:700 10.5px Manrope;max-height:92%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:.02em}
+.bdg{position:absolute;left:50%;bottom:2px;transform:translateX(-50%);background:var(--gold);color:#1a1206;font:800 8px Manrope;padding:1px 4px;border-radius:5px;font-style:normal;white-space:nowrap}.bdg.w{background:#9aa3b2}
+.bk.lift{opacity:.25}.bk.phd{background:#ffffff22;border:2px dashed #f5e1c0aa;border-radius:4px}
+.bk.ghost{position:fixed;left:0;top:0;z-index:99;pointer-events:none;opacity:.95;filter:drop-shadow(0 10px 14px #000a)}
+.bk.pull{transform:translateY(-14px) scale(1.12)}
+.prat.auto .bk{cursor:pointer}
 footer.ft{color:var(--mute);font-size:11.5px;text-align:center;margin:18px 0 6px}
 
 :root{--barbg:linear-gradient(#06061af2,#06061ad9 80%,#06061a00);--barsolid:#06061af0;--tabbg:#0b0c28f2;--bodybg:radial-gradient(700px 420px at 50% -8%,#2b1f66aa,transparent 70%),#06061a;--btn:#14164a;--btn2:#1f2160;--dlg:#0f1033;--input:#080924;--backdrop:#000b;--ink2:#dcdcf6;--soft:#ffffff0d;--okc:#8fe8b3;--badc:#ffbf85;--pinkc:#ffb3c9;--pinkc2:#ff6b98;--main:linear-gradient(180deg,#f8d891,#d9a944);--maintxt:#1b1205;--r1bg:#f2c76e14}
@@ -314,6 +331,7 @@ footer.ft{color:var(--mute);font-size:11.5px;text-align:center;margin:18px 0 6px
 <textarea id="cap" readonly></textarea>
 <div id="lock" hidden><div class="lockbox"><div class="lockic">🌙</div><h2 id="lockHi">Olá!</h2><p>Escreve o teu PIN</p><input type="password" id="lockPin" inputmode="numeric" maxlength="6" autocomplete="off"><button class="btn main" id="lockGo">Entrar</button><button class="link" id="lockForgot">Esqueci-me do PIN</button></div></div>
 <dialog id="intDlg"><h2 id="intTitle"></h2><div id="intBody"></div><div class="dlgfoot"><button class="btn" id="intDel">🗑️</button><button class="btn main" id="intSave">Guardar</button><button class="btn" data-close>Fechar</button></div></dialog>
+<dialog id="scanDlg"><h2>📷 Código de barras</h2><p>Aponta a câmara ao código de barras atrás do livro.</p><video id="scanVid" playsinline muted style="width:100%;border-radius:12px;background:#000"></video><div class="dlgfoot"><button class="btn" id="scanCancel">Cancelar</button></div></dialog>
 <dialog id="noteDlg"><h2>📔 Nota</h2><div id="noteBody"></div><div class="dlgfoot"><button class="btn" id="noteEdit">✏️ Editar</button><button class="btn" data-close>Fechar</button></div></dialog>
 <div id="toast"></div>
 <script>
@@ -2160,8 +2178,124 @@ async function cachedDaily(key, fn) {
   const v = await fn(); store.set(key, JSON.stringify({ d: todayStr(), v })); return v;
 }
 
+// ===== Estante virtual =====
+const SHELF = {
+  get() { try { return Object.assign({ e: 1, p: 4, names: [], look: 'capas' }, JSON.parse(store.get('ceu_shelf') || '{}')); } catch (e) { return { e: 1, p: 4, names: [], look: 'capas' }; } },
+  set(o) { store.set('ceu_shelf', JSON.stringify(o)); }
+};
+const SORTS = [['manual', 'A minha ordem'], ['az', 'Título A–Z'], ['autor', 'Autor A–Z'], ['rate', 'Avaliação'], ['recent', 'Mais recentes']];
+const col = s => { let h = 0; for (const c of s) h = (h * 31 + c.charCodeAt(0)) >>> 0; const hues = [8, 25, 42, 140, 165, 200, 220, 260, 285, 330]; return `hsl(${hues[h % hues.length]} ${35 + h % 25}% ${30 + (h >> 4) % 18}%)`; };
+function sortBooks(L, s) {
+  const c = new Intl.Collator('pt'), A = L.slice();
+  if (s === 'az') A.sort((a, b) => c.compare(a.title, b.title));
+  if (s === 'autor') A.sort((a, b) => c.compare(a.by || 'zzz', b.by || 'zzz') || c.compare(a.title, b.title));
+  if (s === 'rate') A.sort((a, b) => (b.rating || 0) - (a.rating || 0) || c.compare(a.title, b.title));
+  if (s === 'recent') A.sort((a, b) => (b.ed || b.sd || '').localeCompare(a.ed || a.sd || ''));
+  return A;
+}
+function normShelf() { // garante que todos os livros têm lugar e numeração seguida
+  const S = SHELF.get(), L = intList('livros'); let changed = false;
+  const cap = S.look === 'capas' ? 5 : 10, count = (e, p) => L.filter(x => x.pos && x.pos.e === e && x.pos.p === p && !x._new).length;
+  L.forEach(x => { if (x.pos && (x.pos.e >= S.e || x.pos.p >= S.p)) { x.pos = { e: Math.min(S.e - 1, x.pos.e), p: Math.min(S.p - 1, x.pos.p), i: 1e6 + x.pos.i }; changed = true; } });
+  L.filter(x => !x.pos).sort((a, b) => (a.ts || 0) - (b.ts || 0)).forEach(x => { let spot = null; for (let e = 0; e < S.e && !spot; e++) for (let p = 0; p < S.p && !spot; p++) if (count(e, p) < cap) spot = { e, p }; spot = spot || { e: S.e - 1, p: S.p - 1 }; x.pos = { ...spot, i: 1e6 + count(spot.e, spot.p) }; changed = true; });
+  for (let e = 0; e < S.e; e++) for (let p = 0; p < S.p; p++) L.filter(x => x.pos.e === e && x.pos.p === p).sort((a, b) => a.pos.i - b.pos.i).forEach((x, i) => { if (x.pos.i !== i) { x.pos.i = i; changed = true; } });
+  if (changed) intSave('livros', L); return L;
+}
+function bookEl(x, look) {
+  const st = x.status === 1 ? '<i class="bdg">a ler</i>' : x.status === 0 ? '<i class="bdg w">quero</i>' : '';
+  if (look === 'capas' && x.cover) return `<div class="bk cv" data-id="${x.id}"><img src="${esc(x.cover)}" alt="${esc(x.title)}" draggable="false" loading="lazy">${st}</div>`;
+  const len = x.title.length, h = 78 + (len % 4) * 6, w = 24 + Math.min(16, Math.floor(len / 6) * 2);
+  return `<div class="bk sp" data-id="${x.id}" style="--bc:${col(x.title + x.by)};height:${h}px;width:${w}px" title="${esc(x.title)}"><span>${esc(x.title)}</span>${st}</div>`;
+}
+function vShelf() {
+  const S = SHELF.get(), sort = ST.shelfSort || 'manual', look = S.look;
+  let L = sort === 'manual' ? normShelf() : intList('livros');
+  let h = `<div class="shtools"><select id="shSort">${SORTS.map(([k, n]) => `<option value="${k}"${k === sort ? ' selected' : ''}>${n}</option>`).join('')}</select><div class="seg3"><button data-look="capas"${look === 'capas' ? ' class="on"' : ''}>Capas</button><button data-look="lombadas"${look === 'lombadas' ? ' class="on"' : ''}>Lombadas</button></div></div>`;
+  if (sort === 'manual') h += `<div class="shcfg"><span>Estantes</span><button class="ib" data-c="e-">−</button><b>${S.e}</b><button class="ib" data-c="e+">＋</button><span>Prateleiras</span><button class="ib" data-c="p-">−</button><b>${S.p}</b><button class="ib" data-c="p+">＋</button></div><p class="hint">Carrega sem soltar num livro e arrasta-o para o sítio certo.</p>`;
+  if (!L.length) return h + '<p class="hint">Ainda não há livros na estante.</p>';
+  if (sort === 'manual') {
+    for (let e = 0; e < S.e; e++) {
+      h += `<div class="estante"><div class="eh">${esc(S.names[e] || 'Estante ' + (e + 1))}</div>`;
+      for (let p = 0; p < S.p; p++) { const row = L.filter(x => x.pos.e === e && x.pos.p === p).sort((a, b) => a.pos.i - b.pos.i); h += `<div class="prat" data-e="${e}" data-p="${p}">${row.map(x => bookEl(x, look)).join('')}</div>`; }
+      h += '</div>';
+    }
+  } else {
+    const A = sortBooks(L, sort), per = look === 'capas' ? 5 : 9;
+    h += '<div class="estante">'; for (let i = 0; i < A.length; i += per) h += `<div class="prat auto">${A.slice(i, i + per).map(x => bookEl(x, look)).join('')}</div>`; h += '</div>';
+  }
+  return h;
+}
+function bindShelf() {
+  $('#shSort').onchange = e => { ST.shelfSort = e.target.value; render(); };
+  document.querySelectorAll('[data-look]').forEach(b => b.onclick = () => { const S = SHELF.get(); S.look = b.dataset.look; SHELF.set(S); render(); });
+  document.querySelectorAll('[data-c]').forEach(b => b.onclick = () => { const S = SHELF.get(), c = b.dataset.c; if (c === 'e+') S.e = Math.min(10, S.e + 1); if (c === 'e-') S.e = Math.max(1, S.e - 1); if (c === 'p+') S.p = Math.min(12, S.p + 1); if (c === 'p-') S.p = Math.max(1, S.p - 1); SHELF.set(S); render(); });
+  const manual = (ST.shelfSort || 'manual') === 'manual';
+  document.querySelectorAll('.bk').forEach(el => el.addEventListener('pointerdown', ev => bookDown(ev, el, manual)));
+}
+let DRAG = null;
+function bookDown(ev, el, manual) {
+  const sx = ev.clientX, sy = ev.clientY, touch = ev.pointerType !== 'mouse'; let timer = null, moved = false;
+  const begin = (x, y) => {
+    timer = null; if (!manual) return;
+    const r = el.getBoundingClientRect(), g = el.cloneNode(true); g.classList.add('ghost'); g.style.width = r.width + 'px'; g.style.height = r.height + 'px'; document.body.appendChild(g);
+    const ph = document.createElement('div'); ph.className = 'bk phd'; ph.style.width = r.width + 'px'; ph.style.height = r.height + 'px'; el.after(ph); el.classList.add('lift');
+    DRAG = { el, g, ph, dx: x - r.left, dy: y - r.top }; moveGhost(x, y); try { navigator.vibrate && navigator.vibrate(15); } catch (e) { }
+  };
+  if (manual) timer = setTimeout(() => begin(sx, sy), touch ? 300 : 150);
+  const onMove = e => {
+    const x = e.clientX, y = e.clientY;
+    if (!DRAG) { if (Math.hypot(x - sx, y - sy) > 10) { moved = true; if (timer) { clearTimeout(timer); timer = null; } } return; }
+    e.preventDefault(); moveGhost(x, y); placeAt(x, y);
+    const m = 70; if (y < m) window.scrollBy(0, -12); else if (y > innerHeight - m - 70) window.scrollBy(0, 12);
+  };
+  const onUp = () => {
+    window.removeEventListener('pointermove', onMove); window.removeEventListener('pointerup', onUp); window.removeEventListener('pointercancel', onUp); document.removeEventListener('touchmove', block, { passive: false });
+    if (timer) { clearTimeout(timer); timer = null; if (!moved) pullOut(el); return; }
+    if (!DRAG) { if (!moved && !manual) pullOut(el); return; }
+    const row = DRAG.ph.parentElement, kids = [...row.children].filter(c => c !== DRAG.el && !c.classList.contains('ghost'));
+    const idx = kids.indexOf(DRAG.ph), e2 = +row.dataset.e, p2 = +row.dataset.p, id = DRAG.el.dataset.id;
+    DRAG.g.remove(); DRAG.ph.remove(); DRAG.el.classList.remove('lift'); DRAG = null;
+    const L = intList('livros'), me = L.find(x => x.id === id), from = { ...me.pos };
+    L.filter(x => x.id !== id && x.pos && x.pos.e === from.e && x.pos.p === from.p && x.pos.i > from.i).forEach(x => x.pos.i--);
+    L.filter(x => x.id !== id && x.pos && x.pos.e === e2 && x.pos.p === p2 && x.pos.i >= idx).forEach(x => x.pos.i++);
+    me.pos = { e: e2, p: p2, i: idx }; intSave('livros', L); render(); toast('Arrumado 📚');
+  };
+  const block = e => { if (DRAG) e.preventDefault(); };
+  window.addEventListener('pointermove', onMove, { passive: false }); window.addEventListener('pointerup', onUp); window.addEventListener('pointercancel', onUp);
+  document.addEventListener('touchmove', block, { passive: false });
+}
+function moveGhost(x, y) { DRAG.g.style.transform = `translate(${x - DRAG.dx}px, ${y - DRAG.dy}px) rotate(-4deg) scale(1.08)`; }
+function placeAt(x, y) {
+  DRAG.g.style.display = 'none'; const t = document.elementFromPoint(x, y); DRAG.g.style.display = '';
+  const row = t && t.closest('.prat:not(.auto)'); if (!row) return;
+  const kids = [...row.querySelectorAll('.bk:not(.phd):not(.lift)')]; let before = null;
+  for (const k of kids) { const r = k.getBoundingClientRect(); if (y < r.bottom + 6 && x < r.left + r.width / 2) { before = k; break; } }
+  if (before) { if (DRAG.ph.nextSibling !== before) row.insertBefore(DRAG.ph, before); } else if (row.lastElementChild !== DRAG.ph) row.appendChild(DRAG.ph);
+}
+// ---- ISBN e código de barras ----
+async function isbnLookup(isbn) {
+  isbn = String(isbn).replace(/\D/g, '');
+  const j = await jget(`https://openlibrary.org/search.json?isbn=${isbn}&fields=title,author_name,cover_i,first_publish_year&limit=1`);
+  const d = (j.docs || [])[0]; if (d) return { title: d.title, by: (d.author_name || [])[0] || '', cover: d.cover_i ? `https://covers.openlibrary.org/b/id/${d.cover_i}-M.jpg` : `https://covers.openlibrary.org/b/isbn/${isbn}-M.jpg?default=false` };
+  try { const g = await jget(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`); const v = g.items && g.items[0] && g.items[0].volumeInfo; if (v) return { title: v.title, by: (v.authors || [])[0] || '', cover: v.imageLinks ? (v.imageLinks.thumbnail || '').replace('http:', 'https:') : '' }; } catch (e) { }
+  return null;
+}
+async function scanBarcode() {
+  if (!('BarcodeDetector' in window) || !navigator.mediaDevices) { const v = window.prompt ? prompt('Escreve o ISBN (13 números, atrás do livro):') : null; return v; }
+  const det = new BarcodeDetector({ formats: ['ean_13', 'ean_8', 'upc_a'] });
+  const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+  const v = $('#scanVid'); v.srcObject = stream; await v.play(); $('#scanDlg').showModal();
+  return new Promise(res => {
+    let done = false; const stop = val => { if (done) return; done = true; stream.getTracks().forEach(t => t.stop()); $('#scanDlg').close(); res(val); };
+    $('#scanCancel').onclick = () => stop(null); $('#scanDlg').onclose = () => stop(null);
+    const loop = async () => { if (done) return; try { const c = await det.detect(v); const code = c.find(x => /^\d{10,13}$/.test(x.rawValue)); if (code) return stop(code.rawValue); } catch (e) { } requestAnimationFrame(loop); }; loop();
+  });
+}
+
+function pullOut(el) { el.classList.add('pull'); setTimeout(() => { el.classList.remove('pull'); openItem('livros', el.dataset.id, false); }, 260); }
+
 // ===== App de telemóvel =====
-const APP_VERSION = '12.11.2026 23:08';
+const APP_VERSION = '12.11.2026 23:15';
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const G = g => `${g}&#xFE0E;`;
@@ -2457,7 +2591,9 @@ function vInteresses() {
   h += `<div class="box istats"><div><b>${S.done}</b><span>${C.verb[2].toLowerCase()}${S.done === 1 ? '' : 's'}</span></div><div><b>${S.year}</b><span>em ${todayStr().slice(0, 4)}</span></div><div><b>${S.doing}</b><span>${C.doing}</span></div><div><b>${t === 'viagens' ? S.countries.length : S.avgDays ?? '–'}</b><span>${t === 'viagens' ? 'países' : 'dias em média'}</span></div></div>`;
   if (S.topG || S.topA) h += `<p class="hint" style="text-align:left">${S.topG ? `O teu género preferido: <b>${S.topG[0]}</b>. ` : ''}${S.topA && t === 'livros' ? `Autor(a) mais lido(a): <b>${esc(S.topA[0])}</b>.` : ''}</p>`;
   if (t === 'livros') { const R = readingToday(ST.date); h += `<div class="box"><h3>📖 Hoje para ler: <span style="color:${LUA_COL[R.v]}">${LUA_LBL[R.v]}</span></h3><p>${esc(R.why)}</p>${R.hrs.length ? `<p>Melhores horas (Mercúrio e Lua): <b>${R.hrs.join(' · ')}</b></p>` : ''}</div>`; }
-  h += `<div id="intOnline"></div><button class="btn main" id="intAdd" style="width:100%;margin:6px 0 10px">＋ Adicionar ${C.one}</button>`;
+  if (t === 'livros') h += `<div class="seg2 vw"><button data-vw="lista"${ST.bookView === 'estante' ? '' : ' class="on"'}>📋 Lista</button><button data-vw="estante"${ST.bookView === 'estante' ? ' class="on"' : ''}>📚 Estante</button></div>`;
+  h += `<div id="intOnline"></div><div class="addrow"><button class="btn main" id="intAdd">＋ Adicionar ${C.one}</button>${t === 'livros' ? '<button class="btn" id="intScan" title="Ler código de barras">📷</button>' : ''}</div>`;
+  if (t === 'livros' && ST.bookView === 'estante') return h + vShelf();
   for (const st of [1, 0, 2]) {
     const g = L.filter(x => x.status === st).sort((a, b) => (b.ed || b.sd || '').localeCompare(a.ed || a.sd || ''));
     if (!g.length) continue;
@@ -2470,6 +2606,9 @@ function bindInteresses() {
   const t = ST.intTab || 'livros';
   document.querySelectorAll('[data-it]').forEach(b => b.onclick = () => { ST.intTab = b.dataset.it; render(); });
   $('#intAdd').onclick = () => openItem(t, null, true);
+  document.querySelectorAll('[data-vw]').forEach(b => b.onclick = () => { ST.bookView = b.dataset.vw; render(); });
+  if ($('#intScan')) $('#intScan').onclick = async () => { try { const code = await scanBarcode(); if (!code) return; toast('A procurar o livro…'); const b = await isbnLookup(code); if (!b) { toast('Não encontrei esse ISBN'); openItem('livros', null, true, { isbn: code }); return; } openItem('livros', null, true, { ...b, isbn: code, status: 2 }); } catch (e) { toast('Sem câmara ou sem internet'); } };
+  if (t === 'livros' && ST.bookView === 'estante') bindShelf();
   document.querySelectorAll('.iit').forEach(el => el.onclick = () => openItem(t, el.dataset.id, false));
   if (ONLINE()) loadIntOnline(t);
 }
@@ -2511,7 +2650,8 @@ function openItem(t, id, edit, preset) {
     <label>Avaliação</label><div class="rate">${[1, 2, 3, 4, 5].map(n => `<button data-r="${n}"${n <= x.rating ? ' class="on"' : ''}>★</button>`).join('')}</div>
     <div class="two"><label>Início<input type="date" id="iSD" value="${x.sd || ''}"></label><label>Hora<input type="time" id="iST" value="${x.st || ''}"></label></div>
     <div class="two"><label>Fim<input type="date" id="iED" value="${x.ed || ''}"></label><label>Hora<input type="time" id="iET" value="${x.et || ''}"></label></div>
-    <label>Comentário<textarea id="iC" rows="3" maxlength="1000">${esc(x.comment || '')}</textarea></label></div>`;
+    <label>Comentário<textarea id="iC" rows="3" maxlength="1000">${esc(x.comment || '')}</textarea></label>
+    ${t === 'livros' ? (() => { const S = SHELF.get(), pe = x.pos ? x.pos.e : +(store.get('ceu_lastshelf') || '0').split(',')[0] || 0, pp = x.pos ? x.pos.p : +(store.get('ceu_lastshelf') || '0,0').split(',')[1] || 0; return `<label>Lugar na estante</label><div class="two"><select id="iPE">${[...Array(S.e)].map((_, i) => `<option value="${i}"${i === pe ? ' selected' : ''}>${esc(S.names[i] || 'Estante ' + (i + 1))}</option>`).join('')}</select><select id="iPP">${[...Array(S.p)].map((_, i) => `<option value="${i}"${i === pp ? ' selected' : ''}>Prateleira ${i + 1}</option>`).join('')}</select></div>`; })() : ''}</div>`;
   let rating = x.rating || 0, cover = x.cover || '', tvm = x.tvmaze || null;
   document.querySelectorAll('.rate button').forEach(b => b.onclick = () => { rating = +b.dataset.r === rating ? 0 : +b.dataset.r; document.querySelectorAll('.rate button').forEach(z => z.classList.toggle('on', +z.dataset.r <= rating)); });
   if ($('#iQ')) $('#iQ').oninput = () => { clearTimeout(openItem.t); const q = $('#iQ').value.trim(); if (q.length < 3) { $('#iRes').innerHTML = ''; return; } openItem.t = setTimeout(async () => { try { $('#iRes').innerHTML = '<p class="hint">A procurar…</p>'; const R = t === 'livros' ? await searchBooks(q) : await searchShows(q); $('#iRes').innerHTML = R.map((r, i) => `<div class="sug" data-i="${i}">${r.cover ? `<img src="${r.cover}" alt="">` : `<span class="ph0">${C.ic}</span>`}<div><b>${esc(r.title)}</b><small>${esc(r.by)}${r.year ? ' · ' + r.year : ''}</small></div></div>`).join('') || '<p class="hint">Sem resultados.</p>'; $('#iRes').querySelectorAll('.sug').forEach(el => el.onclick = () => { const r = R[+el.dataset.i]; $('#iT').value = r.title; $('#iB').value = r.by; cover = r.cover; tvm = r.tvmaze || null; $('#iRes').innerHTML = `<p class="hint">✓ ${esc(r.title)}</p>`; }); } catch (e) { $('#iRes').innerHTML = '<p class="hint">Sem ligação à internet.</p>'; } }, 450); };
@@ -2519,7 +2659,8 @@ function openItem(t, id, edit, preset) {
   $('#intSave').textContent = 'Guardar'; $('#intDel').hidden = !id;
   $('#intSave').onclick = () => {
     const ti = $('#iT').value.trim(); if (!ti) { toast('Escreve o título'); return; }
-    const o = { id: id || 'i' + Date.now().toString(36), title: ti, by: $('#iB').value.trim(), place: $('#iP') ? $('#iP').value.trim() : '', genre: $('#iG').value, status: +$('#iS').value, rating, sd: $('#iSD').value, st: $('#iST').value, ed: $('#iED').value, et: $('#iET').value, comment: $('#iC').value.trim(), cover, tvmaze: tvm, next: x.next || '', ts: Date.now() };
+    const npos = t === 'livros' && $('#iPE') ? (() => { const e = +$('#iPE').value, p = +$('#iPP').value; store.set('ceu_lastshelf', e + ',' + p); return x.pos && x.pos.e === e && x.pos.p === p ? x.pos : { e, p, i: 1e6 }; })() : x.pos;
+    const o = { pos: npos, isbn: x.isbn || '', id: id || 'i' + Date.now().toString(36), title: ti, by: $('#iB').value.trim(), place: $('#iP') ? $('#iP').value.trim() : '', genre: $('#iG').value, status: +$('#iS').value, rating, sd: $('#iSD').value, st: $('#iST').value, ed: $('#iED').value, et: $('#iET').value, comment: $('#iC').value.trim(), cover, tvmaze: tvm, next: x.next || '', ts: Date.now() };
     const all = intList(t); if (id) all[all.findIndex(z => z.id === id)] = o; else all.push(o); intSave(t, all); $('#intDlg').close(); toast(o.status === 2 && o.ed ? `${C.done} em ${durTxt(dtJoin(o.sd, o.st), dtJoin(o.ed, o.et)) || '—'} 🎉` : 'Guardado'); render();
   };
   $('#intDel').onclick = () => { if (!confirmBox('Apagar?')) return; intSave(t, intList(t).filter(z => z.id !== id)); $('#intDlg').close(); render(); };
