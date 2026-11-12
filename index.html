@@ -166,6 +166,10 @@ dialog{overflow-x:hidden}
 .phero{text-align:center;padding:6px 0}.phero .pg{font-size:54px}.phero .pg b{font-size:40px}.phero p{color:#d6d6f2;margin:6px 0}
 .pbar{display:grid;grid-template-columns:120px 1fr 44px;align-items:center;gap:8px;margin:7px 0;font-size:13.5px}.pbar i{height:12px;background:#ffffff14;border-radius:6px;overflow:hidden}.pbar i b{display:block;height:100%;background:linear-gradient(90deg,#ff6b98,#f2c76e);border-radius:6px}.pbar em{font-style:normal;font-weight:800;text-align:right}
 .wk{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;height:110px;align-items:end;margin:6px 0}.wk div{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:2px}.wk i{width:70%;background:#ff6b9866;border-radius:6px 6px 2px 2px}.wk .best i{background:linear-gradient(#f2c76e,#ff6b98)}.wk b{font-size:11px}.wk span{font-size:10.5px;color:var(--mute);text-transform:capitalize}
+.lg{display:grid;grid-template-columns:1fr 1fr;gap:6px}.lgi{display:grid;grid-template-columns:26px 1fr;grid-template-rows:auto auto;align-items:center;text-align:left;background:#ffffff08;border:1px solid color-mix(in srgb,var(--c) 40%,transparent);border-radius:12px;padding:8px;color:var(--ink);cursor:pointer;font-family:Manrope}.lgi span{grid-row:span 2;font-size:18px}.lgi b{font-size:12.5px;line-height:1.2}.lgi em{font-style:normal;font-size:11.5px;font-weight:800;color:var(--c)}
+.qchip.on{border-color:var(--gold);color:var(--gold2);background:#1f2160}
+.cd.top{box-shadow:inset 0 0 0 2px #f2c76e}.cd.ok{box-shadow:inset 0 0 0 2px #7ee0a688}.cd.no{opacity:.55}
+.fert p{font-size:14px}.note{color:var(--mute);font-size:12px;line-height:1.5;margin-top:8px}
 footer.ft{color:#5d5e8f;font-size:11.5px;text-align:center;margin:18px 0 6px}
 </style>
 </head>
@@ -220,6 +224,11 @@ footer.ft{color:#5d5e8f;font-size:11.5px;text-align:center;margin:18px 0 6px}
 
 <dialog id="todayDlg" class="today">
   <div id="todayBody"></div>
+  <div class="dlgfoot"><button class="btn" data-close>Fechar</button></div>
+</dialog>
+<dialog id="fertDlg">
+  <h2>Janela fértil</h2>
+  <div id="fertBody"></div>
   <div class="dlgfoot"><button class="btn" data-close>Fechar</button></div>
 </dialog>
 <dialog id="perDlg">
@@ -1560,7 +1569,7 @@ function oracle(q, prof) {
   if (has(/amanha/)) { ds = dayStr(noonJd(ds) + 1); when = 'amanhã'; } else if (has(/ontem/)) { ds = dayStr(noonJd(ds) - 1); when = 'ontem'; }
   const target = signs.length && !has(/combin|compat|dou-me|dou me|entendo|par\b/) ? signs[0] : mySign;
   const hi = name ? name + ', ' : '';
-  if (target === null && !has(/lua|cabelo|semear|retrog|mercurio|hora/)) return `Para te responder melhor, guarda primeiro a tua data de nascimento aqui em cima, ou diz-me o teu signo na pergunta (ex.: «Como vai o amor para Leão?»).`;
+  if (target === null && !has(/lua|cabelo|semear|retrog|mercurio|hora|fertil|gravid|engravid|bebe/)) return `Para te responder melhor, guarda primeiro a tua data de nascimento aqui em cima, ou diz-me o teu signo na pergunta (ex.: «Como vai o amor para Leão?»).`;
   const rd = target !== null ? readDay(target, ds, ST.modern) : null, sg = target !== null ? SIGNS[target] : null;
   const st = n => '★'.repeat(n) + '☆'.repeat(5 - n);
   const areaOf = () => has(/amor|namor|paixao|relac|crush|casar|beij|ex\b|coracao|romance/) ? 'amor' : has(/trabalh|emprego|chefe|entrevista|negocio|carreira|patrao|promoc|curso|exame/) ? 'trabalho' : has(/dinheiro|euromilh|lotari|totoloto|compr|invest|salario|divid|credito|financ|aposta/) ? 'dinheiro' : has(/saude|energia|cansad|dormir|treino|ginasio|doente|dieta/) ? 'energia' : null;
@@ -1570,6 +1579,10 @@ function oracle(q, prof) {
     const a = signs.length >= 2 ? signs[0] : mySign, b = signs.length >= 2 ? signs[1] : signs[0];
     const PD = pairsDay(ds, ST.modern), p = PD.pairs.find(x => (x.a === Math.min(a, b) && x.b === Math.max(a, b)));
     return `${hi}${SIGNS[a].n} ${G(SIGNS[a].g)} + ${SIGNS[b].n} ${G(SIGNS[b].g)} ${when}: <b>${p.score}%</b>. ${cap1(PAIR_TXT[p.k])}${/[!.]$/.test(PAIR_TXT[p.k]) ? '' : '.'} ${p.score >= 80 ? 'Os astros aprovam! 💞' : p.score >= 60 ? 'Há química, com um pouco de paciência.' : 'Hoje pede calma e diálogo.'}`;
+  }
+  if (has(/fertil|gravid|engravid|bebe|filho/)) {
+    const best = luaBest('fertilidade', ds, dayStr(noonJd(ds) + 30)).slice(0, 4).map(d => +d.slice(8));
+    return `👶 Pela tradição lunar, os dias com a Lua em signos de água e em Touro são os mais «férteis»: nos próximos 30 dias, dias ${best.join(', ')}.<br><small>A Lua não decide a fertilidade: a janela fértil real depende da ovulação. Vê a calculadora pelo ciclo no separador 🌙 Lua e, se estão a tentar há mais de 12 meses (6 meses a partir dos 35 anos), falem com o médico de família ou um especialista.</small>`;
   }
   if (has(/cabelo|cortar|semear|plantar|horta|podar|lua/)) {
     const D = lunarDay(ds); return `🌙 ${when[0].toUpperCase() + when.slice(1)} a Lua está em ${SIGN_IN[D.sign]} (${D.ph}). ✂ ${D.hair}. 🌱 ${D.type[0]}: bom para semear ${D.type[1]}.`;
@@ -1827,6 +1840,38 @@ function capPair(D) {
   return [`💞 ${D.A.n} ${D.A.g} + ${D.B.n} ${D.B.g} · ${D.today}% hoje`, `${D.elLbl}: ${D.el}`, '', `❤️ Amor ${D.areas.amor}% · 🤝 Amizade ${D.areas.amizade}% · 💼 Trabalho ${D.areas.trabalho}% · 🔥 Paixão ${D.areas.paixao}% · 💬 Comunicação ${D.areas.comunicacao}%`, '', `✅ ${D.force.join(' · ')}`, `⚠️ ${D.chal.join(' · ')}`, '', `🌙 ${D.sky[0]}`, `💡 ${D.advice}`, '', `👇 Marca o teu par! · Segue ${brand()}`, '#compatibilidade #signos #amor'].join('\n');
 }
 
+// ---------- Guia lunar (tradição) ----------
+const LUA_CATS = [['cabelo', '✂️', 'Cortar o cabelo'], ['unhas', '💅', 'Unhas'], ['pele', '🧖', 'Pele e beleza'], ['depilacao', '🪒', 'Depilação'], ['dieta', '🥗', 'Dieta e detox'], ['exercicio', '🏃', 'Exercício'], ['romance', '💑', 'Romance'], ['fertilidade', '👶', 'Fertilidade (tradição)'], ['negocios', '💼', 'Começar projetos'], ['viagens', '✈️', 'Viagens'], ['limpeza', '🧹', 'Limpezas e arrumações'], ['horta', '🌱', 'Semear e plantar'], ['descanso', '🧘', 'Descanso']];
+const LUA_LBL = ['Evitar', 'Neutro', 'Bom', 'Ótimo'], LUA_COL = ['#ff8fa3', '#9a9bcb', '#7ee0a6', '#f2c76e'];
+function luaGuide(ds) {
+  const s = skyFor(ds), e = s.phase.elong, wax = e < 180, nNew = e < 18 || e > 342, nFull = Math.abs(e - 180) < 18, si = s.moon.sign, el = SIGNS[si].el, n = SIGNS[si].n, inS = (...l) => l.includes(n);
+  const g = {};
+  g.cabelo = nNew ? 0 : wax ? 2 + (inS('Leão', 'Virgem', 'Touro') ? 1 : 0) : 1 + (inS('Leão', 'Virgem') ? 1 : 0);
+  g.unhas = nNew ? 1 : !wax ? 2 + (inS('Capricórnio', 'Touro', 'Leão') ? 1 : 0) : 1 + (inS('Touro', 'Balança') ? 1 : 0);
+  g.pele = nFull ? 3 : !wax ? 2 + (inS('Capricórnio', 'Touro', 'Peixes') ? 1 : 0) : 1;
+  g.depilacao = !wax ? 2 + (inS('Leão', 'Virgem', 'Capricórnio') ? 1 : 0) : nFull ? 1 : 0;
+  g.dieta = !wax ? 2 + (inS('Virgem', 'Escorpião', 'Capricórnio') ? 1 : 0) : 0;
+  g.exercicio = wax || nFull ? 2 + (el === 'fogo' ? 1 : 0) : 1;
+  g.romance = (inS('Touro', 'Balança', 'Leão', 'Peixes') ? 2 : 1) + ((wax || nFull) && !nNew && inS('Touro', 'Balança', 'Leão', 'Peixes') ? 1 : 0);
+  g.fertilidade = (el === 'agua' || n === 'Touro' ? 2 : 1) + ((wax || nFull) && !nNew && (el === 'agua' || n === 'Touro') ? 1 : 0);
+  g.negocios = nNew ? 3 : wax ? 2 + (MODAL[si] === 'cardinal' ? 1 : 0) : 0;
+  g.viagens = Math.max(0, (inS('Sagitário', 'Gémeos', 'Aquário') ? 3 : el === 'ar' || el === 'fogo' ? 2 : 1) - (s.mercury.rx ? 1 : 0));
+  g.limpeza = !wax ? 2 + (inS('Virgem', 'Capricórnio') ? 1 : 0) : 1;
+  g.horta = nNew ? 1 : wax ? (el === 'agua' || el === 'terra' ? 3 : 2) : (el === 'terra' ? 3 : 2);
+  g.descanso = inS('Peixes', 'Caranguejo', 'Escorpião') ? 3 : !wax ? 2 : 1;
+  for (const k in g) g[k] = Math.max(0, Math.min(3, g[k]));
+  return g;
+}
+const LUA_WHY = { cabelo: 'Crescente faz crescer, minguante faz durar; Leão e Virgem dão força.', unhas: 'Minguante faz o verniz e o corte durar; Capricórnio rege as unhas.', pele: 'Cheia hidrata e nutre; minguante limpa e esfolia.', depilacao: 'Com a Lua a minguar, os pelos voltam mais devagar.', dieta: 'Lua minguante ajuda a perder e a desintoxicar.', exercicio: 'Lua crescente e signos de fogo dão energia.', romance: 'Lua em Touro, Balança, Leão ou Peixes favorece o coração.', fertilidade: 'Tradição: Lua em signos de água (Caranguejo, Escorpião, Peixes) e em Touro.', negocios: 'Lua Nova planta, crescente faz crescer.', viagens: 'Lua em Sagitário, Gémeos ou Aquário; cuidado com Mercúrio retrógrado.', limpeza: 'Minguante tira o que está a mais; Virgem arruma.', horta: 'Depende do tipo de dia: raiz, folha, flor ou fruto.', descanso: 'Lua em Peixes, Caranguejo ou Escorpião pede recolhimento.' };
+function luaBest(cat, a, b, min = 3) { return daysIn(a, b).filter(d => luaGuide(d)[cat] >= min); }
+function fertWindow(last, len) {
+  const out = []; let start = noonJd(last);
+  const now = noonJd(todayStr());
+  while (start + len < now) start += len;
+  for (let c = 0; c < 3; c++) { const ov = start + len - 14; out.push({ period: dayStr(start), ov: dayStr(ov), from: dayStr(ov - 5), to: dayStr(ov + 1), next: dayStr(start + len) }); start += len; }
+  return out;
+}
+
 // ===== App de telemóvel =====
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
@@ -1868,9 +1913,11 @@ function vLua() {
   if (ST.mode === 'mes') {
     const [y0, m0] = dParts(ST.date), [a, b] = periodRange(ST.date, 'mes'), days = daysIn(a, b), first = (new Date(Date.UTC(y0, m0 - 1, 1)).getUTCDay() + 6) % 7;
     const evs = periodEvents(a, b, false).filter(e => e.type === 'lua');
-    let h = `<h2 class="vt">🌙 Calendário lunar · ${cap1(MESES[m0 - 1])}</h2><div class="cal">${['S', 'T', 'Q', 'Q', 'S', 'S', 'D'].map(d => `<span class="wd">${d}</span>`).join('')}`;
+    const cat = ST.luaCat || 'cabelo', G2 = days.map(d => luaGuide(d)[cat]);
+    let h = `<h2 class="vt">🌙 Calendário lunar · ${cap1(MESES[m0 - 1])}</h2><div class="chips">${LUA_CATS.map(([k, ic, nm]) => `<button class="qchip${k === cat ? ' on' : ''}" data-cat="${k}">${ic} ${nm.replace(' (tradição)', '')}</button>`).join('')}</div>
+      <div class="box"><p><b>${LUA_CATS.find(c => c[0] === cat)[1]} Melhores dias:</b> ${days.filter((d, i) => G2[i] >= 3).map(d => +d.slice(8)).join(', ') || '—'}<br><span style="color:var(--mute)">Bons: ${days.filter((d, i) => G2[i] === 2).map(d => +d.slice(8)).join(', ') || '—'}</span></p><p class="hint" style="text-align:left;margin:4px 0 0">${LUA_WHY[cat]}</p></div><div class="cal">${['S', 'T', 'Q', 'Q', 'S', 'S', 'D'].map(d => `<span class="wd">${d}</span>`).join('')}`;
     for (let i = 0; i < first; i++) h += '<span></span>';
-    days.forEach(d => { const D = lunarDay(d), ev = evs.find(e => dayStr(e.jd) === d && (e.kind === 'nova' || e.kind === 'cheia')); h += `<span class="cd${d === todayStr() ? ' today' : ''}" style="--c:${EL_COL[D.el][0]}"><b>${+d.slice(8)}</b><img src="${moonImg(D.e, 14)}" alt="">${D.hairGood ? '<i>✂</i>' : ''}${ev ? `<em>${ev.eclipse ? 'eclipse' : ev.kind}</em>` : ''}</span>`; });
+    days.forEach(d => { const D = lunarDay(d), ev = evs.find(e => dayStr(e.jd) === d && (e.kind === 'nova' || e.kind === 'cheia')); const gv = luaGuide(d)[cat]; h += `<span class="cd${d === todayStr() ? ' today' : ''}${gv >= 3 ? ' top' : gv === 2 ? ' ok' : gv === 0 ? ' no' : ''}" style="--c:${EL_COL[D.el][0]}"><b>${+d.slice(8)}</b><img src="${moonImg(D.e, 14)}" alt="">${D.hairGood ? '<i>✂</i>' : ''}${ev ? `<em>${ev.eclipse ? 'eclipse' : ev.kind}</em>` : ''}</span>`; });
     h += `</div><div class="leg"><span style="--c:${EL_COL.fogo[0]}">Fruto</span><span style="--c:${EL_COL.terra[0]}">Raiz</span><span style="--c:${EL_COL.ar[0]}">Flor</span><span style="--c:${EL_COL.agua[0]}">Folha</span><span>✂ cabelo forte</span></div>`;
     h += '<div class="box"><h3>Fases do mês</h3>' + evs.map(e => `<p>${{ nova: '🌑 Lua Nova', crescente: '🌓 Quarto Crescente', cheia: '🌕 Lua Cheia', minguante: '🌗 Quarto Minguante' }[e.kind]}${e.eclipse ? ' · eclipse ' + e.eclipse : ''} — dia ${new Date(msFromJd(e.jd)).getUTCDate()}, em ${SIGN_IN[e.sign]}</p>`).join('') + '</div>';
     return h;
@@ -1878,6 +1925,8 @@ function vLua() {
   const D = lunarDay(ST.date), c = EL_COL[D.el][0];
   const nx = periodEvents(ST.date, dayStr(noonJd(ST.date) + 30), false).filter(e => e.type === 'lua' && e.jd > noonJd(ST.date)).slice(0, 3);
   return `<div class="moonhero"><img src="${moonImg(D.e, 70)}" alt=""><h2>Lua em ${SIGN_IN[D.sign]}</h2><p>${D.ph} · ${Math.round(D.s.phase.illum * 100)}% iluminada${D.ingress ? `<br>entra em ${SIGN_IN[D.ingress.to]} às ${fmtHM(+D.ingress.time, city()[3])}` : ''}</p><span class="chip" style="--c:${c}">${D.type[0]}</span><small>Semear: ${D.type[1]}</small></div>
+    <div class="box"><h3>📋 Guia de hoje</h3><div class="lg">${LUA_CATS.map(([k, ic, nm]) => { const v = luaGuide(ST.date)[k]; return `<button class="lgi" data-cat="${k}" style="--c:${LUA_COL[v]}"><span>${ic}</span><b>${nm}</b><em>${LUA_LBL[v]}</em></button>`; }).join('')}</div><p class="hint" style="text-align:left">Toca numa categoria para veres os melhores dias do mês.</p></div>
+    ${fertBox()}
     <div class="box"><h3>✂ Cabelo</h3><p>${D.hair}</p></div>
     <div class="box ok"><h3>Bom para</h3>${D.good.map(g => `<p>✓ ${g}</p>`).join('')}</div>
     ${D.bad.length ? `<div class="box no"><h3>Evitar</h3>${D.bad.map(g => `<p>✕ ${g}</p>`).join('')}</div>` : ''}
@@ -1942,6 +1991,24 @@ function bindAgenda() {
     el.querySelector('.ib[href]').onclick = e => e.stopPropagation();
     el.onclick = () => x.kind === 'p' ? openPerson(x.k) : x.kind === 'a' ? openPet(x.k) : (ST.type = 'eu', render());
   });
+}
+function fertBox() {
+  const g = luaGuide(ST.date).fertilidade, next = luaBest('fertilidade', ST.date, dayStr(noonJd(ST.date) + 30)).slice(0, 5);
+  const p = P.get(), mine = p && p.d ? daysIn(ST.date, dayStr(noonJd(ST.date) + 30)).filter(d => skyFor(d).moon.sign === sunSignOf(p.d)).slice(0, 3) : [];
+  const nd = d => { const [y, m, dd] = dParts(d); return `${dd} ${MESES[m - 1].slice(0, 3)}`; };
+  return `<div class="box fert"><h3>👶 Fertilidade</h3><p>Hoje, pela tradição lunar: <b style="color:${LUA_COL[g]}">${LUA_LBL[g]}</b>.</p>
+    <p>Próximos dias «férteis» da Lua: <b>${next.map(nd).join(' · ') || '—'}</b></p>${mine.length ? `<p>Lua no teu signo (${SIGNS[sunSignOf(p.d)].n}), dias de mais energia para ti: <b>${mine.map(nd).join(' · ')}</b></p>` : ''}
+    <button class="btn" id="fertCalc" style="width:100%;margin-top:6px">📅 Calcular a janela fértil pelo ciclo</button>
+    <p class="note">A astrologia é só tradição e entretenimento. A fertilidade real depende da ovulação e da saúde de cada um. Se estão a tentar há mais de 12 meses (ou 6 meses a partir dos 35 anos), falem com o médico de família ou um especialista em fertilidade.</p></div>`;
+}
+function openFert() {
+  $('#fertBody').innerHTML = `<p>Uma estimativa pelo método do calendário. Os dados não ficam guardados.</p><div class="form"><label>Primeiro dia da última menstruação<input type="date" id="fLast" max="${todayStr()}"></label><label>Duração habitual do ciclo (dias)<input type="number" id="fLen" min="21" max="40" value="28" inputmode="numeric"></label><button class="btn main" id="fGo">Calcular</button></div><div id="fOut"></div>`;
+  $('#fGo').onclick = () => {
+    const last = $('#fLast').value, len = Math.max(21, Math.min(40, +$('#fLen').value || 28)); if (!last) { toast('Indica a data'); return; }
+    const W = fertWindow(last, len), nd = d => { const [y, m, dd] = dParts(d); return `${dd} de ${MESES[m - 1]}`; };
+    $('#fOut').innerHTML = W.map((w, i) => { const lua = daysIn(w.from, w.to).filter(d => luaGuide(d).fertilidade >= 3).map(d => +d.slice(8)); return `<div class="box"><h3>${i === 0 ? 'Este ciclo' : i === 1 ? 'Ciclo seguinte' : 'Daqui a dois ciclos'}</h3><p>🌸 Janela fértil estimada: <b>${nd(w.from)} a ${nd(w.to)}</b></p><p>🥚 Ovulação provável: <b>${nd(w.ov)}</b></p><p>📅 Próxima menstruação: ${nd(w.next)}</p>${lua.length ? `<p>🌙 Coincide com dias «férteis» da Lua: ${lua.join(', ')}</p>` : ''}</div>`; }).join('') + `<p class="note">É uma estimativa: ciclos irregulares, stress ou doença mudam a ovulação. Testes de ovulação da farmácia e o acompanhamento médico são mais fiáveis.</p>`;
+  };
+  $('#fertDlg').showModal();
 }
 function vAnos() {
   const seg = `<div class="seg2"><button data-av="agenda"${ST.anosView !== 'criar' ? ' class="on"' : ''}>📅 Agenda</button><button data-av="criar"${ST.anosView === 'criar' ? ' class="on"' : ''}>🎉 Criar cartaz</button></div>`;
@@ -2083,6 +2150,7 @@ function render() {
   if (ST.type === 'top') document.querySelectorAll('.sc').forEach(a => a.onclick = () => openSheet(+a.dataset.i));
   if (ST.type === 'pares') { document.querySelectorAll('.pair,.li[data-a]').forEach(el => el.onclick = () => openPair(el.dataset.a, el.dataset.b)); $('#pkGo').onclick = () => { ST.pkA = +$('#pkA').value; ST.pkB = +$('#pkB').value; openPair(ST.pkA, ST.pkB); }; }
   bindBanner();
+  if (ST.type === 'lua') { document.querySelectorAll('[data-cat]').forEach(b => b.onclick = () => { ST.luaCat = b.dataset.cat; ST.mode = 'mes'; render(); }); if ($('#fertCalc')) $('#fertCalc').onclick = openFert; }
   if (ST.type === 'eu') bindEu();
   if (ST.type === 'anos') bindAnos();
 }
