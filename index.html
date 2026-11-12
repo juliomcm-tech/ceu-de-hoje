@@ -181,6 +181,18 @@ textarea#dTxt{width:100%;background:var(--input);border:1px solid var(--line);bo
 .careful{background:var(--soft);border-left:3px solid var(--gold);padding:10px 12px;border-radius:10px;font-size:13.5px;margin-top:8px}
 #dQ{margin-bottom:6px}
 #lock{position:fixed;inset:0;z-index:50;background:var(--bg);display:grid;place-items:center;padding:20px}.lockbox{width:100%;max-width:320px;text-align:center;display:grid;gap:12px}.lockic{font-size:54px}.lockbox h2{font-family:Cinzel,serif;margin:0;color:var(--gold2)}.lockbox p{margin:0;color:var(--mute)}#lockPin{text-align:center;font-size:28px;letter-spacing:.5em}.shake{animation:shk .35s}@keyframes shk{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.seg2:has(button:nth-child(3)){grid-template-columns:1fr 1fr 1fr}.seg2 button{font-size:12.5px;padding:9px 4px}
+.itabs{display:flex;gap:6px;overflow-x:auto;margin:6px 0 10px;scrollbar-width:none}.itabs button{flex:none;background:var(--card);border:1px solid var(--line);color:var(--mute);border-radius:999px;padding:8px 13px;font:800 13px Manrope;cursor:pointer}.itabs button.on{border-color:var(--gold);color:var(--gold2);background:var(--btn2)}
+.istats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center}.istats b{display:block;font:800 22px Manrope;color:var(--gold2)}.istats span{font-size:11px;color:var(--mute)}
+.ilist{display:grid;gap:8px}.iit{display:flex;gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px;cursor:pointer}.iit img,.sug img{width:46px;height:66px;object-fit:cover;border-radius:6px;flex:none;background:var(--soft)}.ph0{width:46px;height:66px;border-radius:6px;background:var(--soft);display:grid;place-items:center;font-size:24px;flex:none}.iit div{min-width:0;flex:1}.iit b{display:block}.iit small{display:block;color:var(--mute);font-size:12px}.iit .stars{font-size:13px}.nx{color:var(--gold2)!important;font-weight:800}
+.vt small{font-family:Manrope;font-size:13px;color:var(--mute)}
+.sug{display:flex;gap:10px;align-items:center;padding:7px 0;border-top:1px solid var(--line);cursor:pointer}.sug img{width:34px;height:50px}.sug .ph0{width:34px;height:50px;font-size:18px}.sug div{flex:1;min-width:0}.sug b{display:block;font-size:13.5px}.sug small{color:var(--mute);font-size:12px}
+.srch{margin-bottom:8px}#iRes{max-height:240px;overflow:auto}
+.rate{display:flex;gap:6px}.rate button{background:none;border:0;font-size:32px;color:#f2c76e44;cursor:pointer;padding:0 2px}.rate button.on{color:var(--gold)}
+.two{display:grid;grid-template-columns:1.4fr 1fr;gap:8px}
+textarea#iC{width:100%;background:var(--input);border:1px solid var(--line);border-radius:12px;padding:10px;color:var(--ink);font:14px/1.5 Manrope}
+.ihero{text-align:center}.ihero img{width:110px;height:160px;object-fit:cover;border-radius:10px;box-shadow:0 6px 20px #0005}.ph1{display:inline-grid;place-items:center;width:110px;height:140px;border-radius:12px;background:var(--soft);font-size:54px}.ihero h3{font-family:Cinzel,serif;margin:10px 0 2px;font-size:20px}.ihero p{color:var(--mute);margin:0 0 6px}.stars.big{font-size:22px;display:block;margin-bottom:6px}
+.favs p{margin:4px 0}
 footer.ft{color:var(--mute);font-size:11.5px;text-align:center;margin:18px 0 6px}
 
 :root{--barbg:linear-gradient(#06061af2,#06061ad9 80%,#06061a00);--barsolid:#06061af0;--tabbg:#0b0c28f2;--bodybg:radial-gradient(700px 420px at 50% -8%,#2b1f66aa,transparent 70%),#06061a;--btn:#14164a;--btn2:#1f2160;--dlg:#0f1033;--input:#080924;--backdrop:#000b;--ink2:#dcdcf6;--soft:#ffffff0d;--okc:#8fe8b3;--badc:#ffbf85;--pinkc:#ffb3c9;--pinkc2:#ff6b98;--main:linear-gradient(180deg,#f8d891,#d9a944);--maintxt:#1b1205;--r1bg:#f2c76e14}
@@ -300,6 +312,7 @@ footer.ft{color:var(--mute);font-size:11.5px;text-align:center;margin:18px 0 6px
 </dialog>
 <textarea id="cap" readonly></textarea>
 <div id="lock" hidden><div class="lockbox"><div class="lockic">🌙</div><h2 id="lockHi">Olá!</h2><p>Escreve o teu PIN</p><input type="password" id="lockPin" inputmode="numeric" maxlength="6" autocomplete="off"><button class="btn main" id="lockGo">Entrar</button><button class="link" id="lockForgot">Esqueci-me do PIN</button></div></div>
+<dialog id="intDlg"><h2 id="intTitle"></h2><div id="intBody"></div><div class="dlgfoot"><button class="btn" id="intDel">🗑️</button><button class="btn main" id="intSave">Guardar</button><button class="btn" data-close>Fechar</button></div></dialog>
 <dialog id="noteDlg"><h2>📔 Nota</h2><div id="noteBody"></div><div class="dlgfoot"><button class="btn" id="noteEdit">✏️ Editar</button><button class="btn" data-close>Fechar</button></div></dialog>
 <div id="toast"></div>
 <script>
@@ -700,7 +713,7 @@ function sunEvents(ds, city) {
   return { rise, set };
 }
 const CHALDEAN = ['saturn', 'jupiter', 'mars', 'sun', 'venus', 'mercury', 'moon'];
-const HOUR_USE = { venus: 'amor e beleza', jupiter: 'dinheiro e pedidos', mercury: 'conversas e papéis', mars: 'coragem e desporto', sun: 'brilhar e liderar', moon: 'família e descanso', saturn: 'disciplina e arrumações' };
+const HOUR_USE = { venus: 'amor e beleza', jupiter: 'dinheiro e pedidos', mercury: 'conversas, papéis e leitura', mars: 'coragem e desporto', sun: 'brilhar e liderar', moon: 'família e descanso', saturn: 'disciplina e arrumações' };
 function planetaryHours(ds, city) {
   const today = sunEvents(ds, city), next = sunEvents(dayStr(noonJd(ds) + 1), city);
   if (!today.rise || !today.set || !next.rise) return null;
@@ -1868,7 +1881,7 @@ function capPair(D) {
 }
 
 // ---------- Guia lunar (tradição) ----------
-const LUA_CATS = [['cabelo', '✂️', 'Cortar o cabelo'], ['unhas', '💅', 'Unhas'], ['pele', '🧖', 'Pele e beleza'], ['depilacao', '🪒', 'Depilação'], ['dieta', '🥗', 'Dieta e detox'], ['exercicio', '🏃', 'Exercício'], ['romance', '💑', 'Romance'], ['fertilidade', '👶', 'Fertilidade (tradição)'], ['negocios', '💼', 'Começar projetos'], ['viagens', '✈️', 'Viagens'], ['limpeza', '🧹', 'Limpezas e arrumações'], ['horta', '🌱', 'Semear e plantar'], ['descanso', '🧘', 'Descanso']];
+const LUA_CATS = [['cabelo', '✂️', 'Cortar o cabelo'], ['unhas', '💅', 'Unhas'], ['pele', '🧖', 'Pele e beleza'], ['depilacao', '🪒', 'Depilação'], ['dieta', '🥗', 'Dieta e detox'], ['exercicio', '🏃', 'Exercício'], ['romance', '💑', 'Romance'], ['fertilidade', '👶', 'Fertilidade (tradição)'], ['negocios', '💼', 'Começar projetos'], ['viagens', '✈️', 'Viagens'], ['limpeza', '🧹', 'Limpezas e arrumações'], ['horta', '🌱', 'Semear e plantar'], ['leitura', '📖', 'Leitura e estudo'], ['descanso', '🧘', 'Descanso']];
 const LUA_LBL = ['Evitar', 'Neutro', 'Bom', 'Ótimo'], LUA_COL = ['#ff8fa3', '#9a9bcb', '#7ee0a6', '#f2c76e'];
 function luaGuide(ds) {
   const s = skyFor(ds), e = s.phase.elong, wax = e < 180, nNew = e < 18 || e > 342, nFull = Math.abs(e - 180) < 18, si = s.moon.sign, el = SIGNS[si].el, n = SIGNS[si].n, inS = (...l) => l.includes(n);
@@ -1886,10 +1899,11 @@ function luaGuide(ds) {
   g.limpeza = !wax ? 2 + (inS('Virgem', 'Capricórnio') ? 1 : 0) : 1;
   g.horta = nNew ? 1 : wax ? (el === 'agua' || el === 'terra' ? 3 : 2) : (el === 'terra' ? 3 : 2);
   g.descanso = inS('Peixes', 'Caranguejo', 'Escorpião') ? 3 : !wax ? 2 : 1;
+  g.leitura = 1 + (inS('Gémeos', 'Virgem', 'Sagitário', 'Aquário', 'Peixes', 'Caranguejo') ? 1 : 0) + (el === 'ar' ? 1 : 0);
   for (const k in g) g[k] = Math.max(0, Math.min(3, g[k]));
   return g;
 }
-const LUA_WHY = { cabelo: 'Crescente faz crescer, minguante faz durar; Leão e Virgem dão força.', unhas: 'Minguante faz o verniz e o corte durar; Capricórnio rege as unhas.', pele: 'Cheia hidrata e nutre; minguante limpa e esfolia.', depilacao: 'Com a Lua a minguar, os pelos voltam mais devagar.', dieta: 'Lua minguante ajuda a perder e a desintoxicar.', exercicio: 'Lua crescente e signos de fogo dão energia.', romance: 'Lua em Touro, Balança, Leão ou Peixes favorece o coração.', fertilidade: 'Tradição: Lua em signos de água (Caranguejo, Escorpião, Peixes) e em Touro.', negocios: 'Lua Nova planta, crescente faz crescer.', viagens: 'Lua em Sagitário, Gémeos ou Aquário; cuidado com Mercúrio retrógrado.', limpeza: 'Minguante tira o que está a mais; Virgem arruma.', horta: 'Depende do tipo de dia: raiz, folha, flor ou fruto.', descanso: 'Lua em Peixes, Caranguejo ou Escorpião pede recolhimento.' };
+const LUA_WHY = { cabelo: 'Crescente faz crescer, minguante faz durar; Leão e Virgem dão força.', unhas: 'Minguante faz o verniz e o corte durar; Capricórnio rege as unhas.', pele: 'Cheia hidrata e nutre; minguante limpa e esfolia.', depilacao: 'Com a Lua a minguar, os pelos voltam mais devagar.', dieta: 'Lua minguante ajuda a perder e a desintoxicar.', exercicio: 'Lua crescente e signos de fogo dão energia.', romance: 'Lua em Touro, Balança, Leão ou Peixes favorece o coração.', fertilidade: 'Tradição: Lua em signos de água (Caranguejo, Escorpião, Peixes) e em Touro.', negocios: 'Lua Nova planta, crescente faz crescer.', viagens: 'Lua em Sagitário, Gémeos ou Aquário; cuidado com Mercúrio retrógrado.', limpeza: 'Minguante tira o que está a mais; Virgem arruma.', horta: 'Depende do tipo de dia: raiz, folha, flor ou fruto.', leitura: 'Lua em Gémeos, Virgem ou Aquário aguça a mente; em Peixes e Caranguejo, a imaginação.', descanso: 'Lua em Peixes, Caranguejo ou Escorpião pede recolhimento.' };
 function luaBest(cat, a, b, min = 3) { return daysIn(a, b).filter(d => luaGuide(d)[cat] >= min); }
 function fertWindow(last, len) {
   const out = []; let start = noonJd(last);
@@ -2077,6 +2091,74 @@ function memories(all) {
   return out.sort((a, b) => b.x.d.localeCompare(a.x.d)).slice(0, 3);
 }
 
+// ===== Interesses: livros, séries e filmes, viagens =====
+const INT = {
+  livros: { key: 'ceu_books', ic: '📚', one: 'livro', by: 'Autor(a)', verb: ['Quero ler', 'A ler', 'Lido'], done: 'Leste', doing: 'a ler' },
+  series: { key: 'ceu_shows', ic: '🎬', one: 'série ou filme', by: 'Plataforma / realizador', verb: ['Quero ver', 'A ver', 'Visto'], done: 'Viste', doing: 'a ver' },
+  viagens: { key: 'ceu_trips', ic: '✈️', one: 'viagem', by: 'País', verb: ['Sonho', 'A decorrer', 'Feita'], done: 'Viajaste', doing: 'em viagem' }
+};
+const GENRES = { livros: ['Romance', 'Policial', 'Thriller', 'Fantasia', 'Ficção científica', 'História', 'Biografia', 'Autoajuda', 'Poesia', 'Infantil', 'Clássico', 'Outro'], series: ['Drama', 'Comédia', 'Policial', 'Thriller', 'Ficção científica', 'Fantasia', 'Romance', 'Documentário', 'Animação', 'Terror', 'Novela', 'Outro'], viagens: ['Praia', 'Cidade', 'Natureza', 'Montanha', 'Cultura', 'Gastronomia', 'Aventura', 'Romântica', 'Família', 'Trabalho', 'Outro'] };
+const OL_SUBJ = { Romance: 'romance', Policial: 'mystery', Thriller: 'thriller', Fantasia: 'fantasy', 'Ficção científica': 'science_fiction', História: 'history', Biografia: 'biography', Autoajuda: 'self-help', Poesia: 'poetry', Infantil: 'juvenile_fiction', Clássico: 'classic_literature' };
+const intList = t => P.list(INT[t].key), intSave = (t, l) => P.setList(INT[t].key, l);
+const ONLINE = () => navigator.onLine !== false && !/claude|claudeusercontent|anthropic/.test(location.hostname);
+function durTxt(a, b) {
+  if (!a || !b) return '';
+  const ms = new Date(b).getTime() - new Date(a).getTime(); if (!(ms > 0)) return '';
+  const h = ms / 36e5, d = Math.round(h / 24);
+  if (h < 24) return `${Math.max(1, Math.round(h))} hora${Math.round(h) === 1 ? '' : 's'}`;
+  if (d < 14) return `${d} dia${d === 1 ? '' : 's'}`;
+  const w = Math.floor(d / 7), rd = d % 7; if (d < 60) return `${w} semana${w > 1 ? 's' : ''}${rd ? ` e ${rd} dia${rd > 1 ? 's' : ''}` : ''} (${d} dias)`;
+  return `${Math.round(d / 30)} meses (${d} dias)`;
+}
+const dtJoin = (d, t) => d ? `${d}T${t || '12:00'}` : '';
+function intStats(t) {
+  const L = intList(t), done = L.filter(x => x.status === 2), y = todayStr().slice(0, 4);
+  const durs = done.map(x => { const a = dtJoin(x.sd, x.st), b = dtJoin(x.ed, x.et); return a && b ? (new Date(b) - new Date(a)) / 864e5 : null; }).filter(v => v > 0);
+  const byG = {}, byA = {}; done.forEach(x => { if (x.genre) byG[x.genre] = (byG[x.genre] || 0) + 1; if (x.by) byA[x.by] = (byA[x.by] || 0) + 1; });
+  const top = o => Object.entries(o).sort((a, b) => b[1] - a[1])[0];
+  return { total: L.length, done: done.length, year: done.filter(x => (x.ed || '').startsWith(y)).length, doing: L.filter(x => x.status === 1).length, want: L.filter(x => x.status === 0).length, avgDays: durs.length ? Math.round(durs.reduce((a, b) => a + b, 0) / durs.length) : null, topG: top(byG), topA: top(byA), best: done.filter(x => x.rating >= 5).slice(-3), countries: t === 'viagens' ? [...new Set(done.map(x => (x.by || '').trim()).filter(Boolean))] : [] };
+}
+// ---- leitura e o céu ----
+function readingToday(ds) {
+  const s = skyFor(ds), el = SIGNS[s.moon.sign].el, n = SIGNS[s.moon.sign].n;
+  let v = 1 + (['Gémeos', 'Virgem', 'Sagitário', 'Aquário', 'Peixes', 'Caranguejo'].includes(n) ? 1 : 0) + (el === 'ar' ? 1 : 0) - (s.mercury.rx ? 0 : 0);
+  v = Math.max(0, Math.min(3, v));
+  const why = ['Gémeos', 'Virgem', 'Aquário'].includes(n) ? `Lua em ${n}: mente curiosa, bom para aprender.` : ['Peixes', 'Caranguejo'].includes(n) ? `Lua em ${n}: imaginação em alta, ótimo para romances.` : n === 'Sagitário' ? 'Lua em Sagitário: dia de viagens… nem que seja num livro.' : `Lua em ${n}.`;
+  const PH = planetaryHours(ds, city()), hrs = PH ? PH.hours.filter(h => h.p === 'mercury' || h.p === 'moon').slice(0, 4).map(h => `${fmtHM(h.start, city()[3])} (${PL[h.p].n})`) : [];
+  return { v, why: why + (s.mercury.rx ? ' Mercúrio retrógrado: ótimo para reler.' : ''), hrs };
+}
+// ---- internet (Open Library e TVmaze) ----
+async function jget(url) { const r = await fetch(url); if (!r.ok) throw new Error(r.status); return r.json(); }
+async function searchBooks(q) {
+  const j = await jget(`https://openlibrary.org/search.json?q=${encodeURIComponent(q)}&limit=6&fields=title,author_name,first_publish_year,cover_i,subject&lang=por`);
+  return (j.docs || []).map(d => ({ title: d.title, by: (d.author_name || [])[0] || '', year: d.first_publish_year, cover: d.cover_i ? `https://covers.openlibrary.org/b/id/${d.cover_i}-M.jpg` : '' }));
+}
+async function searchShows(q) {
+  const j = await jget(`https://api.tvmaze.com/search/shows?q=${encodeURIComponent(q)}`);
+  return j.slice(0, 6).map(x => ({ title: x.show.name, by: (x.show.network || x.show.webChannel || {}).name || '', year: (x.show.premiered || '').slice(0, 4), cover: x.show.image ? x.show.image.medium.replace('http:', 'https:') : '', tvmaze: x.show.id, genre: '' }));
+}
+async function nextEpisode(id) {
+  const j = await jget(`https://api.tvmaze.com/shows/${id}?embed=nextepisode`);
+  const e = j._embedded && j._embedded.nextepisode; return e ? { date: e.airdate, name: e.name, s: e.season, n: e.number } : null;
+}
+async function authorNews(authors) {
+  const out = [], y = +todayStr().slice(0, 4);
+  for (const a of authors.slice(0, 8)) {
+    try { const j = await jget(`https://openlibrary.org/search.json?author=${encodeURIComponent(a)}&sort=new&limit=3&fields=title,first_publish_year,cover_i`); (j.docs || []).filter(d => d.first_publish_year >= y - 1).forEach(d => out.push({ by: a, title: d.title, year: d.first_publish_year, cover: d.cover_i ? `https://covers.openlibrary.org/b/id/${d.cover_i}-S.jpg` : '' })); } catch (e) { }
+  }
+  return out;
+}
+async function bookSuggest(genre, have) {
+  const subj = OL_SUBJ[genre]; if (!subj) return [];
+  const j = await jget(`https://openlibrary.org/search.json?subject=${subj}&sort=rating&limit=12&fields=title,author_name,cover_i,first_publish_year`);
+  const hv = new Set(have.map(x => norm2(x.title)));
+  return (j.docs || []).filter(d => !hv.has(norm2(d.title))).slice(0, 5).map(d => ({ title: d.title, by: (d.author_name || [])[0] || '', cover: d.cover_i ? `https://covers.openlibrary.org/b/id/${d.cover_i}-S.jpg` : '' }));
+}
+async function cachedDaily(key, fn) {
+  try { const c = JSON.parse(store.get(key) || 'null'); if (c && c.d === todayStr()) return c.v; } catch (e) { }
+  const v = await fn(); store.set(key, JSON.stringify({ d: todayStr(), v })); return v;
+}
+
 // ===== App de telemóvel =====
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
@@ -2256,8 +2338,9 @@ function showBday(o, save, seed) {
   $('#bdOut').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 function vEu() {
-  const seg = `<div class="seg2"><button data-ev="me"${ST.euView !== 'diario' ? ' class="on"' : ''}>✨ O meu espaço</button><button data-ev="diario"${ST.euView === 'diario' ? ' class="on"' : ''}>📔 Diário</button></div>`;
+  const seg = `<div class="seg2"><button data-ev="me"${ST.euView !== 'diario' ? ' class="on"' : ''}>✨ O meu espaço</button><button data-ev="diario"${ST.euView === 'diario' ? ' class="on"' : ''}>📔 Diário</button><button data-ev="int"${ST.euView === 'int' ? ' class="on"' : ''}>📚 Interesses</button></div>`;
   if (ST.euView === 'diario') return seg + vDiario();
+  if (ST.euView === 'int') return seg + vInteresses();
   return seg + vEuMe();
 }
 function vEuMe() {
@@ -2267,7 +2350,10 @@ function vEuMe() {
     <div class="form"><label>O teu nome<input type="text" id="pName" maxlength="24" value="${esc(p ? p.name || '' : '')}" placeholder="Como te chamas?"></label>
     <label>Data de nascimento<input type="date" id="bDate" min="1900-01-01" max="${todayStr()}" value="${p ? p.d || '' : ''}"></label>
     <label>Hora de nascimento (opcional, para o ascendente)<input type="time" id="bTime" value="${p ? p.t || '' : ''}"></label>
-    <label>Onde nasceste<select id="bCity">${opts(p ? p.c : 0)}</select></label><button class="btn main" id="pSave">Guardar</button></div>`;
+    <label>Onde nasceste<select id="bCity">${opts(p ? p.c : 0)}</select></label>
+    <label>📚 Livro favorito<input type="text" id="pFB" maxlength="60" value="${esc(p ? p.favBook || '' : '')}"></label><label>🎬 Série ou filme favorito<input type="text" id="pFS" maxlength="60" value="${esc(p ? p.favShow || '' : '')}"></label>
+    <label>📍 Lugar favorito<input type="text" id="pFP" maxlength="60" value="${esc(p ? p.favPlace || '' : '')}"></label><label>✈️ Viagem de sonho<input type="text" id="pDT" maxlength="60" value="${esc(p ? p.dream || '' : '')}"></label>
+    <button class="btn main" id="pSave">Guardar</button></div>`;
   }
   const first = p.name ? p.name.split(' ')[0] : '', si = sunSignOf(p.d), ci = CITIES[+p.c || 0], today = todayStr();
   const [y, m, dd] = dParts(p.d), [hh, mi] = (p.t || '12:00').split(':').map(Number), ms = localToUtcMs(y, m, dd, hh, mi, ci[3]);
@@ -2278,6 +2364,7 @@ function vEuMe() {
   let h = bdayBanner() + `<div class="hello"><div><small>${niceDate(today)}</small><h2>Olá${first ? ', ' + esc(first) : ''}! ${G(SIGNS[si].g)}</h2><small>Signo chinês: ${chineseSign(p.d).e} ${chineseSign(p.d).n} (${chineseSign(p.d).el})</small></div><button class="link" id="pEdit">editar</button></div>`;
   if (dtb !== 0) h += `<div class="count">🎂 Faltam <b>${dtb}</b> dia${dtb > 1 ? 's' : ''} para o teu aniversário</div>`;
   h += `<article class="sc mine" id="myCard" style="--c:${elc(rd.sign)}"><div class="sc-h"><span class="rk">${pos + 1}º</span><span class="gl">${G(rd.sign.g)}</span><div class="nm"><b>${rd.sign.n} hoje</b><small>${pos + 1}º lugar no Top do Dia · toca para abrir</small></div>${starsH(toStars(rd.overall))}</div><div class="vd ${v.k}"><b>${v.icon}</b> ${esc(v.txt)}</div><p class="ph">“${esc(rd.headline)}”</p></article>`;
+  if (p.favBook || p.favShow || p.favPlace || p.dream) h += `<div class="box favs"><h3>❤️ Os meus favoritos</h3>${p.favBook ? `<p>📚 ${esc(p.favBook)}</p>` : ''}${p.favShow ? `<p>🎬 ${esc(p.favShow)}</p>` : ''}${p.favPlace ? `<p>📍 ${esc(p.favPlace)}</p>` : ''}${p.dream ? `<p>✈️ Sonho: ${esc(p.dream)}</p>` : ''}</div>`;
   h += `<div class="trios">${cell('Sol', PD.sunSign)}${cell('Lua', PD.moonSign)}${p.t ? cell('Ascendente', PD.ascSign) : '<div class="trio"><span>Ascendente</span><b>?</b><em>põe a hora</em></div>'}</div>`;
   h += `<div class="box"><h3>Hoje, só para ti</h3>${PD.aspects.filter(a => p.t || a.np !== 'asc').map(a => `<p>${esc(a.txt)}</p>`).join('') || '<p>Dia calmo no teu mapa: nenhum trânsito forte.</p>'}</div>`;
   if (p.t) h += `<div class="box"><h3>Pelo teu ascendente em ${SIGNS[PD.ascSign].n}</h3><p class="ph">“${esc(base.headline)}”</p><p>❤️ ${starsH(base.stars.amor)} ${esc(firstSentence(base.love))}</p><p>💼 ${starsH(base.stars.trabalho)} ${esc(firstSentence(base.work))}</p></div>`;
@@ -2362,6 +2449,80 @@ function bindDiario() {
   $('#dExp').onclick = async () => { const data = JSON.stringify({ app: 'ceu-de-hoje', v: 1, at: new Date().toISOString(), profile: P.get(), diario: DIA.all(), bdays: P.list('ceu_bdays'), pets: P.list('ceu_pets') }, null, 1); const f = new File([data], `ceu-de-hoje-copia-${todayStr()}.json`, { type: 'application/json' }); try { if (navigator.canShare && navigator.canShare({ files: [f] })) { await navigator.share({ files: [f] }); return; } } catch (e) { if (e.name === 'AbortError') return; } await saveBlob(f, f.name); };
   $('#dImp').onchange = async e => { const f = e.target.files[0]; if (!f) return; try { const j = JSON.parse(await f.text()); if (j.app !== 'ceu-de-hoje') throw 0; if (!confirmBox('Repor esta cópia? Junta as notas e substitui o perfil, aniversários e animais.')) return; const ids = new Set(DIA.all().map(x => x.id)); DIA.save(DIA.all().concat((j.diario || []).filter(x => !ids.has(x.id)))); if (j.profile) P.set(j.profile); if (j.bdays) P.setList('ceu_bdays', j.bdays); if (j.pets) P.setList('ceu_pets', j.pets); toast('Cópia reposta ✅'); render(); } catch (err) { toast('Ficheiro inválido'); } };
 }
+function vInteresses() {
+  const t = ST.intTab || 'livros', C = INT[t], L = intList(t), S = intStats(t);
+  let h = `<div class="itabs">${Object.entries(INT).map(([k, v]) => `<button data-it="${k}"${k === t ? ' class="on"' : ''}>${v.ic} ${k === 'livros' ? 'Livros' : k === 'series' ? 'Séries e Filmes' : 'Viagens'}</button>`).join('')}</div>`;
+  h += `<div class="box istats"><div><b>${S.done}</b><span>${C.verb[2].toLowerCase()}${S.done === 1 ? '' : 's'}</span></div><div><b>${S.year}</b><span>em ${todayStr().slice(0, 4)}</span></div><div><b>${S.doing}</b><span>${C.doing}</span></div><div><b>${t === 'viagens' ? S.countries.length : S.avgDays ?? '–'}</b><span>${t === 'viagens' ? 'países' : 'dias em média'}</span></div></div>`;
+  if (S.topG || S.topA) h += `<p class="hint" style="text-align:left">${S.topG ? `O teu género preferido: <b>${S.topG[0]}</b>. ` : ''}${S.topA && t === 'livros' ? `Autor(a) mais lido(a): <b>${esc(S.topA[0])}</b>.` : ''}</p>`;
+  if (t === 'livros') { const R = readingToday(ST.date); h += `<div class="box"><h3>📖 Hoje para ler: <span style="color:${LUA_COL[R.v]}">${LUA_LBL[R.v]}</span></h3><p>${esc(R.why)}</p>${R.hrs.length ? `<p>Melhores horas (Mercúrio e Lua): <b>${R.hrs.join(' · ')}</b></p>` : ''}</div>`; }
+  h += `<div id="intOnline"></div><button class="btn main" id="intAdd" style="width:100%;margin:6px 0 10px">＋ Adicionar ${C.one}</button>`;
+  for (const st of [1, 0, 2]) {
+    const g = L.filter(x => x.status === st).sort((a, b) => (b.ed || b.sd || '').localeCompare(a.ed || a.sd || ''));
+    if (!g.length) continue;
+    h += `<h2 class="vt">${C.verb[st]} <small>(${g.length})</small></h2><div class="ilist">${g.map(x => `<div class="iit" data-id="${x.id}">${x.cover ? `<img src="${esc(x.cover)}" alt="" loading="lazy">` : `<span class="ph0">${C.ic}</span>`}<div><b>${esc(x.title)}</b><small>${esc(x.by || '')}${x.place ? ' · ' + esc(x.place) : ''}${x.genre ? ' · ' + x.genre : ''}</small>${x.rating ? `<span class="stars">${'★'.repeat(x.rating)}<i>${'☆'.repeat(5 - x.rating)}</i></span>` : ''}${st === 2 && durTxt(dtJoin(x.sd, x.st), dtJoin(x.ed, x.et)) ? `<small>⏱ ${C.done} em ${durTxt(dtJoin(x.sd, x.st), dtJoin(x.ed, x.et))}</small>` : ''}${x.next ? `<small class="nx">📺 Próximo episódio: ${x.next}</small>` : ''}</div></div>`).join('')}</div>`;
+  }
+  if (!L.length) h += `<p class="hint">${t === 'livros' ? 'A tua pequena biblioteca começa aqui. Junta o livro que estás a ler ou os que já leste.' : t === 'series' ? 'Junta as séries e os filmes que vês ou queres ver.' : 'Junta as viagens que fizeste e as que sonhas fazer.'}</p>`;
+  return h;
+}
+function bindInteresses() {
+  const t = ST.intTab || 'livros';
+  document.querySelectorAll('[data-it]').forEach(b => b.onclick = () => { ST.intTab = b.dataset.it; render(); });
+  $('#intAdd').onclick = () => openItem(t, null, true);
+  document.querySelectorAll('.iit').forEach(el => el.onclick = () => openItem(t, el.dataset.id, false));
+  if (ONLINE()) loadIntOnline(t);
+}
+async function loadIntOnline(t) {
+  const box = $('#intOnline'); if (!box) return; const L = intList(t); let h = '';
+  try {
+    if (t === 'livros') {
+      const authors = [...new Set(L.filter(x => x.rating >= 4 || x.status === 2).map(x => x.by).filter(Boolean))];
+      if (authors.length) { const news = await cachedDaily('ceu_news', () => authorNews(authors)); const hv = new Set(L.map(x => norm2(x.title))); const nn = news.filter(n => !hv.has(norm2(n.title))).slice(0, 4); if (nn.length) h += `<div class="box"><h3>📢 Novidades dos teus autores</h3>${nn.map(n => `<div class="sug">${n.cover ? `<img src="${n.cover}" alt="">` : '<span class="ph0">📚</span>'}<div><b>${esc(n.title)}</b><small>${esc(n.by)} · ${n.year}</small></div><button class="ib addsug" data-t="${esc(n.title)}" data-b="${esc(n.by)}" data-c="${esc(n.cover)}">＋</button></div>`).join('')}</div>`; }
+      const S = intStats(t); if (S.topG) { const sg = await cachedDaily('ceu_sug_' + S.topG[0], () => bookSuggest(S.topG[0], L)); if (sg.length) h += `<div class="box"><h3>💡 Sugestões de ${S.topG[0].toLowerCase()}</h3>${sg.map(n => `<div class="sug">${n.cover ? `<img src="${n.cover}" alt="">` : '<span class="ph0">📚</span>'}<div><b>${esc(n.title)}</b><small>${esc(n.by)}</small></div><button class="ib addsug" data-t="${esc(n.title)}" data-b="${esc(n.by)}" data-c="${esc(n.cover)}">＋</button></div>`).join('')}</div>`; }
+    }
+    if (t === 'series') {
+      const tv = L.filter(x => x.tvmaze && x.status !== 2); let changed = false;
+      for (const x of tv) { try { const e = await cachedDaily('ceu_ep_' + x.tvmaze, () => nextEpisode(x.tvmaze)); const nv = e ? `${e.date.slice(8)}/${e.date.slice(5, 7)} (T${e.s}E${e.n})` : ''; if (x.next !== nv) { x.next = nv; changed = true; } } catch (e) { } }
+      if (changed) { const all = intList(t); tv.forEach(x => { const i = all.findIndex(z => z.id === x.id); if (i >= 0) all[i].next = x.next; }); intSave(t, all); }
+      const soon = tv.filter(x => x.next); if (soon.length) h += `<div class="box"><h3>📺 Próximos episódios</h3>${soon.map(x => `<p><b>${esc(x.title)}</b> · ${x.next}</p>`).join('')}</div>`;
+    }
+  } catch (e) { }
+  box.innerHTML = h;
+  box.querySelectorAll('.addsug').forEach(b => b.onclick = () => openItem(t, null, true, { title: b.dataset.t, by: b.dataset.b, cover: b.dataset.c, status: 0 }));
+}
+function openItem(t, id, edit, preset) {
+  const C = INT[t], L = intList(t), x = id ? L.find(z => z.id === id) : Object.assign({ title: '', by: '', genre: '', status: t === 'viagens' ? 2 : 1, rating: 0, sd: todayStr(), st: '', ed: '', et: '', comment: '', cover: '', place: '' }, preset || {});
+  $('#intTitle').textContent = id ? (edit ? 'Editar' : '') : `Novo ${C.one}`;
+  if (!edit) {
+    const dur = durTxt(dtJoin(x.sd, x.st), dtJoin(x.ed, x.et)), sky = x.sd ? skyFor(x.sd) : null;
+    $('#intBody').innerHTML = `<div class="ihero">${x.cover ? `<img src="${esc(x.cover)}" alt="">` : `<span class="ph1">${C.ic}</span>`}<h3>${esc(x.title)}</h3><p>${esc(x.by || '')}${x.place ? ' · ' + esc(x.place) : ''}${x.genre ? ' · ' + x.genre : ''}</p><span class="stars big">${'★'.repeat(x.rating || 0)}<i>${'☆'.repeat(5 - (x.rating || 0))}</i></span><span class="chip" style="--c:var(--gold)">${C.verb[x.status]}</span></div>
+      ${x.sd ? `<div class="box"><p>▶️ Início: <b>${niceDate(x.sd)}${x.st ? ' às ' + x.st : ''}</b></p>${x.ed ? `<p>🏁 Fim: <b>${niceDate(x.ed)}${x.et ? ' às ' + x.et : ''}</b></p>` : ''}${dur ? `<p>⏱ ${C.done} em <b>${dur}</b>.</p>` : ''}${sky ? `<p class="note">🌙 Começaste com a Lua em ${SIGN_IN[sky.moon.sign]} (${moonPhaseName(sky.phase.elong)}).</p>` : ''}</div>` : ''}
+      ${x.comment ? `<div class="box"><h3>💬 O teu comentário</h3><p>${esc(x.comment).replace(/\n/g, '<br>')}</p></div>` : ''}${x.next ? `<div class="box"><p>📺 Próximo episódio: <b>${x.next}</b></p></div>` : ''}`;
+    $('#intSave').textContent = '✏️ Editar'; $('#intSave').onclick = () => openItem(t, id, true); $('#intDel').hidden = true;
+    if (!$('#intDlg').open) $('#intDlg').showModal(); return;
+  }
+  const gOpt = GENRES[t].map(g => `<option${g === x.genre ? ' selected' : ''}>${g}</option>`).join('');
+  $('#intBody').innerHTML = `${ONLINE() && t !== 'viagens' ? `<div class="srch"><input type="search" id="iQ" placeholder="🔎 Procurar ${t === 'livros' ? 'livro ou autor' : 'série'} na internet…"><div id="iRes"></div></div>` : ''}
+    <div class="form"><label>${t === 'viagens' ? 'Destino / nome da viagem' : 'Título'}<input type="text" id="iT" maxlength="80" value="${esc(x.title)}"></label>
+    <label>${C.by}<input type="text" id="iB" maxlength="60" value="${esc(x.by)}"></label>${t === 'viagens' ? `<label>Cidade / lugar<input type="text" id="iP" maxlength="60" value="${esc(x.place || '')}"></label>` : ''}
+    <label>${t === 'viagens' ? 'Tipo' : 'Género'}<select id="iG"><option value="">—</option>${gOpt}</select></label>
+    <label>Estado<select id="iS">${C.verb.map((v, i) => `<option value="${i}"${i === x.status ? ' selected' : ''}>${v}</option>`).join('')}</select></label>
+    <label>Avaliação</label><div class="rate">${[1, 2, 3, 4, 5].map(n => `<button data-r="${n}"${n <= x.rating ? ' class="on"' : ''}>★</button>`).join('')}</div>
+    <div class="two"><label>Início<input type="date" id="iSD" value="${x.sd || ''}"></label><label>Hora<input type="time" id="iST" value="${x.st || ''}"></label></div>
+    <div class="two"><label>Fim<input type="date" id="iED" value="${x.ed || ''}"></label><label>Hora<input type="time" id="iET" value="${x.et || ''}"></label></div>
+    <label>Comentário<textarea id="iC" rows="3" maxlength="1000">${esc(x.comment || '')}</textarea></label></div>`;
+  let rating = x.rating || 0, cover = x.cover || '', tvm = x.tvmaze || null;
+  document.querySelectorAll('.rate button').forEach(b => b.onclick = () => { rating = +b.dataset.r === rating ? 0 : +b.dataset.r; document.querySelectorAll('.rate button').forEach(z => z.classList.toggle('on', +z.dataset.r <= rating)); });
+  if ($('#iQ')) $('#iQ').oninput = () => { clearTimeout(openItem.t); const q = $('#iQ').value.trim(); if (q.length < 3) { $('#iRes').innerHTML = ''; return; } openItem.t = setTimeout(async () => { try { $('#iRes').innerHTML = '<p class="hint">A procurar…</p>'; const R = t === 'livros' ? await searchBooks(q) : await searchShows(q); $('#iRes').innerHTML = R.map((r, i) => `<div class="sug" data-i="${i}">${r.cover ? `<img src="${r.cover}" alt="">` : `<span class="ph0">${C.ic}</span>`}<div><b>${esc(r.title)}</b><small>${esc(r.by)}${r.year ? ' · ' + r.year : ''}</small></div></div>`).join('') || '<p class="hint">Sem resultados.</p>'; $('#iRes').querySelectorAll('.sug').forEach(el => el.onclick = () => { const r = R[+el.dataset.i]; $('#iT').value = r.title; $('#iB').value = r.by; cover = r.cover; tvm = r.tvmaze || null; $('#iRes').innerHTML = `<p class="hint">✓ ${esc(r.title)}</p>`; }); } catch (e) { $('#iRes').innerHTML = '<p class="hint">Sem ligação à internet.</p>'; } }, 450); };
+  $('#iS').onchange = () => { if ($('#iS').value === '2' && !$('#iED').value) $('#iED').value = todayStr(); };
+  $('#intSave').textContent = 'Guardar'; $('#intDel').hidden = !id;
+  $('#intSave').onclick = () => {
+    const ti = $('#iT').value.trim(); if (!ti) { toast('Escreve o título'); return; }
+    const o = { id: id || 'i' + Date.now().toString(36), title: ti, by: $('#iB').value.trim(), place: $('#iP') ? $('#iP').value.trim() : '', genre: $('#iG').value, status: +$('#iS').value, rating, sd: $('#iSD').value, st: $('#iST').value, ed: $('#iED').value, et: $('#iET').value, comment: $('#iC').value.trim(), cover, tvmaze: tvm, next: x.next || '', ts: Date.now() };
+    const all = intList(t); if (id) all[all.findIndex(z => z.id === id)] = o; else all.push(o); intSave(t, all); $('#intDlg').close(); toast(o.status === 2 && o.ed ? `${C.done} em ${durTxt(dtJoin(o.sd, o.st), dtJoin(o.ed, o.et)) || '—'} 🎉` : 'Guardado'); render();
+  };
+  $('#intDel').onclick = () => { if (!confirmBox('Apagar?')) return; intSave(t, intList(t).filter(z => z.id !== id)); $('#intDlg').close(); render(); };
+  if (!$('#intDlg').open) $('#intDlg').showModal();
+}
 function askOracle(q) {
   if (!q.trim()) return; const p = P.get(); ST.chat = (ST.chat || []).concat([{ who: 'me', txt: esc(q) }, { who: 'or', txt: oracle(q, p) }]).slice(-12);
   $('#chat').innerHTML = ST.chat.map(c => `<div class="msg ${c.who}">${c.txt}</div>`).join(''); $('#askQ').value = ''; $('#chat').lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -2369,7 +2530,8 @@ function askOracle(q) {
 function bindEu() {
   document.querySelectorAll('[data-ev]').forEach(b => b.onclick = () => { ST.euView = b.dataset.ev; render(); });
   if (ST.euView === 'diario') { bindDiario(); return; }
-  if ($('#pSave')) { $('#pSave').onclick = () => { const d = $('#bDate').value; if (!d) { toast('Indica a data de nascimento'); return; } P.set({ name: $('#pName').value.trim(), d, t: $('#bTime').value, c: $('#bCity').value }); ST.editProfile = false; toast('Guardado neste telemóvel ✨'); render(); }; return; }
+  if (ST.euView === 'int') { bindInteresses(); return; }
+  if ($('#pSave')) { $('#pSave').onclick = () => { const d = $('#bDate').value; if (!d) { toast('Indica a data de nascimento'); return; } P.set({ name: $('#pName').value.trim(), d, t: $('#bTime').value, c: $('#bCity').value, favBook: $('#pFB').value.trim(), favShow: $('#pFS').value.trim(), favPlace: $('#pFP').value.trim(), dream: $('#pDT').value.trim() }); ST.editProfile = false; toast('Guardado neste telemóvel ✨'); render(); }; return; }
   $('#pEdit').onclick = () => { ST.editProfile = true; render(); };
   const p = P.get(), si = sunSignOf(p.d);
   $('#myCard').onclick = () => { const kp = ST.pets; ST.pets = false; computeTop(); ST.pets = kp; openSheet(ST.rank.findIndex(r => r.si === si)); };
