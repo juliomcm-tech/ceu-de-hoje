@@ -27,6 +27,12 @@ h1{font-family:Cinzel,serif;font-size:22px;letter-spacing:.12em;margin:0;color:v
 #modes button.on{border-color:var(--gold);color:var(--gold2)}
 #strip{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 2px 12px;margin:0 -16px;padding-left:16px;padding-right:16px;scrollbar-width:thin}
 #strip img{flex:0 0 78%;max-width:440px;scroll-snap-align:center;border-radius:14px;border:1px solid var(--line);background:#000;display:block}
+#strip img{cursor:zoom-in}
+.tip{color:var(--mute);font-size:12px;text-align:center;margin:-6px 0 12px}
+.viewer{max-width:520px;padding:14px}
+.viewer #viewImg{width:100%;max-height:68vh;object-fit:contain;border-radius:12px;display:block;background:#000}
+.vnav{display:flex;align-items:center;justify-content:center;gap:16px;margin:10px 0 2px;color:var(--mute);font-size:14px}
+.vnav .btn{padding:6px 16px}
 #strip img.story{flex-basis:56%;max-width:320px}
 .meta{display:flex;justify-content:space-between;color:var(--mute);font-size:12.5px;margin:2px 2px 14px;gap:10px}
 #sum b{color:var(--ink)} #sum span{color:var(--mute)}
@@ -91,6 +97,7 @@ dialog p{color:#c8c9ee;font-size:14px;line-height:1.55;margin:10px 0}
 
   <div id="strip"></div>
   <div class="meta"><div id="sum"></div><div id="count"></div></div>
+  <p class="tip">Toca numa foto para a abrir e partilhar sozinha (Facebook, WhatsApp…)</p>
 
   <div class="actions">
     <button class="btn main" id="share">Partilhar post</button>
@@ -141,6 +148,12 @@ dialog p{color:#c8c9ee;font-size:14px;line-height:1.55;margin:10px 0}
   <div id="ascOut"></div>
 </dialog>
 
+<dialog id="viewDlg" class="viewer">
+  <img id="viewImg" alt="Pré-visualização">
+  <div class="vnav"><button class="btn" id="viewPrev">‹</button><span id="viewN"></span><button class="btn" id="viewNext">›</button></div>
+  <div class="dlgfoot" style="justify-content:space-between;gap:8px"><button class="btn main" id="viewShare">Partilhar imagem</button><button class="btn" id="viewSave">Guardar</button><button class="btn" data-close>Fechar</button></div>
+  <p class="note" style="text-align:center;margin:8px 0 0">A legenda fica copiada: no Facebook é só colar.</p>
+</dialog>
 <dialog id="reelDlg">
   <h2>O teu Reel</h2>
   <video id="reelVid" controls playsinline loop style="width:100%;border-radius:12px;background:#000"></video>
@@ -1211,7 +1224,7 @@ function render() {
   $('#when').textContent = periodLabel();
   const { cs, cap } = buildPost(); ST.canvases = cs; ST.cap = cap;
   const strip = $('#strip'); strip.innerHTML = '';
-  cs.forEach(x => { const im = new Image(); im.src = x.c.toDataURL('image/jpeg', .9); im.alt = x.name; im.className = ST.fmt; strip.appendChild(im); });
+  cs.forEach((x, i) => { const im = new Image(); im.src = x.c.toDataURL('image/jpeg', .9); im.alt = x.name; im.className = ST.fmt; im.onclick = () => openViewer(i); strip.appendChild(im); });
   $('#count').textContent = cs.length + (cs.length > 1 ? ' fotos' : ' foto');
   $('#reel').hidden = ST.type !== 'top';
   $('#sum').innerHTML = ST.type === 'top' ? `<b>${ST.rank[0].sign.g}&#xFE0E; ${ST.rank[0].sign.n}</b> lidera · <span>${skyShort()}</span>` : `<span>${skyShort()}</span>`;
@@ -1230,9 +1243,22 @@ async function saveBlob(blob, name) {
 }
 async function shareFiles(files, txt) {
   copySync(txt);
-  try { if (navigator.canShare && navigator.canShare({ files })) { await navigator.share({ files, text: txt }); toast('Cola a legenda no Facebook'); return true; } } catch (e) { if (e && e.name === 'AbortError') return true; }
+  try { if (navigator.canShare && navigator.canShare({ files })) { await navigator.share({ files }); toast('Legenda copiada: cola-a no Facebook'); return true; } } catch (e) { if (e && e.name === 'AbortError') return true; }
   return false;
 }
+let VIEW = 0;
+function openViewer(i) {
+  VIEW = i; const x = ST.canvases[i];
+  $('#viewImg').src = $('#strip').children[i].src; $('#viewN').textContent = `${i + 1} de ${ST.canvases.length}`;
+  $('#viewPrev').disabled = i === 0; $('#viewNext').disabled = i === ST.canvases.length - 1;
+  if (!$('#viewDlg').open) $('#viewDlg').showModal();
+}
+async function shareOne() {
+  const x = ST.canvases[VIEW], f = new File([await blobOf(x.c)], `${x.name}.jpg`, { type: 'image/jpeg' });
+  if (await shareFiles([f], ST.cap)) return;
+  await saveBlob(f, f.name); toast('Imagem guardada e legenda copiada');
+}
+async function saveOne() { const x = ST.canvases[VIEW]; await saveBlob(await blobOf(x.c), `${x.name}.jpg`); }
 async function share() {
   const files = await Promise.all(ST.canvases.map(async x => new File([await blobOf(x.c)], `${x.name}.jpg`, { type: 'image/jpeg' })));
   if (await shareFiles(files, ST.cap)) return;
@@ -1344,6 +1370,8 @@ async function init() {
   document.querySelectorAll('dialog [data-close]').forEach(b => b.onclick = () => b.closest('dialog').close());
   document.querySelectorAll('#pack button').forEach(b => b.onclick = () => savePack(+b.dataset.n));
   $('#ascGo').onclick = calcMine;
+  $('#viewShare').onclick = shareOne; $('#viewSave').onclick = saveOne;
+  $('#viewPrev').onclick = () => openViewer(Math.max(0, VIEW - 1)); $('#viewNext').onclick = () => openViewer(Math.min(ST.canvases.length - 1, VIEW + 1));
   try { const me = JSON.parse(store.get('ceu_me') || 'null'); if (me) { $('#bDate').value = me.d; $('#bTime').value = me.t; $('#bCity').value = me.c; } } catch (e) { }
   ST.date = todayStr();
   try { await Promise.race([Promise.all(['700 40px Cinzel', 'italic 600 40px "Cormorant Garamond"', '500 20px Manrope', '600 20px Manrope', '700 20px Manrope', '800 20px Manrope'].map(f => document.fonts.load(f)).concat([document.fonts.load('40px "Noto Sans Symbols"', '♈♉♊♋♌♍♎♏♐♑♒♓☉☽☿♀♂♃♄'), document.fonts.load('40px "Noto Sans Symbols 2"', '♅♆♇★✂✓✕')])), new Promise(r => setTimeout(r, 3000))]); } catch (e) { }
