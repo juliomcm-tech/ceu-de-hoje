@@ -26,15 +26,15 @@ h1{font-family:Cinzel,serif;font-size:22px;letter-spacing:.12em;margin:0;color:v
 #modes button{background:none;border:1px solid transparent;color:var(--mute);border-radius:999px;padding:6px 16px;font:700 13px Manrope;letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
 #modes button.on{border-color:var(--gold);color:var(--gold2)}
 #strip{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 2px 12px;margin:0 -16px;padding-left:16px;padding-right:16px;scrollbar-width:thin}
-#strip img{flex:0 0 78%;max-width:440px;scroll-snap-align:center;border-radius:14px;border:1px solid var(--line);background:#000;display:block}
+#strip img{flex:0 0 auto;width:min(80vw,440px);height:auto;max-width:none;scroll-snap-align:center;border-radius:14px;border:1px solid var(--line);background:#000;display:block}
 #strip img{cursor:zoom-in}
 .tip{color:var(--mute);font-size:12px;text-align:center;margin:-6px 0 12px}
 .viewer{max-width:520px;padding:14px}
 .viewer #viewImg{width:100%;max-height:68vh;object-fit:contain;border-radius:12px;display:block;background:#000}
 .vnav{display:flex;align-items:center;justify-content:center;gap:16px;margin:10px 0 2px;color:var(--mute);font-size:14px}
 .vnav .btn{padding:6px 16px}
-#strip img.story{flex-basis:56%;max-width:320px}
-.meta{display:flex;justify-content:space-between;color:var(--mute);font-size:12.5px;margin:2px 2px 14px;gap:10px}
+#strip img.story{width:min(58vw,320px)}
+.meta{display:flex;justify-content:space-between;align-items:flex-start;color:var(--mute);font-size:12.5px;margin:2px 2px 14px;gap:10px}
 #sum b{color:var(--ink)} #sum span{color:var(--mute)}
 .actions{display:grid;grid-template-columns:1fr auto;gap:10px}
 .btn{border:1px solid var(--line);background:#12133a;color:var(--ink);border-radius:14px;padding:15px 18px;font:700 15px Manrope;cursor:pointer}
@@ -66,8 +66,8 @@ dialog p{color:#c8c9ee;font-size:14px;line-height:1.55;margin:10px 0}
 .trio span{display:block;font-size:11px;color:var(--mute);text-transform:uppercase;letter-spacing:.08em}
 .trio b{display:block;font-family:var(--sym);font-size:30px;color:var(--gold2);margin:4px 0;font-weight:400}
 .trio em{font-style:normal;font-weight:700;font-size:14px}
-#types{display:flex;justify-content:center;gap:6px;flex-wrap:wrap;margin-bottom:10px}
-#types button{background:#10113a;border:1px solid var(--line);color:var(--mute);border-radius:12px;padding:8px 12px;font:700 13px Manrope;cursor:pointer}
+#types{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:10px}
+#types button{background:#10113a;border:1px solid var(--line);color:var(--mute);border-radius:12px;padding:8px 2px;font:700 12px Manrope;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0;white-space:nowrap}
 #types button.on{border-color:var(--gold);color:var(--gold2);background:#1a1b4a}
 #modes[hidden],#modes button[hidden],.link[hidden]{display:none}
 #packTypes{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;margin-top:6px}
@@ -75,9 +75,11 @@ dialog p{color:#c8c9ee;font-size:14px;line-height:1.55;margin:10px 0}
 #ascOut ul{margin:0;padding-left:18px;color:#d6d7f5;font-size:14px;line-height:1.6}
 #ascOut .hl{font-family:"Cormorant Garamond",serif;font-style:italic;font-size:21px;color:var(--gold2);margin:4px 0}
 #ascOut .note{color:var(--mute);font-size:12.5px}
-#strip img.longa{flex-basis:70%;max-width:420px;align-self:flex-start}
+#strip img.longa{width:min(70vw,420px);align-self:flex-start}
 #toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:#1d2050;border:1px solid var(--gold);color:var(--gold2);padding:10px 16px;border-radius:12px;font-weight:700;opacity:0;transition:.25s;pointer-events:none;z-index:9;text-align:center}
 #toast.on{opacity:1;transform:translateX(-50%)}
+#count{white-space:nowrap;flex:none}
+#types button .ic{font-size:18px;line-height:1}
 </style>
 </head>
 <body>
@@ -92,7 +94,7 @@ dialog p{color:#c8c9ee;font-size:14px;line-height:1.55;margin:10px 0}
     <button id="when" title="Voltar a hoje"></button>
     <button class="arrow" id="next" aria-label="Seguinte">›</button>
   </div>
-  <div id="types"><button data-t="top" class="on">🏆 Top</button><button data-t="pares">💞 Pares</button><button data-t="lua">🌙 Lua</button><button data-t="anos">🎂 Anos</button><button data-t="horas">⏳ Horas</button></div>
+  <div id="types"><button data-t="top" class="on"><span class="ic">🏆</span>Top</button><button data-t="pares"><span class="ic">💞</span>Pares</button><button data-t="lua"><span class="ic">🌙</span>Lua</button><button data-t="anos"><span class="ic">🎂</span>Anos</button><button data-t="horas"><span class="ic">⏳</span>Horas</button></div>
   <div id="modes"><button data-m="dia" class="on">Dia</button><button data-m="semana">Semana</button><button data-m="mes">Mês</button><button data-m="ano">Ano</button></div>
 
   <div id="strip"></div>
