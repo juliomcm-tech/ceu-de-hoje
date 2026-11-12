@@ -210,6 +210,17 @@ textarea#iC{width:100%;background:var(--input);border:1px solid var(--line);bord
 .bk.ghost{position:fixed;left:0;top:0;z-index:99;pointer-events:none;opacity:.95;filter:drop-shadow(0 10px 14px #000a)}
 .bk.pull{transform:translateY(-14px) scale(1.12)}
 .prat.auto .bk{cursor:pointer}
+.seg2.vw{grid-template-columns:1fr 1fr 1fr}
+.woods{display:flex;gap:6px;justify-content:center;margin:2px 0 8px}.woods button{border:2px solid transparent;border-radius:999px;padding:6px 14px;font:800 12.5px Manrope;cursor:pointer}.woods button.on{border-color:var(--gold)}
+.wd-madeira{background:#6b4426;color:#f5e1c0}.wd-branca{background:#f3efe8;color:#4a4036}.wd-preta{background:#26262b;color:#ddd}
+.estante.wood-branca{background:linear-gradient(#f4f0e9,#e4ddd1);box-shadow:inset 0 0 0 3px #d5ccbd,0 6px 18px #0003}.wood-branca .eh{color:#5b4f42}.wood-branca .prat{background:linear-gradient(#ddd5c7,#ece6dc);box-shadow:inset 0 10px 14px #0002;border-bottom-color:#fbf8f3}.wood-branca .bk.phd{border-color:#8a7a66}
+.estante.wood-preta{background:linear-gradient(#2c2c31,#1b1b1f);box-shadow:inset 0 0 0 3px #111,0 6px 18px #0008}.wood-preta .eh{color:#d8d8de}.wood-preta .prat{background:linear-gradient(#111114,#1d1d22);border-bottom-color:#3a3a41}
+.estante.w-s{width:64%}.estante.w-m{width:82%}.estante.w-l{width:100%}.estante{margin-left:auto;margin-right:auto}
+.eh{cursor:pointer}.eh span{font-size:11px;opacity:.6}
+.prog{margin-top:4px}.prog i{display:block;height:7px;background:var(--soft);border-radius:4px;overflow:hidden;margin:4px 0 2px}.prog i b{display:block;height:100%;background:linear-gradient(90deg,var(--gold),#ff6b98)}.prog small{display:block;color:var(--mute);font-size:11.5px}.prog small.late{color:var(--badc);font-weight:700}
+.lvl{text-align:center}.lv{font:800 22px Manrope;color:var(--gold2);margin-bottom:4px}
+.mbars{display:grid;grid-template-columns:repeat(12,1fr);gap:4px;height:130px;align-items:end}.mbars div{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:2px}.mbars i{width:72%;min-height:3px;background:linear-gradient(var(--gold),#ff6b98);border-radius:5px 5px 2px 2px}.mbars b{font-size:11px}.mbars span{font-size:10.5px;color:var(--mute)}
+.sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:10px 0}.sgrid div{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 4px;text-align:center}.sgrid b{display:block;font:800 18px Manrope;color:var(--gold2)}.sgrid span{font-size:11px;color:var(--mute)}
 footer.ft{color:var(--mute);font-size:11.5px;text-align:center;margin:18px 0 6px}
 
 :root{--barbg:linear-gradient(#06061af2,#06061ad9 80%,#06061a00);--barsolid:#06061af0;--tabbg:#0b0c28f2;--bodybg:radial-gradient(700px 420px at 50% -8%,#2b1f66aa,transparent 70%),#06061a;--btn:#14164a;--btn2:#1f2160;--dlg:#0f1033;--input:#080924;--backdrop:#000b;--ink2:#dcdcf6;--soft:#ffffff0d;--okc:#8fe8b3;--badc:#ffbf85;--pinkc:#ffb3c9;--pinkc2:#ff6b98;--main:linear-gradient(180deg,#f8d891,#d9a944);--maintxt:#1b1205;--r1bg:#f2c76e14}
@@ -332,6 +343,7 @@ footer.ft{color:var(--mute);font-size:11.5px;text-align:center;margin:18px 0 6px
 <div id="lock" hidden><div class="lockbox"><div class="lockic">🌙</div><h2 id="lockHi">Olá!</h2><p>Escreve o teu PIN</p><input type="password" id="lockPin" inputmode="numeric" maxlength="6" autocomplete="off"><button class="btn main" id="lockGo">Entrar</button><button class="link" id="lockForgot">Esqueci-me do PIN</button></div></div>
 <dialog id="intDlg"><h2 id="intTitle"></h2><div id="intBody"></div><div class="dlgfoot"><button class="btn" id="intDel">🗑️</button><button class="btn main" id="intSave">Guardar</button><button class="btn" data-close>Fechar</button></div></dialog>
 <dialog id="scanDlg"><h2>📷 Código de barras</h2><p>Aponta a câmara ao código de barras atrás do livro.</p><video id="scanVid" playsinline muted style="width:100%;border-radius:12px;background:#000"></video><div class="dlgfoot"><button class="btn" id="scanCancel">Cancelar</button></div></dialog>
+<dialog id="estDlg"><h2>Estante</h2><div id="estBody"></div><div class="dlgfoot"><button class="btn main" id="estSave">Guardar</button><button class="btn" data-close>Fechar</button></div></dialog>
 <dialog id="noteDlg"><h2>📔 Nota</h2><div id="noteBody"></div><div class="dlgfoot"><button class="btn" id="noteEdit">✏️ Editar</button><button class="btn" data-close>Fechar</button></div></dialog>
 <div id="toast"></div>
 <script>
@@ -2112,8 +2124,8 @@ function memories(all) {
 
 // ===== Interesses: livros, séries e filmes, viagens =====
 const INT = {
-  livros: { key: 'ceu_books', ic: '📚', one: 'livro', by: 'Autor(a)', verb: ['Quero ler', 'A ler', 'Lido'], done: 'Leste', doing: 'a ler' },
-  series: { key: 'ceu_shows', ic: '🎬', one: 'série ou filme', by: 'Plataforma / realizador', verb: ['Quero ver', 'A ver', 'Visto'], done: 'Viste', doing: 'a ver' },
+  livros: { key: 'ceu_books', ic: '📚', one: 'livro', by: 'Autor(a)', verb: ['Quero ler', 'A ler', 'Lido', 'Em pausa', 'Desisti'], done: 'Leste', doing: 'a ler' },
+  series: { key: 'ceu_shows', ic: '🎬', one: 'série ou filme', by: 'Plataforma / realizador', verb: ['Quero ver', 'A ver', 'Visto', 'Em pausa', 'Desisti'], done: 'Viste', doing: 'a ver' },
   viagens: { key: 'ceu_trips', ic: '✈️', one: 'viagem', by: 'País', verb: ['Sonho', 'A decorrer', 'Feita'], done: 'Viajaste', doing: 'em viagem' }
 };
 const GENRES = { livros: ['Romance', 'Policial', 'Thriller', 'Fantasia', 'Ficção científica', 'História', 'Biografia', 'Autoajuda', 'Poesia', 'Infantil', 'Clássico', 'Outro'], series: ['Drama', 'Comédia', 'Policial', 'Thriller', 'Ficção científica', 'Fantasia', 'Romance', 'Documentário', 'Animação', 'Terror', 'Novela', 'Outro'], viagens: ['Praia', 'Cidade', 'Natureza', 'Montanha', 'Cultura', 'Gastronomia', 'Aventura', 'Romântica', 'Família', 'Trabalho', 'Outro'] };
@@ -2149,8 +2161,8 @@ function readingToday(ds) {
 // ---- internet (Open Library e TVmaze) ----
 async function jget(url) { const r = await fetch(url); if (!r.ok) throw new Error(r.status); return r.json(); }
 async function searchBooks(q) {
-  const j = await jget(`https://openlibrary.org/search.json?q=${encodeURIComponent(q)}&limit=6&fields=title,author_name,first_publish_year,cover_i,subject&lang=por`);
-  return (j.docs || []).map(d => ({ title: d.title, by: (d.author_name || [])[0] || '', year: d.first_publish_year, cover: d.cover_i ? `https://covers.openlibrary.org/b/id/${d.cover_i}-M.jpg` : '' }));
+  const j = await jget(`https://openlibrary.org/search.json?q=${encodeURIComponent(q)}&limit=6&fields=title,author_name,first_publish_year,cover_i,number_of_pages_median&lang=por`);
+  return (j.docs || []).map(d => ({ pages: d.number_of_pages_median || '', title: d.title, by: (d.author_name || [])[0] || '', year: d.first_publish_year, cover: d.cover_i ? `https://covers.openlibrary.org/b/id/${d.cover_i}-M.jpg` : '' }));
 }
 async function searchShows(q) {
   const j = await jget(`https://api.tvmaze.com/search/shows?q=${encodeURIComponent(q)}`);
@@ -2178,11 +2190,31 @@ async function cachedDaily(key, fn) {
   const v = await fn(); store.set(key, JSON.stringify({ d: todayStr(), v })); return v;
 }
 
+// ---- estatísticas de leitura ----
+const READER = [[0, '📖 Leitor(a) curioso(a)'], [4, '📚 Leitor(a) assíduo(a)'], [12, '🐛 Devora-livros'], [25, '🦉 Rato de biblioteca'], [50, '🏛️ Biblioteca ambulante']];
+const daysSince = d => d ? Math.max(0, Math.round((noonJd(todayStr()) - noonJd(d)))) : null;
+function bookStats(year) {
+  const L = intList('livros'), done = L.filter(x => x.status === 2), yr = done.filter(x => (x.ed || '').startsWith(year));
+  const months = Array(12).fill(0); yr.forEach(x => months[+x.ed.slice(5, 7) - 1]++);
+  const pagesY = yr.reduce((a, x) => a + (+x.pages || 0), 0), withP = done.filter(x => +x.pages > 0);
+  const durs = done.map(x => ({ x, d: x.sd && x.ed ? Math.max(1, Math.round((new Date(dtJoin(x.ed, x.et)) - new Date(dtJoin(x.sd, x.st))) / 864e5)) : null })).filter(o => o.d);
+  const speed = durs.filter(o => +o.x.pages > 0).map(o => +o.x.pages / o.d);
+  const byA = {}; done.forEach(x => { if (!x.by) return; byA[x.by] = byA[x.by] || { n: 0, r: 0 }; byA[x.by].n++; byA[x.by].r += x.rating || 0; });
+  const topA = Object.entries(byA).sort((a, b) => b[1].n - a[1].n || b[1].r - a[1].r)[0];
+  const byG = {}; done.forEach(x => { if (x.genre) byG[x.genre] = (byG[x.genre] || 0) + 1; });
+  const topG = Object.entries(byG).sort((a, b) => b[1] - a[1])[0];
+  const rated = done.filter(x => x.rating), avgR = rated.length ? rated.reduce((a, x) => a + x.rating, 0) / rated.length : 0;
+  const lvl = READER.filter(r => yr.length >= r[0]).pop();
+  const logs = new Set(L.flatMap(x => x.log || [])); let streak = 0; for (let k = 0; k < 400; k++) { const d = dayStr(noonJd(todayStr()) - k); if (logs.has(d)) streak++; else if (k > 0) break; }
+  return { L, done, yr, months, pagesY, words: pagesY * 250, avgPages: withP.length ? Math.round(withP.reduce((a, x) => a + +x.pages, 0) / withP.length) : 0, avgDays: durs.length ? Math.round(durs.reduce((a, o) => a + o.d, 0) / durs.length) : 0, speed: speed.length ? Math.round(speed.reduce((a, b) => a + b, 0) / speed.length) : 0, fastest: durs.sort((a, b) => a.d - b.d)[0], longest: withP.sort((a, b) => +b.pages - +a.pages)[0], topA, topG, avgR, lvl, next: READER.find(r => r[0] > yr.length), streak, reading: L.filter(x => x.status === 1), paused: L.filter(x => x.status === 3), quit: L.filter(x => x.status === 4), readDays: logs.size };
+}
+
 // ===== Estante virtual =====
 const SHELF = {
-  get() { try { return Object.assign({ e: 1, p: 4, names: [], look: 'capas' }, JSON.parse(store.get('ceu_shelf') || '{}')); } catch (e) { return { e: 1, p: 4, names: [], look: 'capas' }; } },
+  get() { let o; try { o = Object.assign({ e: 1, p: 4, names: [], look: 'capas', wood: 'madeira', cfg: [] }, JSON.parse(store.get('ceu_shelf') || '{}')); } catch (e) { o = { e: 1, p: 4, names: [], look: 'capas', wood: 'madeira', cfg: [] }; } o.cfg = o.cfg || []; return o; },
   set(o) { store.set('ceu_shelf', JSON.stringify(o)); }
 };
+const shP = (S, e) => (S.cfg[e] && S.cfg[e].p) || S.p, shW = (S, e) => (S.cfg[e] && S.cfg[e].w) || 'l';
 const SORTS = [['manual', 'A minha ordem'], ['az', 'Título A–Z'], ['autor', 'Autor A–Z'], ['rate', 'Avaliação'], ['recent', 'Mais recentes']];
 const col = s => { let h = 0; for (const c of s) h = (h * 31 + c.charCodeAt(0)) >>> 0; const hues = [8, 25, 42, 140, 165, 200, 220, 260, 285, 330]; return `hsl(${hues[h % hues.length]} ${35 + h % 25}% ${30 + (h >> 4) % 18}%)`; };
 function sortBooks(L, s) {
@@ -2196,9 +2228,9 @@ function sortBooks(L, s) {
 function normShelf() { // garante que todos os livros têm lugar e numeração seguida
   const S = SHELF.get(), L = intList('livros'); let changed = false;
   const cap = S.look === 'capas' ? 5 : 10, count = (e, p) => L.filter(x => x.pos && x.pos.e === e && x.pos.p === p && !x._new).length;
-  L.forEach(x => { if (x.pos && (x.pos.e >= S.e || x.pos.p >= S.p)) { x.pos = { e: Math.min(S.e - 1, x.pos.e), p: Math.min(S.p - 1, x.pos.p), i: 1e6 + x.pos.i }; changed = true; } });
-  L.filter(x => !x.pos).sort((a, b) => (a.ts || 0) - (b.ts || 0)).forEach(x => { let spot = null; for (let e = 0; e < S.e && !spot; e++) for (let p = 0; p < S.p && !spot; p++) if (count(e, p) < cap) spot = { e, p }; spot = spot || { e: S.e - 1, p: S.p - 1 }; x.pos = { ...spot, i: 1e6 + count(spot.e, spot.p) }; changed = true; });
-  for (let e = 0; e < S.e; e++) for (let p = 0; p < S.p; p++) L.filter(x => x.pos.e === e && x.pos.p === p).sort((a, b) => a.pos.i - b.pos.i).forEach((x, i) => { if (x.pos.i !== i) { x.pos.i = i; changed = true; } });
+  L.forEach(x => { if (x.pos && (x.pos.e >= S.e || x.pos.p >= shP(S, x.pos.e))) { const ne = Math.min(S.e - 1, x.pos.e); x.pos = { e: ne, p: Math.min(shP(S, ne) - 1, x.pos.p), i: 1e6 + x.pos.i }; changed = true; } });
+  L.filter(x => !x.pos).sort((a, b) => (a.ts || 0) - (b.ts || 0)).forEach(x => { let spot = null; for (let e = 0; e < S.e && !spot; e++) for (let p = 0; p < shP(S, e) && !spot; p++) if (count(e, p) < cap * ({ s: .6, m: .8, l: 1 }[shW(S, e)])) spot = { e, p }; spot = spot || { e: S.e - 1, p: shP(S, S.e - 1) - 1 }; x.pos = { ...spot, i: 1e6 + count(spot.e, spot.p) }; changed = true; });
+  for (let e = 0; e < S.e; e++) for (let p = 0; p < shP(S, e); p++) L.filter(x => x.pos.e === e && x.pos.p === p).sort((a, b) => a.pos.i - b.pos.i).forEach((x, i) => { if (x.pos.i !== i) { x.pos.i = i; changed = true; } });
   if (changed) intSave('livros', L); return L;
 }
 function bookEl(x, look) {
@@ -2210,18 +2242,19 @@ function bookEl(x, look) {
 function vShelf() {
   const S = SHELF.get(), sort = ST.shelfSort || 'manual', look = S.look;
   let L = sort === 'manual' ? normShelf() : intList('livros');
-  let h = `<div class="shtools"><select id="shSort">${SORTS.map(([k, n]) => `<option value="${k}"${k === sort ? ' selected' : ''}>${n}</option>`).join('')}</select><div class="seg3"><button data-look="capas"${look === 'capas' ? ' class="on"' : ''}>Capas</button><button data-look="lombadas"${look === 'lombadas' ? ' class="on"' : ''}>Lombadas</button></div></div>`;
-  if (sort === 'manual') h += `<div class="shcfg"><span>Estantes</span><button class="ib" data-c="e-">−</button><b>${S.e}</b><button class="ib" data-c="e+">＋</button><span>Prateleiras</span><button class="ib" data-c="p-">−</button><b>${S.p}</b><button class="ib" data-c="p+">＋</button></div><p class="hint">Carrega sem soltar num livro e arrasta-o para o sítio certo.</p>`;
+  let h = `<div class="shtools"><select id="shSort">${SORTS.map(([k, n]) => `<option value="${k}"${k === sort ? ' selected' : ''}>${n}</option>`).join('')}</select><div class="seg3"><button data-look="capas"${look === 'capas' ? ' class="on"' : ''}>Capas</button><button data-look="lombadas"${look === 'lombadas' ? ' class="on"' : ''}>Lombadas</button></div></div>
+    <div class="woods">${[['madeira', 'Madeira'], ['branca', 'Branca'], ['preta', 'Preta']].map(([k, n]) => `<button data-wood="${k}" class="wd-${k}${S.wood === k ? ' on' : ''}">${n}</button>`).join('')}</div>`;
+  if (sort === 'manual') h += `<div class="shcfg"><span>Estantes</span><button class="ib" data-c="e-">−</button><b>${S.e}</b><button class="ib" data-c="e+">＋</button></div><p class="hint">Carrega sem soltar num livro e arrasta-o. Toca no nome da estante para mudar a largura e as prateleiras.</p>`;
   if (!L.length) return h + '<p class="hint">Ainda não há livros na estante.</p>';
   if (sort === 'manual') {
     for (let e = 0; e < S.e; e++) {
-      h += `<div class="estante"><div class="eh">${esc(S.names[e] || 'Estante ' + (e + 1))}</div>`;
-      for (let p = 0; p < S.p; p++) { const row = L.filter(x => x.pos.e === e && x.pos.p === p).sort((a, b) => a.pos.i - b.pos.i); h += `<div class="prat" data-e="${e}" data-p="${p}">${row.map(x => bookEl(x, look)).join('')}</div>`; }
+      h += `<div class="estante wood-${S.wood} w-${shW(S, e)}"><div class="eh" data-est="${e}">${esc(S.names[e] || 'Estante ' + (e + 1))} <span>✏️</span></div>`;
+      for (let p = 0; p < shP(S, e); p++) { const row = L.filter(x => x.pos.e === e && x.pos.p === p).sort((a, b) => a.pos.i - b.pos.i); h += `<div class="prat" data-e="${e}" data-p="${p}">${row.map(x => bookEl(x, look)).join('')}</div>`; }
       h += '</div>';
     }
   } else {
     const A = sortBooks(L, sort), per = look === 'capas' ? 5 : 9;
-    h += '<div class="estante">'; for (let i = 0; i < A.length; i += per) h += `<div class="prat auto">${A.slice(i, i + per).map(x => bookEl(x, look)).join('')}</div>`; h += '</div>';
+    h += `<div class="estante wood-${S.wood}">`; for (let i = 0; i < A.length; i += per) h += `<div class="prat auto">${A.slice(i, i + per).map(x => bookEl(x, look)).join('')}</div>`; h += '</div>';
   }
   return h;
 }
@@ -2229,6 +2262,8 @@ function bindShelf() {
   $('#shSort').onchange = e => { ST.shelfSort = e.target.value; render(); };
   document.querySelectorAll('[data-look]').forEach(b => b.onclick = () => { const S = SHELF.get(); S.look = b.dataset.look; SHELF.set(S); render(); });
   document.querySelectorAll('[data-c]').forEach(b => b.onclick = () => { const S = SHELF.get(), c = b.dataset.c; if (c === 'e+') S.e = Math.min(10, S.e + 1); if (c === 'e-') S.e = Math.max(1, S.e - 1); if (c === 'p+') S.p = Math.min(12, S.p + 1); if (c === 'p-') S.p = Math.max(1, S.p - 1); SHELF.set(S); render(); });
+  document.querySelectorAll('[data-wood]').forEach(b => b.onclick = () => { const S = SHELF.get(); S.wood = b.dataset.wood; SHELF.set(S); render(); });
+  document.querySelectorAll('[data-est]').forEach(el => el.onclick = () => editEstante(+el.dataset.est));
   const manual = (ST.shelfSort || 'manual') === 'manual';
   document.querySelectorAll('.bk').forEach(el => el.addEventListener('pointerdown', ev => bookDown(ev, el, manual)));
 }
@@ -2275,9 +2310,9 @@ function placeAt(x, y) {
 // ---- ISBN e código de barras ----
 async function isbnLookup(isbn) {
   isbn = String(isbn).replace(/\D/g, '');
-  const j = await jget(`https://openlibrary.org/search.json?isbn=${isbn}&fields=title,author_name,cover_i,first_publish_year&limit=1`);
-  const d = (j.docs || [])[0]; if (d) return { title: d.title, by: (d.author_name || [])[0] || '', cover: d.cover_i ? `https://covers.openlibrary.org/b/id/${d.cover_i}-M.jpg` : `https://covers.openlibrary.org/b/isbn/${isbn}-M.jpg?default=false` };
-  try { const g = await jget(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`); const v = g.items && g.items[0] && g.items[0].volumeInfo; if (v) return { title: v.title, by: (v.authors || [])[0] || '', cover: v.imageLinks ? (v.imageLinks.thumbnail || '').replace('http:', 'https:') : '' }; } catch (e) { }
+  const j = await jget(`https://openlibrary.org/search.json?isbn=${isbn}&fields=title,author_name,cover_i,first_publish_year,number_of_pages_median&limit=1`);
+  const d = (j.docs || [])[0]; if (d) return { pages: d.number_of_pages_median || '', title: d.title, by: (d.author_name || [])[0] || '', cover: d.cover_i ? `https://covers.openlibrary.org/b/id/${d.cover_i}-M.jpg` : `https://covers.openlibrary.org/b/isbn/${isbn}-M.jpg?default=false` };
+  try { const g = await jget(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`); const v = g.items && g.items[0] && g.items[0].volumeInfo; if (v) return { pages: v.pageCount || '', title: v.title, by: (v.authors || [])[0] || '', cover: v.imageLinks ? (v.imageLinks.thumbnail || '').replace('http:', 'https:') : '' }; } catch (e) { }
   return null;
 }
 async function scanBarcode() {
@@ -2294,8 +2329,17 @@ async function scanBarcode() {
 
 function pullOut(el) { el.classList.add('pull'); setTimeout(() => { el.classList.remove('pull'); openItem('livros', el.dataset.id, false); }, 260); }
 
+function editEstante(e) {
+  const S = SHELF.get();
+  $('#estBody').innerHTML = `<div class="form"><label>Nome<input type="text" id="esN" maxlength="24" value="${esc(S.names[e] || '')}" placeholder="Estante ${e + 1} (ex.: Sala, Quarto)"></label>
+    <label>Largura<select id="esW">${[['s', 'Estreita'], ['m', 'Normal'], ['l', 'Larga']].map(([k, n]) => `<option value="${k}"${shW(S, e) === k ? ' selected' : ''}>${n}</option>`).join('')}</select></label>
+    <label>Prateleiras<input type="number" id="esP" min="1" max="12" value="${shP(S, e)}" inputmode="numeric"></label></div>`;
+  $('#estSave').onclick = () => { const S2 = SHELF.get(); S2.names[e] = $('#esN').value.trim(); S2.cfg[e] = { w: $('#esW').value, p: Math.max(1, Math.min(12, +$('#esP').value || 4)) }; SHELF.set(S2); $('#estDlg').close(); render(); };
+  $('#estDlg').showModal();
+}
+
 // ===== App de telemóvel =====
-const APP_VERSION = '12.11.2026 23:15';
+const APP_VERSION = '12.11.2026 23:23';
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const G = g => `${g}&#xFE0E;`;
@@ -2591,13 +2635,14 @@ function vInteresses() {
   h += `<div class="box istats"><div><b>${S.done}</b><span>${C.verb[2].toLowerCase()}${S.done === 1 ? '' : 's'}</span></div><div><b>${S.year}</b><span>em ${todayStr().slice(0, 4)}</span></div><div><b>${S.doing}</b><span>${C.doing}</span></div><div><b>${t === 'viagens' ? S.countries.length : S.avgDays ?? '–'}</b><span>${t === 'viagens' ? 'países' : 'dias em média'}</span></div></div>`;
   if (S.topG || S.topA) h += `<p class="hint" style="text-align:left">${S.topG ? `O teu género preferido: <b>${S.topG[0]}</b>. ` : ''}${S.topA && t === 'livros' ? `Autor(a) mais lido(a): <b>${esc(S.topA[0])}</b>.` : ''}</p>`;
   if (t === 'livros') { const R = readingToday(ST.date); h += `<div class="box"><h3>📖 Hoje para ler: <span style="color:${LUA_COL[R.v]}">${LUA_LBL[R.v]}</span></h3><p>${esc(R.why)}</p>${R.hrs.length ? `<p>Melhores horas (Mercúrio e Lua): <b>${R.hrs.join(' · ')}</b></p>` : ''}</div>`; }
-  if (t === 'livros') h += `<div class="seg2 vw"><button data-vw="lista"${ST.bookView === 'estante' ? '' : ' class="on"'}>📋 Lista</button><button data-vw="estante"${ST.bookView === 'estante' ? ' class="on"' : ''}>📚 Estante</button></div>`;
+  if (t === 'livros') h += `<div class="seg2 vw"><button data-vw="lista"${ST.bookView === 'estante' ? '' : ' class="on"'}>📋 Lista</button><button data-vw="estante"${ST.bookView === 'estante' ? ' class="on"' : ''}>📚 Estante</button><button data-vw="stats"${ST.bookView === 'stats' ? ' class="on"' : ''}>📊 Números</button></div>`;
   h += `<div id="intOnline"></div><div class="addrow"><button class="btn main" id="intAdd">＋ Adicionar ${C.one}</button>${t === 'livros' ? '<button class="btn" id="intScan" title="Ler código de barras">📷</button>' : ''}</div>`;
   if (t === 'livros' && ST.bookView === 'estante') return h + vShelf();
-  for (const st of [1, 0, 2]) {
+  if (t === 'livros' && ST.bookView === 'stats') return h + vBookStats();
+  for (const st of [1, 3, 0, 2, 4].filter(n => n < C.verb.length)) {
     const g = L.filter(x => x.status === st).sort((a, b) => (b.ed || b.sd || '').localeCompare(a.ed || a.sd || ''));
     if (!g.length) continue;
-    h += `<h2 class="vt">${C.verb[st]} <small>(${g.length})</small></h2><div class="ilist">${g.map(x => `<div class="iit" data-id="${x.id}">${x.cover ? `<img src="${esc(x.cover)}" alt="" loading="lazy">` : `<span class="ph0">${C.ic}</span>`}<div><b>${esc(x.title)}</b><small>${esc(x.by || '')}${x.place ? ' · ' + esc(x.place) : ''}${x.genre ? ' · ' + x.genre : ''}</small>${x.rating ? `<span class="stars">${'★'.repeat(x.rating)}<i>${'☆'.repeat(5 - x.rating)}</i></span>` : ''}${st === 2 && durTxt(dtJoin(x.sd, x.st), dtJoin(x.ed, x.et)) ? `<small>⏱ ${C.done} em ${durTxt(dtJoin(x.sd, x.st), dtJoin(x.ed, x.et))}</small>` : ''}${x.next ? `<small class="nx">📺 Próximo episódio: ${x.next}</small>` : ''}</div></div>`).join('')}</div>`;
+    h += `<h2 class="vt">${C.verb[st]} <small>(${g.length})</small></h2><div class="ilist">${g.map(x => `<div class="iit" data-id="${x.id}">${x.cover ? `<img src="${esc(x.cover)}" alt="" loading="lazy">` : `<span class="ph0">${C.ic}</span>`}<div><b>${esc(x.title)}</b><small>${esc(x.by || '')}${x.place ? ' · ' + esc(x.place) : ''}${x.genre ? ' · ' + x.genre : ''}</small>${x.rating ? `<span class="stars">${'★'.repeat(x.rating)}<i>${'☆'.repeat(5 - x.rating)}</i></span>` : ''}${st === 2 && durTxt(dtJoin(x.sd, x.st), dtJoin(x.ed, x.et)) ? `<small>⏱ ${C.done} em ${durTxt(dtJoin(x.sd, x.st), dtJoin(x.ed, x.et))}</small>` : ''}${x.next ? `<small class="nx">📺 Próximo episódio: ${x.next}</small>` : ''}${t === 'livros' && (x.status === 1 || x.status === 3) ? progH(x) : ''}</div></div>`).join('')}</div>`;
   }
   if (!L.length) h += `<p class="hint">${t === 'livros' ? 'A tua pequena biblioteca começa aqui. Junta o livro que estás a ler ou os que já leste.' : t === 'series' ? 'Junta as séries e os filmes que vês ou queres ver.' : 'Junta as viagens que fizeste e as que sonhas fazer.'}</p>`;
   return h;
@@ -2609,6 +2654,7 @@ function bindInteresses() {
   document.querySelectorAll('[data-vw]').forEach(b => b.onclick = () => { ST.bookView = b.dataset.vw; render(); });
   if ($('#intScan')) $('#intScan').onclick = async () => { try { const code = await scanBarcode(); if (!code) return; toast('A procurar o livro…'); const b = await isbnLookup(code); if (!b) { toast('Não encontrei esse ISBN'); openItem('livros', null, true, { isbn: code }); return; } openItem('livros', null, true, { ...b, isbn: code, status: 2 }); } catch (e) { toast('Sem câmara ou sem internet'); } };
   if (t === 'livros' && ST.bookView === 'estante') bindShelf();
+  if (t === 'livros' && ST.bookView === 'stats') { $('#syPrev').onclick = () => { ST.statYear = +(ST.statYear || todayStr().slice(0, 4)) - 1; render(); }; $('#syNext').onclick = () => { ST.statYear = +(ST.statYear || todayStr().slice(0, 4)) + 1; render(); }; }
   document.querySelectorAll('.iit').forEach(el => el.onclick = () => openItem(t, el.dataset.id, false));
   if (ONLINE()) loadIntOnline(t);
 }
@@ -2637,14 +2683,17 @@ function openItem(t, id, edit, preset) {
     const dur = durTxt(dtJoin(x.sd, x.st), dtJoin(x.ed, x.et)), sky = x.sd ? skyFor(x.sd) : null;
     $('#intBody').innerHTML = `<div class="ihero">${x.cover ? `<img src="${esc(x.cover)}" alt="">` : `<span class="ph1">${C.ic}</span>`}<h3>${esc(x.title)}</h3><p>${esc(x.by || '')}${x.place ? ' · ' + esc(x.place) : ''}${x.genre ? ' · ' + x.genre : ''}</p><span class="stars big">${'★'.repeat(x.rating || 0)}<i>${'☆'.repeat(5 - (x.rating || 0))}</i></span><span class="chip" style="--c:var(--gold)">${C.verb[x.status]}</span></div>
       ${x.sd ? `<div class="box"><p>▶️ Início: <b>${niceDate(x.sd)}${x.st ? ' às ' + x.st : ''}</b></p>${x.ed ? `<p>🏁 Fim: <b>${niceDate(x.ed)}${x.et ? ' às ' + x.et : ''}</b></p>` : ''}${dur ? `<p>⏱ ${C.done} em <b>${dur}</b>.</p>` : ''}${sky ? `<p class="note">🌙 Começaste com a Lua em ${SIGN_IN[sky.moon.sign]} (${moonPhaseName(sky.phase.elong)}).</p>` : ''}</div>` : ''}
+      ${t === 'livros' && (x.status === 1 || x.status === 3) ? `<div class="box"><h3>📖 A tua leitura</h3>${progH(x)}<div class="drow"><input type="number" id="logPg" inputmode="numeric" placeholder="Página onde vais" value="${x.page || ''}"><button class="btn main" id="logGo">Li hoje</button></div></div>` : ''}
       ${x.comment ? `<div class="box"><h3>💬 O teu comentário</h3><p>${esc(x.comment).replace(/\n/g, '<br>')}</p></div>` : ''}${x.next ? `<div class="box"><p>📺 Próximo episódio: <b>${x.next}</b></p></div>` : ''}`;
     $('#intSave').textContent = '✏️ Editar'; $('#intSave').onclick = () => openItem(t, id, true); $('#intDel').hidden = true;
+    if ($('#logGo')) $('#logGo').onclick = () => { const all = intList(t), o = all.find(z => z.id === id), pg = +$('#logPg').value || +o.page || 0; o.page = pg; o.lastRead = todayStr(); o.log = [...new Set([...(o.log || []), todayStr()])]; o.status = 1; if (o.pages && pg >= +o.pages) { o.status = 2; o.ed = todayStr(); toast(`Terminado! ${INT[t].done} em ${durTxt(dtJoin(o.sd, o.st), dtJoin(o.ed, o.et)) || '—'} 🎉`); } else toast('Leitura registada 📖'); intSave(t, all); openItem(t, id, false); render(); };
     if (!$('#intDlg').open) $('#intDlg').showModal(); return;
   }
   const gOpt = GENRES[t].map(g => `<option${g === x.genre ? ' selected' : ''}>${g}</option>`).join('');
   $('#intBody').innerHTML = `${ONLINE() && t !== 'viagens' ? `<div class="srch"><input type="search" id="iQ" placeholder="🔎 Procurar ${t === 'livros' ? 'livro ou autor' : 'série'} na internet…"><div id="iRes"></div></div>` : ''}
     <div class="form"><label>${t === 'viagens' ? 'Destino / nome da viagem' : 'Título'}<input type="text" id="iT" maxlength="80" value="${esc(x.title)}"></label>
     <label>${C.by}<input type="text" id="iB" maxlength="60" value="${esc(x.by)}"></label>${t === 'viagens' ? `<label>Cidade / lugar<input type="text" id="iP" maxlength="60" value="${esc(x.place || '')}"></label>` : ''}
+    ${t === 'livros' ? `<div class="two"><label>Nº de páginas<input type="number" id="iPg" min="1" max="5000" inputmode="numeric" value="${x.pages || ''}"></label><label>Página atual<input type="number" id="iCp" min="0" max="5000" inputmode="numeric" value="${x.page || ''}"></label></div>` : ''}
     <label>${t === 'viagens' ? 'Tipo' : 'Género'}<select id="iG"><option value="">—</option>${gOpt}</select></label>
     <label>Estado<select id="iS">${C.verb.map((v, i) => `<option value="${i}"${i === x.status ? ' selected' : ''}>${v}</option>`).join('')}</select></label>
     <label>Avaliação</label><div class="rate">${[1, 2, 3, 4, 5].map(n => `<button data-r="${n}"${n <= x.rating ? ' class="on"' : ''}>★</button>`).join('')}</div>
@@ -2654,17 +2703,33 @@ function openItem(t, id, edit, preset) {
     ${t === 'livros' ? (() => { const S = SHELF.get(), pe = x.pos ? x.pos.e : +(store.get('ceu_lastshelf') || '0').split(',')[0] || 0, pp = x.pos ? x.pos.p : +(store.get('ceu_lastshelf') || '0,0').split(',')[1] || 0; return `<label>Lugar na estante</label><div class="two"><select id="iPE">${[...Array(S.e)].map((_, i) => `<option value="${i}"${i === pe ? ' selected' : ''}>${esc(S.names[i] || 'Estante ' + (i + 1))}</option>`).join('')}</select><select id="iPP">${[...Array(S.p)].map((_, i) => `<option value="${i}"${i === pp ? ' selected' : ''}>Prateleira ${i + 1}</option>`).join('')}</select></div>`; })() : ''}</div>`;
   let rating = x.rating || 0, cover = x.cover || '', tvm = x.tvmaze || null;
   document.querySelectorAll('.rate button').forEach(b => b.onclick = () => { rating = +b.dataset.r === rating ? 0 : +b.dataset.r; document.querySelectorAll('.rate button').forEach(z => z.classList.toggle('on', +z.dataset.r <= rating)); });
-  if ($('#iQ')) $('#iQ').oninput = () => { clearTimeout(openItem.t); const q = $('#iQ').value.trim(); if (q.length < 3) { $('#iRes').innerHTML = ''; return; } openItem.t = setTimeout(async () => { try { $('#iRes').innerHTML = '<p class="hint">A procurar…</p>'; const R = t === 'livros' ? await searchBooks(q) : await searchShows(q); $('#iRes').innerHTML = R.map((r, i) => `<div class="sug" data-i="${i}">${r.cover ? `<img src="${r.cover}" alt="">` : `<span class="ph0">${C.ic}</span>`}<div><b>${esc(r.title)}</b><small>${esc(r.by)}${r.year ? ' · ' + r.year : ''}</small></div></div>`).join('') || '<p class="hint">Sem resultados.</p>'; $('#iRes').querySelectorAll('.sug').forEach(el => el.onclick = () => { const r = R[+el.dataset.i]; $('#iT').value = r.title; $('#iB').value = r.by; cover = r.cover; tvm = r.tvmaze || null; $('#iRes').innerHTML = `<p class="hint">✓ ${esc(r.title)}</p>`; }); } catch (e) { $('#iRes').innerHTML = '<p class="hint">Sem ligação à internet.</p>'; } }, 450); };
+  if ($('#iQ')) $('#iQ').oninput = () => { clearTimeout(openItem.t); const q = $('#iQ').value.trim(); if (q.length < 3) { $('#iRes').innerHTML = ''; return; } openItem.t = setTimeout(async () => { try { $('#iRes').innerHTML = '<p class="hint">A procurar…</p>'; const R = t === 'livros' ? await searchBooks(q) : await searchShows(q); $('#iRes').innerHTML = R.map((r, i) => `<div class="sug" data-i="${i}">${r.cover ? `<img src="${r.cover}" alt="">` : `<span class="ph0">${C.ic}</span>`}<div><b>${esc(r.title)}</b><small>${esc(r.by)}${r.year ? ' · ' + r.year : ''}</small></div></div>`).join('') || '<p class="hint">Sem resultados.</p>'; $('#iRes').querySelectorAll('.sug').forEach(el => el.onclick = () => { const r = R[+el.dataset.i]; $('#iT').value = r.title; $('#iB').value = r.by; cover = r.cover; if (r.pages && $('#iPg') && !$('#iPg').value) $('#iPg').value = r.pages; tvm = r.tvmaze || null; $('#iRes').innerHTML = `<p class="hint">✓ ${esc(r.title)}</p>`; }); } catch (e) { $('#iRes').innerHTML = '<p class="hint">Sem ligação à internet.</p>'; } }, 450); };
   $('#iS').onchange = () => { if ($('#iS').value === '2' && !$('#iED').value) $('#iED').value = todayStr(); };
   $('#intSave').textContent = 'Guardar'; $('#intDel').hidden = !id;
   $('#intSave').onclick = () => {
     const ti = $('#iT').value.trim(); if (!ti) { toast('Escreve o título'); return; }
     const npos = t === 'livros' && $('#iPE') ? (() => { const e = +$('#iPE').value, p = +$('#iPP').value; store.set('ceu_lastshelf', e + ',' + p); return x.pos && x.pos.e === e && x.pos.p === p ? x.pos : { e, p, i: 1e6 }; })() : x.pos;
-    const o = { pos: npos, isbn: x.isbn || '', id: id || 'i' + Date.now().toString(36), title: ti, by: $('#iB').value.trim(), place: $('#iP') ? $('#iP').value.trim() : '', genre: $('#iG').value, status: +$('#iS').value, rating, sd: $('#iSD').value, st: $('#iST').value, ed: $('#iED').value, et: $('#iET').value, comment: $('#iC').value.trim(), cover, tvmaze: tvm, next: x.next || '', ts: Date.now() };
+    const o = { pages: $('#iPg') ? $('#iPg').value : x.pages || '', page: $('#iCp') ? $('#iCp').value : x.page || '', lastRead: x.lastRead || '', log: x.log || [], pos: npos, isbn: x.isbn || '', id: id || 'i' + Date.now().toString(36), title: ti, by: $('#iB').value.trim(), place: $('#iP') ? $('#iP').value.trim() : '', genre: $('#iG').value, status: +$('#iS').value, rating, sd: $('#iSD').value, st: $('#iST').value, ed: $('#iED').value, et: $('#iET').value, comment: $('#iC').value.trim(), cover, tvmaze: tvm, next: x.next || '', ts: Date.now() };
     const all = intList(t); if (id) all[all.findIndex(z => z.id === id)] = o; else all.push(o); intSave(t, all); $('#intDlg').close(); toast(o.status === 2 && o.ed ? `${C.done} em ${durTxt(dtJoin(o.sd, o.st), dtJoin(o.ed, o.et)) || '—'} 🎉` : 'Guardado'); render();
   };
   $('#intDel').onclick = () => { if (!confirmBox('Apagar?')) return; intSave(t, intList(t).filter(z => z.id !== id)); $('#intDlg').close(); render(); };
   if (!$('#intDlg').open) $('#intDlg').showModal();
+}
+function progH(x) {
+  const last = [x.lastRead, ...(x.log || [])].filter(Boolean).sort().pop() || x.sd, pct = x.pages && x.page ? Math.min(100, Math.round(+x.page / +x.pages * 100)) : null, ds = daysSince(last);
+  return `<div class="prog">${pct !== null ? `<i><b style="width:${pct}%"></b></i><small>Página ${x.page} de ${x.pages} · ${pct}%</small>` : ''}${ds !== null ? `<small class="${ds >= 7 ? 'late' : ''}">${x.status === 3 ? '⏸️ Em pausa · ' : ''}${ds === 0 ? 'Leste hoje ✨' : ds === 1 ? 'Leste ontem' : `Há ${ds} dias que não pegas neste livro`}</small>` : ''}</div>`;
+}
+function vBookStats() {
+  const y = String(ST.statYear || todayStr().slice(0, 4)), B = bookStats(y), mx = Math.max(1, ...B.months), mn = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
+  let h = `<div class="agnav"><button class="arrow" id="syPrev">‹</button><b>${y}</b><button class="arrow" id="syNext">›</button></div>`;
+  h += `<div class="box lvl"><div class="lv">${B.lvl[1]}</div><p><b>${B.yr.length}</b> livro${B.yr.length === 1 ? '' : 's'} lido${B.yr.length === 1 ? '' : 's'} em ${y}${B.next ? ` · faltam ${B.next[0] - B.yr.length} para «${B.next[1].replace(/^\S+ /, '')}»` : ''}</p>${B.streak > 1 ? `<p>🔥 ${B.streak} dias seguidos a ler!</p>` : ''}</div>`;
+  h += `<div class="box"><h3>📅 Livros por mês</h3><div class="mbars">${B.months.map((v, k) => `<div><b>${v || ''}</b><i style="height:${v / mx * 100}%"></i><span>${mn[k]}</span></div>`).join('')}</div></div>`;
+  h += `<div class="sgrid"><div><b>${B.pagesY.toLocaleString('pt-PT')}</b><span>páginas em ${y}</span></div><div><b>${(B.words / 1000).toLocaleString('pt-PT', { maximumFractionDigits: 0 })} mil</b><span>palavras (estimativa)</span></div><div><b>${B.avgPages || '–'}</b><span>páginas por livro</span></div><div><b>${B.avgDays || '–'}</b><span>dias por livro</span></div><div><b>${B.speed || '–'}</b><span>páginas por dia</span></div><div><b>${B.avgR ? B.avgR.toFixed(1) + '★' : '–'}</b><span>nota média</span></div></div>`;
+  h += `<div class="box">${B.topA ? `<p>✍️ Autor(a) preferido(a): <b>${esc(B.topA[0])}</b> (${B.topA[1].n} livro${B.topA[1].n > 1 ? 's' : ''})</p>` : ''}${B.topG ? `<p>🏷️ Género preferido: <b>${B.topG[0]}</b></p>` : ''}${B.fastest ? `<p>⚡ Mais rápido: <b>${esc(B.fastest.x.title)}</b> em ${B.fastest.d} dia${B.fastest.d > 1 ? 's' : ''}</p>` : ''}${B.longest ? `<p>🧱 Mais grosso: <b>${esc(B.longest.title)}</b> (${B.longest.pages} páginas)</p>` : ''}<p>📆 Dias com leitura registada: <b>${B.readDays}</b></p></div>`;
+  if (B.reading.length || B.paused.length) h += `<div class="box"><h3>📖 Em curso</h3>${B.reading.concat(B.paused).map(x => `<div class="sug"><div><b>${esc(x.title)}</b>${progH(x)}</div></div>`).join('')}</div>`;
+  if (B.quit.length) h += `<div class="box"><h3>🚪 Desisti (${B.quit.length})</h3><p>${B.quit.map(x => esc(x.title)).join(' · ')}</p><p class="note">Não faz mal: a vida é curta para livros que não nos agarram.</p></div>`;
+  if (!B.done.length) h += '<p class="hint">Marca livros como «Lido», com datas e páginas, para veres aqui os teus números.</p>';
+  return h;
 }
 function askOracle(q) {
   if (!q.trim()) return; const p = P.get(); ST.chat = (ST.chat || []).concat([{ who: 'me', txt: esc(q) }, { who: 'or', txt: oracle(q, p) }]).slice(-12);
