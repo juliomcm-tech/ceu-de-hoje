@@ -184,7 +184,7 @@ textarea#dTxt{width:100%;background:var(--input);border:1px solid var(--line);bo
 .seg2:has(button:nth-child(3)){grid-template-columns:1fr 1fr 1fr}.seg2 button{font-size:12.5px;padding:9px 4px}
 .itabs{display:flex;gap:6px;overflow-x:auto;margin:6px 0 10px;scrollbar-width:none}.itabs button{flex:none;background:var(--card);border:1px solid var(--line);color:var(--mute);border-radius:999px;padding:8px 13px;font:800 13px Manrope;cursor:pointer}.itabs button.on{border-color:var(--gold);color:var(--gold2);background:var(--btn2)}
 .istats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center}.istats b{display:block;font:800 22px Manrope;color:var(--gold2)}.istats span{font-size:11px;color:var(--mute)}
-.ilist{display:grid;gap:8px}.iit{display:flex;gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px;cursor:pointer}.iit img,.sug img{width:46px;height:66px;object-fit:cover;border-radius:6px;flex:none;background:var(--soft)}.ph0{width:46px;height:66px;border-radius:6px;background:var(--soft);display:grid;place-items:center;font-size:24px;flex:none}.iit div{min-width:0;flex:1}.iit b{display:block}.iit small{display:block;color:var(--mute);font-size:12px}.iit .stars{font-size:13px}.nx{color:var(--gold2)!important;font-weight:800}
+.ilist{display:grid;gap:8px}.iit{display:flex;gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px;cursor:pointer}.iit img,.sug img{width:46px;height:66px;object-fit:cover;border-radius:6px;flex:none;background:var(--soft)}.ph0{width:46px;height:66px;border-radius:6px;background:var(--soft);display:grid;place-items:center;font-size:24px;flex:none}.iit div{min-width:0;flex:1}.iit b{display:block}.iit small{display:block;color:var(--mute);font-size:12px}.iit .stars{font-size:13px}.nx{color:var(--gold2)!important;font-weight:800}.flg{position:relative;overflow:hidden;isolation:isolate}.flg::before{content:'';position:absolute;inset:0;background:var(--fl);opacity:.16;-webkit-mask-image:linear-gradient(180deg,#000,transparent 85%);mask-image:linear-gradient(180deg,#000,transparent 85%);z-index:-1;pointer-events:none}.flg::after{content:'';position:absolute;left:0;right:0;top:0;height:4px;background:var(--fl);opacity:.75;pointer-events:none}.ihero.flg{border-radius:16px;padding:14px 8px 10px}.ph0.fl{font-size:32px;background:transparent}.ph1.fl{font-size:84px;background:transparent;height:110px}.astro .vd{font-size:16px;margin-bottom:8px}.astro p{margin:6px 0}
 .vt small{font-family:Manrope;font-size:13px;color:var(--mute)}
 .sug{display:flex;gap:10px;align-items:center;padding:7px 0;border-top:1px solid var(--line);cursor:pointer}.sug img{width:34px;height:50px}.sug .ph0{width:34px;height:50px;font-size:18px}.sug div{flex:1;min-width:0}.sug b{display:block;font-size:13.5px}.sug small{color:var(--mute);font-size:12px}
 .srch{margin-bottom:8px}.cvrow{display:flex;gap:12px;align-items:center;margin:6px 0 10px}#cvPrev{flex:0 0 74px;height:108px;border-radius:8px;background:var(--soft);display:grid;place-items:center;overflow:hidden;font-size:34px}#cvPrev img{width:100%;height:100%;object-fit:cover}.cvbtns{flex:1;min-width:0;display:grid;gap:6px}.cvbtns .btn{text-align:center;cursor:pointer}.cvbtns input[type=url]{width:100%;min-width:0}.wk{display:block;width:max-content;height:auto!important;min-height:0;margin:10px auto 0;line-height:1.4;font-size:13px;color:var(--gold);text-decoration:none;border:1px solid var(--line,#fff3);border-radius:20px;padding:3px 10px}#iRes{max-height:240px;overflow:auto}
@@ -2215,6 +2215,102 @@ function bookStats(year) {
   return { L, done, yr, months, pagesY, words: pagesY * 250, avgPages: withP.length ? Math.round(withP.reduce((a, x) => a + +x.pages, 0) / withP.length) : 0, avgDays: durs.length ? Math.round(durs.reduce((a, o) => a + o.d, 0) / durs.length) : 0, speed: speed.length ? Math.round(speed.reduce((a, b) => a + b, 0) / speed.length) : 0, fastest: durs.sort((a, b) => a.d - b.d)[0], longest: withP.sort((a, b) => +b.pages - +a.pages)[0], topA, topG, avgR, lvl, next: READER.find(r => r[0] > yr.length), streak, reading: L.filter(x => x.status === 1), paused: L.filter(x => x.status === 3), quit: L.filter(x => x.status === 4), readDays: logs.size };
 }
 
+// ===== Países: bandeira + cores =====
+const COUNTRIES = [
+  ['portugal', 'PT', ['#046a38', '#da291c', '#ffcc29']], ['espanha', 'ES', ['#c60b1e', '#ffc400', '#c60b1e']], ['franca', 'FR', ['#0055a4', '#ffffff', '#ef4135']], ['italia', 'IT', ['#009246', '#ffffff', '#ce2b37']],
+  ['alemanha', 'DE', ['#000000', '#dd0000', '#ffce00']], ['reino unido', 'GB', ['#012169', '#ffffff', '#c8102e']], ['inglaterra', 'GB', ['#012169', '#ffffff', '#c8102e']], ['escocia', 'GB', ['#005eb8', '#ffffff', '#005eb8']], ['irlanda', 'IE', ['#169b62', '#ffffff', '#ff883e']],
+  ['holanda', 'NL', ['#ae1c28', '#ffffff', '#21468b']], ['paises baixos', 'NL', ['#ae1c28', '#ffffff', '#21468b']], ['belgica', 'BE', ['#000000', '#fdda24', '#ef3340']], ['suica', 'CH', ['#da291c', '#ffffff', '#da291c']], ['austria', 'AT', ['#ed2939', '#ffffff', '#ed2939']],
+  ['grecia', 'GR', ['#0d5eaf', '#ffffff', '#0d5eaf']], ['croacia', 'HR', ['#ff0000', '#ffffff', '#171796']], ['republica checa', 'CZ', ['#ffffff', '#d7141a', '#11457e']], ['chequia', 'CZ', ['#ffffff', '#d7141a', '#11457e']], ['hungria', 'HU', ['#ce2939', '#ffffff', '#477050']],
+  ['polonia', 'PL', ['#ffffff', '#dc143c']], ['dinamarca', 'DK', ['#c8102e', '#ffffff', '#c8102e']], ['suecia', 'SE', ['#006aa7', '#fecc00', '#006aa7']], ['noruega', 'NO', ['#ba0c2f', '#ffffff', '#00205b']], ['finlandia', 'FI', ['#ffffff', '#002f6c', '#ffffff']], ['islandia', 'IS', ['#02529c', '#ffffff', '#dc1e35']],
+  ['turquia', 'TR', ['#e30a17', '#ffffff', '#e30a17']], ['marrocos', 'MA', ['#c1272d', '#006233', '#c1272d']], ['egito', 'EG', ['#ce1126', '#ffffff', '#000000']], ['tunisia', 'TN', ['#e70013', '#ffffff', '#e70013']], ['cabo verde', 'CV', ['#003893', '#ffffff', '#cf2027']],
+  ['angola', 'AO', ['#cc092f', '#000000', '#ffcb00']], ['mocambique', 'MZ', ['#009a44', '#000000', '#fce100']], ['sao tome', 'ST', ['#12ad2b', '#ffce00', '#d21034']], ['guine-bissau', 'GW', ['#ce1126', '#fcd116', '#009e49']], ['africa do sul', 'ZA', ['#007a4d', '#ffb612', '#de3831']],
+  ['brasil', 'BR', ['#009c3b', '#ffdf00', '#002776']], ['estados unidos', 'US', ['#b22234', '#ffffff', '#3c3b6e']], ['eua', 'US', ['#b22234', '#ffffff', '#3c3b6e']], ['canada', 'CA', ['#d80621', '#ffffff', '#d80621']], ['mexico', 'MX', ['#006847', '#ffffff', '#ce1126']],
+  ['cuba', 'CU', ['#002a8f', '#ffffff', '#cf142b']], ['republica dominicana', 'DO', ['#002d62', '#ffffff', '#ce1126']], ['argentina', 'AR', ['#74acdf', '#ffffff', '#74acdf']], ['chile', 'CL', ['#0039a6', '#ffffff', '#d52b1e']], ['peru', 'PE', ['#d91023', '#ffffff', '#d91023']], ['colombia', 'CO', ['#fcd116', '#003893', '#ce1126']],
+  ['japao', 'JP', ['#ffffff', '#bc002d', '#ffffff']], ['china', 'CN', ['#de2910', '#ffde00', '#de2910']], ['tailandia', 'TH', ['#a51931', '#f4f5f8', '#2d2a4a']], ['india', 'IN', ['#ff9933', '#ffffff', '#138808']], ['vietname', 'VN', ['#da251d', '#ffff00', '#da251d']], ['indonesia', 'ID', ['#ff0000', '#ffffff']],
+  ['maldivas', 'MV', ['#d21034', '#007e3a', '#d21034']], ['emirados', 'AE', ['#00732f', '#ffffff', '#000000']], ['dubai', 'AE', ['#00732f', '#ffffff', '#000000']], ['australia', 'AU', ['#012169', '#ffffff', '#e4002b']], ['nova zelandia', 'NZ', ['#012169', '#ffffff', '#c8102e']],
+  ['luxemburgo', 'LU', ['#ed2939', '#ffffff', '#00a1de']], ['andorra', 'AD', ['#10069f', '#fedf00', '#d50032']], ['malta', 'MT', ['#ffffff', '#cf142b']], ['chipre', 'CY', ['#ffffff', '#d57800', '#ffffff']], ['roménia', 'RO', ['#002b7f', '#fcd116', '#ce1126']], ['romenia', 'RO', ['#002b7f', '#fcd116', '#ce1126']], ['bulgaria', 'BG', ['#ffffff', '#00966e', '#d62612']]];
+const CITY_C = { lisboa: 'portugal', porto: 'portugal', algarve: 'portugal', madeira: 'portugal', acores: 'portugal', madrid: 'espanha', barcelona: 'espanha', sevilha: 'espanha', galiza: 'espanha', canarias: 'espanha', paris: 'franca', roma: 'italia', veneza: 'italia', florenca: 'italia', milao: 'italia', napoles: 'italia', sicilia: 'italia', londres: 'reino unido', berlim: 'alemanha', amesterdao: 'holanda', bruxelas: 'belgica', viena: 'austria', praga: 'chequia', budapeste: 'hungria', atenas: 'grecia', santorini: 'grecia', istambul: 'turquia', marraquexe: 'marrocos', 'nova iorque': 'estados unidos', miami: 'estados unidos', orlando: 'estados unidos', 'rio de janeiro': 'brasil', 'sao paulo': 'brasil', salvador: 'brasil', toquio: 'japao', banguecoque: 'tailandia', cancun: 'mexico', 'punta cana': 'republica dominicana', 'cidade do cabo': 'africa do sul', luanda: 'angola', maputo: 'mocambique' };
+const nrm = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+function countryOf(x) {
+  const txt = ' ' + nrm([x.by, x.title, x.place].join(' ')).replace(/[^a-z\- ]/g, ' ') + ' ';
+  for (const c of COUNTRIES) if (txt.includes(' ' + c[0] + ' ')) return c;
+  for (const k in CITY_C) if (txt.includes(' ' + k + ' ')) return COUNTRIES.find(c => c[0] === CITY_C[k]);
+  return null;
+}
+const flagOf = iso => String.fromCodePoint(...[...iso].map(ch => 127397 + ch.charCodeAt(0)));
+function flagBg(c) { return `linear-gradient(90deg,${c[2].join(',')})`; }
+
+// ===== Tarot (Arcanos Maiores) =====
+const TAROT = [
+  ['O Louco', '0', 'partir sem medo, aventura pura e caminhos que se descobrem a andar', 'um livro que te leva para fora da zona de conforto'],
+  ['O Mago', 'I', 'tens tudo para fazer acontecer: boas escolhas e iniciativa', 'uma leitura que te dá ferramentas e ideias novas'],
+  ['A Sacerdotisa', 'II', 'intuição: lugares com mistério e silêncio vão falar contigo', 'segredos nas entrelinhas: lê com atenção'],
+  ['A Imperatriz', 'III', 'prazer, boa comida e beleza: viagem para os sentidos', 'uma história cheia de vida e emoção'],
+  ['O Imperador', 'IV', 'organização: planeia bem e tudo corre sobre rodas', 'um livro sólido, que deixa estrutura'],
+  ['O Hierofante', 'V', 'tradição e cultura: igrejas, museus e histórias antigas', 'sabedoria clássica, para guardar'],
+  ['Os Enamorados', 'VI', 'viagem de coração: a dois, ou para te apaixonares pelo sítio', 'uma escolha do coração, vais criar laços com as personagens'],
+  ['O Carro', 'VII', 'movimento e vitória: estrada, conquistas e ritmo', 'leitura rápida, daquelas que não se larga'],
+  ['A Força', 'VIII', 'coragem tranquila: vais superar um imprevisto com calma', 'um livro que dá força nos dias difíceis'],
+  ['O Eremita', 'IX', 'tempo para ti: natureza, pausa e reencontro interior', 'leitura de recolhimento, ao teu ritmo'],
+  ['A Roda da Fortuna', 'X', 'sorte e acasos felizes: deixa espaço para o imprevisto', 'chegou na altura certa: há uma mensagem para ti'],
+  ['A Justiça', 'XI', 'equilíbrio: contas certas e decisões justas na viagem', 'uma leitura que faz pensar no certo e no errado'],
+  ['O Enforcado', 'XII', 'ver o mundo de outro ângulo: abranda e observa', 'muda a tua perspetiva, mesmo que custe a arrancar'],
+  ['A Morte', 'XIII', 'fecho de ciclo: voltas diferente de como foste', 'um livro que transforma: não sais igual'],
+  ['A Temperança', 'XIV', 'equilíbrio perfeito entre descanso e descoberta', 'leitura calma, que cura'],
+  ['O Diabo', 'XV', 'tentações e excessos: aproveita, mas com conta peso e medida', 'viciante: cuidado com as noitadas'],
+  ['A Torre', 'XVI', 'mudanças de planos: flexibilidade é tudo', 'reviravoltas que abanam tudo o que pensavas'],
+  ['A Estrela', 'XVII', 'esperança e inspiração: viagem que renova a alma', 'inspirador: vai deixar-te esperança'],
+  ['A Lua', 'XVIII', 'sonho e mistério: noites mágicas, mas confirma os detalhes', 'atmosfera de sonho e mistério'],
+  ['O Sol', 'XIX', 'alegria, luz e boas fotos: uma das melhores cartas para viajar', 'leitura luminosa e feliz'],
+  ['O Julgamento', 'XX', 'despertar: um sítio que te chama há muito tempo', 'um livro que te faz rever a tua vida'],
+  ['O Mundo', 'XXI', 'realização: o mundo é teu, viagem de sonho cumprida', 'leitura completa, que fecha com chave de ouro']];
+function tarotFor(seedStr) { let h = 2166136261; for (const ch of seedStr) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); } return TAROT[Math.abs(h) % 22]; }
+
+// ===== Leitura astral de viagens e livros =====
+const WDAY = [['Domingo', 'Sol', 'brilho e prazer'], ['Segunda-feira', 'Lua', 'emoções e regresso a casa'], ['Terça-feira', 'Marte', 'pressa e energia'], ['Quarta-feira', 'Mercúrio', 'deslocações, conversas e leitura'], ['Quinta-feira', 'Júpiter', 'viagens longas e sorte'], ['Sexta-feira', 'Vénus', 'prazer, romance e beleza'], ['Sábado', 'Saturno', 'paciência e estrutura']];
+const wdOf = ds => new Date(ds + 'T12:00:00').getDay();
+function tripScore(ds) {
+  const s = skyFor(ds), m = SIGNS[s.moon.sign], wd = wdOf(ds), notes = []; let sc = 0;
+  if (s.mercury.rx) { sc -= 3; notes.push('☿ Mercúrio retrógrado: atrasos, malas e papéis. Confirma tudo duas vezes.'); }
+  if (s.moon.sign === 8) { sc += 3; notes.push('🌙 Lua em Sagitário, o signo das viagens: ótima energia para partir.'); }
+  else if (s.moon.sign === 2) { sc += 2; notes.push('🌙 Lua em Gémeos: deslocações leves e muitas conversas.'); }
+  else if (m.el === 'fogo' || m.el === 'ar') { sc += 1; notes.push(`🌙 Lua em ${m.n} (${m.el}): vontade de explorar.`); }
+  else if (m.el === 'agua') notes.push(`🌙 Lua em ${m.n} (água): viagem emotiva, sabe bem voltar a casa.`);
+  else notes.push(`🌙 Lua em ${m.n} (terra): viagem tranquila, boa para descansar e comer bem.`);
+  const e = s.phase.elong; if (e < 168 && e >= 12) { sc += 1; notes.push(`${moonPhaseName(e)}: a energia cresce, bom para começar.`); } else if (e >= 168 && e < 192) notes.push('Lua Cheia: emoções à flor da pele e noites intensas.');
+  if (wd === 4) { sc += 2; notes.push('♃ Quinta-feira, dia de Júpiter, o regente das viagens longas.'); } else if (wd === 3) { sc += 1; notes.push('☿ Quarta-feira, dia de Mercúrio, o planeta das deslocações.'); } else if (wd === 6) { sc -= 1; notes.push('♄ Sábado, dia de Saturno: leva paciência para filas e esperas.'); }
+  if (s.jupiter.rx) { sc -= 1; notes.push('♃ Júpiter retrógrado: viagem mais de reencontro do que de novidade.'); }
+  return { sc, notes, verdict: sc >= 4 ? ['🌟', 'Excelente altura para viajar'] : sc >= 1 ? ['✨', 'Boa altura para viajar'] : ['⚠️', 'Altura de cuidados, mas nada que estrague a viagem'] };
+}
+function bestTripDays(n = 90) { const all = []; let d = dayStr(noonJd(todayStr()) + 1); for (let k = 0; k < n; k++) { all.push([d, tripScore(d).sc]); d = dayStr(noonJd(d) + 1); } return all.filter(a => a[1] >= 2).sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1)).slice(0, 4).map(a => a[0]).sort(); }
+function meLine(ds) {
+  const me = P.get(); if (!me || !me.d) return '';
+  const my = SIGNS[sunSignOf(me.d)], s = skyFor(ds), m = SIGNS[s.moon.sign];
+  if (s.moon.sign === sunSignOf(me.d)) return `💫 A Lua estava no teu signo (${my.n}): foi um momento muito teu.`;
+  if (m.el === my.el) return `💫 A Lua em ${m.n} é do mesmo elemento que o teu ${my.n} (${my.el}): harmonia contigo.`;
+  return '';
+}
+function astroBox(t, x) {
+  if (t === 'viagens') {
+    const T = tarotFor((x.title || '') + (x.sd || '') + 'v');
+    if (!x.sd || x.status === 0) {
+      const best = bestTripDays();
+      return `<div class="box"><h3>🔮 O céu da tua viagem</h3>${best.length ? `<p>As melhores datas para partir nos próximos 3 meses:</p><p>${best.map(d => `<span class="chip" style="--c:var(--gold)">${niceDate(d).replace(/-feira/, '')}</span>`).join(' ')}</p>` : ''}<p class="note">🃏 Carta do Tarot: <b>${T[1]} · ${T[0]}</b>: ${T[2]}.</p></div>`;
+    }
+    const r = tripScore(x.sd), s = skyFor(x.sd), wd = WDAY[wdOf(x.sd)], ml = meLine(x.sd);
+    const end = x.ed ? skyFor(x.ed) : null;
+    return `<div class="box astro"><h3>🔮 O céu da tua viagem</h3><p class="vd">${r.verdict[0]} <b>${x.status === 2 ? 'Foi' : 'É'} ${r.verdict[1].replace(/^Excelente/, 'uma excelente').replace(/^Boa/, 'uma boa').replace(/^Altura/, 'uma altura')}</b></p>${r.notes.map(n => `<p>${x.status === 2 ? n.replace('Confirma tudo duas vezes.', 'Se houve algum atraso, já sabes de quem foi a culpa 😉').replace('ótima energia para partir', 'ótima energia para partir, e partiste') : n}</p>`).join('')}<p>♃ Júpiter, planeta das viagens, estava em ${SIGN_IN[s.jupiter.sign]}.</p>${end ? `<p>🏁 Regressaste com a Lua em ${SIGN_IN[end.moon.sign]} (${moonPhaseName(end.phase.elong)}).</p>` : ''}${ml ? `<p>${ml}</p>` : ''}<p class="note">🃏 Carta do Tarot: <b>${T[1]} · ${T[0]}</b>: ${T[2]}.</p></div>`;
+  }
+  if (t === 'livros') {
+    const T = tarotFor((x.title || '') + (x.by || '') + 'l');
+    if (!x.sd) return `<div class="box"><h3>🔮 O céu deste livro</h3><p class="note">🃏 Carta do Tarot: <b>${T[1]} · ${T[0]}</b>: ${T[3]}.</p></div>`;
+    const s = skyFor(x.sd), m = SIGNS[s.moon.sign], wd = WDAY[wdOf(x.sd)], ml = meLine(x.sd), end = x.ed ? skyFor(x.ed) : null;
+    const mt = { fogo: 'leitura com garra, vais querer chegar ao fim depressa', terra: 'leitura paciente, saboreada página a página', ar: 'mente curiosa, ótimo para aprender e pensar', agua: 'imaginação e emoção em alta, perfeito para histórias' }[m.el];
+    return `<div class="box astro"><h3>🔮 O céu deste livro</h3><p>🌙 Começaste com a Lua em ${m.n} (${moonPhaseName(s.phase.elong)}): ${mt}.</p><p>☿ Mercúrio, o planeta da leitura, estava em ${SIGN_IN[s.mercury.sign]}${s.mercury.rx ? ', retrógrado: bom para reler ou voltar a um autor que já conhecias' : ', direto: cabeça fresca para absorver'}.</p><p>📅 ${wd[0]}, dia de ${wd[1]}: ${wd[2]}.</p>${end ? `<p>🏁 Terminaste com a Lua em ${SIGN_IN[end.moon.sign]} (${moonPhaseName(end.phase.elong)}).</p>` : ''}${ml ? `<p>${ml}</p>` : ''}<p class="note">🃏 Carta do Tarot: <b>${T[1]} · ${T[0]}</b>: ${T[3]}.</p></div>`;
+  }
+  return '';
+}
+
 // ===== Estante virtual =====
 const SHELF = {
   get() { let o; try { o = Object.assign({ e: 1, p: 4, names: [], look: 'capas', wood: 'madeira', cfg: [] }, JSON.parse(store.get('ceu_shelf') || '{}')); } catch (e) { o = { e: 1, p: 4, names: [], look: 'capas', wood: 'madeira', cfg: [] }; } o.cfg = o.cfg || []; return o; },
@@ -2359,7 +2455,7 @@ function editEstante(e) {
 }
 
 // ===== App de telemóvel =====
-const APP_VERSION = '12.11.2026 23:58';
+const APP_VERSION = '13.11.2026 00:20';
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const G = g => `${g}&#xFE0E;`;
@@ -2662,7 +2758,7 @@ function vInteresses() {
   for (const st of [1, 3, 0, 2, 4].filter(n => n < C.verb.length)) {
     const g = L.filter(x => x.status === st).sort((a, b) => (b.ed || b.sd || '').localeCompare(a.ed || a.sd || ''));
     if (!g.length) continue;
-    h += `<h2 class="vt">${C.verb[st]} <small>(${g.length})</small></h2><div class="ilist">${g.map(x => `<div class="iit" data-id="${x.id}">${x.cover ? `<img src="${esc(x.cover)}" alt="" loading="lazy">` : `<span class="ph0">${C.ic}</span>`}<div><b>${esc(x.title)}</b><small>${esc(x.by || '')}${x.place ? ' · ' + esc(x.place) : ''}${x.genre ? ' · ' + x.genre : ''}</small>${x.rating ? `<span class="stars">${'★'.repeat(x.rating)}<i>${'☆'.repeat(5 - x.rating)}</i></span>` : ''}${st === 2 && durTxt(dtJoin(x.sd, x.st), dtJoin(x.ed, x.et)) ? `<small>⏱ ${C.done} em ${durTxt(dtJoin(x.sd, x.st), dtJoin(x.ed, x.et))}</small>` : ''}${x.next ? `<small class="nx">📺 Próximo episódio: ${x.next}</small>` : ''}${t === 'livros' && (x.status === 1 || x.status === 3) ? progH(x) : ''}</div></div>`).join('')}</div>`;
+    h += `<h2 class="vt">${C.verb[st]} <small>(${g.length})</small></h2><div class="ilist">${g.map(x => `${(() => { const cc = t === 'viagens' ? countryOf(x) : null; return `<div class="iit${cc ? ' flg' : ''}" data-id="${x.id}"${cc ? ` style="--fl:${flagBg(cc)}"` : ''}>${x.cover ? `<img src="${esc(x.cover)}" alt="" loading="lazy">` : `<span class="ph0${cc ? ' fl' : ''}">${cc ? flagOf(cc[1]) : C.ic}</span>`}`; })()}<div><b>${esc(x.title)}</b><small>${esc(x.by || '')}${x.place ? ' · ' + esc(x.place) : ''}${x.genre ? ' · ' + x.genre : ''}</small>${x.rating ? `<span class="stars">${'★'.repeat(x.rating)}<i>${'☆'.repeat(5 - x.rating)}</i></span>` : ''}${st === 2 && durTxt(dtJoin(x.sd, x.st), dtJoin(x.ed, x.et)) ? `<small>⏱ ${C.done} em ${durTxt(dtJoin(x.sd, x.st), dtJoin(x.ed, x.et))}</small>` : ''}${x.next ? `<small class="nx">📺 Próximo episódio: ${x.next}</small>` : ''}${t === 'livros' && (x.status === 1 || x.status === 3) ? progH(x) : ''}</div></div>`).join('')}</div>`;
   }
   if (!L.length) h += `<p class="hint">${t === 'livros' ? 'A tua pequena biblioteca começa aqui. Junta o livro que estás a ler ou os que já leste.' : t === 'series' ? 'Junta as séries e os filmes que vês ou queres ver.' : 'Junta as viagens que fizeste e as que sonhas fazer.'}</p>`;
   return h;
@@ -2701,8 +2797,9 @@ function openItem(t, id, edit, preset) {
   $('#intTitle').textContent = id ? (edit ? 'Editar' : '') : `Novo ${C.one}`;
   if (!edit) {
     const dur = durTxt(dtJoin(x.sd, x.st), dtJoin(x.ed, x.et)), sky = x.sd ? skyFor(x.sd) : null;
-    $('#intBody').innerHTML = `<div class="ihero">${x.cover ? `<img src="${esc(x.cover)}" alt="">` : `<span class="ph1">${C.ic}</span>`}<h3>${esc(x.title)}</h3><p>${esc(x.by || '')}${x.place ? ' · ' + esc(x.place) : ''}${x.genre ? ' · ' + x.genre : ''}</p><span class="stars big">${'★'.repeat(x.rating || 0)}<i>${'☆'.repeat(5 - (x.rating || 0))}</i></span><span class="chip" style="--c:var(--gold)">${C.verb[x.status]}</span>${t === 'livros' && (x.isbn || x.title) ? `<a class="wk" href="${wookLink(x.isbn || (x.title + ' ' + (x.by || '')))}" target="_blank" rel="noopener">🔎 Ver na Wook</a>` : ''}</div>
-      ${x.sd ? `<div class="box"><p>▶️ Início: <b>${niceDate(x.sd)}${x.st ? ' às ' + x.st : ''}</b></p>${x.ed ? `<p>🏁 Fim: <b>${niceDate(x.ed)}${x.et ? ' às ' + x.et : ''}</b></p>` : ''}${dur ? `<p>⏱ ${C.done} em <b>${dur}</b>.</p>` : ''}${sky ? `<p class="note">🌙 Começaste com a Lua em ${SIGN_IN[sky.moon.sign]} (${moonPhaseName(sky.phase.elong)}).</p>` : ''}</div>` : ''}
+    const cc = t === 'viagens' ? countryOf(x) : null;
+    $('#intBody').innerHTML = `<div class="ihero${cc ? ' flg' : ''}"${cc ? ` style="--fl:${flagBg(cc)}"` : ''}>${x.cover ? `<img src="${esc(x.cover)}" alt="">` : `<span class="ph1${cc ? ' fl' : ''}">${cc ? flagOf(cc[1]) : C.ic}</span>`}<h3>${esc(x.title)}</h3><p>${esc(x.by || '')}${x.place ? ' · ' + esc(x.place) : ''}${x.genre ? ' · ' + x.genre : ''}</p><span class="stars big">${'★'.repeat(x.rating || 0)}<i>${'☆'.repeat(5 - (x.rating || 0))}</i></span><span class="chip" style="--c:var(--gold)">${C.verb[x.status]}</span>${t === 'livros' && (x.isbn || x.title) ? `<a class="wk" href="${wookLink(x.isbn || (x.title + ' ' + (x.by || '')))}" target="_blank" rel="noopener">🔎 Ver na Wook</a>` : ''}</div>
+      ${x.sd ? `<div class="box"><p>▶️ Início: <b>${niceDate(x.sd)}${x.st ? ' às ' + x.st : ''}</b></p>${x.ed ? `<p>🏁 Fim: <b>${niceDate(x.ed)}${x.et ? ' às ' + x.et : ''}</b></p>` : ''}${dur ? `<p>⏱ ${C.done} em <b>${dur}</b>.</p>` : ''}${sky && t === 'series' ? `<p class="note">🌙 Começaste com a Lua em ${SIGN_IN[sky.moon.sign]} (${moonPhaseName(sky.phase.elong)}).</p>` : ''}</div>` : ''}${astroBox(t, x)}
       ${t === 'livros' && (x.status === 1 || x.status === 3) ? `<div class="box"><h3>📖 A tua leitura</h3>${progH(x)}<div class="drow"><input type="number" id="logPg" inputmode="numeric" placeholder="Página onde vais" value="${x.page || ''}"><button class="btn main" id="logGo">Li hoje</button></div></div>` : ''}
       ${x.comment ? `<div class="box"><h3>💬 O teu comentário</h3><p>${esc(x.comment).replace(/\n/g, '<br>')}</p></div>` : ''}${x.next ? `<div class="box"><p>📺 Próximo episódio: <b>${x.next}</b></p></div>` : ''}`;
     $('#intSave').textContent = '✏️ Editar'; $('#intSave').onclick = () => openItem(t, id, true); $('#intDel').hidden = true;
