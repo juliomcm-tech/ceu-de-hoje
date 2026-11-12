@@ -143,6 +143,17 @@ dialog.sheet{width:100%;max-width:560px;height:100%;max-height:100%;margin:0 aut
 .bdrow{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#ffffff10;border-radius:12px;padding:8px 10px}.bdrow .btn{padding:8px 12px;font-size:13px}
 .pethero{text-align:center}.pethero .em{font-size:54px}.pethero h3{font-family:Cinzel,serif;font-size:24px;margin:4px 0}.pethero p{margin:4px 0;color:#d6d6f2;font-size:14px}.pethero b{font-family:Manrope,var(--sym)}
 .trait{color:#d6d6f2;font-size:14px;line-height:1.5;margin:10px 2px}
+.seg2{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:#0c0d2a;border:1px solid var(--line);border-radius:14px;padding:4px;margin:10px 0}.seg2 button{background:none;border:0;color:var(--mute);border-radius:10px;padding:9px;font:800 13.5px Manrope;cursor:pointer}.seg2 button.on{background:#1f2160;color:var(--gold2)}
+.agnav{display:flex;align-items:center;justify-content:space-between;margin:6px 0}.agnav b{font-family:Cinzel,serif;color:var(--gold2)}.agnav .arrow{background:none;border:0;color:var(--mute);font-size:26px;width:44px;cursor:pointer}
+.cal.ag .ac{position:relative;background:var(--card);border-radius:10px;aspect-ratio:1/1;display:flex;flex-wrap:wrap;align-content:flex-end;justify-content:center;gap:1px;padding:2px 2px 4px;font-size:11px}.cal.ag .ac b{position:absolute;top:3px;left:5px;font-size:11px;color:var(--mute)}.cal.ag .ac.has{background:#2a2260;border:1px solid #f2c76e66;cursor:pointer}.cal.ag .ac.has b{color:var(--gold2)}.cal.ag .ac i{font-style:normal;font-size:12px;line-height:1;background:#ffffff18;border-radius:6px;padding:1px 3px;font-weight:800}.cal.ag .ac.today{outline:2px solid var(--gold)}
+.aglist{display:grid;gap:8px}.agi{display:flex;align-items:center;gap:10px;background:var(--card);border-radius:14px;padding:10px;cursor:pointer;transition:.3s}.agi.flash{background:#3a3070}.agi .day{width:38px;height:38px;border-radius:12px;background:#1f2160;display:grid;place-items:center;font:800 16px Manrope;color:var(--gold2);flex:none}.agi .who{flex:1;min-width:0}.agi .who b{display:block}.agi .who small{color:var(--mute);font-size:12px}.agi em{color:#ff8fb0;font-style:normal;font-weight:800}
+.ib{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:#14164a;border:1px solid var(--line);font-size:18px;text-decoration:none;cursor:pointer;flex:none}
+.prof p{font-size:14px}
+input[type=date],input[type=time]{-webkit-appearance:none;appearance:none;min-width:0;max-width:100%;display:block;min-height:46px;text-align:left}
+input::-webkit-date-and-time-value{text-align:left}
+.form label,dialog label{min-width:0;max-width:100%}
+dialog{overflow-x:hidden}
+.form{max-width:100%}
 footer.ft{color:#5d5e8f;font-size:11.5px;text-align:center;margin:18px 0 6px}
 </style>
 </head>
@@ -195,6 +206,11 @@ footer.ft{color:#5d5e8f;font-size:11.5px;text-align:center;margin:18px 0 6px}
   <div class="dlgfoot"><button class="btn" data-close>Fechar</button></div>
 </dialog>
 
+<dialog id="perDlg">
+  <h2 id="perTitle">Aniversário</h2>
+  <div id="perBody"></div>
+  <div class="dlgfoot"><button class="btn" id="perDel">Apagar</button><button class="btn main" id="perSave">Guardar</button><button class="btn" data-close>Fechar</button></div>
+</dialog>
 <dialog id="petDlg">
   <h2 id="petTitle">Animal</h2>
   <div id="petBody"></div>
@@ -1675,6 +1691,51 @@ function todaysBirthdays() {
   return out;
 }
 
+// ---------- Raças ----------
+// [nome, energia 1-5, feitio, cuidado]
+const BREEDS = {
+  cao: [['Sem raça definida', 3, 'esperto, resistente e cheio de personalidade', 'adapta-se a tudo, mas adora rotina e carinho'], ['Labrador Retriever', 5, 'meigo, brincalhão e guloso', 'precisa de passeios longos e de controlar os petiscos'], ['Golden Retriever', 4, 'doce, paciente e muito familiar', 'escova o pelo e brinca todos os dias'], ['Pastor Alemão', 5, 'inteligente, protetor e leal', 'precisa de treino e de desafios para a cabeça'], ['Bulldog Francês', 2, 'divertido, teimoso e muito apegado', 'cuidado com o calor e com exercício intenso'], ['Bulldog Inglês', 1, 'calmo, teimoso e carinhoso', 'evita calor e escadas, gosta de sestas'], ['Yorkshire Terrier', 3, 'corajoso, vivaço e vaidoso', 'escovar o pelo e cuidar dos dentes'], ['Chihuahua', 3, 'pequeno no tamanho, gigante na atitude', 'protege-o do frio e de quedas'], ['Caniche', 4, 'muito inteligente e elegante', 'tosquias regulares e jogos de inteligência'], ['Beagle', 5, 'curioso, alegre e farejador', 'trela sempre: segue o nariz para todo o lado'], ['Border Collie', 5, 'o cérebro dos cães: rápido e trabalhador', 'precisa de muito exercício e de tarefas'], ['Husky Siberiano', 5, 'aventureiro, falador e independente', 'muito exercício e cuidado com o calor'], ['Shih Tzu', 2, 'meigo, calmo e companheiro', 'escovar o pelo todos os dias'], ['Pug', 2, 'palhaço da casa, adora colo', 'cuidado com o calor e com o peso'], ['Boxer', 5, 'energético, brincalhão e protetor', 'brincadeiras ativas todos os dias'], ['Rottweiler', 4, 'calmo, confiante e muito protetor', 'treino desde cedo e muito exercício'], ['Teckel (salsicha)', 3, 'valente, teimoso e divertido', 'cuidado com saltos: protege as costas'], ['Spitz Alemão (Lulu)', 3, 'alerta, vaidoso e muito vivo', 'escovar o pelo e treinar o ladrar'], ["Cão d'Água Português", 5, 'nadador, inteligente e alegre', 'adora água e muito exercício'], ['Podengo Português', 4, 'caçador, ágil e independente', 'quintal bem vedado e passeios'], ['Serra da Estrela', 3, 'guardião calmo e muito leal', 'espaço e pelo bem cuidado'], ['Rafeiro do Alentejo', 2, 'guardião sereno e protetor', 'espaço e muita paciência no treino'], ['Staffordshire / Pitbull', 4, 'afetuoso, forte e muito leal', 'socialização e exercício diário'], ['Jack Russell', 5, 'incansável, esperto e destemido', 'muito exercício, senão inventa trabalho'], ['Maltês', 2, 'meigo, alegre e de colo', 'escovar o pelo e limpar os olhos'], ['Cocker Spaniel', 4, 'alegre, sensível e afetuoso', 'limpar as orelhas com frequência'], ['Dobermann', 5, 'elegante, atento e leal', 'exercício e treino consistente']],
+  gato: [['Europeu Comum', 3, 'independente, caçador e esperto', 'brinquedos para caçar e um poleiro alto'], ['Persa', 1, 'calmo, doce e de sofá', 'escovar todos os dias e limpar os olhos'], ['Siamês', 4, 'falador, ciumento e muito apegado', 'companhia: detesta estar sozinho'], ['Maine Coon', 3, 'gigante gentil e sociável', 'escovar o pelo e espaço para trepar'], ['Bengal', 5, 'selvagem no ar, ativo e curioso', 'muita brincadeira e desafios'], ['Ragdoll', 2, 'meigo, relaxado e de colo', 'dentro de casa e muito carinho'], ['British Shorthair', 2, 'tranquilo, independente e fofo', 'controlar o peso e brincar um pouco'], ['Sphynx', 4, 'carente, brincalhão e quentinho', 'banhos e proteção do frio e do sol'], ['Angorá', 4, 'elegante, ativo e inteligente', 'escovar e brincar todos os dias'], ['Azul Russo', 2, 'tímido, leal e sereno', 'rotina tranquila e um cantinho só dele'], ['Scottish Fold', 2, 'doce, curioso e calmo', 'cuidar das articulações e das orelhas'], ['Abissínio', 5, 'curioso, atlético e explorador', 'espaços para trepar e muita atividade']]
+};
+const EL_PET = { fogo: 'tem fogo no sangue: corajoso e cheio de energia', terra: 'tem os pés na terra: calmo, guloso e de rotinas', ar: 'é de ar: curioso, sociável e brincalhão', agua: 'é de água: sensível, intuitivo e muito apegado' };
+function breedProfile(a) {
+  const s = spOf(a)[0], ps = sunSignAt(a.d, a.t), sg = SIGNS[ps], list = BREEDS[s] || [], b = list.find(x => x[0] === a.breed);
+  const lines = [];
+  if (b) {
+    const en = Math.max(1, Math.min(5, b[1] + (sg.el === 'fogo' ? 1 : sg.el === 'terra' ? -1 : 0)));
+    lines.push(`Como ${b[0]}, é ${b[2]}.`);
+    lines.push(`Como ${sg.n}, ${EL_PET[sg.el]}. ${b[1] >= 4 && sg.el === 'fogo' ? 'Juntos dão uma verdadeira bomba de energia!' : b[1] <= 2 && sg.el === 'terra' ? 'Juntos dão o rei (ou a rainha) do sofá.' : b[1] >= 4 && sg.el === 'agua' ? 'Muita energia, mas também muita sensibilidade: precisa de ti por perto.' : 'A raça e o signo equilibram-se bem.'}`);
+    lines.push(`Energia: ${'●'.repeat(en)}${'○'.repeat(5 - en)} · Cuidado especial: ${b[3]}.`);
+  } else lines.push(`Como ${sg.n}, ${EL_PET[sg.el]}.`, a.breed ? `Raça: ${a.breed}.` : '');
+  const p = P.get();
+  if (p && p.d) { const os = sunSignOf(p.d), k = Math.min((os - ps + 12) % 12, (ps - os + 12) % 12), sc = PAIR_BASE[k] + 6; lines.push(`Compatibilidade contigo (${SIGNS[os].n}): ${Math.min(99, sc)}% · ${PAIR_TXT[k]}.`); }
+  return lines.filter(Boolean);
+}
+
+// ---------- Agenda ----------
+const REL_GROUPS = [['Família', ['pai', 'mae', 'filho', 'filha', 'irmao', 'irma', 'avom', 'avof', 'neto', 'neta', 'tio', 'tia', 'sobrinho', 'sobrinha', 'primo', 'prima', 'sogro', 'sogra', 'padrinho', 'madrinha', 'afilhado', 'afilhada']], ['Amor', ['marido', 'mulher', 'namorado', 'namorada']], ['Amigos', ['bffm', 'bfff', 'amigo', 'amiga']], ['Trabalho', ['colegam', 'colegaf', 'chefem', 'chefef', 'patrao', 'patroa']], ['Animais', ['cao', 'gato', 'pet']]];
+const relLabel = x => x.relTxt || (RELS.find(r => r[0] === x.rel) || RELS[0])[2];
+const APP_URL = 'https://juliomcm-tech.github.io/ceu-de-hoje/';
+function agendaAll() {
+  const out = P.list('ceu_bdays').map((x, i) => ({ ...x, kind: 'p', k: i }));
+  P.list('ceu_pets').forEach((a, i) => { const s = spOf(a); out.push({ name: a.name, rel: s[0] === 'cao' ? 'cao' : s[0] === 'gato' ? 'gato' : 'pet', relTxt: s[1] + ' ' + s[2], d: a.d, t: a.t, kind: 'a', k: i }); });
+  const p = P.get(); if (p && p.d) out.push({ name: p.name || 'Eu', rel: 'eu', relTxt: 'Eu ✨', d: p.d, t: p.t, kind: 'me' });
+  return out;
+}
+function waText(x) {
+  const Bd = makeBday({ name: x.name, rel: x.rel, d: x.d, showAge: true, from: '' });
+  return `🎉 Parabéns, ${x.name}! ${Bd.cat === 'pet' ? '🐾' : '🎂'}\n${Bd.force} ${Bd.wish}\n✨ ${Bd.year}\n\nVê o teu signo do dia em ${APP_URL}`;
+}
+function waLink(x) { const tel = (x.tel || '').replace(/\D/g, ''); const num = tel ? (tel.length === 9 ? '351' + tel : tel) : ''; return `https://wa.me/${num}?text=${encodeURIComponent(waText(x))}`; }
+function icsAll() {
+  const L = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Ceu de Hoje//PT', 'CALSCALE:GREGORIAN'];
+  agendaAll().filter(x => x.kind !== 'me').forEach((x, i) => {
+    const [y, m, d] = dParts(x.d), ds = `${y}${String(m).padStart(2, '0')}${String(d).padStart(2, '0')}`, nd = dayStr(noonJd(x.d) + 1).replace(/-/g, '');
+    L.push('BEGIN:VEVENT', `UID:ceu-${ds}-${i}-${norm2(x.name).replace(/\W/g, '')}@ceudehoje`, `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').slice(0, 15)}Z`, `DTSTART;VALUE=DATE:${ds}`, `DTEND;VALUE=DATE:${nd}`, 'RRULE:FREQ=YEARLY', `SUMMARY:🎂 Anos: ${x.name} (${relLabel(x).replace(/[^\p{L}\s]/gu, '').trim()})`, `DESCRIPTION:Cria o cartaz em ${APP_URL}`, 'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:Hoje faz anos!', 'TRIGGER:PT9H', 'END:VALARM', 'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:Amanhã faz anos', 'TRIGGER:-PT15H', 'END:VALARM', 'END:VEVENT');
+  });
+  L.push('END:VCALENDAR'); return L.join('\r\n');
+}
+
 // ===== App de telemóvel =====
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
@@ -1741,7 +1802,56 @@ function vHoras() {
   }
   return h;
 }
+function vAgenda() {
+  const today = todayStr(), ym = ST.agMonth || today.slice(0, 7), [yy, mm] = ym.split('-').map(Number), all = agendaAll();
+  const days = new Date(Date.UTC(yy, mm, 0)).getUTCDate(), first = (new Date(Date.UTC(yy, mm - 1, 1)).getUTCDay() + 6) % 7;
+  const inMonth = all.filter(x => +x.d.slice(5, 7) === mm).sort((a, b) => +a.d.slice(8) - +b.d.slice(8));
+  const ico = x => x.kind === 'a' ? spOf(P.list('ceu_pets')[x.k] || {}).at(1) : x.kind === 'me' ? '✨' : (x.name[0] || '?').toUpperCase();
+  let h = `<div class="agnav"><button class="arrow" id="agPrev">‹</button><b>${cap1(MESES[mm - 1])} ${yy}</b><button class="arrow" id="agNext">›</button></div><div class="cal ag">${['S', 'T', 'Q', 'Q', 'S', 'S', 'D'].map(d => `<span class="wd">${d}</span>`).join('')}`;
+  for (let i = 0; i < first; i++) h += '<span></span>';
+  for (let d = 1; d <= days; d++) { const ds = `${ym}-${String(d).padStart(2, '0')}`, xs = inMonth.filter(x => +x.d.slice(8) === d); h += `<span class="ac${ds === today ? ' today' : ''}${xs.length ? ' has' : ''}" data-d="${d}"><b>${d}</b>${xs.slice(0, 3).map(x => `<i>${esc(ico(x))}</i>`).join('')}</span>`; }
+  h += `</div><h2 class="vt">🎂 Em ${MESES[mm - 1]}</h2>`;
+  h += inMonth.length ? `<div class="aglist">${inMonth.map(x => { const age = ageOn(x.d, `${yy}-${x.d.slice(5)}`), si = x.t ? sunSignAt(x.d, x.t) : sunSignOf(x.d), dd = daysToBirthday(x.d); return `<div class="agi" data-kind="${x.kind}" data-k="${x.k ?? ''}" id="ag-${+x.d.slice(8)}"><span class="day">${+x.d.slice(8)}</span><div class="who"><b>${esc(x.name)}</b><small>${esc(relLabel(x))} · ${age > 0 ? 'faz ' + age : 'nasceu'} · ${G(SIGNS[si].g)} ${SIGNS[si].n}${dd === 0 ? ' · <em>HOJE</em>' : ''}</small></div><a class="ib" href="${waLink(x)}" target="_blank" rel="noopener" title="WhatsApp">💬</a><button class="ib mk" title="Cartaz">🎉</button></div>`; }).join('')}</div>` : '<p class="hint">Ninguém faz anos neste mês.</p>';
+  const next = all.map(x => ({ ...x, dd: daysToBirthday(x.d) })).sort((a, b) => a.dd - b.dd).slice(0, 5);
+  if (next.length) h += `<h2 class="vt">⏭️ Próximos</h2><div class="list">${next.map(x => `<div class="li bd"><span class="g">${esc(ico(x))}</span><b>${esc(x.name)}</b><span></span><span></span><span>${esc(relLabel(x))}</span><em>${x.dd === 0 ? 'HOJE 🎂' : x.dd === 1 ? 'amanhã' : 'em ' + x.dd + ' dias'}</em></div>`).join('')}</div>`;
+  h += `<div class="tools" style="margin-top:14px"><button class="btn main" id="agAdd">＋ Adicionar aniversário</button><button class="btn" id="agIcs">📲 Pôr lembretes no calendário do telemóvel</button></div>
+    <p class="hint">A app avisa sempre que a abres no dia. Para avisar mesmo com a app fechada, usa o botão dos lembretes: o calendário do telemóvel avisa todos os anos, no dia e na véspera.</p>`;
+  return h;
+}
+function openPerson(k) {
+  const l = P.list('ceu_bdays'), x = k === null ? { name: '', rel: 'amigo', d: '', t: '', tel: '', relTxt: '' } : l[k];
+  const groups = REL_GROUPS.filter(g => g[0] !== 'Animais').map(g => `<optgroup label="${g[0]}">${g[1].map(r => `<option value="${r}"${x.rel === r && !x.relTxt ? ' selected' : ''}>${(RELS.find(z => z[0] === r) || [])[2]}</option>`).join('')}</optgroup>`).join('');
+  $('#perBody').innerHTML = `<div class="form"><label>Nome<input type="text" id="xName" maxlength="24" value="${esc(x.name)}" placeholder="Ex.: João"></label>
+    <label>Ligação<select id="xRel">${groups}<option value="outro"${x.relTxt ? ' selected' : ''}>Outra…</option></select></label>
+    <label id="xRelTxtL"${x.relTxt ? '' : ' hidden'}>Escreve a ligação<input type="text" id="xRelTxt" maxlength="24" value="${esc(x.relTxt || '')}" placeholder="Ex.: Vizinha, Professor, Treinador"></label>
+    <label>Data de nascimento<input type="date" id="xDate" max="${todayStr()}" value="${x.d}"></label><label>Hora (opcional)<input type="time" id="xTime" value="${x.t || ''}"></label>
+    <label>Telemóvel (opcional, para o WhatsApp)<input type="tel" id="xTel" inputmode="tel" value="${esc(x.tel || '')}" placeholder="9xx xxx xxx"></label></div>`;
+  $('#perTitle').textContent = k === null ? 'Novo aniversário' : 'Editar ' + x.name; $('#perDel').hidden = k === null;
+  $('#xRel').onchange = () => $('#xRelTxtL').hidden = $('#xRel').value !== 'outro';
+  $('#perSave').onclick = () => { const n = $('#xName').value.trim(), d = $('#xDate').value; if (!n || !d) { toast('Nome e data'); return; } const rel = $('#xRel').value, o = { name: n, rel: rel === 'outro' ? 'amigo' : rel, relTxt: rel === 'outro' ? $('#xRelTxt').value.trim() || 'Outro' : '', d, t: $('#xTime').value, tel: $('#xTel').value.trim() }; const L = P.list('ceu_bdays'); if (k === null) L.push(o); else L[k] = o; P.setList('ceu_bdays', L); $('#perDlg').close(); ST.agMonth = d.slice(0, 4) <= todayStr().slice(0, 4) ? todayStr().slice(0, 5) + d.slice(5, 7) : ST.agMonth; toast('Guardado 🎂'); render(); };
+  $('#perDel').onclick = () => { const L = P.list('ceu_bdays'); L.splice(k, 1); P.setList('ceu_bdays', L); $('#perDlg').close(); render(); };
+  $('#perDlg').showModal();
+}
+function bindAgenda() {
+  const sh = n => { const [y, m] = (ST.agMonth || todayStr().slice(0, 7)).split('-').map(Number), t = new Date(Date.UTC(y, m - 1 + n, 1)); ST.agMonth = t.toISOString().slice(0, 7); render(); };
+  $('#agPrev').onclick = () => sh(-1); $('#agNext').onclick = () => sh(1);
+  $('#agAdd').onclick = () => openPerson(null);
+  $('#agIcs').onclick = async () => { if (!agendaAll().filter(x => x.kind !== 'me').length) { toast('Adiciona primeiro aniversários'); return; } const f = new File([icsAll()], 'aniversarios-ceu-de-hoje.ics', { type: 'text/calendar' }); try { if (navigator.canShare && navigator.canShare({ files: [f] })) { await navigator.share({ files: [f] }); return; } } catch (e) { if (e.name === 'AbortError') return; } try { const a = document.createElement('a'); a.href = URL.createObjectURL(f); a.download = f.name; document.body.appendChild(a); a.click(); a.remove(); toast('Abre o ficheiro para juntar ao calendário'); } catch (e) { toast('Não foi possível aqui: abre a app no Chrome'); } };
+  document.querySelectorAll('.ac.has').forEach(c => c.onclick = () => { const el = document.getElementById('ag-' + c.dataset.d); el && el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el && el.classList.add('flash'); setTimeout(() => el && el.classList.remove('flash'), 1200); });
+  const all = agendaAll();
+  document.querySelectorAll('.agi').forEach(el => {
+    const x = all.find(z => z.kind === el.dataset.kind && String(z.k ?? '') === el.dataset.k);
+    el.querySelector('.mk').onclick = e => { e.stopPropagation(); ST.anosView = 'criar'; render(); showBday({ name: x.kind === 'me' ? (x.name || 'Tu') : x.name, rel: x.rel, d: x.d, t: x.t, showAge: true, from: x.kind === 'me' ? '' : ((P.get() || {}).name || '').split(' ')[0] }, false); };
+    el.querySelector('.ib[href]').onclick = e => e.stopPropagation();
+    el.onclick = () => x.kind === 'p' ? openPerson(x.k) : x.kind === 'a' ? openPet(x.k) : (ST.type = 'eu', render());
+  });
+}
 function vAnos() {
+  const seg = `<div class="seg2"><button data-av="agenda"${ST.anosView !== 'criar' ? ' class="on"' : ''}>📅 Agenda</button><button data-av="criar"${ST.anosView === 'criar' ? ' class="on"' : ''}>🎉 Criar cartaz</button></div>`;
+  if (ST.anosView !== 'criar') return seg + vAgenda();
+  return seg + vCriar();
+}
+function vCriar() {
   const list = P.list('ceu_bdays').map(x => ({ ...x, dd: daysToBirthday(x.d) })).sort((a, b) => a.dd - b.dd);
   const relOpts = RELS.filter(r => r[0] !== 'eu').map(r => `<option value="${r[0]}">${r[2]}</option>`).join('');
   let h = `<h2 class="vt">🎉 Criar parabéns</h2><p class="sub2">Cartaz e vídeo com o nome, o signo, a idade e a numerologia de quem faz anos.</p>
@@ -1803,29 +1913,33 @@ function bdayBanner() {
   const L = todaysBirthdays(); if (!L.length) return '';
   return `<div class="party">🎂 <b>Hoje faz${L.length > 1 ? 'em' : ''} anos:</b>${L.map((x, i) => `<div class="bdrow"><span>${esc(x.label)}</span><button class="btn main bdmk" data-k="${i}">Criar cartaz</button></div>`).join('')}</div>`;
 }
-function bindBanner() { const L = todaysBirthdays(); document.querySelectorAll('.bdmk').forEach(b => b.onclick = e => { e.stopPropagation(); const o = L[+b.dataset.k].o; ST.type = 'anos'; render(); showBday(o, false); }); }
+function bindBanner() { const L = todaysBirthdays(); document.querySelectorAll('.bdmk').forEach(b => b.onclick = e => { e.stopPropagation(); const o = L[+b.dataset.k].o; ST.type = 'anos'; ST.anosView = 'criar'; render(); showBday(o, false); }); }
 function openPet(i, isNew, edit) {
   const pets = P.list('ceu_pets'), a = isNew ? { name: '', sp: 'cao', d: '', t: '' } : pets[i];
   const spOpts = SPECIES.map(s => `<option value="${s[0]}"${spOf(a)[0] === s[0] ? ' selected' : ''}>${s[1]} ${s[2]}</option>`).join('');
   let h = `<div class="form"><label>Nome<input type="text" id="aName" maxlength="20" value="${esc(a.name)}" placeholder="Ex.: Bobi"></label><label>Espécie<select id="aSp">${spOpts}</select></label>
+    <label>Raça<select id="aBreed"></select></label><label id="aBreedTxtL" hidden>Escreve a raça<input type="text" id="aBreedTxt" maxlength="30" value="${esc(a.breed || '')}" placeholder="Ex.: Lop, Canário, Ruivo…"></label>
     <label>Data de nascimento (ou de adoção)<input type="date" id="aDate" max="${todayStr()}" value="${a.d}"></label><label>Hora (opcional)<input type="time" id="aTime" value="${a.t || ''}"></label></div>`;
   if (!isNew && a.d && !edit) {
     const s = spOf(a), ps = sunSignAt(a.d, a.t), cn = chineseSign(a.d), age = ageOn(a.d), ha = humanAge(a), dd = daysToBirthday(a.d);
     const r2 = petize(readDay(ps, todayStr(), ST.modern)), v2 = petVerdict(r2);
-    h = `<div class="pethero" style="--c:${elc(SIGNS[ps])}"><span class="em">${s[1]}</span><h3>${esc(a.name)}</h3><p>${s[2]} · <b>${G(SIGNS[ps].g)} ${SIGNS[ps].n}</b> · ${cn.e} ${cn.n} (${cn.el})</p>
+    h = `<div class="pethero" style="--c:${elc(SIGNS[ps])}"><span class="em">${s[1]}</span><h3>${esc(a.name)}</h3><p>${s[2]}${a.breed ? ' · ' + esc(a.breed) : ''} · <b>${G(SIGNS[ps].g)} ${SIGNS[ps].n}</b> · ${cn.e} ${cn.n} (${cn.el})</p>
       <p>${age > 0 ? age + (age === 1 ? ' ano' : ' anos') : 'Menos de 1 ano'}${ha ? ` · ≈ ${ha} anos humanos` : ''} · ${dd === 0 ? '🎂 <b>faz anos hoje!</b>' : `🎂 anos em ${dd} dias`}</p></div>
       <div class="vd ${v2.k}"><b>${v2.icon}</b> ${esc(v2.txt)}</div><p class="ph">“${esc(r2.headline)}”</p>
       <div class="ar4" style="--c:${elc(SIGNS[ps])}">${AREAS4(r2).map(([l, k, t]) => `<div><span>${l}</span>${starsH(r2.stars[k])}<p>${esc(t)}</p></div>`).join('')}</div>
-      <p class="trait">Como bom ${SIGNS[ps].n}, ${esc(a.name)} ${PET_TRAIT[ps]}. No horóscopo chinês é ${cn.n}.</p>
+      <div class="box prof"><h3>🧬 Perfil ${a.breed ? '· ' + esc(a.breed) : ''}</h3>${breedProfile(a).map(l => `<p>${esc(l)}</p>`).join('')}<p>No horóscopo chinês é ${cn.e} ${cn.n} (${cn.el}).</p></div>
       <div class="tools"><button class="btn main" id="aPoster">🎉 Criar cartaz de parabéns</button><button class="btn" id="aCard">🃏 Abrir o cartão do dia</button><button class="btn" id="aEdit">✏️ Editar</button><button class="btn" id="aDel">🗑️ Apagar</button></div>`;
   }
-  $('#petBody').innerHTML = h; $('#petTitle').textContent = isNew ? 'Juntar animal' : edit ? 'Editar ' + a.name : '';
+  $('#petBody').innerHTML = h;
+  const fillBreeds = () => { if (!$('#aBreed')) return; const sp = $('#aSp').value, L = BREEDS[sp]; if (L) { $('#aBreed').innerHTML = L.map(b => `<option${b[0] === a.breed ? ' selected' : ''}>${b[0]}</option>`).join('') + `<option value="__outra"${a.breed && !L.find(b => b[0] === a.breed) ? ' selected' : ''}>Outra…</option>`; $('#aBreed').parentElement.hidden = false; } else { $('#aBreed').parentElement.hidden = true; } $('#aBreedTxtL').hidden = !!L && $('#aBreed').value !== '__outra'; };
+  if ($('#aSp')) { $('#aSp').onchange = fillBreeds; $('#aBreed').onchange = () => $('#aBreedTxtL').hidden = $('#aBreed').value !== '__outra'; fillBreeds(); }
+  $('#petTitle').textContent = isNew ? 'Juntar animal' : edit ? 'Editar ' + a.name : '';
   $('#petSave').hidden = !(isNew || edit);
-  const save = () => { const n = $('#aName').value.trim(), d = $('#aDate').value; if (!n || !d) { toast('Nome e data do animal'); return; } const l = P.list('ceu_pets'), o = { name: n, sp: $('#aSp').value, d, t: $('#aTime').value }; if (isNew) l.push(o); else l[i] = o; P.setList('ceu_pets', l); $('#petDlg').close(); toast('Guardado 🐾'); render(); };
+  const save = () => { const n = $('#aName').value.trim(), d = $('#aDate').value; if (!n || !d) { toast('Nome e data do animal'); return; } const l = P.list('ceu_pets'), sp = $('#aSp').value, br = BREEDS[sp] && $('#aBreed').value !== '__outra' ? $('#aBreed').value : $('#aBreedTxt').value.trim(), o = { name: n, sp, breed: br, d, t: $('#aTime').value }; if (isNew) l.push(o); else l[i] = o; P.setList('ceu_pets', l); $('#petDlg').close(); toast('Guardado 🐾'); render(); };
   $('#petSave').onclick = save;
   if ($('#aPoster')) {
     const s = spOf(a), p = P.get();
-    $('#aPoster').onclick = () => { $('#petDlg').close(); ST.type = 'anos'; render(); showBday({ name: a.name, rel: s[0] === 'cao' ? 'cao' : s[0] === 'gato' ? 'gato' : 'pet', d: a.d, t: a.t, showAge: true, from: p && p.name ? p.name.split(' ')[0] : '' }, false); };
+    $('#aPoster').onclick = () => { $('#petDlg').close(); ST.type = 'anos'; ST.anosView = 'criar'; render(); showBday({ name: a.name, rel: s[0] === 'cao' ? 'cao' : s[0] === 'gato' ? 'gato' : 'pet', d: a.d, t: a.t, showAge: true, from: p && p.name ? p.name.split(' ')[0] : '' }, false); };
     $('#aCard').onclick = () => { $('#petDlg').close(); const kp = ST.pets; ST.pets = true; computeTop(); ST.pets = kp; openSheet(ST.rank.findIndex(r => r.si === sunSignAt(a.d, a.t)), `${spOf(a)[1]} ${a.name}`); };
     $('#aEdit').onclick = () => openPetEdit(i);
     $('#aDel').onclick = () => { const l = P.list('ceu_pets'); l.splice(i, 1); P.setList('ceu_pets', l); $('#petDlg').close(); render(); };
@@ -1842,13 +1956,15 @@ function bindEu() {
   $('#pEdit').onclick = () => { ST.editProfile = true; render(); };
   const p = P.get(), si = sunSignOf(p.d);
   $('#myCard').onclick = () => { const kp = ST.pets; ST.pets = false; computeTop(); ST.pets = kp; openSheet(ST.rank.findIndex(r => r.si === si)); };
-  if (false) $('#myPoster').onclick = () => { ST.type = 'anos'; render(); showBday({ name: p.name || 'Tu', rel: 'eu', d: p.d, showAge: true, from: '' }, false); };
+  if (false) $('#myPoster').onclick = () => { ST.type = 'anos'; ST.anosView = 'criar'; render(); showBday({ name: p.name || 'Tu', rel: 'eu', d: p.d, showAge: true, from: '' }, false); };
   $('#askF').onsubmit = e => { e.preventDefault(); askOracle($('#askQ').value); };
   document.querySelectorAll('.qchip').forEach(b => b.onclick = () => askOracle(b.textContent));
   $('#petNew').onclick = () => openPet(0, true);
   document.querySelectorAll('.pet').forEach(el => el.onclick = () => openPet(+el.dataset.k));
 }
 function bindAnos() {
+  document.querySelectorAll('.seg2 button').forEach(b => b.onclick = () => { ST.anosView = b.dataset.av; render(); });
+  if (ST.anosView !== 'criar') { bindAgenda(); return; }
   $('#bdGo').onclick = () => showBday({ name: $('#bdName').value.trim(), rel: $('#bdRel').value, d: $('#bdDate').value, showAge: $('#bdAge').checked, from: $('#bdFrom').value.trim() }, true);
   document.querySelectorAll('.li.bd').forEach(el => el.onclick = () => { const x = P.list('ceu_bdays').map(x => ({ ...x, dd: daysToBirthday(x.d) })).sort((a, b) => a.dd - b.dd)[+el.dataset.k]; $('#bdName').value = x.name; $('#bdRel').value = x.rel; $('#bdDate').value = x.d; showBday({ name: x.name, rel: x.rel, d: x.d, showAge: true, from: $('#bdFrom').value.trim() }, false); });
 }
