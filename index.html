@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Céu de Hoje · Horóscopo diário</title>
+<meta name="description" content="Top dos signos e horóscopo diário, semanal e mensal, calculados a partir das posições reais dos astros.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Cormorant+Garamond:ital,wght@1,600&family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+Symbols&family=Noto+Sans+Symbols+2&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#06061a;--ink:#eeedff;--mute:#8f90c2;--line:#25285a;--gold:#f2c76e;--gold2:#ffe3a3;--sym:"Noto Sans Symbols","Noto Sans Symbols 2","Segoe UI Symbol",sans-serif}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+body{background:radial-gradient(900px 500px at 50% -10%,#2b1f66aa,transparent 70%),var(--bg);min-height:100vh}
+main{max-width:620px;margin:0 auto;padding:20px 16px 40px}
+.top{display:flex;align-items:center;justify-content:space-between}
+h1{font-family:Cinzel,serif;font-size:22px;letter-spacing:.12em;margin:0;color:var(--gold2);font-weight:700}
+.icon{background:none;border:1px solid var(--line);color:var(--mute);width:38px;height:38px;border-radius:50%;font-size:17px;cursor:pointer}
+.icon:hover{color:var(--gold2);border-color:var(--gold)}
+.nav{display:flex;align-items:center;justify-content:center;gap:10px;margin:22px 0 12px}
+.nav button.arrow{background:none;border:0;color:var(--mute);font-size:22px;cursor:pointer;padding:6px 10px}
+.nav button.arrow:hover{color:var(--gold2)}
+#when{background:none;border:0;color:var(--ink);font:600 18px Manrope;cursor:pointer;min-width:230px}
+#modes{display:flex;justify-content:center;gap:4px;margin-bottom:18px}
+#modes button{background:none;border:1px solid transparent;color:var(--mute);border-radius:999px;padding:6px 16px;font:700 13px Manrope;letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
+#modes button.on{border-color:var(--gold);color:var(--gold2)}
+#strip{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 2px 12px;margin:0 -16px;padding-left:16px;padding-right:16px;scrollbar-width:thin}
+#strip img{flex:0 0 78%;max-width:440px;scroll-snap-align:center;border-radius:14px;border:1px solid var(--line);background:#000;display:block}
+#strip img.story{flex-basis:56%;max-width:320px}
+.meta{display:flex;justify-content:space-between;color:var(--mute);font-size:12.5px;margin:2px 2px 14px;gap:10px}
+#sum b{color:var(--ink)} #sum span{color:var(--mute)}
+.actions{display:grid;grid-template-columns:1fr auto;gap:10px}
+.btn{border:1px solid var(--line);background:#12133a;color:var(--ink);border-radius:14px;padding:15px 18px;font:700 15px Manrope;cursor:pointer}
+.btn:hover{border-color:var(--gold);color:var(--gold2)}
+.btn.main{background:linear-gradient(180deg,#f8d891,#d9a944);color:#1b1205;border-color:#f2c76e;font-size:16px}
+.btn.main:hover{color:#000;filter:brightness(1.06)}
+.btn:disabled{opacity:.5;cursor:wait}
+.link{background:none;border:0;color:var(--mute);font:600 13px Manrope;cursor:pointer;padding:6px 4px;text-decoration:underline;text-underline-offset:3px;text-decoration-color:#3a3d78}
+.link:hover{color:var(--gold2)}
+.sub{display:flex;justify-content:center;flex-wrap:wrap;gap:6px 16px;margin-top:10px}
+#capWrap{position:relative;height:0;overflow:hidden}
+#capWrap.on{height:auto;margin-top:12px}
+#cap{width:100%;min-height:160px;background:#0c0d2a;border:1px solid var(--line);border-radius:12px;color:var(--ink);padding:12px;font:13px/1.5 Manrope}
+footer{margin-top:30px;display:flex;justify-content:center;flex-wrap:wrap;gap:4px 18px;border-top:1px solid #1a1c45;padding-top:16px}
+footer small{width:100%;text-align:center;color:#5d5e8f;font-size:11.5px;margin-top:6px}
+dialog{background:#0f1033;color:var(--ink);border:1px solid var(--line);border-radius:18px;padding:22px;max-width:440px;width:calc(100% - 32px)}
+dialog::backdrop{background:#000a}
+dialog h2{font-family:Cinzel,serif;font-size:18px;color:var(--gold2);margin:0 0 14px;letter-spacing:.08em}
+dialog label{display:block;font-size:12px;color:var(--mute);margin:12px 0 5px;text-transform:uppercase;letter-spacing:.06em}
+dialog input[type=text],dialog input[type=date],dialog input[type=time],dialog select{width:100%;background:#080924;border:1px solid var(--line);border-radius:10px;padding:11px 12px;color:var(--ink);font:15px Manrope;color-scheme:dark}
+.chk{display:flex;align-items:center;gap:10px;text-transform:none!important;letter-spacing:0!important;font-size:14px!important;color:var(--ink)!important;cursor:pointer}
+.chk input{width:18px;height:18px;accent-color:#f2c76e}
+dialog p{color:#c8c9ee;font-size:14px;line-height:1.55;margin:10px 0}
+.dlgfoot{display:flex;justify-content:flex-end;margin-top:16px}
+#pack{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+#packMsg{color:var(--gold2);font-size:13px;min-height:18px}
+.trios{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.trio{background:#080924;border:1px solid var(--line);border-radius:12px;padding:12px 6px;text-align:center}
+.trio span{display:block;font-size:11px;color:var(--mute);text-transform:uppercase;letter-spacing:.08em}
+.trio b{display:block;font-family:var(--sym);font-size:30px;color:var(--gold2);margin:4px 0;font-weight:400}
+.trio em{font-style:normal;font-weight:700;font-size:14px}
+#types{display:flex;justify-content:center;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+#types button{background:#10113a;border:1px solid var(--line);color:var(--mute);border-radius:12px;padding:8px 12px;font:700 13px Manrope;cursor:pointer}
+#types button.on{border-color:var(--gold);color:var(--gold2);background:#1a1b4a}
+#modes[hidden],#modes button[hidden],.link[hidden]{display:none}
+#packTypes{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;margin-top:6px}
+#ascOut h3{font-family:Cinzel,serif;color:var(--gold2);font-size:15px;letter-spacing:.06em;margin:18px 0 6px}
+#ascOut ul{margin:0;padding-left:18px;color:#d6d7f5;font-size:14px;line-height:1.6}
+#ascOut .hl{font-family:"Cormorant Garamond",serif;font-style:italic;font-size:21px;color:var(--gold2);margin:4px 0}
+#ascOut .note{color:var(--mute);font-size:12.5px}
+#strip img.longa{flex-basis:70%;max-width:420px;align-self:flex-start}
+#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:#1d2050;border:1px solid var(--gold);color:var(--gold2);padding:10px 16px;border-radius:12px;font-weight:700;opacity:0;transition:.25s;pointer-events:none;z-index:9;text-align:center}
+#toast.on{opacity:1;transform:translateX(-50%)}
+</style>
+</head>
+<body>
+<main>
+  <div class="top">
+    <h1>CÉU DE HOJE</h1>
+    <button class="icon" data-open="settings" aria-label="Definições">⚙</button>
+  </div>
+
+  <div class="nav">
+    <button class="arrow" id="prev" aria-label="Anterior">‹</button>
+    <button id="when" title="Voltar a hoje"></button>
+    <button class="arrow" id="next" aria-label="Seguinte">›</button>
+  </div>
+  <div id="types"><button data-t="top" class="on">🏆 Top</button><button data-t="pares">💞 Pares</button><button data-t="lua">🌙 Lua</button><button data-t="anos">🎂 Anos</button><button data-t="horas">⏳ Horas</button></div>
+  <div id="modes"><button data-m="dia" class="on">Dia</button><button data-m="semana">Semana</button><button data-m="mes">Mês</button><button data-m="ano">Ano</button></div>
+
+  <div id="strip"></div>
+  <div class="meta"><div id="sum"></div><div id="count"></div></div>
+
+  <div class="actions">
+    <button class="btn main" id="share">Partilhar post</button>
+    <button class="btn" id="copy">Copiar legenda</button>
+  </div>
+  <div class="sub"><button class="link" id="reel">🎬 Criar Reel</button><button class="link" id="zip">Guardar fotos (.zip)</button><button class="link" onclick="document.getElementById('capWrap').classList.toggle('on')">Ver legenda</button></div>
+  <div id="capWrap"><textarea id="cap" readonly></textarea></div>
+
+  <footer>
+    <button class="link" data-open="packDlg">Preparar vários dias</button>
+    <button class="link" data-open="ascDlg">✨ O meu céu</button>
+    <button class="link" data-open="how">Como funciona</button>
+    <small>Para entretenimento · posições reais dos astros</small>
+  </footer>
+</main>
+
+<dialog id="settings">
+  <h2>Definições</h2>
+  <label for="brand">Nome da tua página</label>
+  <input type="text" id="brand" maxlength="32" placeholder="Ex.: Os Astros Dizem">
+  <label for="fmt">Formato das fotos</label>
+  <select id="fmt"><option value="feed">Feed 4:5 (recomendado)</option><option value="story">Story 9:16</option><option value="longa">Top numa imagem longa (WhatsApp)</option></select>
+  <label for="cityHours">Cidade (horas planetárias)</label>
+  <select id="cityHours"></select>
+  <label>Opções</label>
+  <label class="chk"><input type="checkbox" id="coverOn"> Juntar capa só com o ranking (antes dos quadrados)</label>
+  <label class="chk"><input type="checkbox" id="skyOn"> Juntar a foto «O céu» no fim</label>
+  <label class="chk"><input type="checkbox" id="modern"> Incluir Urano, Neptuno e Plutão (astrologia moderna)</label>
+  <div class="dlgfoot"><button class="btn" data-close>Fechar</button></div>
+</dialog>
+
+<dialog id="packDlg">
+  <h2>Preparar vários dias</h2>
+  <p>Gera um ficheiro com uma pasta por dia: as fotos pela ordem certa e a legenda. Depois programas tudo de uma vez no Meta Business Suite (aceita até 29 dias de antecedência).</p>
+  <div id="packTypes"><label class="chk"><input type="checkbox" value="top" checked> 🏆 Top do dia</label><label class="chk"><input type="checkbox" value="pares"> 💞 Pares</label><label class="chk"><input type="checkbox" value="lua"> 🌙 Lua</label><label class="chk"><input type="checkbox" value="anos"> 🎂 Anos</label><label class="chk"><input type="checkbox" value="horas"> ⏳ Horas</label></div>
+  <div id="pack"><button class="btn" data-n="7">Próximos 7 dias</button><button class="btn" data-n="28">Próximos 28 dias</button></div>
+  <p id="packMsg"></p>
+  <div class="dlgfoot"><button class="btn" data-close>Fechar</button></div>
+</dialog>
+
+<dialog id="ascDlg">
+  <h2>O meu céu</h2>
+  <p>O teu Sol, Lua e Ascendente, e o que os astros de hoje fazem ao teu mapa. Fica guardado neste aparelho.</p>
+  <label for="bDate">Data de nascimento</label><input type="date" id="bDate" min="1900-01-01" max="2050-12-31">
+  <label for="bTime">Hora de nascimento (opcional)</label><input type="time" id="bTime">
+  <label for="bCity">Local</label><select id="bCity"></select>
+  <div class="dlgfoot" style="justify-content:space-between"><button class="btn main" id="ascGo">Ver o meu dia</button><button class="btn" data-close>Fechar</button></div>
+  <div id="ascOut"></div>
+</dialog>
+
+<dialog id="reelDlg">
+  <h2>O teu Reel</h2>
+  <video id="reelVid" controls playsinline loop style="width:100%;border-radius:12px;background:#000"></video>
+  <p id="reelInfo"></p>
+  <p>Junta uma música no Facebook antes de publicar — os Reels com som chegam a mais gente.</p>
+  <div class="dlgfoot" style="justify-content:space-between"><button class="btn main" id="reelShare">Partilhar / guardar</button><button class="btn" data-close>Fechar</button></div>
+</dialog>
+
+<dialog id="how">
+  <h2>Como funciona</h2>
+  <p><b>Posições reais.</b> O Sol, a Lua e os planetas são calculados para cada dia com os algoritmos de Jean Meeus e os elementos orbitais do JPL/NASA (zodíaco tropical, válido de 1800 a 2050). Também calcula luas novas e cheias, eclipses, retrogradações, entradas nos signos e aspetos exatos.</p>
+  <p><b>Leitura clássica.</b> Segue a astrologia helenística: os 7 astros visíveis a olho nu, regentes e dignidades tradicionais e casas contadas a partir de cada signo. A Lua dá o tom do dia, Vénus o amor, Mercúrio o trabalho, e Júpiter e Saturno o que abre ou trava.</p>
+  <p><b>O top.</b> Cada signo recebe uma pontuação no amor, no trabalho, no dinheiro e na energia. O top ordena-os pela média, e o aviso de cada signo vem da área mais forte e da mais fraca.</p><p><b>Extras.</b> Compatibilidade pelos elementos e pela Lua e Vénus do dia. Calendário lunar pela fase e pelo signo da Lua (raiz, folha, flor, fruto). Horas planetárias pela ordem caldaica, a partir do nascer e do pôr do sol reais da tua cidade. Aniversários e ano pelo caminho de Júpiter, de Saturno e dos eclipses.</p>
+  <p>Para entretenimento.</p>
+  <div class="dlgfoot"><button class="btn" data-close>Fechar</button></div>
+</dialog>
+
+<div id="toast"></div>
+<script>
+// ===== Motor astronómico (Meeus + elementos orbitais JPL, válido 1800–2050) =====
+const D2R = Math.PI / 180;
+const norm = x => ((x % 360) + 360) % 360;
+const sinD = x => Math.sin(x * D2R), cosD = x => Math.cos(x * D2R);
+const jdFromMs = ms => ms / 86400000 + 2440587.5;
+const msFromJd = jd => (jd - 2440587.5) * 86400000;
+function angDiff(a, b) { let d = norm(a - b); if (d > 180) d -= 360; return d; }
+
+function sunLon(jd) {
+  const T = (jd - 2451545) / 36525;
+  const L0 = 280.46646 + 36000.76983 * T, M = 357.52911 + 35999.05029 * T;
+  const C = (1.914602 - 0.004817 * T) * sinD(M) + (0.019993 - 0.000101 * T) * sinD(2 * M) + 0.000289 * sinD(3 * M);
+  return norm(L0 + C - 0.00569 - 0.00478 * sinD(125.04 - 1934.136 * T));
+}
+const MOON_T = [[6.288774, 0, 0, 1, 0], [1.274027, 2, 0, -1, 0], [0.658314, 2, 0, 0, 0], [0.213618, 0, 0, 2, 0], [-0.185116, 0, 1, 0, 0], [-0.114332, 0, 0, 0, 2], [0.058793, 2, 0, -2, 0], [0.057066, 2, -1, -1, 0], [0.053322, 2, 0, 1, 0], [0.045758, 2, -1, 0, 0], [-0.040923, 0, 1, -1, 0], [-0.034720, 1, 0, 0, 0], [-0.030383, 0, 1, 1, 0], [0.015327, 2, 0, 0, -2], [-0.012528, 0, 0, 1, 2], [0.010980, 0, 0, 1, -2], [0.010675, 4, 0, -1, 0], [0.010034, 0, 0, 3, 0], [0.008548, 4, 0, -2, 0], [-0.007888, 2, 1, -1, 0], [-0.006766, 2, 1, 0, 0], [-0.005163, 1, 0, -1, 0], [0.004987, 1, 1, 0, 0], [0.004036, 2, -1, 1, 0]];
+function moonLon(jd) {
+  const T = (jd - 2451545) / 36525;
+  const Lp = 218.3164477 + 481267.88123421 * T, D = 297.8501921 + 445267.1114034 * T, M = 357.5291092 + 35999.0502909 * T, Mp = 134.9633964 + 477198.8675055 * T, F = 93.2720950 + 483202.0175233 * T;
+  let lon = Lp; for (const [a, d, m, mp, f] of MOON_T) lon += a * sinD(d * D + m * M + mp * Mp + f * F);
+  return norm(lon);
+}
+const EL = {
+  mercury: [0.38709927, 0.20563593, 7.00497902, 252.25032350, 77.45779628, 48.33076593, 0.00000037, 0.00001906, -0.00594749, 149472.67411175, 0.16047689, -0.12534081],
+  venus: [0.72333566, 0.00677672, 3.39467605, 181.97909950, 131.60246718, 76.67984255, 0.00000390, -0.00004107, -0.00078890, 58517.81538729, 0.00268329, -0.27769418],
+  earth: [1.00000261, 0.01671123, -0.00001531, 100.46457166, 102.93768193, 0, 0.00000562, -0.00004392, -0.01294668, 35999.37244981, 0.32327364, 0],
+  mars: [1.52371034, 0.09339410, 1.84969142, -4.55343205, -23.94362959, 49.55953891, 0.00001847, 0.00007882, -0.00813131, 19140.30268499, 0.44441088, -0.29257343],
+  jupiter: [5.20288700, 0.04838624, 1.30439695, 34.39644051, 14.72847983, 100.47390909, -0.00011607, -0.00013253, -0.00183714, 3034.74612775, 0.21252668, 0.20469106],
+  saturn: [9.53667594, 0.05386179, 2.48599187, 49.95424423, 92.59887831, 113.66242448, -0.00125060, -0.00050991, 0.00193609, 1222.49362201, -0.41897216, -0.28867794],
+  uranus: [19.18916464, 0.04725744, 0.77263783, 313.23810451, 170.95427630, 74.01692503, -0.00196176, -0.00004397, -0.00242939, 428.48202785, 0.40805281, 0.04240589],
+  neptune: [30.06992276, 0.00859048, 1.77004347, -55.12002969, 44.96476227, 131.78422574, 0.00026291, 0.00005105, 0.00035372, 218.45945325, -0.32241464, -0.00508664],
+  pluto: [39.48211675, 0.24882730, 17.14001206, 238.92903833, 224.06891629, 110.30393684, -0.00031596, 0.00005170, 0.00004818, 145.20780515, -0.04062942, -0.01183482]
+};
+function helio(name, T) {
+  const e0 = EL[name];
+  const a = e0[0] + e0[6] * T, e = e0[1] + e0[7] * T, I = e0[2] + e0[8] * T, L = e0[3] + e0[9] * T, wb = e0[4] + e0[10] * T, Om = e0[5] + e0[11] * T;
+  const w = wb - Om; let M = norm(L - wb); if (M > 180) M -= 360; const Mr = M * D2R;
+  let E = Mr + e * Math.sin(Mr); for (let i = 0; i < 12; i++) E -= (E - e * Math.sin(E) - Mr) / (1 - e * Math.cos(E));
+  const xp = a * (Math.cos(E) - e), yp = a * Math.sqrt(1 - e * e) * Math.sin(E);
+  const cw = cosD(w), sw = sinD(w), cO = cosD(Om), sO = sinD(Om), cI = cosD(I), sI = sinD(I);
+  return [(cw * cO - sw * sO * cI) * xp + (-sw * cO - cw * sO * cI) * yp, (cw * sO + sw * cO * cI) * xp + (-sw * sO + cw * cO * cI) * yp, (sw * sI) * xp + (cw * sI) * yp];
+}
+function planetLon(name, jd) {
+  const T = (jd - 2451545) / 36525, p = helio(name, T), E = helio('earth', T);
+  return norm(Math.atan2(p[1] - E[1], p[0] - E[0]) / D2R + 1.3970 * T);
+}
+const CLASSIC = ['sun', 'moon', 'mercury', 'venus', 'mars', 'jupiter', 'saturn'];
+const OUTER = ['uranus', 'neptune', 'pluto'];
+const ALLP = CLASSIC.concat(OUTER);
+const lonOf = (p, jd) => p === 'sun' ? sunLon(jd) : p === 'moon' ? moonLon(jd) : planetLon(p, jd);
+const meanNode = jd => norm(125.0445479 - 1934.1362891 * ((jd - 2451545) / 36525));
+
+function skyAtJd(jd) {
+  const s = {};
+  for (const p of ALLP) {
+    const lon = lonOf(p, jd), sp = angDiff(lonOf(p, jd + 0.5), lonOf(p, jd - 0.5));
+    s[p] = { lon, sign: Math.floor(lon / 30), deg: lon % 30, rx: p !== 'sun' && p !== 'moon' && sp < 0 };
+  }
+  const el = norm(s.moon.lon - s.sun.lon); s.phase = { elong: el, illum: (1 - cosD(el)) / 2 };
+  return s;
+}
+const noonJd = ds => { const [y, m, d] = ds.split('-').map(Number); return jdFromMs(Date.UTC(y, m - 1, d, 12)); };
+const dayStr = jd => new Date(msFromJd(jd)).toISOString().slice(0, 10);
+const _skyCache = {};
+function skyFor(ds) {
+  if (_skyCache[ds]) return _skyCache[ds];
+  const jd = noonJd(ds), s = skyAtJd(jd);
+  const j0 = jd - 0.5, s0 = Math.floor(moonLon(j0) / 30), s1 = Math.floor(moonLon(j0 + 1) / 30);
+  s.moonSignStart = s0; s.moonIngress = null;
+  if (s0 !== s1) { let lo = j0, hi = j0 + 1; for (let i = 0; i < 30; i++) { const mid = (lo + hi) / 2; if (Math.floor(moonLon(mid) / 30) === s0) lo = mid; else hi = mid; } s.moonIngress = { to: s1, time: new Date(msFromJd(hi)) }; }
+  s.date = ds;
+  return (_skyCache[ds] = s);
+}
+
+// ---- Acontecimentos num intervalo de dias [ds0, ds1] ----
+const ASPECTS = [[0, 'conj'], [60, 'sext'], [90, 'quad'], [120, 'tri'], [180, 'opo']];
+function bisect(f, lo, hi) { let flo = f(lo); for (let i = 0; i < 32; i++) { const mid = (lo + hi) / 2, fm = f(mid); if ((fm < 0) === (flo < 0)) { lo = mid; flo = fm; } else hi = mid; } return (lo + hi) / 2; }
+function eventsBetween(ds0, ds1, modern, noAspects) {
+  const list = modern ? ALLP : CLASSIC, ev = [];
+  const j0 = noonJd(ds0) - 0.5, j1 = noonJd(ds1) + 0.5;
+  // luas novas / cheias / quartos
+  for (let j = j0; j < j1; j += noAspects ? 0.5 : 0.25) {
+    const st = noAspects ? 0.5 : 0.25;
+    for (const [tgt, kind] of [[0, 'nova'], [180, 'cheia'], [90, 'crescente'], [270, 'minguante']]) {
+      const f = x => angDiff(moonLon(x) - sunLon(x), tgt);
+      const a = f(j), b = f(j + st);
+      if (a < 0 && b >= 0 && Math.abs(a - b) < 30) {
+        const t = bisect(f, j, j + st), ml = moonLon(t), node = meanNode(t), sl = sunLon(t);
+        const dn = Math.min(Math.abs(angDiff(sl, node)), Math.abs(angDiff(sl, node + 180)));
+        const eclipse = (kind === 'nova' && dn < 15.4) ? 'solar' : (kind === 'cheia' && dn < 11.5) ? 'lunar' : null;
+        ev.push({ type: 'lua', kind, jd: t, sign: Math.floor(ml / 30), eclipse });
+      }
+    }
+  }
+  // ingressos e estações
+  let prev = null;
+  for (let j = noonJd(ds0) - 1; j <= noonJd(ds1); j += 1) {
+    const cur = {};
+    for (const p of list) if (p !== 'moon') { const l = lonOf(p, j); cur[p] = { sign: Math.floor(l / 30), rx: p !== 'sun' && angDiff(lonOf(p, j + 0.5), lonOf(p, j - 0.5)) < 0 }; }
+    if (prev) for (const p in cur) {
+      if (cur[p].sign !== prev[p].sign) ev.push({ type: 'ingresso', p, jd: j, sign: cur[p].sign, rx: cur[p].rx });
+      if (cur[p].rx !== prev[p].rx) ev.push({ type: 'estacao', p, jd: j, rx: cur[p].rx, sign: cur[p].sign });
+    }
+    prev = cur;
+  }
+  // aspetos exatos entre planetas (sem a Lua)
+  const ps = noAspects ? [] : list.filter(p => p !== 'moon');
+  for (let a = 0; a < ps.length; a++) for (let b = a + 1; b < ps.length; b++) {
+    const P = ps[a], Q = ps[b];
+    for (const [A, name] of ASPECTS) {
+      if ((P === 'sun' && (Q === 'mercury' || Q === 'venus')) && A !== 0) continue;
+      if (P === 'mercury' && Q === 'venus' && A > 60) continue;
+      for (const tgt of A === 0 || A === 180 ? [A] : [A, -A]) {
+        const f = x => angDiff(angDiff(lonOf(P, x), lonOf(Q, x)), tgt);
+        for (let j = noonJd(ds0) - 0.5; j < noonJd(ds1) + 0.5; j += 1) {
+          const u = f(j), v = f(j + 1);
+          if (Math.abs(u) < 8 && Math.abs(v) < 8 && ((u < 0) !== (v < 0))) ev.push({ type: 'aspeto', p: P, q: Q, asp: name, jd: bisect(f, j, j + 1) });
+        }
+      }
+    }
+  }
+  return ev.filter(e => e.jd >= j0 && e.jd < j1).sort((x, y) => x.jd - y.jd);
+}
+
+// ---- Ascendente ----
+function ascendant(ms, lat, lonE) {
+  const jd = jdFromMs(ms), T = (jd - 2451545) / 36525;
+  const gmst = norm(280.46061837 + 360.98564736629 * (jd - 2451545) + 0.000387933 * T * T);
+  const th = norm(gmst + lonE), eps = 23.4392911 - 0.0130042 * T;
+  return norm(Math.atan2(cosD(th), -(sinD(th) * cosD(eps) + Math.tan(lat * D2R) * sinD(eps))) / D2R);
+}
+function tzOffsetMin(ms, tz) {
+  const p = {}; new Intl.DateTimeFormat('en-US', { timeZone: tz, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }).formatToParts(new Date(ms)).forEach(x => p[x.type] = x.value);
+  return (Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour % 24, +p.minute, +p.second) - ms) / 60000;
+}
+function localToUtcMs(y, mo, d, h, mi, tz) { let ms = Date.UTC(y, mo - 1, d, h, mi); for (let i = 0; i < 3; i++) ms = Date.UTC(y, mo - 1, d, h, mi) - tzOffsetMin(ms, tz) * 60000; return ms; }
+
+// ===== Interpretação =====
+const SIGNS = [
+  { n: 'Carneiro', g: '♈', r: '21 mar – 19 abr', el: 'fogo', ruler: 'mars', mod: 'mars', tag: 'carneiro' },
+  { n: 'Touro', g: '♉', r: '20 abr – 20 mai', el: 'terra', ruler: 'venus', mod: 'venus', tag: 'touro' },
+  { n: 'Gémeos', g: '♊', r: '21 mai – 20 jun', el: 'ar', ruler: 'mercury', mod: 'mercury', tag: 'gemeos' },
+  { n: 'Caranguejo', g: '♋', r: '21 jun – 22 jul', el: 'agua', ruler: 'moon', mod: 'moon', tag: 'caranguejo' },
+  { n: 'Leão', g: '♌', r: '23 jul – 22 ago', el: 'fogo', ruler: 'sun', mod: 'sun', tag: 'leao' },
+  { n: 'Virgem', g: '♍', r: '23 ago – 22 set', el: 'terra', ruler: 'mercury', mod: 'mercury', tag: 'virgem' },
+  { n: 'Balança', g: '♎', r: '23 set – 22 out', el: 'ar', ruler: 'venus', mod: 'venus', tag: 'balanca' },
+  { n: 'Escorpião', g: '♏', r: '23 out – 21 nov', el: 'agua', ruler: 'mars', mod: 'pluto', tag: 'escorpiao' },
+  { n: 'Sagitário', g: '♐', r: '22 nov – 21 dez', el: 'fogo', ruler: 'jupiter', mod: 'jupiter', tag: 'sagitario' },
+  { n: 'Capricórnio', g: '♑', r: '22 dez – 19 jan', el: 'terra', ruler: 'saturn', mod: 'saturn', tag: 'capricornio' },
+  { n: 'Aquário', g: '♒', r: '20 jan – 18 fev', el: 'ar', ruler: 'saturn', mod: 'uranus', tag: 'aquario' },
+  { n: 'Peixes', g: '♓', r: '19 fev – 20 mar', el: 'agua', ruler: 'jupiter', mod: 'neptune', tag: 'peixes' }
+];
+const SIGN_IN = SIGNS.map(s => s.n);
+const PL = {
+  sun: { n: 'Sol', g: '☉', cor: 'Dourado', hex: '#f5c542', kw: 'a vontade', f: 0 },
+  moon: { n: 'Lua', g: '☽', cor: 'Prateado', hex: '#cfd8e3', kw: 'as emoções', f: 1 },
+  mercury: { n: 'Mercúrio', g: '☿', cor: 'Laranja', hex: '#f59e42', kw: 'a comunicação', f: 0 },
+  venus: { n: 'Vénus', g: '♀', cor: 'Verde-esmeralda', hex: '#3ccf8e', kw: 'o amor', f: 1 },
+  mars: { n: 'Marte', g: '♂', cor: 'Vermelho', hex: '#ef4444', kw: 'a ação', f: 0 },
+  jupiter: { n: 'Júpiter', g: '♃', cor: 'Azul-real', hex: '#4f7cff', kw: 'a sorte', f: 0 },
+  saturn: { n: 'Saturno', g: '♄', cor: 'Preto', hex: '#9aa3b2', kw: 'a responsabilidade', f: 0 },
+  uranus: { n: 'Urano', g: '♅', cor: 'Turquesa', hex: '#4fd1c5', kw: 'as surpresas', f: 0 },
+  neptune: { n: 'Neptuno', g: '♆', cor: 'Azul-mar', hex: '#7c9cff', kw: 'os sonhos', f: 0 },
+  pluto: { n: 'Plutão', g: '♇', cor: 'Bordô', hex: '#b5527a', kw: 'a transformação', f: 0 }
+};
+const ASP_TXT = { conj: ['em conjunção com', 'une-se a'], sext: ['em sextil com', 'abre portas a'], quad: ['em quadratura com', 'choca com'], tri: ['em trígono com', 'flui com'], opo: ['em oposição a', 'confronta'] };
+const ASP_G = { conj: '☌', sext: '⚹', quad: '□', tri: '△', opo: '☍' };
+const EL_COL = { fogo: ['#ff7a45', '#7a1f0f'], terra: ['#c9b458', '#2f3d1a'], ar: ['#6fd3ff', '#1b3a63'], agua: ['#8b7bff', '#1b1f5c'] };
+const DAY_RULER = ['sun', 'moon', 'mars', 'mercury', 'jupiter', 'venus', 'saturn'];
+const DOMICILE = { sun: [4], moon: [3], mercury: [2, 5], venus: [1, 6], mars: [0, 7], jupiter: [8, 11], saturn: [9, 10], uranus: [10], neptune: [11], pluto: [7] };
+const EXALT = { sun: 0, moon: 1, mercury: 5, venus: 11, mars: 9, jupiter: 3, saturn: 6 };
+const KEYWORD = ['', 'Brilho pessoal', 'Dinheiro', 'Conversas', 'Família', 'Romance', 'Rotina', 'Parcerias', 'Intensidade', 'Aventura', 'Carreira', 'Amizades', 'Descanso'];
+const THEME = ['', 'de ti e da tua imagem', 'do dinheiro e do que valorizas', 'da comunicação e do dia a dia', 'da casa e da família', 'do amor e da criatividade', 'do trabalho e da saúde', 'das relações e parcerias', 'das emoções profundas e do que é partilhado', 'das viagens e dos estudos', 'da carreira e da reputação', 'dos amigos e dos projetos', 'do descanso e do mundo interior'];
+const AREA = ['', 'a tua imagem', 'as finanças', 'as conversas', 'a casa', 'o amor', 'a rotina', 'as relações', 'a intimidade', 'os horizontes', 'a carreira', 'as amizades', 'o descanso'];
+
+const T_MOON = [null,
+  ['A Lua está no teu signo: és o centro das atenções.', 'Dia de te pores em primeiro lugar.', 'Intuição em alta — confia no que sentes.', 'Estás magnético: o que disseres hoje fica.', 'Recomeço emocional: segue o teu instinto.'],
+  ['Foco no que é teu: dinheiro e conforto.', 'Bom dia para pôr as contas em ordem.', 'Valoriza o que já tens antes de querer mais.', 'Um pequeno prazer faz-te bem — sem exageros.', 'Segurança primeiro: decide com calma.'],
+  ['Conversas, mensagens e pequenas deslocações.', 'Uma conversa pode abrir uma porta inesperada.', 'Mente rápida: aponta as ideias antes que fujam.', 'Liga àquela pessoa — ela está à espera.', 'Uma notícia muda os teus planos para melhor.'],
+  ['Casa e família pedem a tua presença.', 'Dia de recarregar energias no teu canto.', 'Alguém de casa precisa de ti hoje.', 'Arrumar a casa é arrumar a cabeça.', 'Raízes fortes: liga a quem te viu crescer.'],
+  ['Romance, diversão e criatividade no ar.', 'Permite-te brincar — o dia sorri-te.', 'Coração aberto: um flirt ou uma ideia brilhante.', 'Faz algo só porque te dá prazer.', 'Hoje brilhas sem esforço.'],
+  ['Rotina, saúde e trabalho bem feito.', 'Arruma, organiza, resolve pendentes.', 'O corpo fala: ouve-o.', 'Pequenos hábitos, grandes resultados.', 'Dia de despachar o que andas a adiar.'],
+  ['As relações estão em destaque.', 'Quem está ao teu lado tem a palavra.', 'Dia de negociar e ceder um pouco.', 'Um acordo justo está ao teu alcance.', 'Olha para o outro como um espelho.'],
+  ['Emoções profundas e assuntos partilhados.', 'Algo escondido pode vir à tona.', 'Bom dia para tratar de finanças a dois.', 'Larga o que já não te serve.', 'Intensidade no ar: escolhe as tuas batalhas.'],
+  ['Horizontes largos: viagens e aprendizagem.', 'Uma nova ideia muda a tua perspetiva.', 'Apetece fugir à rotina — planeia algo.', 'Aprende algo novo hoje, nem que seja pequeno.', 'Fé e otimismo levam-te longe.'],
+  ['Carreira em foco: mostra o teu valor.', 'Quem manda está atento a ti.', 'Dia de dar a cara e assumir responsabilidades.', 'Um passo firme hoje conta para o futuro.', 'Reconhecimento à vista.'],
+  ['Amigos e projetos de grupo dão frutos.', 'Um contacto traz boas notícias.', 'Pensa no futuro — sonha alto.', 'A tua rede de amigos é o teu tesouro.', 'Junta-te a quem pensa como tu.'],
+  ['Dia de recolhimento e intuição.', 'Abranda: o descanso também é produtivo.', 'Algo termina para dar lugar ao novo.', 'Os sonhos desta noite trazem respostas.', 'Menos barulho, mais clareza.']
+];
+const T_LOVE = [null,
+  ['Vénus está no teu signo: estás irresistível. Bom para seduzir ou fazer as pazes.', 'O teu charme está no máximo — usa-o com generosidade.', 'Cuida da tua imagem: quem te vê, repara.'],
+  ['O amor mostra-se em gestos concretos: um mimo, um jantar, um presente.', 'Procuras segurança afetiva — e mereces.', 'Saber o teu valor é o melhor íman.'],
+  ['Uma mensagem bem escrita vale ouro. Diz o que sentes.', 'Há flirt nas conversas do dia a dia.', 'Uma conversa leve pode virar algo mais.'],
+  ['Um ambiente caseiro e aconchegado favorece o romance.', 'A harmonia em família aquece o coração.', 'Um jantar em casa vale mais que um restaurante.'],
+  ['Excelente para o romance! Solteiros: há faíscas. Casais: reacendam a chama.', 'O coração está em festa — vive a paixão.', 'Surpreende quem amas com algo divertido.'],
+  ['O amor está nos pequenos cuidados do dia a dia.', 'Ajudar quem amas numa tarefa vale mais do que mil palavras.', 'Romance discreto, mas verdadeiro.'],
+  ['Vénus ilumina as relações: bom para compromissos e reconciliações.', 'Alguém especial pode aproximar-se. Abre a porta.', 'O amor pede equilíbrio: dar e receber.'],
+  ['Paixão intensa e emoções fortes. Evita ciúmes.', 'A intimidade e a confiança aprofundam-se.', 'Atração magnética — mas sem jogos.'],
+  ['Atração por alguém diferente, de longe ou de outra cultura.', 'Uma escapadinha a dois faz milagres.', 'O amor cresce quando partilham sonhos.'],
+  ['Uma relação pode tornar-se pública ou oficial.', 'Admiração no trabalho pode virar algo mais — cuidado.', 'Amor com futuro: pensa a longo prazo.'],
+  ['Uma amizade pode evoluir para romance.', 'Sai com amigos: o amor pode estar no grupo.', 'Liberdade e cumplicidade andam juntas.'],
+  ['Sentimentos secretos ou amor platónico. Reflete antes de agir.', 'Dia de perdoar e sarar feridas antigas.', 'O amor pede silêncio e escuta.']
+];
+const T_WORK = [null,
+  ['Ideias claras e boa comunicação — apresenta os teus projetos.', 'A tua opinião conta: dá-a com confiança.'],
+  ['Pensa em formas de rentabilizar o que sabes fazer.', 'Bom para negociar valores e condições.'],
+  ['Reuniões, telefonemas e emails correm a teu favor.', 'Uma conversa rápida resolve o que parecia complicado.'],
+  ['Trabalho a partir de casa ou assuntos de casa em destaque.', 'Organiza o teu espaço de trabalho: rendes mais.'],
+  ['A criatividade é a tua melhor ferramenta hoje.', 'Trabalhar com gosto faz toda a diferença.'],
+  ['Produtividade em alta: despacha tarefas pendentes.', 'O detalhe faz a diferença — revê tudo.'],
+  ['Parcerias e negociações correm bem com diálogo.', 'Um colega pode ser o teu melhor aliado.'],
+  ['Investiga a fundo antes de decidir.', 'Há informação escondida — procura-a.'],
+  ['Formações, cursos e contactos de fora são favorecidos.', 'Pensa em grande: o plano a longo prazo compensa.'],
+  ['Bom momento para falar com as chefias e mostrar resultados.', 'A tua reputação está a crescer.'],
+  ['Trabalho em equipa rende mais do que a solo.', 'Uma ideia de grupo pode ser a melhor.'],
+  ['Trabalha nos bastidores; nem tudo precisa de ser anunciado.', 'Planeia em silêncio, age depois.']
+];
+const T_WEEK = [null, 'Semana para te afirmares e cuidares de ti.', 'Semana de dinheiro, conforto e prioridades.', 'Semana de conversas, contactos e movimento.', 'Semana virada para a casa e a família.', 'Semana de amor, prazer e criatividade.', 'Semana de trabalho, saúde e organização.', 'Semana das relações e dos acordos.', 'Semana intensa, de mudanças por dentro.', 'Semana de horizontes largos e novas ideias.', 'Semana de carreira e decisões importantes.', 'Semana de amigos, grupos e projetos.', 'Semana de pausa, intuição e balanço.'];
+const T_NEW = [null, 'renovar a tua imagem e começar algo só teu', 'definir objetivos financeiros', 'iniciar um curso ou retomar contactos', 'mudanças em casa ou na família', 'um novo amor ou projeto criativo', 'um hábito saudável ou nova rotina de trabalho', 'uma nova parceria ou acordo', 'largar o que pesa e recomeçar', 'planear uma viagem ou um estudo', 'um novo passo na carreira', 'um projeto com amigos', 'um recomeço interior'];
+const T_FULL = [null, 'colheres o que semeaste por ti', 'perceber para onde vai o teu dinheiro', 'uma conversa que esclarece tudo', 'uma decisão em família', 'emoções fortes no amor', 'ouvires o corpo e abrandares', 'clareza numa relação', 'fechar um ciclo emocional', 'uma revelação que alarga horizontes', 'reconhecimento no trabalho', 'um balanço das amizades', 'descansar e soltar'];
+
+function seeded(str) { let h = 2166136261; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return () => { h ^= h << 13; h ^= h >>> 17; h ^= h << 5; return ((h >>> 0) % 100000) / 100000; }; }
+const pick = (arr, r) => arr[Math.floor(r() * arr.length)];
+const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+const toStars = s => clamp(Math.round(s / 20), 1, 5);
+const aspectOf = h => ({ 1: 'conj', 7: 'opo', 4: 'quad', 10: 'quad', 5: 'tri', 9: 'tri', 3: 'sext', 11: 'sext' })[h] || null;
+const rxw = p => 'retrógrad' + (PL[p].f ? 'a' : 'o');
+function dignity(p, sign) {
+  if (!DOMICILE[p]) return null;
+  if (DOMICILE[p].includes(sign)) return 'domicilio';
+  if (EXALT[p] === sign) return 'exaltacao';
+  if (DOMICILE[p].some(s => (s + 6) % 12 === sign)) return 'exilio';
+  if (EXALT[p] !== undefined && (EXALT[p] + 6) % 12 === sign) return 'queda';
+  return null;
+}
+function moonPhaseName(e) {
+  if (e < 12 || e >= 348) return 'Lua Nova'; if (e < 80) return 'Lua Crescente'; if (e < 100) return 'Quarto Crescente'; if (e < 168) return 'Crescente Gibosa';
+  if (e < 192) return 'Lua Cheia'; if (e < 260) return 'Minguante Gibosa'; if (e < 280) return 'Quarto Minguante'; return 'Lua Minguante';
+}
+const housesOf = (si, sky) => { const H = {}; for (const p of ALLP) H[p] = ((sky[p].sign - si + 12) % 12) + 1; return H; };
+
+function scoreDay(si, sky, H) {
+  const area = { amor: 60, trabalho: 60, dinheiro: 60, energia: 60 }, add = (k, v) => area[k] += v, has = (p, hs) => hs.includes(H[p]);
+  if (has('venus', [1, 5, 7, 11])) add('amor', 22); else if (has('venus', [2, 3, 9, 10])) add('amor', 10); else if (has('venus', [6, 8, 12])) add('amor', -4);
+  if (has('moon', [5, 7])) add('amor', 12); if (has('moon', [12])) add('amor', -6); if (has('jupiter', [5, 7])) add('amor', 14);
+  if (has('mars', [5])) add('amor', 8); if (has('mars', [7])) add('amor', -10); if (has('saturn', [5, 7])) add('amor', -14); if (sky.venus.rx) add('amor', -8);
+  for (const p of ['sun', 'mars', 'jupiter']) if (has(p, [10, 6])) add('trabalho', p === 'jupiter' ? 18 : 10);
+  if (has('mercury', [3, 6, 10, 1])) add('trabalho', 8); if (has('moon', [10, 6])) add('trabalho', 8);
+  if (has('saturn', [10, 6])) add('trabalho', -10); if (has('saturn', [1])) add('trabalho', -6); if (sky.mercury.rx) add('trabalho', -8); if (has('moon', [12])) add('trabalho', -6);
+  if (has('jupiter', [2, 8, 11])) add('dinheiro', 20); if (has('venus', [2, 8, 11])) add('dinheiro', 14); if (has('sun', [2, 11])) add('dinheiro', 6); if (has('moon', [2, 11])) add('dinheiro', 8);
+  if (has('saturn', [2, 8])) add('dinheiro', -14); if (has('mars', [2, 8])) add('dinheiro', -10); if (sky.mercury.rx && has('mercury', [2, 8])) add('dinheiro', -6);
+  if (has('sun', [1])) add('energia', 18); if (has('mars', [1])) add('energia', 14); if (has('moon', [1])) add('energia', 10);
+  if (has('mars', [6, 12])) add('energia', -10); if (has('saturn', [1])) add('energia', -16); if (has('moon', [12, 6])) add('energia', -8); if (has('jupiter', [1, 5, 9])) add('energia', 8);
+  const mAng = Math.abs(angDiff(sky.moon.lon, si * 30 + 15));
+  for (const [ang, val] of [[60, 8], [120, 10], [90, -8], [180, -6], [0, 6]]) { const orb = Math.abs(mAng - ang); if (orb < 12) for (const k in area) add(k, val * (1 - orb / 12)); }
+  const ru = SIGNS[si].ruler, b = { domicilio: 8, exaltacao: 8, exilio: -7, queda: -7 }[dignity(ru, sky[ru].sign)] || 0; for (const k in area) add(k, b);
+  for (const [p, nat] of [['jupiter', 1], ['venus', 0.6], ['saturn', -1], ['mars', -0.6]]) {
+    const a = aspectOf(H[p]); const v = a === 'tri' || a === 'sext' ? (nat > 0 ? 6 : 3) * Math.abs(nat) : a === 'quad' || a === 'opo' ? (nat > 0 ? 1 : -6) * Math.abs(nat) : 0; for (const k in area) add(k, v);
+  }
+  for (const k in area) area[k] = clamp(Math.round(area[k]), 8, 98);
+  return area;
+}
+function texts(si, sky, H, area, r, modern) {
+  const has = (p, hs) => hs.includes(H[p]);
+  const love = pick(T_LOVE[H.venus], r) + (sky.venus.rx ? ' Vénus retrógrada: bom para rever relações, mau para começar novas.' : '');
+  let work = pick(T_WORK[H.mercury], r);
+  if (has('jupiter', [10, 6])) work += ' Júpiter abre portas: arrisca uma proposta.';
+  else if (has('mars', [10, 6])) work += ' Marte dá-te garra: avança, mas sem atropelar ninguém.';
+  else if (has('saturn', [10, 6])) work += ' Saturno exige rigor — o esforço de agora conta a longo prazo.';
+  else if (has('sun', [10])) work += ' O Sol põe-te em evidência.';
+  if (sky.mercury.rx) work += ' Mercúrio retrógrado: relê emails e contratos antes de enviar.';
+  let money;
+  if (has('jupiter', [2, 8, 11])) money = 'Júpiter favorece as finanças: boa altura para planear investimentos ou pedir o que te devem.';
+  else if (has('venus', [2, 8])) money = 'Vénus traz conforto financeiro, mas cuidado com mimos caros.';
+  else if (has('saturn', [2])) money = 'Saturno pede contenção: aperta o cinto e corta no supérfluo.';
+  else if (has('mars', [2, 8])) money = 'Cuidado com compras por impulso — conta até dez antes de pagar.';
+  else if (has('moon', [2])) money = 'Atenção aos gastos emocionais; nem tudo o que apetece faz falta.';
+  else if (modern && has('uranus', [2, 8])) money = 'Urano traz imprevistos no dinheiro: tem uma reserva à mão.';
+  else money = area.dinheiro >= 70 ? pick(['Finanças estáveis: dia tranquilo para pequenas decisões.', 'Boa maré financeira — aproveita para poupar.'], r) : area.dinheiro >= 50 ? pick(['Dinheiro sem grandes surpresas. Mantém o orçamento.', 'Equilíbrio financeiro: nem gastos grandes, nem sustos.'], r) : 'Evita empréstimos e decisões financeiras grandes.';
+  const ph = moonPhaseName(sky.phase.elong);
+  let energy;
+  if (has('sun', [1])) energy = 'É a tua época! Vitalidade renovada.';
+  else if (has('saturn', [1])) energy = 'Cansaço acumulado — dorme bem e não carregues o mundo às costas.';
+  else if (has('mars', [1])) energy = 'Energia a mil — canaliza-a para o exercício.';
+  else if (has('mars', [6, 12])) energy = 'Não forces o corpo: atenção a excessos e pequenas lesões.';
+  else if (has('moon', [12])) energy = 'Energia mais baixa: dá-te tempo para descansar.';
+  else energy = area.energia >= 70 ? pick(['Boa disposição e energia para dar e vender.', 'Estás em forma: aproveita para mexer o corpo.'], r) : area.energia >= 50 ? pick(['Energia equilibrada: mantém um ritmo constante.', 'Ritmo certo: nem pressa, nem preguiça.'], r) : 'Poupa energias e evita exageros.';
+  if (ph === 'Lua Cheia') energy += ' Lua Cheia: emoções à flor da pele.';
+  if (ph === 'Lua Nova') energy += ' Lua Nova: ideal para começar um hábito saudável.';
+  const ru = modern ? SIGNS[si].mod : SIGNS[si].ruler, ruN = PL[ru].n, ruIn = SIGN_IN[sky[ru].sign], dg = dignity(ru, sky[ru].sign), fem = PL[ru].f;
+  const V = {
+    domicilio: [`O teu regente, ${ruN}, está em casa (${ruIn}): confia na tua força e toma a iniciativa.`, `${ruN}, o teu regente, está no seu próprio signo (${ruIn}): és tu quem dita o ritmo.`],
+    exaltacao: [`O teu regente, ${ruN}, está exaltad${fem ? 'a' : 'o'} em ${ruIn}: é um dos teus melhores momentos para brilhar.`, `${ruN} exaltad${fem ? 'a' : 'o'} em ${ruIn} dá-te um empurrão extra: aproveita.`],
+    exilio: [`O teu regente, ${ruN}, está em exílio em ${ruIn}: vale mais a paciência do que a força.`, `Com ${ruN} fora de casa (${ruIn}), adapta-te em vez de forçar.`],
+    queda: [`O teu regente, ${ruN}, está em queda em ${ruIn}: não te cobres demasiado, faz o essencial.`, `${ruN} em queda (${ruIn}) pede humildade: pequenos passos valem muito.`]
+  };
+  let advice = dg ? pick(V[dg], r) : `O teu regente, ${ruN}, passa por ${ruIn}: tudo gira à volta ${THEME[H[ru]]}.`;
+  if (sky[ru].rx) advice += ` Como está ${rxw(ru)}, revê antes de avançar.`;
+  return { love, work, money, energy, advice, ruler: ru };
+}
+function extras(si, sky, H, r) {
+  const fav = ['jupiter', 'venus', 'sun', 'moon', 'mercury', 'mars', 'saturn'].map(p => {
+    const a = aspectOf(H[p]); let s = { jupiter: 3, venus: 2.5, sun: 1.5, moon: 1.5, mercury: 1, mars: 0.5, saturn: 0 }[p];
+    s *= a === 'tri' ? 2 : a === 'sext' ? 1.6 : a === 'conj' ? 1.4 : a ? 0.6 : 0.3; if (sky[p].rx) s *= 0.6; return [p, s];
+  }).sort((a, b) => b[1] - a[1])[0][0];
+  const harm = s => [3, 5, 9, 11].includes(((s - si + 12) % 12) + 1);
+  const ally = harm(sky.moon.sign) ? sky.moon.sign : harm(sky.venus.sign) ? sky.venus.sign : (si + (r() < 0.5 ? 4 : 8)) % 12;
+  const lucky = ((Math.floor(sky.moon.lon) + si * 7 + Math.floor(sky[SIGNS[si].ruler].lon)) % 49) + 1;
+  return { fav, ally, lucky };
+}
+
+// ---------- Dia ----------
+function readDay(si, ds, modern) {
+  const sky = skyFor(ds), H = housesOf(si, sky), r = seeded(ds + '|' + si), area = scoreDay(si, sky, H);
+  const t = texts(si, sky, H, area, r, modern), x = extras(si, sky, H, r);
+  const stars = {}; for (const k in area) stars[k] = toStars(area[k]);
+  return Object.assign({ mode: 'dia', si, sign: SIGNS[si], H, area, stars, overall: avg(area), headline: pick(T_MOON[H.moon], r), keyword: KEYWORD[H.moon] }, t, x);
+}
+const avg = a => clamp(Math.round((a.amor + a.trabalho + a.dinheiro + a.energia) / 4), 8, 98);
+
+// ---------- Semana / Mês ----------
+function periodRange(ds, mode) {
+  const [y, m, d] = ds.split('-').map(Number);
+  if (mode === 'ano') return [`${y}-01-01`, `${y}-12-31`];
+  if (mode === 'semana') { const t = new Date(Date.UTC(y, m - 1, d)), dow = (t.getUTCDay() + 6) % 7; const a = new Date(t - dow * 864e5), b = new Date(+a + 6 * 864e5); return [a.toISOString().slice(0, 10), b.toISOString().slice(0, 10)]; }
+  const last = new Date(Date.UTC(y, m, 0)).getUTCDate();
+  return [`${y}-${String(m).padStart(2, '0')}-01`, `${y}-${String(m).padStart(2, '0')}-${String(last).padStart(2, '0')}`];
+}
+function daysIn(a, b) { const out = []; let j = noonJd(a); const e = noonJd(b); for (; j <= e + 0.01; j++) out.push(dayStr(j)); return out; }
+const _evCache = {};
+function periodEvents(a, b, modern) { const k = a + b + modern; return _evCache[k] || (_evCache[k] = eventsBetween(a, b, modern)); }
+const DIA_CURTO = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
+const dayLabel = (jd, mode) => { const d = new Date(msFromJd(jd)); return mode === 'semana' ? DIA_CURTO[d.getUTCDay()] : 'dia ' + d.getUTCDate(); };
+
+function readPeriod(si, ds, mode, modern) {
+  const [a, b] = periodRange(ds, mode), days = daysIn(a, b), r = seeded(a + mode + si);
+  const daily = days.map(d => { const sky = skyFor(d), H = housesOf(si, sky); return { d, sky, H, area: scoreDay(si, sky, H) }; });
+  const area = { amor: 0, trabalho: 0, dinheiro: 0, energia: 0 };
+  for (const x of daily) for (const k in area) area[k] += x.area[k] / daily.length;
+  for (const k in area) area[k] = Math.round(area[k]);
+  const mid = daily[Math.floor(daily.length / 2)], stars = {}; for (const k in area) stars[k] = toStars(area[k]);
+  // tema: peso por casa
+  const w = Array(13).fill(0);
+  for (const x of daily) w[x.H.moon] += 1 / daily.length * 2;
+  for (const [p, k] of [['sun', 3], ['venus', 2], ['mercury', 2], ['mars', 2], ['jupiter', 1.5], ['saturn', 1.2]]) w[mid.H[p]] += k;
+  const theme = w.indexOf(Math.max(...w.slice(1)));
+  const best = k => daily.reduce((m, x) => x.area[k] > m.area[k] ? x : m, daily[0]);
+  const bestAll = daily.reduce((m, x) => avg(x.area) > avg(m.area) ? x : m, daily[0]);
+  const t = texts(si, mid.sky, mid.H, area, r, modern);
+  const ev = periodEvents(a, b, modern), hi = [];
+  for (const e of ev) {
+    const when = dayLabel(e.jd, mode), h = ((e.sign - si + 12) % 12) + 1;
+    if (e.type === 'lua' && (e.kind === 'nova' || e.kind === 'cheia')) {
+      const ecl = e.eclipse ? (e.eclipse === 'solar' ? 'Eclipse solar' : 'Eclipse lunar') + ' na ' : '';
+      hi.push(`${e.kind === 'nova' ? '🌑' : '🌕'} ${ecl}${e.kind === 'nova' ? 'Lua Nova' : 'Lua Cheia'} em ${SIGN_IN[e.sign]} (${when}): ${e.kind === 'nova' ? 'bom para ' + T_NEW[h] : 'momento de ' + T_FULL[h]}.`);
+    } else if (e.type === 'ingresso' && ['sun', 'mercury', 'venus', 'mars', 'jupiter', 'saturn'].includes(e.p)) {
+      hi.push(`${PL[e.p].g} ${PL[e.p].n} entra em ${SIGN_IN[e.sign]} (${when}): ${PL[e.p].kw} passa a focar-se n${AREA[h]}.`);
+    } else if (e.type === 'estacao') {
+      hi.push(`${PL[e.p].g} ${PL[e.p].n} ${e.rx ? 'fica ' + rxw(e.p) : 'volta a andar para a frente'} (${when})${e.rx ? ': revê em vez de começar.' : ': as coisas desbloqueiam.'}`);
+    }
+  }
+  const lead = mode === 'mes' ? `Este mês o Sol ilumina a tua casa ${daily[0].H.sun}, a ${['', 'do eu', 'do dinheiro', 'da comunicação', 'do lar', 'do prazer', 'do trabalho', 'das parcerias', 'das transformações', 'dos horizontes', 'da carreira', 'dos amigos', 'do recolhimento'][daily[0].H.sun]}.` : T_WEEK[theme];
+  const x = extras(si, mid.sky, mid.H, r);
+  return Object.assign({
+    mode, si, sign: SIGNS[si], H: mid.H, area, stars, overall: avg(area), range: [a, b], headline: lead, keyword: KEYWORD[theme], highlights: hi.slice(0, mode === 'mes' ? 6 : 4),
+    bestDay: dayLabel(noonJd(bestAll.d), mode), bestLove: dayLabel(noonJd(best('amor').d), mode), bestWork: dayLabel(noonJd(best('trabalho').d), mode)
+  }, t, x);
+}
+function readAny(si, ds, mode, modern) { return mode === 'dia' ? readDay(si, ds, modern) : readPeriod(si, ds, mode, modern); }
+
+// ---------- Céu ----------
+function dayAspects(ds, modern) {
+  return periodEvents(ds, ds, modern).filter(e => e.type === 'aspeto').map(e => ({ ...e, txt: `${PL[e.p].n} ${ASP_TXT[e.asp][0]} ${PL[e.q].n}`, mean: `${PL[e.p].kw[0].toUpperCase() + PL[e.p].kw.slice(1)} ${ASP_TXT[e.asp][1]} ${PL[e.q].kw}.` }));
+}
+
+// ===== Extras: horas planetárias, pares, Lua, aniversários, ano, mapa pessoal =====
+const CITIES = [['Lisboa', 38.72, -9.14, 'Europe/Lisbon'], ['Porto', 41.15, -8.61, 'Europe/Lisbon'], ['Braga', 41.55, -8.42, 'Europe/Lisbon'], ['Coimbra', 40.21, -8.43, 'Europe/Lisbon'], ['Aveiro', 40.64, -8.65, 'Europe/Lisbon'], ['Viseu', 40.66, -7.91, 'Europe/Lisbon'], ['Leiria', 39.74, -8.81, 'Europe/Lisbon'], ['Santarém', 39.24, -8.69, 'Europe/Lisbon'], ['Setúbal', 38.52, -8.89, 'Europe/Lisbon'], ['Évora', 38.57, -7.91, 'Europe/Lisbon'], ['Beja', 38.02, -7.86, 'Europe/Lisbon'], ['Faro', 37.02, -7.93, 'Europe/Lisbon'], ['Viana do Castelo', 41.69, -8.83, 'Europe/Lisbon'], ['Vila Real', 41.30, -7.74, 'Europe/Lisbon'], ['Bragança', 41.81, -6.76, 'Europe/Lisbon'], ['Guarda', 40.54, -7.27, 'Europe/Lisbon'], ['Castelo Branco', 39.82, -7.49, 'Europe/Lisbon'], ['Portalegre', 39.29, -7.43, 'Europe/Lisbon'], ['Funchal', 32.65, -16.91, 'Atlantic/Madeira'], ['Ponta Delgada', 37.74, -25.67, 'Atlantic/Azores'], ['Angra do Heroísmo', 38.65, -27.22, 'Atlantic/Azores'], ['Luanda', -8.84, 13.23, 'Africa/Luanda'], ['Maputo', -25.97, 32.57, 'Africa/Maputo'], ['São Paulo', -23.55, -46.63, 'America/Sao_Paulo'], ['Rio de Janeiro', -22.91, -43.17, 'America/Sao_Paulo'], ['Paris', 48.86, 2.35, 'Europe/Paris'], ['Londres', 51.51, -0.13, 'Europe/London'], ['Genebra', 46.20, 6.14, 'Europe/Zurich'], ['Luxemburgo', 49.61, 6.13, 'Europe/Luxembourg']];
+const MES_N = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+const fmtHM = (ms, tz) => new Date(ms).toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit', timeZone: tz });
+
+// ---------- Sol: altitude, nascer e pôr ----------
+function sunAlt(ms, lat, lonE) {
+  const jd = jdFromMs(ms), T = (jd - 2451545) / 36525, eps = 23.4392911 - 0.0130042 * T, l = sunLon(jd);
+  const ra = Math.atan2(cosD(eps) * sinD(l), cosD(l)) / D2R, dec = Math.asin(sinD(eps) * sinD(l)) / D2R;
+  const gmst = norm(280.46061837 + 360.98564736629 * (jd - 2451545)), H = norm(gmst + lonE - ra);
+  return Math.asin(sinD(lat) * sinD(dec) + cosD(lat) * cosD(dec) * cosD(H)) / D2R;
+}
+function sunEvents(ds, city) {
+  const [y, m, d] = ds.split('-').map(Number), t0 = localToUtcMs(y, m, d, 0, 0, city[3]), f = ms => sunAlt(ms, city[1], city[2]) + 0.833;
+  let rise = null, set = null;
+  for (let t = t0; t < t0 + 864e5; t += 6e5) {
+    const a = f(t), b = f(t + 6e5);
+    if (a < 0 && b >= 0 && !rise) rise = bisect(f, t, t + 6e5);
+    if (a >= 0 && b < 0 && !set) set = bisect(f, t, t + 6e5);
+  }
+  return { rise, set };
+}
+const CHALDEAN = ['saturn', 'jupiter', 'mars', 'sun', 'venus', 'mercury', 'moon'];
+const HOUR_USE = { venus: 'amor e beleza', jupiter: 'dinheiro e pedidos', mercury: 'conversas e papéis', mars: 'coragem e desporto', sun: 'brilhar e liderar', moon: 'família e descanso', saturn: 'disciplina e arrumações' };
+function planetaryHours(ds, city) {
+  const today = sunEvents(ds, city), next = sunEvents(dayStr(noonJd(ds) + 1), city);
+  if (!today.rise || !today.set || !next.rise) return null;
+  const [y, m, d] = ds.split('-').map(Number), dow = new Date(Date.UTC(y, m - 1, d)).getUTCDay();
+  let idx = CHALDEAN.indexOf(DAY_RULER[dow]); const hours = [];
+  const dl = (today.set - today.rise) / 12, nl = (next.rise - today.set) / 12;
+  for (let i = 0; i < 24; i++) {
+    const start = i < 12 ? today.rise + i * dl : today.set + (i - 12) * nl, end = start + (i < 12 ? dl : nl);
+    hours.push({ p: CHALDEAN[idx % 7], start, end, night: i >= 12 }); idx++;
+  }
+  return { hours, rise: today.rise, set: today.set, ruler: DAY_RULER[dow] };
+}
+
+// ---------- Compatibilidade do dia ----------
+const PAIR_BASE = [75, 50, 80, 42, 90, 48, 65];
+const PAIR_TXT = { 0: 'iguais que se entendem sem palavras', 1: 'vizinhos que se completam', 2: 'conversa fácil e cumplicidade', 3: 'atração com faíscas — paciência!', 4: 'harmonia natural, mesmo elemento', 5: 'diferentes, mas aprendem um com o outro', 6: 'opostos que se atraem' };
+function pairsDay(ds, modern) {
+  const reads = SIGNS.map((_, i) => readDay(i, ds, modern)), sky = skyFor(ds), pairs = [];
+  for (let a = 0; a < 12; a++) for (let b = a; b < 12; b++) {
+    const k = Math.min((b - a + 12) % 12, (a - b + 12) % 12);
+    let s = 0.6 * PAIR_BASE[k] + 0.4 * (reads[a].area.amor + reads[b].area.amor) / 2;
+    for (const x of [a, b]) { const km = Math.min((sky.moon.sign - x + 12) % 12, (x - sky.moon.sign + 12) % 12); if ([0, 2, 4].includes(km)) s += 3; if (km === 3) s -= 3; }
+    if (sky.venus.sign === a || sky.venus.sign === b) s += 5;
+    if (sky.mars.sign === a || sky.mars.sign === b) s += k === 3 || k === 6 ? -4 : 3;
+    pairs.push({ a, b, k, score: clamp(Math.round(s * 0.97), 30, 98) });
+  }
+  pairs.sort((x, y) => y.score - x.score);
+  const best = SIGNS.map((_, i) => pairs.filter(p => (p.a === i || p.b === i) && p.a !== p.b)[0]);
+  const top = []; for (const p of pairs) { if (p.a === p.b) continue; if (top.some(q => [q.a, q.b].includes(p.a) || [q.a, q.b].includes(p.b))) continue; top.push(p); if (top.length === 3) break; }
+  return { pairs, top, worst: pairs.filter(p => p.a !== p.b).slice(-1)[0], best, reads };
+}
+
+// ---------- Calendário lunar ----------
+const DAY_TYPE = { fogo: ['Dia de fruto', 'tomate, feijão, morangos e árvores de fruto'], terra: ['Dia de raiz', 'cenoura, batata, cebola e alho'], ar: ['Dia de flor', 'flores, brócolos e plantas aromáticas'], agua: ['Dia de folha', 'alface, couve, espinafres e relva'] };
+function lunarDay(ds) {
+  const s = skyFor(ds), e = s.phase.elong, waxing = e < 180, ph = moonPhaseName(e), el = SIGNS[s.moon.sign].el;
+  const nearNew = e < 18 || e > 342, nearFull = Math.abs(e - 180) < 18;
+  const good = [], bad = [];
+  let hair;
+  if (nearNew) { hair = 'Evitar cortar o cabelo'; bad.push('Cortar o cabelo'); }
+  else if (nearFull) hair = 'Cortar para dar volume e brilho';
+  else if (waxing) hair = (el === 'fogo' || el === 'terra') ? 'Ótimo para cortar: cresce forte e rápido' : 'Bom para cortar: cresce mais depressa';
+  else hair = 'Bom para cortar se quiseres que o corte dure';
+  if (waxing && !nearNew) good.push('Semear e plantar o que cresce para cima', 'Começar projetos e negócios');
+  if (!waxing) good.push('Semear raízes, podar e colher para guardar', 'Começar uma dieta ou desintoxicar', 'Depilação e cortar as unhas (cresce mais devagar)', 'Pintar e arrumar a casa');
+  if (nearNew || nearFull) good.push('Pescar (dizem os pescadores)');
+  if (nearNew) good.push('Definir intenções para o mês');
+  if (nearFull) { bad.push('Discussões — as emoções estão ao rubro'); good.push('Fechar ciclos e agradecer'); }
+  if (waxing && !nearNew) bad.push('Podar árvores');
+  if (!waxing) bad.push('Começar algo que precisa de crescer');
+  return { s, e, waxing, ph, el, type: DAY_TYPE[el], hair, good: good.slice(0, 4), bad: bad.slice(0, 2), hairGood: waxing && !nearNew && !nearFull && (el === 'fogo' || el === 'terra'), sign: s.moon.sign, ingress: s.moonIngress };
+}
+
+// ---------- Ano ----------
+function yearReads(year, modern) {
+  const a = `${year}-01-01`, b = `${year}-12-31`, days = daysIn(a, b).filter((_, i) => i % 2 === 0);
+  const ev = eventsBetween(a, b, modern, true);
+  return SIGNS.map((sg, si) => {
+    const r = seeded(year + 'ano' + si), month = Array.from({ length: 12 }, () => ({ amor: 0, trabalho: 0, dinheiro: 0, energia: 0, n: 0 }));
+    for (const d of days) { const sky = skyFor(d), H = housesOf(si, sky), ar = scoreDay(si, sky, H), mo = +d.slice(5, 7) - 1; for (const k in ar) month[mo][k] += ar[k]; month[mo].n++; }
+    const area = { amor: 0, trabalho: 0, dinheiro: 0, energia: 0 };
+    month.forEach(m => { for (const k in area) { m[k] /= m.n; area[k] += m[k] / 12; } });
+    for (const k in area) area[k] = Math.round(area[k]);
+    const bestM = k => month.map((m, i) => [i, m[k]]).sort((x, y) => y[1] - x[1]).slice(0, 2).map(x => MES_N[x[0]]).join(' e ');
+    const sky0 = skyFor(a), sky1 = skyFor(`${year}-07-01`), H0 = housesOf(si, sky0), H1 = housesOf(si, sky1);
+    const jH = H0.jupiter, jH2 = H1.jupiter, sH = H0.saturn;
+    const headline = `Ano de sorte n${AREA[jH]}${jH2 !== jH ? ' e, a partir do verão, n' + AREA[jH2] : ''}.`;
+    const love = ([5, 7].includes(jH) || [5, 7].includes(jH2) ? 'Júpiter abençoa o amor este ano: abre o coração. ' : [5, 7].includes(sH) ? 'Saturno pede maturidade no amor: relações sérias ganham força, as frágeis são testadas. ' : '') + `Melhores meses para o amor: ${bestM('amor')}.`;
+    const work = ([10, 6].includes(sH) ? 'Saturno pede trabalho duro, mas o reconhecimento chega. ' : [10, 6].includes(jH) || [10, 6].includes(jH2) ? 'Júpiter traz oportunidades de carreira: arrisca. ' : '') + `Meses fortes no trabalho: ${bestM('trabalho')}.`;
+    const money = ([2, 8, 11].includes(jH) || [2, 8, 11].includes(jH2) ? 'Ano favorável para as finanças com Júpiter. ' : [2, 8].includes(sH) ? 'Saturno pede um orçamento rigoroso. ' : '') + `Melhores meses para o dinheiro: ${bestM('dinheiro')}.`;
+    const energy = (sH === 1 ? 'Saturno no teu signo: ano de maturidade — cuida do descanso. ' : jH === 1 || jH2 === 1 ? 'Júpiter no teu signo: ano de expansão e otimismo! ' : '') + `Meses de mais energia: ${bestM('energia')}.`;
+    const hi = [];
+    for (const e of ev) {
+      const h = ((e.sign - si + 12) % 12) + 1, when = MES_N[new Date(msFromJd(e.jd)).getUTCMonth()];
+      if (e.type === 'lua' && e.eclipse) hi.push(`${e.eclipse === 'solar' ? '🌑 Eclipse solar' : '🌕 Eclipse lunar'} em ${SIGN_IN[e.sign]} (${when}): ${e.eclipse === 'solar' ? 'recomeço n' : 'viragem n'}${AREA[h]}.`);
+      if (e.type === 'ingresso' && ['jupiter', 'saturn'].concat(modern ? OUTER : []).includes(e.p) && !e.rx) hi.push(`${PL[e.p].g} ${PL[e.p].n} entra em ${SIGN_IN[e.sign]} (${when}): ${PL[e.p].kw} passa a focar-se n${AREA[h]}.`);
+    }
+    const mr = ev.filter(e => e.type === 'estacao' && e.p === 'mercury' && e.rx).map(e => MES_N[new Date(msFromJd(e.jd)).getUTCMonth()]);
+    if (mr.length) hi.push(`☿ Mercúrio retrógrado em ${mr.join(', ')}: revê contratos e viagens.`);
+    const ru = modern ? sg.mod : sg.ruler;
+    const stars = {}; for (const k in area) stars[k] = toStars(area[k]);
+    const x = extras(si, sky1, H1, r);
+    const bestAll = month.map((m, i) => [i, (m.amor + m.trabalho + m.dinheiro + m.energia) / 4]).sort((p, q) => q[1] - p[1]);
+    return Object.assign({ mode: 'ano', si, sign: sg, H: H1, area, stars, overall: avg(area), headline, keyword: KEYWORD[jH], love, work, money, energy, highlights: hi.slice(0, 5), advice: `Júpiter (casa ${jH}) expande ${AREA[jH]}; Saturno (casa ${sH}) consolida ${AREA[sH]}.`, bestDay: MES_N[bestAll[0][0]], bestLove: bestM('amor').split(' e ')[0], ruler: ru }, x);
+  });
+}
+
+// ---------- Aniversariantes do dia ----------
+function birthday(ds, modern) {
+  const s = skyFor(ds), si = s.sun.sign, end = dayStr(noonJd(ds) + 365);
+  const ev = eventsBetween(ds, end, modern, true), month = [];
+  for (let i = 0; i < 12; i++) {
+    const dd = dayStr(noonJd(ds) + i * 30.4 + 15), sky = skyFor(dd), H = housesOf(si, sky), ar = scoreDay(si, sky, H);
+    month.push({ m: new Date(msFromJd(noonJd(dd))).getUTCMonth(), ...ar });
+  }
+  const best = k => month.slice().sort((a, b) => b[k] - a[k]).slice(0, 2).map(x => MES_N[x.m]);
+  const H = housesOf(si, s), jH = H.jupiter, sH = H.saturn;
+  const jIn = ev.find(e => e.type === 'ingresso' && e.p === 'jupiter' && !e.rx);
+  const lines = [];
+  lines.push(`🍀 Júpiter traz sorte n${AREA[jH]}` + (jIn ? `, e a partir de ${MES_N[new Date(msFromJd(jIn.jd)).getUTCMonth()]} n${AREA[((jIn.sign - si + 12) % 12) + 1]}.` : '.'));
+  lines.push(`🏛️ Saturno pede esforço n${AREA[sH]}: o que construíres aí fica.`);
+  const ecl = ev.filter(e => e.type === 'lua' && e.eclipse).slice(0, 2).map(e => `${MES_N[new Date(msFromJd(e.jd)).getUTCMonth()]} (n${AREA[((e.sign - si + 12) % 12) + 1]})`);
+  if (ecl.length) lines.push(`🌑 Eclipses que marcam viragens: ${ecl.join(' e ')}.`);
+  lines.push(`❤️ Melhores meses para o amor: ${best('amor').join(' e ')}.`);
+  lines.push(`💼 Para o trabalho: ${best('trabalho').join(' e ')} · 💰 Dinheiro: ${best('dinheiro').join(' e ')}.`);
+  const deg = Math.floor(s.sun.deg);
+  return { si, deg, lines, best: { amor: best('amor'), trabalho: best('trabalho'), dinheiro: best('dinheiro') }, jH, sH, headline: `Um ano de sorte n${AREA[jH]}.` };
+}
+
+// ---------- Mapa pessoal ----------
+const NATAL_PTS = [['sun', 'o teu Sol', 'a tua confiança'], ['moon', 'a tua Lua', 'as tuas emoções'], ['asc', 'o teu Ascendente', 'a tua imagem'], ['venus', 'a tua Vénus', 'o teu amor'], ['mars', 'o teu Marte', 'a tua energia'], ['mercury', 'o teu Mercúrio', 'a tua mente']];
+function natalChart(ms, city) {
+  const jd = jdFromMs(ms), n = {}; for (const p of ALLP) n[p] = lonOf(p, jd);
+  n.asc = ascendant(ms, city[1], city[2]); return n;
+}
+function personalDay(natal, ds, modern) {
+  const jd = noonJd(ds), tr = {}, list = (modern ? ALLP : CLASSIC);
+  for (const p of list) tr[p] = lonOf(p, jd);
+  const out = [];
+  for (const t of list) for (const [np, lab, theme] of NATAL_PTS) {
+    const d = Math.abs(angDiff(tr[t], natal[np]));
+    for (const [A, name] of ASPECTS) {
+      const orb = Math.abs(d - A), max = t === 'moon' ? 4 : t === 'sun' || t === 'mercury' || t === 'venus' || t === 'mars' ? 2 : 1.5;
+      if (orb <= max) {
+        const harm = name === 'tri' || name === 'sext' || (name === 'conj' && !['saturn', 'mars', 'pluto'].includes(t));
+        const w = { moon: 1, sun: 2, mercury: 2, venus: 3, mars: 3, jupiter: 5, saturn: 5, uranus: 4, neptune: 4, pluto: 4 }[t] * (1 - orb / (max + 0.5)) * (np === 'sun' || np === 'asc' || np === 'moon' ? 1.3 : 1);
+        out.push({ t, np, asp: name, harm, w, txt: `${PL[t].g} ${PL[t].n} ${ASP_TXT[name][0]} ${lab}: ${harm ? PL[t].kw + ' favorece ' + theme : PL[t].kw + ' testa ' + theme}.` });
+      }
+    }
+  }
+  out.sort((a, b) => b.w - a.w);
+  const ascSign = Math.floor(natal.asc / 30);
+  return { aspects: out.slice(0, 5), byAsc: readDay(ascSign, ds, modern), ascSign, sunSign: Math.floor(natal.sun / 30), moonSign: Math.floor(natal.moon / 30) };
+}
+
+// ===== App =====
+const $ = s => document.querySelector(s);
+const MESES = MES_N;
+const DIAS = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
+const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) { } } };
+const ST = { date: '', type: 'top', mode: 'dia', fmt: store.get('ceu_fmt') || 'feed', modern: store.get('ceu_modern') === '1', sky: store.get('ceu_sky') !== '0', cover: store.get('ceu_cover') === '1', brand: store.get('ceu_brand') || '', city: +(store.get('ceu_city') || 0), reads: [], rank: [], canvases: [], cap: '' };
+const TYPE_MODES = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'] };
+let DL = null;
+try { if (window.claude && claude.use) claude.use('downloads').then(x => { DL = x; }).catch(() => { }); } catch (e) { }
+const SYMF = '"Noto Sans Symbols","Noto Sans Symbols 2","Segoe UI Symbol","DejaVu Sans",sans-serif';
+const VS = '︎';
+const city = () => CITIES[ST.city] || CITIES[0];
+
+const todayStr = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+const shiftDate = (ds, n, mode) => { const [y, m, d] = ds.split('-').map(Number); const t = mode === 'ano' ? new Date(Date.UTC(y + n, 0, 1)) : mode === 'mes' ? new Date(Date.UTC(y, m - 1 + n, 1)) : new Date(Date.UTC(y, m - 1, d + n * (mode === 'semana' ? 7 : 1))); return t.toISOString().slice(0, 10); };
+const dParts = ds => ds.split('-').map(Number);
+const cap1 = s => s[0].toUpperCase() + s.slice(1);
+function niceDate(ds) { const [y, m, d] = dParts(ds); return DIAS[new Date(Date.UTC(y, m - 1, d)).getUTCDay()] + ', ' + d + ' de ' + MESES[m - 1]; }
+function periodLabel(mode = ST.mode) {
+  const [y, m] = dParts(ST.date);
+  if (mode === 'dia') return niceDate(ST.date);
+  if (mode === 'ano') return String(y);
+  if (mode === 'mes') return cap1(MESES[m - 1]) + ' ' + y;
+  const [a, b] = periodRange(ST.date, 'semana'), A = dParts(a), B = dParts(b);
+  return A[1] === B[1] ? `${A[2]} a ${B[2]} de ${MESES[A[1] - 1]}` : `${A[2]} ${MESES[A[1] - 1].slice(0, 3)} a ${B[2]} ${MESES[B[1] - 1].slice(0, 3)}`;
+}
+const topTitle = () => ({ dia: 'TOP DO DIA', semana: 'TOP DA SEMANA', mes: 'TOP DO MÊS', ano: 'TOP DE ' + ST.date.slice(0, 4) })[ST.mode];
+const brand = () => ST.brand || 'Céu de Hoje';
+const starStr = n => '★'.repeat(n) + '☆'.repeat(5 - n);
+const firstSentence = t => { const m = t.match(/^.*?[.!?](\s|$)/); return m ? m[0].trim() : t; };
+const MEDAL = ['🥇', '🥈', '🥉'];
+const plainEmoji = t => t.replace(/^[^\p{L}\d]+/u, '');
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('on'), 2600); }
+const rxList = s => (ST.modern ? ALLP : CLASSIC).filter(p => s[p].rx);
+const rxText = s => { const l = rxList(s); return l.length ? `${l.map(p => PL[p].n).join(', ')} retrógrad${l.length > 1 ? 'os' : PL[l[0]].f ? 'a' : 'o'}` : ''; };
+function skyShort() {
+  if (ST.mode === 'ano') { const s = skyFor(ST.date.slice(0, 4) + '-01-01'); return `Júpiter em ${SIGN_IN[s.jupiter.sign]} · Saturno em ${SIGN_IN[s.saturn.sign]} no início do ano`; }
+  const s = skyFor(ST.mode === 'dia' ? ST.date : periodRange(ST.date, ST.mode)[0]), rx = rxText(s);
+  if (ST.mode !== 'dia') return `Sol em ${SIGN_IN[s.sun.sign]}${rx ? ' · ' + rx : ''} no início`;
+  return `Sol em ${SIGN_IN[s.sun.sign]} · Lua em ${SIGN_IN[s.moon.sign]} · ${moonPhaseName(s.phase.elong)}${rx ? ' · ' + rx : ''}`;
+}
+
+// ---------- Canvas helpers ----------
+function bg(ctx, W, H, seed, elc) {
+  const g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#0b0a26'); g.addColorStop(1, '#03030c'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  const rg = ctx.createRadialGradient(W * .5, H * .2, 10, W * .5, H * .2, W * .95); rg.addColorStop(0, elc[1] + 'dd'); rg.addColorStop(1, '#00000000'); ctx.fillStyle = rg; ctx.fillRect(0, 0, W, H);
+  const r2 = ctx.createRadialGradient(W * .95, H, 10, W * .95, H, W * .7); r2.addColorStop(0, '#3a1d6a77'); r2.addColorStop(1, '#00000000'); ctx.fillStyle = r2; ctx.fillRect(0, 0, W, H);
+  const r = seeded('st' + seed);
+  for (let i = 0; i < 240; i++) { ctx.globalAlpha = .2 + r() * .7; ctx.fillStyle = r() < .15 ? '#ffe3a3' : '#fff'; ctx.beginPath(); ctx.arc(r() * W, r() * H, r() * 1.7 + .3, 0, 7); ctx.fill(); }
+  ctx.globalAlpha = 1;
+}
+function star(ctx, cx, cy, R, on) { ctx.beginPath(); for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? R * .45 : R; ctx.lineTo(cx + rr * Math.cos(a), cy + rr * Math.sin(a)); } ctx.closePath(); if (on) { ctx.fillStyle = '#f2c76e'; ctx.fill(); } else { ctx.strokeStyle = '#f2c76e77'; ctx.lineWidth = 2; ctx.stroke(); } }
+function stars(ctx, x, y, n, R, align = 'left') { const gap = R * 2.4, w = gap * 4 + 2 * R; let sx = align === 'right' ? x - w + R : align === 'center' ? x - w / 2 + R : x + R; for (let i = 0; i < 5; i++) star(ctx, sx + i * gap, y, R, i < n); }
+function wrap(ctx, text, x, y, maxW, lh, maxLines, align = 'left') {
+  const words = text.split(' '); let line = '', lines = [];
+  for (const w of words) { const t = line ? line + ' ' + w : w; if (ctx.measureText(t).width > maxW && line) { lines.push(line); line = w; } else line = t; }
+  if (line) lines.push(line);
+  if (lines.length > maxLines) { lines = lines.slice(0, maxLines); let l = lines[maxLines - 1]; while (ctx.measureText(l + '…').width > maxW && l.length) l = l.slice(0, -1); lines[maxLines - 1] = l.replace(/[\s,;:—-]+$/, '') + '…'; }
+  ctx.textAlign = align; lines.forEach((l, i) => ctx.fillText(l, x, y + i * lh)); ctx.textAlign = 'left'; return y + lines.length * lh;
+}
+function rr(ctx, x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+function wheel(ctx, cx, cy, R, alpha) {
+  ctx.save(); ctx.globalAlpha = alpha; ctx.strokeStyle = '#f2c76e'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(cx, cy, R, 0, 7); ctx.stroke(); ctx.beginPath(); ctx.arc(cx, cy, R * .82, 0, 7); ctx.stroke();
+  ctx.fillStyle = '#f2c76e'; ctx.font = `${R * .11}px ${SYMF}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  for (let i = 0; i < 12; i++) { const a = (i * 30 - 75) * Math.PI / 180, a2 = (i * 30 - 90) * Math.PI / 180; ctx.beginPath(); ctx.moveTo(cx + R * .82 * Math.cos(a2), cy + R * .82 * Math.sin(a2)); ctx.lineTo(cx + R * Math.cos(a2), cy + R * Math.sin(a2)); ctx.stroke(); ctx.fillText(SIGNS[i].g + VS, cx + R * .91 * Math.cos(a), cy + R * .91 * Math.sin(a)); }
+  ctx.restore(); ctx.textBaseline = 'alphabetic'; ctx.textAlign = 'left';
+}
+function drawMoon(ctx, cx, cy, r, e) {
+  ctx.save(); ctx.beginPath(); ctx.arc(cx, cy, r, 0, 7); ctx.clip();
+  ctx.fillStyle = '#1c1e40'; ctx.fillRect(cx - r, cy - r, 2 * r, 2 * r);
+  const lit = '#f6f1dc', waxing = e < 180, crescent = Math.cos(e * D2R) > 0;
+  ctx.fillStyle = lit; ctx.beginPath(); ctx.arc(cx, cy, r, -Math.PI / 2, Math.PI / 2, !waxing); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = crescent ? '#1c1e40' : lit; ctx.beginPath(); ctx.ellipse(cx, cy, Math.max(0.5, r * Math.abs(Math.cos(e * D2R))), r, 0, 0, 7); ctx.fill();
+  ctx.restore(); ctx.strokeStyle = '#ffffff33'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(cx, cy, r, 0, 7); ctx.stroke();
+}
+const mk = (fmt = ST.fmt) => { const W = 1080, H = fmt === 'story' ? 1920 : 1350, c = document.createElement('canvas'); c.width = W; c.height = H; return [c, c.getContext('2d'), W, H, fmt === 'story']; };
+function header(ctx, W, S, y, label = periodLabel()) {
+  ctx.fillStyle = '#f2c76e'; ctx.font = '700 32px Cinzel'; ctx.textAlign = 'left'; ctx.fillText(brand().toUpperCase(), 72, y);
+  ctx.fillStyle = '#c9c9ee'; ctx.font = '600 27px Manrope'; ctx.textAlign = 'right'; ctx.fillText(label, W - 72, y); ctx.textAlign = 'left';
+}
+function titleBlock(ctx, W, S, title, sub, line, y0) {
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#f2c76e'; ctx.font = '700 30px Cinzel'; ctx.fillText(brand().toUpperCase(), W / 2, y0);
+  ctx.fillStyle = '#fff'; ctx.font = `700 ${title.length > 16 ? 62 : 76}px Cinzel`; ctx.fillText(title, W / 2, y0 + 86);
+  ctx.fillStyle = '#ffe3a3'; ctx.font = 'italic 600 40px "Cormorant Garamond"'; ctx.fillText(sub, W / 2, y0 + 136);
+  if (line) { ctx.fillStyle = '#a9a9d6'; ctx.font = '500 22px Manrope'; ctx.fillText(line, W / 2, y0 + 176); }
+  ctx.textAlign = 'left';
+}
+function footer(ctx, W, H, S, txt) { ctx.textAlign = 'center'; ctx.fillStyle = '#f2c76e'; ctx.font = '700 27px Manrope'; ctx.fillText(txt, W / 2, H - (S ? 200 : 46)); ctx.textAlign = 'left'; }
+
+// ---------- TOP ----------
+function topRow(ctx, rd, i, x, y, w, h, S, alpha = 1, glow = 0) {
+  const cy = y + h / 2, elc = EL_COL[rd.sign.el][0];
+  ctx.save(); ctx.globalAlpha = alpha;
+  if (glow) { ctx.shadowColor = '#f2c76e'; ctx.shadowBlur = 30 * glow; }
+  ctx.fillStyle = i < 3 ? ['#f2c76e2a', '#cfd8e31e', '#d0895a22'][i] : (i % 2 ? '#ffffff08' : '#ffffff10');
+  rr(ctx, x, y + 3, w, h - 6, 16); ctx.fill(); ctx.shadowBlur = 0;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillStyle = i < 3 ? ['#f2c76e', '#dfe6ee', '#e0a070'][i] : '#8e8fbf'; ctx.font = `800 ${S ? 40 : 34}px Manrope`; ctx.fillText(String(i + 1), x + 44, cy);
+  ctx.fillStyle = elc; ctx.font = `${S ? 50 : 42}px ${SYMF}`; ctx.fillText(rd.sign.g + VS, x + 116, cy + 2);
+  ctx.textAlign = 'left'; ctx.fillStyle = '#fff'; ctx.font = `700 ${S ? 34 : 29}px Cinzel`; ctx.fillText(rd.sign.n.toUpperCase(), x + 162, cy - (S ? 14 : 11));
+  ctx.fillStyle = '#b9b9e2'; ctx.font = `500 ${S ? 23 : 20}px Manrope`; ctx.fillText(rd.keyword, x + 162, cy + (S ? 22 : 18));
+  stars(ctx, x + w - 24, cy, toStars(rd.overall), S ? 15 : 13, 'right');
+  ctx.restore(); ctx.textBaseline = 'alphabetic'; ctx.textAlign = 'left';
+}
+function topLayout(S, H) { const top = S ? 420 : 280, bot = S ? 330 : 104; return { top, rowH: (H - top - bot) / 12, P: 60 }; }
+function drawTop() {
+  const [c, ctx, W, H, S] = mk();
+  bg(ctx, W, H, ST.date + ST.mode + 'top', ['#7a5cff', '#2a1d6a']);
+  wheel(ctx, W / 2, S ? 300 : 150, S ? 360 : 300, .08);
+  titleBlock(ctx, W, S, topTitle(), periodLabel(), null, S ? 170 : 78);
+  ctx.textAlign = 'center'; ctx.fillStyle = '#ffe3a3'; ctx.font = `600 ${S ? 24 : 21}px Manrope`; wrap(ctx, dayAlert(), W / 2, S ? 350 : 238, W - 140, S ? 28 : 24, 1, 'center');
+  const L = topLayout(S, H);
+  ST.rank.forEach((rd, i) => topRow(ctx, rd, i, L.P, L.top + i * L.rowH, W - 2 * L.P, L.rowH, S));
+  footer(ctx, W, H, S, 'Desliza: tudo sobre o teu signo →  ·  Segue ' + brand());
+  return c;
+}
+function drawSign(rd, pos) {
+  const [c, ctx, W, H, S] = mk(), elc = EL_COL[rd.sign.el], P = 72;
+  bg(ctx, W, H, ST.date + ST.mode + rd.si, elc);
+  header(ctx, W, S, S ? 130 : 84);
+  const gy = S ? 360 : 232;
+  wheel(ctx, W / 2, gy, S ? 200 : 160, .2);
+  const g = ctx.createRadialGradient(W / 2, gy, 10, W / 2, gy, 118); g.addColorStop(0, elc[0] + '55'); g.addColorStop(1, elc[0] + '00'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(W / 2, gy, 118, 0, 7); ctx.fill();
+  ctx.strokeStyle = elc[0]; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(W / 2, gy, 100, 0, 7); ctx.stroke();
+  ctx.fillStyle = '#fff6e0'; ctx.font = `112px ${SYMF}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(rd.sign.g + VS, W / 2, gy + 6);
+  const bx = W / 2 + 92, by = gy - 78;
+  ctx.fillStyle = pos < 3 ? ['#f2c76e', '#dfe6ee', '#e0a070'][pos] : '#2b2d63'; ctx.beginPath(); ctx.arc(bx, by, 40, 0, 7); ctx.fill();
+  ctx.fillStyle = pos < 3 ? '#1a1206' : '#fff'; ctx.font = '800 34px Manrope'; ctx.fillText(pos + 1 + 'º', bx, by + 2);
+  ctx.textBaseline = 'alphabetic';
+  let y = gy + (S ? 230 : 190);
+  ctx.fillStyle = '#fff'; ctx.font = '700 80px Cinzel'; ctx.fillText(rd.sign.n.toUpperCase(), W / 2, y);
+  y += 44; ctx.fillStyle = '#a9a9d6'; ctx.font = '600 25px Manrope'; ctx.fillText(rd.sign.r + '  ·  ' + rd.keyword, W / 2, y);
+  y += S ? 88 : 66; ctx.fillStyle = '#ffe3a3'; ctx.font = 'italic 600 48px "Cormorant Garamond"';
+  y = wrap(ctx, '“' + rd.headline + '”', W / 2, y, W - 2 * P, 56, 2, 'center') + (S ? 40 : 22);
+  const rows = [['AMOR', 'amor', rd.love], ['TRABALHO', 'trabalho', rd.work], ['DINHEIRO', 'dinheiro', rd.money], ['ENERGIA', 'energia', rd.energy]];
+  const rowH = S ? 136 : 116;
+  for (const [l, k, t] of rows) {
+    ctx.fillStyle = '#ffffff12'; rr(ctx, P - 18, y, W - 2 * P + 36, rowH - 12, 18); ctx.fill();
+    ctx.fillStyle = elc[0]; ctx.font = '800 24px Manrope'; ctx.fillText(l, P + 4, y + 38);
+    stars(ctx, W - P - 4, y + 30, rd.stars[k], 13, 'right');
+    ctx.fillStyle = '#e6e6fb'; ctx.font = `500 ${S ? 27 : 24}px Manrope`;
+    wrap(ctx, firstSentence(t), P + 4, y + 74, W - 2 * P - 8, S ? 34 : 30, S ? 2 : 1);
+    y += rowH;
+  }
+  y += S ? 14 : 6;
+  const ally = ['ALIADO', SIGNS[rd.ally].g + VS + ' ' + SIGNS[rd.ally].n, null], cor = ['COR', PL[rd.fav].cor, PL[rd.fav].hex];
+  const chips = rd.mode === 'dia' ? [['SORTE', String(rd.lucky), null], cor, ['ASTRO', PL[rd.fav].g + VS + ' ' + PL[rd.fav].n, null], ally]
+    : rd.mode === 'ano' ? [['MELHOR MÊS', rd.bestDay, null], ['AMOR', rd.bestLove, null], cor, ally]
+      : [['MELHOR DIA', rd.bestDay, null], ['AMOR', rd.bestLove, null], cor, ally];
+  const cw = (W - 2 * P + 36 - 3 * 12) / 4, ch = S ? 120 : 98;
+  chips.forEach(([l, v, hex], i) => {
+    const x = P - 18 + i * (cw + 12);
+    ctx.fillStyle = '#ffffff0d'; rr(ctx, x, y, cw, ch, 16); ctx.fill(); ctx.strokeStyle = elc[0] + '55'; ctx.lineWidth = 2; ctx.stroke();
+    ctx.textAlign = 'center'; ctx.fillStyle = '#9b9cc9'; ctx.font = '800 18px Manrope'; ctx.fillText(l, x + cw / 2, y + 32);
+    let vx = x + cw / 2; ctx.font = `700 ${v.length > 11 ? 21 : 26}px Manrope, ${SYMF}`;
+    if (hex) { const tw = ctx.measureText(v).width; ctx.fillStyle = hex; ctx.beginPath(); ctx.arc(vx - tw / 2 - 6, y + ch - 40, 9, 0, 7); ctx.fill(); vx += 10; }
+    ctx.fillStyle = '#fff'; ctx.fillText(v, vx, y + ch - 30);
+  });
+  ctx.textAlign = 'center'; ctx.fillStyle = '#d8d8f4'; ctx.font = `italic 600 ${S ? 36 : 32}px "Cormorant Garamond"`;
+  wrap(ctx, firstSentence(rd.advice.replace(/^O teu regente, ([^,]+), /, '$1 ').replace(/^(.)/, m => m.toUpperCase())), W / 2, y + ch + (S ? 66 : 50), W - 2 * P, S ? 42 : 34, 2, 'center');
+  footer(ctx, W, H, S, 'Segue ' + brand() + ' · o teu horóscopo todos os dias');
+  return c;
+}
+function drawSky() {
+  const [c, ctx, W, H, S] = mk();
+  bg(ctx, W, H, ST.date + 'ceu', ['#4f7cff', '#152a5c']);
+  const ds = ST.mode === 'dia' ? ST.date : periodRange(ST.date, ST.mode)[0], s = skyFor(ds), list = ST.modern ? ALLP : CLASSIC;
+  header(ctx, W, S, S ? 130 : 84);
+  ctx.textAlign = 'center'; ctx.fillStyle = '#fff'; ctx.font = '700 64px Cinzel'; ctx.fillText(ST.mode === 'dia' ? 'O CÉU DE HOJE' : 'O CÉU', W / 2, S ? 250 : 172);
+  const cx = W / 2, cy = S ? 640 : 520, R = S ? 380 : 330;
+  wheel(ctx, cx, cy, R, .55);
+  const placed = [];
+  list.slice().sort((a, b) => s[a].lon - s[b].lon).forEach(p => {
+    let ang = s[p].lon, rad = R * .64;
+    for (const q of placed) if (Math.abs(angDiff(q.ang, ang)) < 9 && Math.abs(q.rad - rad) < 30) rad -= 62;
+    placed.push({ ang, rad });
+    const a = (ang - 90) * Math.PI / 180, x = cx + rad * Math.cos(a), y = cy + rad * Math.sin(a);
+    ctx.strokeStyle = PL[p].hex + '66'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(cx + R * .8 * Math.cos(a), cy + R * .8 * Math.sin(a)); ctx.lineTo(cx + (rad + 30) * Math.cos(a), cy + (rad + 30) * Math.sin(a)); ctx.stroke();
+    ctx.fillStyle = '#0b0a26'; ctx.beginPath(); ctx.arc(x, y, 28, 0, 7); ctx.fill(); ctx.strokeStyle = PL[p].hex; ctx.stroke();
+    ctx.fillStyle = PL[p].hex; ctx.font = `36px ${SYMF}`; ctx.textBaseline = 'middle'; ctx.fillText(PL[p].g + VS, x, y + 2); ctx.textBaseline = 'alphabetic';
+  });
+  drawMoon(ctx, cx, cy - 18, 40, s.phase.elong);
+  ctx.textAlign = 'center'; ctx.fillStyle = '#e8e8f8'; ctx.font = '700 20px Manrope'; ctx.fillText(moonPhaseName(s.phase.elong), cx, cy + 48);
+  let y = cy + R + (S ? 100 : 72);
+  ctx.font = `600 ${S ? 27 : 23}px Manrope, ${SYMF}`; ctx.textAlign = 'left';
+  list.forEach((p, i) => { const x = i % 2 ? W / 2 + 30 : 110, yy = y + Math.floor(i / 2) * (S ? 50 : 38); ctx.fillStyle = PL[p].hex; ctx.fillText(`${PL[p].g}${VS}  ${PL[p].n} em ${SIGN_IN[s[p].sign]} ${Math.floor(s[p].deg)}°${s[p].rx ? ' ℞' : ''}`, x, yy); });
+  footer(ctx, W, H, S, 'Posições reais calculadas · Segue ' + brand());
+  return c;
+}
+
+// ---------- Avisos ----------
+const V_GOOD = { amor: ['o amor sorri-te — aproveita', 'boa altura para abrir o coração'], trabalho: ['algo em que investiste vai dar frutos', 'o teu esforço vai ser reconhecido'], dinheiro: ['boa maré para dinheiro e negócios', 'uma oportunidade financeira pode surgir'], energia: ['estás imparável — vai em frente', 'energia e confiança no máximo'] };
+const V_BAD = { amor: ['evita discussões com quem amas', 'não leves tudo a peito no amor'], trabalho: ['revê tudo antes de entregar', 'não assines nada à pressa'], dinheiro: ['não gastes por impulso', 'adia compras grandes'], energia: ['não forces, descansa', 'poupa energias e dorme bem'] };
+const AREA_N = { amor: 'no amor', trabalho: 'no trabalho', dinheiro: 'no dinheiro', energia: 'na energia' };
+function verdict(rd) {
+  const r = seeded('v' + ST.date + ST.mode + rd.si), ks = ['amor', 'trabalho', 'dinheiro', 'energia'];
+  const best = ks.reduce((a, b) => rd.area[b] > rd.area[a] ? b : a), worst = ks.reduce((a, b) => rd.area[b] < rd.area[a] ? b : a);
+  const per = { dia: 'Dia', semana: 'Semana', mes: 'Mês', ano: 'Ano' }[rd.mode] || 'Dia', fem = per === 'Semana';
+  let good = pick(V_GOOD[best], r), bad = pick(V_BAD[worst], r);
+  if (rd.mode === 'dia') {
+    const s = skyFor(ST.date);
+    if (best === 'dinheiro' && [2, 8, 11].includes(rd.H.jupiter)) good = 'Júpiter a favor, algo em que investiste vai dar frutos';
+    else if (best === 'amor' && [1, 5, 7, 11].includes(rd.H.venus)) good = 'Vénus a favor, o amor está do teu lado';
+    else if (best === 'trabalho' && [6, 10].includes(rd.H.jupiter)) good = 'Júpiter abre portas no trabalho';
+    if (worst === 'trabalho' && s.mercury.rx) bad = 'Mercúrio retrógrado, revê tudo antes de enviar ou assinar';
+    else if (worst === 'amor' && s.venus.rx) bad = 'Vénus retrógrada, não reabras feridas antigas';
+    else if (worst === 'energia' && rd.H.saturn === 1) bad = 'Saturno pesa no teu signo, descansa mais';
+    else if (worst === 'dinheiro' && [2, 8].includes(rd.H.mars)) bad = 'Marte mexe no dinheiro, nada de compras por impulso';
+  }
+  if (rd.overall >= 70) return { k: 'bom', col: '#7ee0a6', icon: '✓', txt: `${per} bo${fem ? 'a' : 'm'}: ${good}.` };
+  if (rd.overall <= 50 || rd.area[worst] <= 40) return { k: 'cuidado', col: '#ffb36b', icon: '!', txt: `${per} de cuidado: ${bad}.` };
+  return { k: 'misto', col: '#ffe3a3', icon: '≈', txt: `Aposta ${AREA_N[best]}, cuidado ${AREA_N[worst]}.` };
+}
+function dayAlert() {
+  const avgAll = ST.rank.reduce((a, r) => a + r.overall, 0) / 12;
+  if (ST.mode !== 'dia') { const hi = (ST.rank[0].highlights || []).find(h => /Eclipse|Lua Nova|Lua Cheia|retrógrad/.test(h)); return (avgAll >= 64 ? 'Período de boas energias para a maioria dos signos.' : avgAll <= 54 ? 'Período exigente: paciência e prudência.' : 'Período misto: escolhe bem as batalhas.') + (hi ? ' ' + plainEmoji(hi).replace(/:.*$/, '') + '.' : ''); }
+  const s = skyFor(ST.date), asp = dayAspects(ST.date, ST.modern), tense = asp.filter(a => a.asp === 'quad' || a.asp === 'opo').length, harm = asp.filter(a => a.asp === 'tri' || a.asp === 'sext').length;
+  const sc = avgAll + 3 * harm - 3 * tense - (s.mercury.rx ? 2 : 0);
+  let t = sc >= 66 ? 'Dia de boas energias: bom para avançar com o que queres.' : sc <= 54 ? 'Dia exigente: calma nas palavras e nas decisões.' : 'Dia misto: escolhe bem as batalhas.';
+  const ph = moonPhaseName(s.phase.elong);
+  if (asp.length) t += ' ' + asp[0].mean;
+  else if (ph === 'Lua Cheia') t += ' Lua Cheia: emoções ao rubro.';
+  else if (ph === 'Lua Nova') t += ' Lua Nova: bom para começar.';
+  else if (s.mercury.rx) t += ' Mercúrio retrógrado: confirma tudo duas vezes.';
+  return t;
+}
+const BLOCK_H = S => S ? 412 : 380;
+function drawBlock(ctx, rd, i, x, y, w, S) {
+  const h = BLOCK_H(S) - 16, elc = EL_COL[rd.sign.el][0], V = verdict(rd);
+  ctx.fillStyle = i < 3 ? ['#f2c76e1c', '#cfd8e314', '#d0895a18'][i] : '#ffffff0d'; rr(ctx, x, y, w, h, 22); ctx.fill();
+  ctx.strokeStyle = (i < 3 ? ['#f2c76e', '#dfe6ee', '#e0a070'][i] : elc) + '55'; ctx.lineWidth = 2; ctx.stroke();
+  // cabeçalho
+  ctx.textBaseline = 'middle'; ctx.textAlign = 'center';
+  ctx.fillStyle = i < 3 ? ['#f2c76e', '#dfe6ee', '#e0a070'][i] : '#2b2d63'; ctx.beginPath(); ctx.arc(x + 46, y + 46, 26, 0, 7); ctx.fill();
+  ctx.fillStyle = i < 3 ? '#1a1206' : '#fff'; ctx.font = '800 26px Manrope'; ctx.fillText(String(i + 1), x + 46, y + 47);
+  ctx.fillStyle = elc; ctx.font = `46px ${SYMF}`; ctx.fillText(rd.sign.g + VS, x + 116, y + 48);
+  ctx.textAlign = 'left'; ctx.fillStyle = '#fff'; ctx.font = '700 32px Cinzel'; ctx.fillText(rd.sign.n.toUpperCase(), x + 160, y + 38);
+  ctx.fillStyle = '#a9a9d6'; ctx.font = '600 19px Manrope'; ctx.fillText(rd.sign.r + ' · ' + rd.keyword, x + 160, y + 68);
+  stars(ctx, x + w - 26, y + 46, toStars(rd.overall), 14, 'right');
+  // aviso
+  ctx.fillStyle = V.col + '22'; rr(ctx, x + 22, y + 84, w - 44, 44, 14); ctx.fill();
+  ctx.fillStyle = V.col; ctx.font = '800 23px Manrope'; ctx.fillText(V.icon, x + 42, y + 107); wrap(ctx, V.txt, x + 70, y + 107, w - 110, 26, 1);
+  // frase
+  ctx.fillStyle = '#ffe3a3'; ctx.font = 'italic 600 30px "Cormorant Garamond"'; wrap(ctx, '“' + rd.headline + '”', x + 26, y + (S ? 158 : 152), w - 52, 30, 1);
+  ctx.textBaseline = 'alphabetic';
+  // grelha 2x2
+  const gx = x + 22, gy = y + (S ? 176 : 168), gw = (w - 44 - 12) / 2, gh = S ? 86 : 74;
+  [['AMOR', 'amor', rd.love], ['TRABALHO', 'trabalho', rd.work], ['DINHEIRO', 'dinheiro', rd.money], ['ENERGIA', 'energia', rd.energy]].forEach(([l, k, t], j) => {
+    const bx = gx + (j % 2) * (gw + 12), by = gy + Math.floor(j / 2) * (gh + 10);
+    ctx.fillStyle = '#ffffff0f'; rr(ctx, bx, by, gw, gh, 14); ctx.fill();
+    ctx.fillStyle = elc; ctx.font = '800 17px Manrope'; ctx.fillText(l, bx + 16, by + 27);
+    stars(ctx, bx + gw - 14, by + 21, rd.stars[k], 9, 'right');
+    ctx.fillStyle = '#e6e6fb'; ctx.font = '500 18px Manrope'; wrap(ctx, firstSentence(t), bx + 16, by + 52, gw - 30, 21, S ? 2 : 1);
+  });
+  // rodapé do bloco
+  const fy = gy + 2 * gh + 10 + 28; ctx.fillStyle = '#c9c9ee'; ctx.font = `600 19px Manrope, ${SYMF}`; ctx.textAlign = 'center';
+  const extra = rd.mode === 'dia' ? `Sorte ${rd.lucky}  ·  Cor ${PL[rd.fav].cor.toLowerCase()}  ·  Astro ${PL[rd.fav].g}${VS} ${PL[rd.fav].n}  ·  Aliado ${SIGNS[rd.ally].g}${VS} ${SIGNS[rd.ally].n}`
+    : `${rd.mode === 'ano' ? 'Melhor mês' : 'Melhor dia'}: ${rd.bestDay}  ·  Amor: ${rd.bestLove}  ·  Cor ${PL[rd.fav].cor.toLowerCase()}  ·  Aliado ${SIGNS[rd.ally].n}`;
+  ctx.fillText(extra, x + w / 2, fy); ctx.textAlign = 'left';
+}
+function drawPage(from, to, pageNo, pages) {
+  const [c, ctx, W, H, S] = mk();
+  bg(ctx, W, H, ST.date + ST.mode + 'pg' + pageNo, ['#5a4cff', '#1d1a5a']);
+  header(ctx, W, S, S ? 120 : 56);
+  ctx.textAlign = 'center'; ctx.fillStyle = '#fff'; ctx.font = '700 34px Cinzel'; ctx.fillText(`${topTitle()} · ${from + 1}º a ${to}º`, W / 2, S ? 186 : 104);
+  let y = S ? 230 : 128;
+  if (pageNo === 1) {
+    const ah = S ? 92 : 44; ctx.fillStyle = '#ffe3a31c'; rr(ctx, 48, y - 4, W - 96, ah, 14); ctx.fill();
+    ctx.fillStyle = '#ffe3a3'; ctx.font = `700 ${S ? 23 : 20}px Manrope`; let al = '📣 ' + dayAlert(); if (!S && ctx.measureText(al).width > W - 130) al = al.split(/(?<=\.) /)[0]; wrap(ctx, al, W / 2, y + (S ? 32 : 26), W - 130, 28, S ? 2 : 1, 'center');
+    y += ah + 8;
+  }
+  ctx.textAlign = 'left';
+  for (let i = from; i < to; i++) { drawBlock(ctx, ST.rank[i], i, 48, y, W - 96, S); y += BLOCK_H(S); }
+  ctx.textAlign = 'center'; ctx.fillStyle = '#f2c76e'; ctx.font = '700 22px Manrope';
+  ctx.fillText(pageNo < pages ? `Continua → ${to + 1}º a ${Math.min(12, to + (to - from))}º` : 'Segue ' + brand() + ' · todos os dias', W / 2, H - (S ? 190 : 22));
+  ctx.textAlign = 'left';
+  return c;
+}
+function drawLong() {
+  const W = 1080, head = 330, H = head + 12 * BLOCK_H(false) + 110, c = document.createElement('canvas'); c.width = W; c.height = H; const ctx = c.getContext('2d');
+  bg(ctx, W, H, ST.date + ST.mode + 'long', ['#5a4cff', '#1d1a5a']);
+  titleBlock(ctx, W, false, topTitle(), periodLabel(), skyShort(), 70);
+  ctx.textAlign = 'center'; ctx.fillStyle = '#ffe3a3'; ctx.font = '600 24px Manrope'; wrap(ctx, dayAlert(), W / 2, 288, W - 140, 28, 2, 'center');
+  let y = head + 20; for (let i = 0; i < 12; i++) { drawBlock(ctx, ST.rank[i], i, 48, y, W - 96, false); y += BLOCK_H(false); }
+  footer(ctx, W, H, false, 'Comenta o teu signo 👇  ·  Segue ' + brand());
+  return c;
+}
+function capTop() {
+  const L = [];
+  L.push(`🏆 ${topTitle()} · ${periodLabel().toUpperCase()}`);
+  L.push(`🌌 ${skyShort()}`);
+  if (ST.mode === 'dia') { const s = skyFor(ST.date); if (s.moonIngress) L.push(`☽ A Lua entra em ${SIGN_IN[s.moonIngress.to]} às ${fmtHM(+s.moonIngress.time, city()[3])}`); dayAspects(ST.date, ST.modern).slice(0, 2).forEach(a => L.push(`✨ ${a.txt}: ${a.mean}`)); }
+  else { const hi = (ST.rank[0].highlights || []).filter(h => /Lua|Eclipse|retrógrad|frente|Júpiter entra|Saturno entra/.test(h)).map(h => h.replace(/:.*$/, '')); if (hi.length) L.push('📅 ' + hi.join(' · ')); }
+  L.push(`📣 ${dayAlert()}`, '👇 Desliza até ao teu signo: aviso, amor, trabalho, dinheiro, energia, sorte e cor.', '');
+  ST.rank.forEach((rd, i) => L.push(`${MEDAL[i] || (i + 1) + 'º'} ${rd.sign.g} ${rd.sign.n} ${starStr(toStars(rd.overall))} — ${rd.headline}`));
+  L.push('', '💬 Em que lugar ficou o teu signo? Comenta 👇 e marca alguém!', `👉 Segue ${brand()} para não perderes nenhum dia.`, '', '━━━━━━━━  TUDO SOBRE O TEU SIGNO  ━━━━━━━━');
+  ST.rank.forEach((rd, i) => {
+    L.push('', `${rd.sign.g} ${rd.sign.n.toUpperCase()} · ${i + 1}º lugar`, `${{ bom: '✅', misto: '⚖️', cuidado: '⚠️' }[verdict(rd).k]} ${verdict(rd).txt}`);
+    L.push(`❤️ ${starStr(rd.stars.amor)} ${rd.love}`, `💼 ${starStr(rd.stars.trabalho)} ${rd.work}`, `💰 ${starStr(rd.stars.dinheiro)} ${rd.money}`, `⚡ ${starStr(rd.stars.energia)} ${rd.energy}`);
+    if (rd.highlights && rd.highlights.length) L.push(rd.highlights.slice(0, 2).join('\n'));
+    L.push(`🔮 ${rd.advice}`);
+    L.push(rd.mode === 'dia' ? `🍀 Sorte ${rd.lucky} · 🎨 ${PL[rd.fav].cor} · ${PL[rd.fav].g} Astro: ${PL[rd.fav].n} · 🤝 ${SIGNS[rd.ally].n}` : `📆 ${rd.mode === 'ano' ? 'Melhor mês' : 'Melhor dia'}: ${rd.bestDay} · ❤️ ${rd.bestLove} · 🎨 ${PL[rd.fav].cor} · 🤝 ${SIGNS[rd.ally].n}`);
+  });
+  L.push('', '#horoscopo #signos #astrologia #horoscopododia #zodiaco');
+  return L.join('\n');
+}
+
+// ---------- PARES ----------
+function drawPairsTop(P) {
+  const [c, ctx, W, H, S] = mk();
+  bg(ctx, W, H, ST.date + 'pares', ['#ff5a8a', '#5c1638']);
+  titleBlock(ctx, W, S, 'QUEM COMBINA HOJE', niceDate(ST.date), skyShort(), S ? 170 : 78);
+  let y = S ? 440 : 300; const cardH = S ? 300 : 232;
+  P.top.forEach((p, i) => {
+    const x = 60, w = W - 120;
+    ctx.fillStyle = ['#f2c76e22', '#cfd8e318', '#d0895a1c'][i]; rr(ctx, x, y, w, cardH - 22, 24); ctx.fill(); ctx.strokeStyle = ['#f2c76e', '#dfe6ee', '#e0a070'][i] + '88'; ctx.lineWidth = 2; ctx.stroke();
+    const cy = y + (cardH - 22) / 2 - 18; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.font = `${S ? 96 : 80}px ${SYMF}`; ctx.fillStyle = EL_COL[SIGNS[p.a].el][0]; ctx.fillText(SIGNS[p.a].g + VS, W / 2 - 170, cy);
+    ctx.fillStyle = EL_COL[SIGNS[p.b].el][0]; ctx.fillText(SIGNS[p.b].g + VS, W / 2 + 170, cy);
+    ctx.fillStyle = '#ff6b98'; ctx.font = `800 ${S ? 76 : 64}px Manrope`; ctx.fillText(p.score + '%', W / 2, cy);
+    ctx.textBaseline = 'alphabetic'; ctx.fillStyle = '#fff'; ctx.font = `700 ${S ? 34 : 30}px Cinzel`; ctx.fillText(`${SIGNS[p.a].n.toUpperCase()} + ${SIGNS[p.b].n.toUpperCase()}`, W / 2, cy + (S ? 92 : 76));
+    ctx.fillStyle = '#c9c9ee'; ctx.font = `500 ${S ? 25 : 22}px Manrope`; ctx.fillText(cap1(PAIR_TXT[p.k]), W / 2, cy + (S ? 132 : 108));
+    ctx.textAlign = 'left'; y += cardH;
+  });
+  const w = P.worst; ctx.textAlign = 'center'; ctx.fillStyle = '#a9a9d6'; ctx.font = `600 ${S ? 27 : 24}px Manrope, ${SYMF}`;
+  ctx.fillText(`Paciência hoje: ${SIGNS[w.a].g}${VS} ${SIGNS[w.a].n} + ${SIGNS[w.b].g}${VS} ${SIGNS[w.b].n} (${w.score}%)`, W / 2, y + (S ? 40 : 26));
+  footer(ctx, W, H, S, 'Marca o teu par 💞  ·  Segue ' + brand());
+  return c;
+}
+function drawPairsList(P) {
+  const [c, ctx, W, H, S] = mk();
+  bg(ctx, W, H, ST.date + 'pares2', ['#ff5a8a', '#3a1238']);
+  titleBlock(ctx, W, S, 'O TEU PAR DE HOJE', niceDate(ST.date), 'Com quem o teu signo combina melhor hoje', S ? 170 : 78);
+  const top = S ? 420 : 280, rowH = (H - top - (S ? 330 : 104)) / 12;
+  P.best.forEach((p, i) => {
+    const o = p.a === i ? p.b : p.a, y = top + i * rowH, cy = y + rowH / 2;
+    ctx.fillStyle = i % 2 ? '#ffffff08' : '#ffffff10'; rr(ctx, 60, y + 3, W - 120, rowH - 6, 16); ctx.fill();
+    ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
+    ctx.font = `${S ? 46 : 38}px ${SYMF}`; ctx.fillStyle = EL_COL[SIGNS[i].el][0]; ctx.fillText(SIGNS[i].g + VS, 92, cy);
+    ctx.fillStyle = '#fff'; ctx.font = `700 ${S ? 30 : 26}px Cinzel`; ctx.fillText(SIGNS[i].n.toUpperCase(), 150, cy);
+    ctx.fillStyle = '#ff6b98'; ctx.font = `800 ${S ? 30 : 26}px Manrope`; ctx.textAlign = 'center'; ctx.fillText('♥', W / 2 + 40, cy);
+    ctx.textAlign = 'left'; ctx.font = `${S ? 46 : 38}px ${SYMF}`; ctx.fillStyle = EL_COL[SIGNS[o].el][0]; ctx.fillText(SIGNS[o].g + VS, W / 2 + 90, cy);
+    ctx.fillStyle = '#e6e6fb'; ctx.font = `600 ${S ? 28 : 24}px Manrope`; ctx.fillText(SIGNS[o].n, W / 2 + 145, cy);
+    ctx.textAlign = 'right'; ctx.fillStyle = '#ffb3c9'; ctx.font = `800 ${S ? 30 : 26}px Manrope`; ctx.fillText(p.score + '%', W - 84, cy);
+    ctx.textBaseline = 'alphabetic'; ctx.textAlign = 'left';
+  });
+  footer(ctx, W, H, S, 'Marca o teu par 💞  ·  Segue ' + brand());
+  return c;
+}
+function capPairs(P) {
+  const L = [`💞 QUEM COMBINA HOJE · ${niceDate(ST.date).toUpperCase()}`, `🌌 ${skyShort()}`, ''];
+  P.top.forEach((p, i) => L.push(`${MEDAL[i]} ${SIGNS[p.a].g} ${SIGNS[p.a].n} + ${SIGNS[p.b].g} ${SIGNS[p.b].n} — ${p.score}% · ${PAIR_TXT[p.k]}`));
+  L.push(`⚠️ Paciência: ${SIGNS[P.worst.a].n} + ${SIGNS[P.worst.b].n} (${P.worst.score}%)`, '', '❤️ O PAR IDEAL DE CADA SIGNO HOJE');
+  P.best.forEach((p, i) => { const o = p.a === i ? p.b : p.a; L.push(`${SIGNS[i].g} ${SIGNS[i].n} → ${SIGNS[o].g} ${SIGNS[o].n} (${p.score}%)`); });
+  L.push('', '👇 Marca o teu par nos comentários e diz-nos se bate certo!', `👉 Segue ${brand()} para o teu horóscopo todos os dias.`, '', '#compatibilidade #signos #amor #astrologia #horoscopo');
+  return L.join('\n');
+}
+
+// ---------- LUA ----------
+function drawLuaDay() {
+  const [c, ctx, W, H, S] = mk(), D = lunarDay(ST.date), elc = EL_COL[D.el];
+  bg(ctx, W, H, ST.date + 'lua', ['#cfd8e3', '#1d2547']);
+  header(ctx, W, S, S ? 130 : 84, niceDate(ST.date));
+  const my = S ? 400 : 270; drawMoon(ctx, W / 2, my, S ? 150 : 120, D.e);
+  let y = my + (S ? 250 : 200); ctx.textAlign = 'center';
+  ctx.fillStyle = '#fff'; ctx.font = '700 70px Cinzel'; ctx.fillText('LUA EM ' + SIGN_IN[D.sign].toUpperCase(), W / 2, y);
+  y += 46; ctx.fillStyle = '#c9c9ee'; ctx.font = '600 27px Manrope'; ctx.fillText(`${D.ph} · ${Math.round(D.s.phase.illum * 100)}% iluminada${D.ingress ? ' · entra em ' + SIGN_IN[D.ingress.to] + ' às ' + fmtHM(+D.ingress.time, city()[3]) : ''}`, W / 2, y);
+  y += S ? 80 : 62;
+  ctx.fillStyle = elc[0] + '33'; const tw = 520; rr(ctx, W / 2 - tw / 2, y - 44, tw, 66, 33); ctx.fill();
+  ctx.fillStyle = elc[0]; ctx.font = '800 30px Manrope'; ctx.fillText(D.type[0].toUpperCase(), W / 2, y);
+  y += 50; ctx.fillStyle = '#d8d8f4'; ctx.font = '500 24px Manrope'; ctx.fillText('Semear: ' + D.type[1], W / 2, y);
+  y += S ? 80 : 56; ctx.textAlign = 'left';
+  const box = (title, items, col, mark) => {
+    const h = 56 + items.length * (S ? 50 : 42);
+    ctx.fillStyle = '#ffffff10'; rr(ctx, 60, y, W - 120, h, 20); ctx.fill();
+    ctx.fillStyle = col; ctx.font = '800 22px Manrope'; ctx.fillText(title, 92, y + 40);
+    ctx.font = `600 ${S ? 28 : 25}px Manrope, ${SYMF}`; ctx.fillStyle = '#eee';
+    items.forEach((t, i) => { ctx.fillStyle = col; ctx.fillText(mark, 92, y + 84 + i * (S ? 50 : 42)); ctx.fillStyle = '#ececfb'; ctx.fillText(t, 132, y + 84 + i * (S ? 50 : 42)); });
+    y += h + 16;
+  };
+  box('CABELO', [D.hair], '#ffe3a3', '✂');
+  box('BOM PARA', D.good, '#7ee0a6', '✓');
+  if (D.bad.length) box('EVITAR', D.bad, '#ff8fa3', '✕');
+  const nx = eventsBetween(ST.date, dayStr(noonJd(ST.date) + 30), false, true).filter(e => e.type === 'lua').slice(0, 3);
+  if (nx.length && y < H - (S ? 420 : 240)) box('PRÓXIMAS FASES', nx.map(e => `${{ nova: 'Lua Nova', crescente: 'Quarto Crescente', cheia: 'Lua Cheia', minguante: 'Quarto Minguante' }[e.kind]}${e.eclipse ? ' (eclipse)' : ''} · ${new Date(msFromJd(e.jd)).getUTCDate()} ${MESES[new Date(msFromJd(e.jd)).getUTCMonth()].slice(0, 3)} · ${SIGN_IN[e.sign]}`), '#cfd8e3', '•');
+  footer(ctx, W, H, S, 'Calendário lunar · Segue ' + brand());
+  return c;
+}
+function drawLuaMonth() {
+  const [c, ctx, W, H, S] = mk(), [y0, m0] = dParts(ST.date);
+  bg(ctx, W, H, ST.date.slice(0, 7) + 'luames', ['#cfd8e3', '#1d2547']);
+  titleBlock(ctx, W, S, 'CALENDÁRIO LUNAR', cap1(MESES[m0 - 1]) + ' ' + y0, 'Fases reais da Lua · dias de raiz, folha, flor e fruto', S ? 170 : 70);
+  const days = daysIn(...periodRange(ST.date, 'mes')), first = (new Date(Date.UTC(y0, m0 - 1, 1)).getUTCDay() + 6) % 7, rows = Math.ceil((first + days.length) / 7);
+  const top = S ? 470 : 300, P = 40, cw = (W - 2 * P) / 7, legendH = S ? 300 : 150, ch = Math.min(S ? 190 : 140, (H - top - legendH - (S ? 230 : 40)) / rows);
+  ctx.textAlign = 'center'; ctx.fillStyle = '#9b9cc9'; ctx.font = '800 20px Manrope';
+  ['SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB', 'DOM'].forEach((d, i) => ctx.fillText(d, P + cw * i + cw / 2, top - 16));
+  const evs = periodEvents(...periodRange(ST.date, 'mes'), false).filter(e => e.type === 'lua');
+  days.forEach((d, i) => {
+    const k = first + i, x = P + (k % 7) * cw, y = top + Math.floor(k / 7) * ch, D = lunarDay(d), col = EL_COL[D.el][0];
+    ctx.fillStyle = '#ffffff0c'; rr(ctx, x + 4, y + 4, cw - 8, ch - 8, 12); ctx.fill();
+    ctx.fillStyle = col; ctx.fillRect(x + 4, y + ch - 12, cw - 8, 8);
+    ctx.fillStyle = '#fff'; ctx.font = '700 24px Manrope'; ctx.textAlign = 'left'; ctx.fillText(String(+d.slice(8)), x + 14, y + 34);
+    drawMoon(ctx, x + cw / 2, y + ch / 2 + 6, Math.min(cw, ch) * .2, D.e);
+    const ev = evs.find(e => dayStr(e.jd) === d && (e.kind === 'nova' || e.kind === 'cheia'));
+    if (ev) { ctx.fillStyle = '#ffe3a3'; ctx.font = '800 15px Manrope'; ctx.textAlign = 'right'; ctx.fillText(ev.eclipse ? 'ECLIPSE' : ev.kind === 'nova' ? 'NOVA' : 'CHEIA', x + cw - 12, y + 30); }
+    if (D.hairGood) { ctx.fillStyle = '#ffe3a3'; ctx.font = `22px ${SYMF}`; ctx.textAlign = 'right'; ctx.fillText('✂', x + cw - 12, y + ch - 20); }
+  });
+  let ly = top + rows * ch + (S ? 60 : 40); ctx.textAlign = 'left'; ctx.font = '600 23px Manrope';
+  const leg = [['fogo', 'Fruto'], ['terra', 'Raiz'], ['ar', 'Flor'], ['agua', 'Folha']];
+  leg.forEach(([el, t], i) => { const x = 70 + i * 245; ctx.fillStyle = EL_COL[el][0]; ctx.fillRect(x, ly - 16, 34, 14); ctx.fillStyle = '#ddd'; ctx.fillText('Dia de ' + t.toLowerCase(), x + 46, ly); });
+  ly += 44; ctx.fillStyle = '#ffe3a3'; ctx.font = `600 23px Manrope, ${SYMF}`; ctx.fillText('✂ melhores dias para cortar o cabelo (crescer forte)', 70, ly);
+  footer(ctx, W, H, S, 'Guarda e partilha · Segue ' + brand());
+  return c;
+}
+function capLuaDay() {
+  const D = lunarDay(ST.date);
+  return [`🌙 LUA DE HOJE · ${niceDate(ST.date).toUpperCase()}`, `${D.ph} em ${SIGN_IN[D.sign]} (${Math.round(D.s.phase.illum * 100)}% iluminada)${D.ingress ? ` · entra em ${SIGN_IN[D.ingress.to]} às ${fmtHM(+D.ingress.time, city()[3])}` : ''}`, '',
+    `🌱 ${D.type[0]}: bom para semear ${D.type[1]}.`, `✂️ Cabelo: ${D.hair}.`, '', '✅ Bom para:', ...D.good.map(g => '• ' + g), ...(D.bad.length ? ['', '⛔ Evitar:', ...D.bad.map(g => '• ' + g)] : []), '',
+    '💬 Também segues a Lua para cortar o cabelo ou semear? Conta-nos 👇', `👉 Segue ${brand()} para o calendário lunar todos os dias.`, '', '#calendariolunar #lua #fasesdalua #horta #astrologia'].join('\n');
+}
+function capLuaMonth() {
+  const [a, b] = periodRange(ST.date, 'mes'), days = daysIn(a, b), ev = periodEvents(a, b, false).filter(e => e.type === 'lua');
+  const L = [`🌙 CALENDÁRIO LUNAR · ${periodLabel('mes').toUpperCase()}`, ''];
+  ev.forEach(e => L.push(`${{ nova: '🌑 Lua Nova', crescente: '🌓 Quarto Crescente', cheia: '🌕 Lua Cheia', minguante: '🌗 Quarto Minguante' }[e.kind]}${e.eclipse ? ' (eclipse ' + e.eclipse + ')' : ''}: dia ${new Date(msFromJd(e.jd)).getUTCDate()}, em ${SIGN_IN[e.sign]}`));
+  const hair = days.filter(d => lunarDay(d).hairGood).map(d => +d.slice(8));
+  L.push('', `✂️ Melhores dias para cortar o cabelo: ${hair.join(', ') || '—'}`);
+  for (const [el, nm] of [['terra', 'raiz 🥕'], ['agua', 'folha 🥬'], ['fogo', 'fruto 🍅'], ['ar', 'flor 🌸']]) L.push(`🌱 Dias de ${nm}: ${days.filter(d => lunarDay(d).el === el).map(d => +d.slice(8)).join(', ')}`);
+  L.push('', '📌 Guarda este calendário para usares o mês todo!', `👉 Segue ${brand()}`, '', '#calendariolunar #fasesdalua #lua #horta');
+  return L.join('\n');
+}
+
+// ---------- ANIVERSÁRIOS ----------
+function drawBirthday() {
+  const [c, ctx, W, H, S] = mk(), B = birthday(ST.date, ST.modern), sg = SIGNS[B.si], elc = EL_COL[sg.el];
+  bg(ctx, W, H, ST.date + 'anos', elc);
+  header(ctx, W, S, S ? 130 : 84, niceDate(ST.date));
+  ctx.textAlign = 'center'; ctx.fillStyle = '#ffe3a3'; ctx.font = 'italic 600 52px "Cormorant Garamond"'; ctx.fillText('Se fazes anos hoje…', W / 2, S ? 260 : 180);
+  ctx.fillStyle = '#fff'; ctx.font = '700 84px Cinzel'; ctx.fillText('PARABÉNS!', W / 2, S ? 360 : 270);
+  const gy = S ? 560 : 420; ctx.strokeStyle = elc[0]; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(W / 2, gy, 92, 0, 7); ctx.stroke();
+  ctx.fillStyle = '#fff6e0'; ctx.font = `100px ${SYMF}`; ctx.textBaseline = 'middle'; ctx.fillText(sg.g + VS, W / 2, gy + 6); ctx.textBaseline = 'alphabetic';
+  let y = gy + 150; ctx.fillStyle = '#c9c9ee'; ctx.font = '600 27px Manrope'; ctx.fillText(`Sol a ${B.deg}° de ${sg.n} · o teu novo ano astral`, W / 2, y);
+  y += 70; ctx.fillStyle = '#ffe3a3'; ctx.font = 'italic 600 50px "Cormorant Garamond"'; y = wrap(ctx, '“' + B.headline + '”', W / 2, y, W - 140, 56, 2, 'center') + 30;
+  ctx.textAlign = 'left'; ctx.font = `500 ${S ? 28 : 25}px Manrope`;
+  const items = [['SORTE', B.lines[0]], ['ESFORÇO', B.lines[1]], ['AMOR', `Melhores meses: ${B.best.amor.join(' e ')}`], ['TRABALHO', `Melhores meses: ${B.best.trabalho.join(' e ')}`], ['DINHEIRO', `Melhores meses: ${B.best.dinheiro.join(' e ')}`]];
+  for (const [l, t] of items) {
+    const h = S ? 112 : 92; ctx.fillStyle = '#ffffff10'; rr(ctx, 60, y, W - 120, h - 12, 16); ctx.fill();
+    ctx.fillStyle = elc[0]; ctx.font = '800 20px Manrope'; ctx.fillText(l, 88, y + 32);
+    ctx.fillStyle = '#ececfb'; ctx.font = `500 ${S ? 26 : 24}px Manrope`; wrap(ctx, plainEmoji(t), 88, y + 66, W - 176, 30, 1);
+    y += h;
+  }
+  footer(ctx, W, H, S, 'Marca quem faz anos hoje 🎂  ·  Segue ' + brand());
+  return c;
+}
+function capBirthday() {
+  const B = birthday(ST.date, ST.modern), sg = SIGNS[B.si];
+  return [`🎂 SE FAZES ANOS HOJE (${niceDate(ST.date)})`, `Parabéns, ${sg.n} ${sg.g}! O teu novo ano astral começa hoje, com o Sol a ${B.deg}° de ${sg.n}.`, '', `✨ ${B.headline}`, ...B.lines, '', '🎁 Marca nos comentários quem faz anos hoje e oferece-lhe esta previsão!', `👉 Segue ${brand()}`, '', `#parabens #aniversario #${sg.tag} #signos #astrologia`].join('\n');
+}
+
+// ---------- HORAS ----------
+function drawHours() {
+  const [c, ctx, W, H, S] = mk(), ci = city(), PH = planetaryHours(ST.date, ci);
+  bg(ctx, W, H, ST.date + 'horas', ['#f5c542', '#3d2a0a']);
+  titleBlock(ctx, W, S, 'HORAS PLANETÁRIAS', niceDate(ST.date), PH ? `${ci[0]} · nascer do sol ${fmtHM(PH.rise, ci[3])} · pôr do sol ${fmtHM(PH.set, ci[3])}` : ci[0], S ? 170 : 78);
+  if (!PH) return c;
+  let y = S ? 450 : 300; ctx.textAlign = 'center'; ctx.fillStyle = '#ffe3a3'; ctx.font = '700 28px Manrope, ' + SYMF;
+  ctx.fillText(`Dia de ${PL[PH.ruler].n} ${PL[PH.ruler].g}${VS} — a tradição mais antiga dos astros`, W / 2, y); y += S ? 60 : 40;
+  const rowH = S ? 165 : 128;
+  for (const p of ['venus', 'jupiter', 'mercury', 'sun', 'mars', 'moon', 'saturn']) {
+    const hs = PH.hours.filter(h => h.p === p && h.start > PH.rise - 1).slice(0, 4);
+    ctx.fillStyle = '#ffffff10'; rr(ctx, 60, y, W - 120, rowH - 14, 18); ctx.fill();
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = PL[p].hex; ctx.font = `56px ${SYMF}`; ctx.fillText(PL[p].g + VS, 125, y + (rowH - 14) / 2); ctx.textBaseline = 'alphabetic';
+    ctx.textAlign = 'left'; ctx.fillStyle = '#fff'; ctx.font = `700 ${S ? 30 : 27}px Cinzel`; ctx.fillText(`${PL[p].n.toUpperCase()}`, 185, y + 44);
+    ctx.fillStyle = '#c9c9ee'; ctx.font = `500 ${S ? 24 : 21}px Manrope`; ctx.fillText('para ' + HOUR_USE[p], 185 + ctx.measureText('').width, y + 44 + (S ? 38 : 32));
+    ctx.textAlign = 'right'; ctx.fillStyle = '#ffe3a3'; ctx.font = `700 ${S ? 27 : 24}px Manrope`;
+    const times = hs.map(h => fmtHM(h.start, ci[3]));
+    ctx.fillText(times.slice(0, 2).join('  ·  '), W - 90, y + 44); if (times.length > 2) ctx.fillText(times.slice(2).join('  ·  '), W - 90, y + 44 + (S ? 38 : 32));
+    ctx.textAlign = 'left'; y += rowH;
+  }
+  footer(ctx, W, H, S, 'Usa a hora certa · Segue ' + brand());
+  return c;
+}
+function capHours() {
+  const ci = city(), PH = planetaryHours(ST.date, ci); if (!PH) return '';
+  const L = [`⏳ HORAS PLANETÁRIAS · ${niceDate(ST.date).toUpperCase()}`, `📍 ${ci[0]} · ☀️ nascer ${fmtHM(PH.rise, ci[3])} · 🌇 pôr ${fmtHM(PH.set, ci[3])}`, `Hoje é dia de ${PL[PH.ruler].n} ${PL[PH.ruler].g}. Cada hora do dia é regida por um astro, como faziam os antigos.`, ''];
+  for (const p of ['venus', 'jupiter', 'mercury', 'sun', 'mars', 'moon', 'saturn']) L.push(`${PL[p].g} ${PL[p].n} (${HOUR_USE[p]}): ${PH.hours.filter(h => h.p === p).map(h => fmtHM(h.start, ci[3]) + '–' + fmtHM(h.end, ci[3])).join(', ')}`);
+  L.push('', '💡 Queres pedir um aumento? Usa a hora de Júpiter. Um encontro? A hora de Vénus.', `👉 Segue ${brand()}`, '', '#horasplanetarias #astrologia #signos #horoscopo');
+  return L.join('\n');
+}
+
+// ---------- Montar o post ----------
+function computeTop() {
+  ST.reads = ST.mode === 'ano' ? yearReads(+ST.date.slice(0, 4), ST.modern) : SIGNS.map((_, i) => readAny(i, ST.date, ST.mode, ST.modern));
+  ST.rank = ST.reads.slice().sort((a, b) => b.overall - a.overall || (b.area.amor + b.area.dinheiro) - (a.area.amor + a.area.dinheiro) || a.si - b.si);
+}
+function buildPost(type = ST.type) {
+  if (type === 'top') {
+    computeTop();
+    if (ST.fmt === 'longa') return { cs: [{ name: 'top-completo', c: drawLong() }], cap: capTop() };
+    const cs = ST.cover ? [{ name: '00-top', c: drawTop() }] : [], per = 3, pages = 4;
+    for (let p = 0; p < pages; p++) cs.push({ name: `0${p + 1}-signos-${p * per + 1}-${(p + 1) * per}`, c: drawPage(p * per, (p + 1) * per, p + 1, pages) });
+    if (ST.sky && ST.mode !== 'ano') cs.push({ name: '09-ceu', c: drawSky() });
+    return { cs, cap: capTop() };
+  }
+  if (type === 'pares') { const P = pairsDay(ST.date, ST.modern); return { cs: [{ name: '01-quem-combina', c: drawPairsTop(P) }, { name: '02-par-de-cada-signo', c: drawPairsList(P) }], cap: capPairs(P) }; }
+  if (type === 'lua') return ST.mode === 'mes' ? { cs: [{ name: 'calendario-lunar', c: drawLuaMonth() }], cap: capLuaMonth() } : { cs: [{ name: 'lua-de-hoje', c: drawLuaDay() }], cap: capLuaDay() };
+  if (type === 'anos') return { cs: [{ name: 'parabens', c: drawBirthday() }], cap: capBirthday() };
+  if (type === 'horas') return { cs: [{ name: 'horas-planetarias', c: drawHours() }], cap: capHours() };
+}
+function render() {
+  if (!TYPE_MODES[ST.type].includes(ST.mode)) ST.mode = TYPE_MODES[ST.type][0];
+  document.querySelectorAll('#types button').forEach(b => b.classList.toggle('on', b.dataset.t === ST.type));
+  document.querySelectorAll('#modes button').forEach(b => { b.hidden = !TYPE_MODES[ST.type].includes(b.dataset.m); b.classList.toggle('on', b.dataset.m === ST.mode); });
+  $('#modes').hidden = TYPE_MODES[ST.type].length < 2;
+  $('#when').textContent = periodLabel();
+  const { cs, cap } = buildPost(); ST.canvases = cs; ST.cap = cap;
+  const strip = $('#strip'); strip.innerHTML = '';
+  cs.forEach(x => { const im = new Image(); im.src = x.c.toDataURL('image/jpeg', .9); im.alt = x.name; im.className = ST.fmt; strip.appendChild(im); });
+  $('#count').textContent = cs.length + (cs.length > 1 ? ' fotos' : ' foto');
+  $('#reel').hidden = ST.type !== 'top';
+  $('#sum').innerHTML = ST.type === 'top' ? `<b>${ST.rank[0].sign.g}&#xFE0E; ${ST.rank[0].sign.n}</b> lidera · <span>${skyShort()}</span>` : `<span>${skyShort()}</span>`;
+  $('#cap').value = cap;
+}
+
+// ---------- Partilhar / guardar ----------
+const blobOf = (c, q = .92) => new Promise(r => c.toBlob(r, 'image/jpeg', q));
+function copySync(txt) { const ta = $('#cap'); ta.value = txt; ta.focus(); ta.select(); try { return document.execCommand('copy'); } catch (e) { return false; } }
+async function copyCap() { try { await navigator.clipboard.writeText(ST.cap); toast('Legenda copiada'); } catch (e) { if (copySync(ST.cap)) toast('Legenda copiada'); else { $('#capWrap').classList.add('on'); toast('Seleciona o texto e copia'); } } }
+let JSZipP = null;
+function loadZip() { return JSZipP || (JSZipP = new Promise((res, rej) => { if (window.JSZip) return res(window.JSZip); const s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js'; s.onload = () => res(window.JSZip); s.onerror = () => { JSZipP = null; rej(); }; document.head.appendChild(s); })); }
+async function saveBlob(blob, name) {
+  if (DL) { try { await DL.save({ filename: name, data: blob }); toast('Guardado'); return true; } catch (e) { if (e && (e.code === 'declined' || e.code === 'rate_limited')) return false; } }
+  try { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 8000); toast('Guardado'); return true; } catch (e) { toast('Carrega sem soltar na imagem para guardar'); return false; }
+}
+async function shareFiles(files, txt) {
+  copySync(txt);
+  try { if (navigator.canShare && navigator.canShare({ files })) { await navigator.share({ files, text: txt }); toast('Cola a legenda no Facebook'); return true; } } catch (e) { if (e && e.name === 'AbortError') return true; }
+  return false;
+}
+async function share() {
+  const files = await Promise.all(ST.canvases.map(async x => new File([await blobOf(x.c)], `${x.name}.jpg`, { type: 'image/jpeg' })));
+  if (await shareFiles(files, ST.cap)) return;
+  if (files.length === 1) { await saveBlob(files[0], files[0].name); toast('Foto guardada e legenda copiada'); return; }
+  await saveZip(files); toast('Fotos guardadas e legenda copiada');
+}
+async function saveZip(files) {
+  try {
+    const Z = await loadZip(), z = new Z();
+    files = files || await Promise.all(ST.canvases.map(async x => new File([await blobOf(x.c)], `${x.name}.jpg`)));
+    files.forEach(f => z.file(f.name, f)); z.file('legenda.txt', ST.cap);
+    await saveBlob(await z.generateAsync({ type: 'blob' }), `${ST.type}-${ST.mode}-${ST.date}.zip`);
+  } catch (e) { for (const x of ST.canvases.slice(0, 1)) await saveBlob(await blobOf(x.c), x.name + '.jpg'); }
+}
+async function savePack(n) {
+  const types = [...document.querySelectorAll('#packTypes input:checked')].map(i => i.value);
+  if (!types.length) { $('#packMsg').textContent = 'Escolhe pelo menos um tipo.'; return; }
+  const btns = document.querySelectorAll('#pack button'); btns.forEach(b => b.disabled = true);
+  const keep = { date: ST.date, mode: ST.mode, type: ST.type };
+  try {
+    const Z = await loadZip(), z = new Z(); let all = '';
+    for (let i = 0; i < n; i++) {
+      ST.date = shiftDate(keep.date, i, 'dia'); const dir = z.folder(ST.date);
+      for (const t of types) {
+        ST.type = t; ST.mode = 'dia'; const { cs, cap } = buildPost(t), sub = types.length > 1 ? dir.folder(t) : dir;
+        for (const x of cs) sub.file(x.name + '.jpg', await blobOf(x.c, .88));
+        sub.file('legenda.txt', cap); all += `\n\n######## ${niceDate(ST.date).toUpperCase()} · ${t.toUpperCase()} ########\n\n` + cap;
+      }
+      $('#packMsg').textContent = `A preparar ${i + 1}/${n}…`; await new Promise(r => setTimeout(r, 0));
+    }
+    z.file('todas-as-legendas.txt', all.trim()); $('#packMsg').textContent = 'A comprimir…';
+    await saveBlob(await z.generateAsync({ type: 'blob' }), `ceu-de-hoje-${keep.date}-${n}-dias.zip`);
+    $('#packMsg').textContent = `Pronto: ${n} dias, uma pasta por dia.`;
+  } catch (e) { $('#packMsg').textContent = 'Não foi possível criar o pacote aqui (precisa de internet).'; }
+  Object.assign(ST, keep); btns.forEach(b => b.disabled = false); render();
+}
+
+// ---------- REEL ----------
+const ease = t => 1 - Math.pow(1 - t, 3);
+function reelMime() { const opts = ['video/mp4;codecs=avc1.42E01E', 'video/mp4', 'video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm']; return window.MediaRecorder ? opts.find(m => MediaRecorder.isTypeSupported(m)) : null; }
+function reelFrame(ctx, base, t) {
+  const W = 1080, H = 1920, S = true; ctx.drawImage(base, 0, 0);
+  const a0 = ease(Math.min(1, t / 0.8));
+  ctx.save(); ctx.globalAlpha = a0; ctx.translate(W / 2, 0); ctx.scale(0.9 + 0.1 * a0, 0.9 + 0.1 * a0); ctx.translate(-W / 2, 0);
+  titleBlock(ctx, W, S, topTitle(), periodLabel(), skyShort(), 170); ctx.restore();
+  const L = topLayout(S, H);
+  for (let i = 11; i >= 0; i--) {
+    const ti = 1.6 + (11 - i) * 0.85, p = Math.max(0, Math.min(1, (t - ti) / 0.45));
+    if (p <= 0) continue;
+    const e = ease(p), glow = i < 3 && t > 12.2 ? 0.5 + 0.5 * Math.sin((t - 12.2) * 5) : (i === 0 ? (1 - p) : 0);
+    topRow(ctx, ST.rank[i], i, L.P + (1 - e) * 340, L.top + i * L.rowH, W - 2 * L.P, L.rowH, S, e, glow);
+  }
+  if (t > 12.3) { ctx.save(); ctx.globalAlpha = Math.min(1, (t - 12.3) / 0.5); footer(ctx, W, H, S, 'Tudo sobre o teu signo no post  ·  Segue ' + brand()); ctx.restore(); }
+}
+async function makeReel() {
+  const mime = reelMime(), btn = $('#reel');
+  if (!mime || !HTMLCanvasElement.prototype.captureStream) { toast('Este navegador não grava vídeo — experimenta no Chrome'); return; }
+  computeTop(); btn.disabled = true;
+  const base = document.createElement('canvas'); base.width = 1080; base.height = 1920; const bctx = base.getContext('2d');
+  bg(bctx, 1080, 1920, ST.date + ST.mode + 'reel', ['#7a5cff', '#2a1d6a']); wheel(bctx, 540, 300, 360, .08);
+  const c = document.createElement('canvas'); c.width = 1080; c.height = 1920; const ctx = c.getContext('2d'); reelFrame(ctx, base, 0);
+  const stream = c.captureStream(30), rec = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 8e6 }), chunks = [];
+  rec.ondataavailable = e => e.data.size && chunks.push(e.data);
+  const done = new Promise(r => rec.onstop = r);
+  rec.start(250); const DUR = 15, t0 = performance.now();
+  await new Promise(res => { const step = () => { const t = (performance.now() - t0) / 1000; reelFrame(ctx, base, Math.min(t, DUR)); btn.textContent = `🎬 A gravar… ${Math.max(0, Math.ceil(DUR - t))}s`; if (t < DUR) requestAnimationFrame(step); else res(); }; requestAnimationFrame(step); });
+  rec.stop(); await done; btn.disabled = false; btn.textContent = '🎬 Criar Reel';
+  const ext = mime.includes('mp4') ? 'mp4' : 'webm', blob = new Blob(chunks, { type: mime.split(';')[0] });
+  const v = $('#reelVid'); v.src = URL.createObjectURL(blob); $('#reelDlg').showModal();
+  $('#reelShare').onclick = async () => { const f = new File([blob], `reel-${ST.date}.${ext}`, { type: blob.type }); if (!(await shareFiles([f], ST.cap))) { await saveBlob(f, f.name); toast('Vídeo guardado e legenda copiada'); } };
+  $('#reelInfo').textContent = ext === 'webm' ? 'Formato WebM: o Facebook aceita. No iPhone, guarda primeiro e publica a partir do computador se não abrir.' : 'Formato MP4: pronto para os Reels.';
+}
+
+// ---------- O MEU CÉU ----------
+function calcMine() {
+  const d = $('#bDate').value, t = $('#bTime').value, ci = CITIES[+$('#bCity').value];
+  if (!d) { $('#ascOut').innerHTML = '<p>Indica a data de nascimento.</p>'; return; }
+  store.set('ceu_me', JSON.stringify({ d, t, c: $('#bCity').value }));
+  const [y, m, dd] = dParts(d), [h, mi] = (t || '12:00').split(':').map(Number), ms = localToUtcMs(y, m, dd, h, mi, ci[3]);
+  const natal = natalChart(ms, ci), P = personalDay(natal, todayStr(), ST.modern);
+  const cell = (l, s) => `<div class="trio"><span>${l}</span><b>${SIGNS[s].g}&#xFE0E;</b><em>${SIGNS[s].n}</em></div>`;
+  const rd = P.byAsc, base = t ? rd : readDay(P.sunSign, todayStr(), ST.modern);
+  let html = `<div class="trios">${cell('Sol', P.sunSign)}${cell('Lua', P.moonSign)}${t ? cell('Ascendente', P.ascSign) : ''}</div>`;
+  html += `<h3>Hoje, só para ti</h3>`;
+  html += P.aspects.length ? '<ul>' + P.aspects.filter(a => t || a.np !== 'asc').map(a => `<li>${a.txt}</li>`).join('') + '</ul>' : '<p>Dia calmo no teu mapa: nenhum trânsito forte.</p>';
+  html += `<h3>${t ? 'Pelo teu ascendente em ' + SIGNS[P.ascSign].n : 'Pelo teu signo solar'}</h3><p class="hl">“${base.headline}”</p>`;
+  html += `<p>❤️ ${starStr(base.stars.amor)} ${base.love}<br>💼 ${starStr(base.stars.trabalho)} ${base.work}<br>💰 ${starStr(base.stars.dinheiro)} ${base.money}<br>⚡ ${starStr(base.stars.energia)} ${base.energy}</p>`;
+  if (!t) html += '<p class="note">Sem a hora de nascimento não dá para calcular o ascendente.</p>';
+  $('#ascOut').innerHTML = html;
+}
+
+// ---------- Init ----------
+async function init() {
+  $('#brand').value = ST.brand; $('#fmt').value = ST.fmt; $('#modern').checked = ST.modern; $('#skyOn').checked = ST.sky; $('#coverOn').checked = ST.cover;
+  const opts = CITIES.map((c, i) => `<option value="${i}">${c[0]}</option>`).join(''); $('#bCity').innerHTML = opts; $('#cityHours').innerHTML = opts; $('#cityHours').value = ST.city;
+  $('#brand').oninput = e => { ST.brand = e.target.value.trim(); store.set('ceu_brand', ST.brand); clearTimeout(init.t); init.t = setTimeout(render, 400); };
+  $('#fmt').onchange = e => { ST.fmt = e.target.value; store.set('ceu_fmt', ST.fmt); render(); };
+  $('#modern').onchange = e => { ST.modern = e.target.checked; store.set('ceu_modern', ST.modern ? '1' : '0'); render(); };
+  $('#skyOn').onchange = e => { ST.sky = e.target.checked; store.set('ceu_sky', ST.sky ? '1' : '0'); render(); };
+  $('#coverOn').onchange = e => { ST.cover = e.target.checked; store.set('ceu_cover', ST.cover ? '1' : '0'); render(); };
+  $('#cityHours').onchange = e => { ST.city = +e.target.value; store.set('ceu_city', ST.city); render(); };
+  $('#prev').onclick = () => { ST.date = shiftDate(ST.date, -1, ST.mode); render(); };
+  $('#next').onclick = () => { ST.date = shiftDate(ST.date, 1, ST.mode); render(); };
+  $('#when').onclick = () => { ST.date = todayStr(); render(); };
+  document.querySelectorAll('#types button').forEach(b => b.onclick = () => { ST.type = b.dataset.t; render(); });
+  document.querySelectorAll('#modes button').forEach(b => b.onclick = () => { ST.mode = b.dataset.m; render(); });
+  $('#share').onclick = share; $('#copy').onclick = copyCap; $('#zip').onclick = () => saveZip(); $('#reel').onclick = makeReel;
+  document.querySelectorAll('[data-open]').forEach(b => b.onclick = () => $('#' + b.dataset.open).showModal());
+  document.querySelectorAll('dialog [data-close]').forEach(b => b.onclick = () => b.closest('dialog').close());
+  document.querySelectorAll('#pack button').forEach(b => b.onclick = () => savePack(+b.dataset.n));
+  $('#ascGo').onclick = calcMine;
+  try { const me = JSON.parse(store.get('ceu_me') || 'null'); if (me) { $('#bDate').value = me.d; $('#bTime').value = me.t; $('#bCity').value = me.c; } } catch (e) { }
+  ST.date = todayStr();
+  try { await Promise.race([Promise.all(['700 40px Cinzel', 'italic 600 40px "Cormorant Garamond"', '500 20px Manrope', '600 20px Manrope', '700 20px Manrope', '800 20px Manrope'].map(f => document.fonts.load(f)).concat([document.fonts.load('40px "Noto Sans Symbols"', '♈♉♊♋♌♍♎♏♐♑♒♓☉☽☿♀♂♃♄'), document.fonts.load('40px "Noto Sans Symbols 2"', '♅♆♇★✂✓✕')])), new Promise(r => setTimeout(r, 3000))]); } catch (e) { }
+  render();
+}
+init();
+
+</script>
+</body>
+</html>
