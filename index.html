@@ -256,6 +256,7 @@ footer.ft{color:var(--mute);font-size:11.5px;text-align:center;margin:18px 0 6px
     <button class="btn" data-open="packDlg">🗓️ Preparar vários dias (.zip)</button>
     <button class="btn" data-open="how">ℹ️ Como funciona</button>
   </div>
+  <p class="note" id="appVer" style="text-align:center"></p>
   <div class="dlgfoot"><button class="btn" data-close>Fechar</button></div>
 </dialog>
 
@@ -2160,6 +2161,7 @@ async function cachedDaily(key, fn) {
 }
 
 // ===== App de telemóvel =====
+const APP_VERSION = '12.11.2026 23:08';
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const G = g => `${g}&#xFE0E;`;
@@ -2652,6 +2654,7 @@ function applyTheme() { const t = store.get('ceu_theme') || 'astral'; document.d
 
 // ---------- Init ----------
 async function init() {
+  $('#appVer').textContent = 'Versão ' + APP_VERSION;
   $('#shareBtn').innerHTML = SHARE_SVG; $('#sheetShare').innerHTML = SHARE_SVG + '<span>Partilhar</span>';
   $('#brand').value = ST.brand; $('#fmt').value = ST.fmt; $('#modern').checked = ST.modern; $('#skyOn').checked = ST.sky;
   const opts = CITIES.map((c, i) => `<option value="${i}">${c[0]}</option>`).join(''); $('#cityHours').innerHTML = opts; $('#cityHours').value = ST.city;
@@ -2694,7 +2697,10 @@ async function init() {
   setTimeout(() => showTodayDlg(false), 600);
   setTimeout(() => { try { if (alertState() === 'granted' && navigator.serviceWorker && navigator.serviceWorker.controller) navigator.serviceWorker.controller.postMessage('check-bdays'); } catch (e) { } }, 1500);
   try { await Promise.race([Promise.all(['700 40px Cinzel', 'italic 600 40px "Cormorant Garamond"', '500 20px Manrope', '600 20px Manrope', '700 20px Manrope', '800 20px Manrope'].map(f => document.fonts.load(f)).concat([document.fonts.load('40px "Noto Sans Symbols"', '♈♉♊♋♌♍♎♏♐♑♒♓☉☽☿♀♂♃♄'), document.fonts.load('40px "Noto Sans Symbols 2"', '♅♆♇★✂✓✕')])), new Promise(r => setTimeout(r, 3000))]); } catch (e) { }
-  if (/github\.io$/.test(location.hostname) && 'serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { });
+  if (/github\.io$/.test(location.hostname) && 'serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(r => { r.update(); setInterval(() => r.update(), 30 * 60 * 1000); }).catch(() => { });
+    let reloaded = false; navigator.serviceWorker.addEventListener('controllerchange', () => { if (!reloaded) { reloaded = true; location.reload(); } });
+  }
 }
 init();
 
