@@ -123,6 +123,22 @@ dialog.sheet{width:100%;max-width:560px;height:100%;max-height:100%;margin:0 aut
 #cap{position:fixed;left:-9999px;top:0;width:10px;height:10px;opacity:0}
 #toast{position:fixed;left:50%;bottom:calc(90px + var(--sab));transform:translateX(-50%) translateY(20px);background:#1d2050;border:1px solid var(--gold);color:var(--gold2);padding:10px 16px;border-radius:12px;font-weight:700;opacity:0;transition:.25s;pointer-events:none;z-index:20;text-align:center;max-width:90%}
 #toast.on{opacity:1;transform:translateX(-50%)}
+
+#who{display:flex;justify-content:center;gap:6px;margin:6px 0 2px}#who button{background:#10123a;border:1px solid var(--line);color:var(--mute);border-radius:999px;padding:6px 14px;font:800 12.5px Manrope;cursor:pointer}#who button.on{border-color:var(--gold);color:var(--gold2);background:#1a1c4c}
+.inst{display:flex;align-items:center;gap:10px;background:linear-gradient(90deg,#2a2370,#14164a);border:1px solid #f2c76e55;border-radius:16px;padding:10px 12px;margin:8px 0}.inst>span{font-size:26px}.inst div{flex:1}.inst b{display:block;font-size:14px}.inst small{color:var(--mute);font-size:12px}.inst .btn{padding:9px 12px;font-size:13px}
+.link{background:none;border:0;color:var(--mute);font:700 13px Manrope;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.hello{display:flex;align-items:flex-end;justify-content:space-between;margin:12px 2px 8px}.hello h2{font-family:Cinzel,serif;margin:2px 0 0;font-size:24px}.hello small{color:var(--mute);font-size:12px}
+.count{background:var(--card);border-radius:14px;padding:10px 14px;margin:6px 0 10px;font-size:14px}.count b{color:var(--gold2)}
+.party{background:linear-gradient(135deg,#ff6b9833,#f2c76e33);border:1px solid #f2c76e88;border-radius:16px;padding:14px;margin:6px 0 10px;font-size:15px;display:grid;gap:10px}
+.sc.mine .rk{width:auto;padding:0 8px;border-radius:999px;background:#f2c76e;color:#1a1206}
+.num .nums{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:6px 0}.num .nums div{background:#ffffff0a;border-radius:12px;padding:10px 4px;text-align:center}.num .nums b{display:block;font:800 26px Manrope;color:var(--gold2)}.num .nums span{font-size:11px;color:var(--mute)}
+.oracle .sub3{color:var(--mute);font-size:12.5px;margin:0 0 8px}#chat{display:grid;gap:8px;margin:6px 0}.msg{padding:10px 12px;border-radius:14px;font-size:14px;line-height:1.45;max-width:88%}.msg.me{justify-self:end;background:#2a2c6e}.msg.or{background:#ffe3a314;border:1px solid #ffe3a333}.msg small{color:var(--mute)}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:4px 0 8px;scrollbar-width:none}.qchip{flex:none;background:#14164a;border:1px solid var(--line);color:#dcdcf6;border-radius:999px;padding:7px 11px;font:600 12.5px Manrope;cursor:pointer}
+.ask{display:flex;gap:8px}.ask input{flex:1}.ask .btn{padding:0 18px;font-size:18px}
+.pet{display:flex;align-items:center;gap:10px;background:#ffffff08;border-radius:12px;padding:9px 10px;margin:6px 0;cursor:pointer}.pet .g{font-family:var(--sym);font-size:26px;width:32px;text-align:center}.pet div{flex:1;min-width:0}.pet b{display:block}.pet small{display:block;color:var(--mute);font-size:12px}.pet small.vv{color:#cfe}.pet small.vv.cuidado{color:#ffbf85}
+.petform{display:grid;grid-template-columns:1fr 64px;gap:6px;margin-top:8px}.petform input[type=date]{grid-column:1}.petform .btn{grid-column:2;grid-row:2;padding:8px}
+.poster{width:100%;border-radius:16px;margin-top:12px;border:1px solid var(--line);display:block}.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.li.bd{grid-template-columns:30px 1fr 0 0 auto auto;cursor:pointer}.li.bd span:nth-child(5){color:var(--mute);font-size:12px}
 footer.ft{color:#5d5e8f;font-size:11.5px;text-align:center;margin:18px 0 6px}
 </style>
 </head>
@@ -131,8 +147,10 @@ footer.ft{color:#5d5e8f;font-size:11.5px;text-align:center;margin:18px 0 6px}
   <header class="bar">
     <div class="brandrow"><h1>CÉU DE HOJE</h1><div class="acts"><button class="icon" id="shareBtn" aria-label="Partilhar"></button><button class="icon" data-open="menu" aria-label="Menu">⚙</button></div></div>
     <div id="datenav"><button class="arrow" id="prev" aria-label="Anterior">‹</button><button id="when" title="Voltar a hoje"></button><button class="arrow" id="next" aria-label="Seguinte">›</button></div>
+    <div id="who"><button data-w="p" class="on">👤 Pessoas</button><button data-w="a">🐾 Animais</button></div>
     <div id="modes"><button data-m="dia" class="on">Dia</button><button data-m="semana">Semana</button><button data-m="mes">Mês</button><button data-m="ano">Ano</button></div>
   </header>
+  <div id="instBanner" class="inst" hidden><span>📲</span><div><b>Instala a app Céu de Hoje</b><small>Fica no ecrã do telemóvel. Usa o Chrome.</small></div><button class="btn main" id="instGo">Instalar</button><button class="link" id="instClose">✕</button></div>
   <main id="view"></main>
   <footer class="ft">Posições reais dos astros · para entretenimento<br>© 2026 Júlio Melo</footer>
 </div>
@@ -154,8 +172,10 @@ footer.ft{color:#5d5e8f;font-size:11.5px;text-align:center;margin:18px 0 6px}
 </dialog>
 
 <dialog id="menu">
-  <h2>Menu</h2>
-  <label for="brand">Nome da tua página (aparece nas imagens)</label>
+  <h2>Definições</h2>
+  <div class="box"><h3>📲 Instalar como app</h3><p>Fica com ícone no ecrã e abre como uma app, mesmo sem internet. Usa o <b>Chrome</b>.</p><button class="btn main installBtn" style="width:100%">Instalar agora</button><div id="installHelp"></div></div>
+  <h2 style="margin-top:18px">Para quem publica</h2>
+  <label for="brand">Nome da página (aparece nas imagens partilhadas)</label>
   <input type="text" id="brand" maxlength="32" placeholder="Ex.: Os Astros Dizem">
   <label for="fmt">Imagens partilhadas</label>
   <select id="fmt"><option value="feed">Feed 4:5 (Facebook)</option><option value="story">Story 9:16</option><option value="longa">Top numa imagem longa (WhatsApp)</option></select>
@@ -171,6 +191,14 @@ footer.ft{color:#5d5e8f;font-size:11.5px;text-align:center;margin:18px 0 6px}
   <div class="dlgfoot"><button class="btn" data-close>Fechar</button></div>
 </dialog>
 
+<dialog id="installDlg">
+  <h2>Instalar a app</h2>
+  <p>Para instalar, abre esta página no <b>Chrome</b>:</p>
+  <p><b>Android:</b> toca nos <b>⋮</b> (em cima à direita) → <b>«Instalar app»</b> ou <b>«Adicionar ao ecrã principal»</b>.</p>
+  <p><b>iPhone:</b> toca em <b>Partilhar</b> (□↑) → <b>«Adicionar ao ecrã principal»</b>.</p>
+  <p>Depois aparece o ícone da Lua dourada no teu ecrã. 🌙</p>
+  <div class="dlgfoot"><button class="btn" data-close>Fechar</button></div>
+</dialog>
 <dialog id="packDlg">
   <h2>Preparar vários dias</h2>
   <p>Uma pasta por dia com as imagens e a legenda, para programar no Meta Business Suite (até 29 dias de antecedência).</p>
@@ -757,7 +785,9 @@ function periodLabel(mode = ST.mode) {
   const [a, b] = periodRange(ST.date, 'semana'), A = dParts(a), B = dParts(b);
   return A[1] === B[1] ? `${A[2]} a ${B[2]} de ${MESES[A[1] - 1]}` : `${A[2]} ${MESES[A[1] - 1].slice(0, 3)} a ${B[2]} ${MESES[B[1] - 1].slice(0, 3)}`;
 }
-const topTitle = () => ({ dia: 'TOP DO DIA', semana: 'TOP DA SEMANA', mes: 'TOP DO MÊS', ano: 'TOP DE ' + ST.date.slice(0, 4) })[ST.mode];
+const topTitle = () => ST.pets ? ({ dia: 'TOP DOS PETS', semana: 'PETS DA SEMANA', mes: 'PETS DO MÊS', ano: 'PETS DE ' + ST.date.slice(0, 4) })[ST.mode] : ({ dia: 'TOP DO DIA', semana: 'TOP DA SEMANA', mes: 'TOP DO MÊS', ano: 'TOP DE ' + ST.date.slice(0, 4) })[ST.mode];
+const AREA_LBL = rd => rd && rd.pet ? { amor: 'Mimos', trabalho: 'Brincadeira', dinheiro: 'Apetite', energia: 'Passeio' } : { amor: 'Amor', trabalho: 'Trabalho', dinheiro: 'Dinheiro', energia: 'Energia' };
+const AREAS4 = rd => { const L = AREA_LBL(rd); return [[L.amor, 'amor', rd.love], [L.trabalho, 'trabalho', rd.work], [L.dinheiro, 'dinheiro', rd.money], [L.energia, 'energia', rd.energy]]; };
 const brand = () => ST.brand || 'Céu de Hoje';
 const starStr = n => '★'.repeat(n) + '☆'.repeat(5 - n);
 const firstSentence = t => { const m = t.match(/^.*?[.!?](\s|$)/); return m ? m[0].trim() : t; };
@@ -817,7 +847,14 @@ function titleBlock(ctx, W, S, title, sub, line, y0) {
   ctx.fillStyle = '#f2c76e'; ctx.font = '700 30px Cinzel'; ctx.fillText(brand().toUpperCase(), W / 2, y0);
   ctx.fillStyle = '#fff'; ctx.font = `700 ${title.length > 16 ? 62 : 76}px Cinzel`; ctx.fillText(title, W / 2, y0 + 86);
   ctx.fillStyle = '#ffe3a3'; ctx.font = 'italic 600 40px "Cormorant Garamond"'; ctx.fillText(sub, W / 2, y0 + 136);
-  if (line) { ctx.fillStyle = '#a9a9d6'; ctx.font = '500 22px Manrope'; ctx.fillText(line, W / 2, y0 + 176); }
+  if (line) {
+    ctx.fillStyle = '#b3b3dc';
+    if (S) { // Reels/Stories: duas linhas centradas, longe das margens que o Facebook corta
+      ctx.font = '600 27px Manrope'; const parts = line.split(' · '); let l1 = line, l2 = '';
+      if (ctx.measureText(line).width > W - 260 && parts.length > 1) { let best = 1, bd = 1e9; for (let i = 1; i < parts.length; i++) { const d = Math.abs(ctx.measureText(parts.slice(0, i).join(' · ')).width - ctx.measureText(parts.slice(i).join(' · ')).width); if (d < bd) { bd = d; best = i; } } l1 = parts.slice(0, best).join(' · '); l2 = parts.slice(best).join(' · '); }
+      ctx.fillText(l1, W / 2, y0 + 180); if (l2) ctx.fillText(l2, W / 2, y0 + 216);
+    } else { let fs = 22; ctx.font = `500 ${fs}px Manrope`; while (ctx.measureText(line).width > W - 140 && fs > 15) { fs--; ctx.font = `500 ${fs}px Manrope`; } ctx.fillText(line, W / 2, y0 + 176); }
+  }
   ctx.textAlign = 'left';
 }
 function footer(ctx, W, H, S, txt) { ctx.textAlign = 'center'; ctx.fillStyle = '#f2c76e'; ctx.font = '700 27px Manrope'; ctx.fillText(txt, W / 2, H - (S ? 200 : 46)); ctx.textAlign = 'left'; }
@@ -867,7 +904,7 @@ function drawSign(rd, pos) {
   y += 44; ctx.fillStyle = '#a9a9d6'; ctx.font = '600 25px Manrope'; ctx.fillText(rd.sign.r + '  ·  ' + rd.keyword, W / 2, y);
   y += S ? 88 : 66; ctx.fillStyle = '#ffe3a3'; ctx.font = 'italic 600 48px "Cormorant Garamond"';
   y = wrap(ctx, '“' + rd.headline + '”', W / 2, y, W - 2 * P, 56, 2, 'center') + (S ? 40 : 22);
-  const rows = [['AMOR', 'amor', rd.love], ['TRABALHO', 'trabalho', rd.work], ['DINHEIRO', 'dinheiro', rd.money], ['ENERGIA', 'energia', rd.energy]];
+  const rows = AREAS4(rd).map(([l, k, t]) => [l.toUpperCase(), k, t]);
   const rowH = S ? 136 : 116;
   for (const [l, k, t] of rows) {
     ctx.fillStyle = '#ffffff12'; rr(ctx, P - 18, y, W - 2 * P + 36, rowH - 12, 18); ctx.fill();
@@ -880,8 +917,8 @@ function drawSign(rd, pos) {
   y += S ? 14 : 6;
   const ally = ['ALIADO', SIGNS[rd.ally].g + VS + ' ' + SIGNS[rd.ally].n, null], cor = ['COR', PL[rd.fav].cor, PL[rd.fav].hex];
   const chips = rd.mode === 'dia' ? [['SORTE', String(rd.lucky), null], cor, ['ASTRO', PL[rd.fav].g + VS + ' ' + PL[rd.fav].n, null], ally]
-    : rd.mode === 'ano' ? [['MELHOR MÊS', rd.bestDay, null], ['AMOR', rd.bestLove, null], cor, ally]
-      : [['MELHOR DIA', rd.bestDay, null], ['AMOR', rd.bestLove, null], cor, ally];
+    : rd.mode === 'ano' ? [['MELHOR MÊS', rd.bestDay, null], [AREA_LBL(rd).amor.toUpperCase(), rd.bestLove, null], cor, ally]
+      : [['MELHOR DIA', rd.bestDay, null], [AREA_LBL(rd).amor.toUpperCase(), rd.bestLove, null], cor, ally];
   const cw = (W - 2 * P + 36 - 3 * 12) / 4, ch = S ? 120 : 98;
   chips.forEach(([l, v, hex], i) => {
     const x = P - 18 + i * (cw + 12);
@@ -928,6 +965,7 @@ const V_GOOD = { amor: ['o amor sorri-te — aproveita', 'boa altura para abrir 
 const V_BAD = { amor: ['evita discussões com quem amas', 'não leves tudo a peito no amor'], trabalho: ['revê tudo antes de entregar', 'não assines nada à pressa'], dinheiro: ['não gastes por impulso', 'adia compras grandes'], energia: ['não forces, descansa', 'poupa energias e dorme bem'] };
 const AREA_N = { amor: 'no amor', trabalho: 'no trabalho', dinheiro: 'no dinheiro', energia: 'na energia' };
 function verdict(rd) {
+  if (rd.pet) return petVerdict(rd);
   const r = seeded('v' + ST.date + ST.mode + rd.si), ks = ['amor', 'trabalho', 'dinheiro', 'energia'];
   const best = ks.reduce((a, b) => rd.area[b] > rd.area[a] ? b : a), worst = ks.reduce((a, b) => rd.area[b] < rd.area[a] ? b : a);
   const per = { dia: 'Dia', semana: 'Semana', mes: 'Mês', ano: 'Ano' }[rd.mode] || 'Dia', fem = per === 'Semana';
@@ -980,7 +1018,7 @@ function drawBlock(ctx, rd, i, x, y, w, S) {
   ctx.textBaseline = 'alphabetic';
   // grelha 2x2
   const gx = x + 22, gy = y + (S ? 176 : 168), gw = (w - 44 - 12) / 2, gh = S ? 86 : 74;
-  [['AMOR', 'amor', rd.love], ['TRABALHO', 'trabalho', rd.work], ['DINHEIRO', 'dinheiro', rd.money], ['ENERGIA', 'energia', rd.energy]].forEach(([l, k, t], j) => {
+  AREAS4(rd).map(([l, k, t]) => [l.toUpperCase(), k, t]).forEach(([l, k, t], j) => {
     const bx = gx + (j % 2) * (gw + 12), by = gy + Math.floor(j / 2) * (gh + 10);
     ctx.fillStyle = '#ffffff0f'; rr(ctx, bx, by, gw, gh, 14); ctx.fill();
     ctx.fillStyle = elc; ctx.font = '800 17px Manrope'; ctx.fillText(l, bx + 16, by + 27);
@@ -1031,7 +1069,7 @@ function capTop() {
   L.push('', '💬 Em que lugar ficou o teu signo? Comenta 👇 e marca alguém!', `👉 Segue ${brand()} para não perderes nenhum dia.`, '', '━━━━━━━━  TUDO SOBRE O TEU SIGNO  ━━━━━━━━');
   ST.rank.forEach((rd, i) => {
     L.push('', `${rd.sign.g} ${rd.sign.n.toUpperCase()} · ${i + 1}º lugar`, `${{ bom: '✅', misto: '⚖️', cuidado: '⚠️' }[verdict(rd).k]} ${verdict(rd).txt}`);
-    L.push(`❤️ ${starStr(rd.stars.amor)} ${rd.love}`, `💼 ${starStr(rd.stars.trabalho)} ${rd.work}`, `💰 ${starStr(rd.stars.dinheiro)} ${rd.money}`, `⚡ ${starStr(rd.stars.energia)} ${rd.energy}`);
+    { const L4 = AREA_LBL(rd); L.push(`${rd.pet ? '🥰' : '❤️'} ${L4.amor} ${starStr(rd.stars.amor)} ${rd.love}`, `${rd.pet ? '🎾' : '💼'} ${L4.trabalho} ${starStr(rd.stars.trabalho)} ${rd.work}`, `${rd.pet ? '🍖' : '💰'} ${L4.dinheiro} ${starStr(rd.stars.dinheiro)} ${rd.money}`, `${rd.pet ? '🐾' : '⚡'} ${L4.energia} ${starStr(rd.stars.energia)} ${rd.energy}`); }
     if (rd.highlights && rd.highlights.length) L.push(rd.highlights.slice(0, 2).join('\n'));
     L.push(`🔮 ${rd.advice}`);
     L.push(rd.mode === 'dia' ? `🍀 Sorte ${rd.lucky} · 🎨 ${PL[rd.fav].cor} · ${PL[rd.fav].g} Astro: ${PL[rd.fav].n} · 🤝 ${SIGNS[rd.ally].n}` : `📆 ${rd.mode === 'ano' ? 'Melhor mês' : 'Melhor dia'}: ${rd.bestDay} · ❤️ ${rd.bestLove} · 🎨 ${PL[rd.fav].cor} · 🤝 ${SIGNS[rd.ally].n}`);
@@ -1226,6 +1264,8 @@ function capHours() {
 function computeTop() {
   ST.reads = ST.mode === 'ano' ? yearReads(+ST.date.slice(0, 4), ST.modern) : SIGNS.map((_, i) => readAny(i, ST.date, ST.mode, ST.modern));
   ST.rank = ST.reads.slice().sort((a, b) => b.overall - a.overall || (b.area.amor + b.area.dinheiro) - (a.area.amor + a.area.dinheiro) || a.si - b.si);
+
+  if (ST.pets) ST.rank = ST.rank.map(petize);
 }
 function buildPost(type = ST.type) {
   if (type === 'top') {
@@ -1404,6 +1444,201 @@ async function init() {
 }
 
 
+// ===== Animais, perfil, numerologia, oráculo, parabéns, instalação =====
+
+// ---------- ANIMAIS ----------
+const PET_MOON = [null,
+  ['Hoje é a estrela da casa: quer atenção total!', 'Dia de mimo a dobrar.'], ['Pensa na tigela: apetite em alta.', 'Quer o seu cantinho e as suas coisas.'],
+  ['Curioso e conversador: vai «falar» contigo.', 'Passeios curtos e cheiros novos.'], ['Caseiro: o sofá é o melhor sítio do mundo.', 'Quer a família toda por perto.'],
+  ['Brincalhão ao máximo: tira os brinquedos!', 'Dia de travessuras.'], ['Rotina é tudo: horas certas para comer e passear.', 'Bom dia para cuidar do pelo e das unhas.'],
+  ['Quer companhia: não gosta de ficar sozinho.', 'Pode fazer um novo amigo de quatro patas.'], ['Instinto apurado: anda desconfiado.', 'Esconde-se e observa tudo.'],
+  ['Aventureiro: quer explorar sítios novos.', 'Um passeio diferente faz-lhe bem.'], ['Quer mostrar quem manda lá em casa.', 'Dia bom para treinar e aprender truques.'],
+  ['Sociável: adora visitas e outros animais.', 'Feliz no meio da festa.'], ['Dorminhoco: deixa-o descansar.', 'Precisa de sossego e de um cantinho calmo.']];
+const PET_TXT = {
+  amor: [['Pode estar mais distante: dá-lhe espaço.'], ['Mimos q.b.: respeita o espaço dele.', 'Gosta de festas, mas no tempo dele.'], ['Carinhoso como nunca: aproveita para miminhos.', 'Vai querer colo o dia todo.']],
+  trabalho: [['Pouca vontade de brincar: não insistas.'], ['Uma sessão curta de brincadeira chega.', 'Brincar um pouco antes de jantar faz-lhe bem.'], ['Energia para brincar e aprender truques.', 'Dia perfeito para um brinquedo novo.']],
+  dinheiro: [['Pode comer menos; se durar mais de um dia, fala com o veterinário.'], ['Come bem, dentro da rotina.', 'Apetite normal: mantém as horas certas.'], ['Apetite em alta: cuidado com os petiscos a mais!', 'Vai pedir petiscos com olhos de anjo.']],
+  energia: [['Dia de sofá: passeios curtos.'], ['Passeio normal, ao ritmo dele.', 'Um passeio tranquilo chega.'], ['Pronto para um passeio longo!', 'Energia a mil: corre, salta, explora.']]
+};
+const PET_TRAIT = ['é corajoso e não para quieto', 'adora comer e dormir', 'é curioso e brincalhão', 'é muito apegado à família', 'gosta de ser o centro das atenções', 'é limpinho e gosta de rotina', 'é meigo e sociável', 'é leal e protetor', 'adora aventuras e passeios', 'é sério e obediente', 'é independente e original', 'é sensível e sonhador'];
+const PET_KW = ['', 'Estrela da casa', 'Apetite', 'Curiosidade', 'Sofá', 'Brincadeira', 'Rotina', 'Companhia', 'Instinto', 'Aventura', 'Treino', 'Visitas', 'Soneca'];
+function petize(rd) {
+  const r = seeded('pet' + ST.date + ST.mode + rd.si), lv = n => n >= 4 ? 2 : n >= 3 ? 1 : 0, o = Object.assign({}, rd, { pet: true });
+  o.headline = rd.mode === 'dia' ? pick(PET_MOON[rd.H.moon], r) : pick(PET_MOON[((rd.H.sun || 1))], r);
+  o.keyword = PET_KW[rd.mode === 'dia' ? rd.H.moon : rd.H.sun] || rd.keyword;
+  o.love = pick(PET_TXT.amor[lv(rd.stars.amor)], r); o.work = pick(PET_TXT.trabalho[lv(rd.stars.trabalho)], r);
+  o.money = pick(PET_TXT.dinheiro[lv(rd.stars.dinheiro)], r); o.energy = pick(PET_TXT.energia[lv(rd.stars.energia)], r);
+  o.advice = `Como bom ${rd.sign.n}, ${PET_TRAIT[rd.si]}. Dá-lhe o que ele mais gosta hoje.`;
+  o.highlights = null; return o;
+}
+const PET_GOOD = { amor: 'dia de muito carinho', trabalho: 'ótimo para brincar e treinar', dinheiro: 'vai adorar a refeição', energia: 'perfeito para passear' };
+const PET_BAD = { amor: 'pode estar mais sensível, dá-lhe espaço', trabalho: 'evita brincadeiras brutas', dinheiro: 'atenção ao que come', energia: 'nada de grandes esforços' };
+function petVerdict(rd) {
+  const ks = ['amor', 'trabalho', 'dinheiro', 'energia'], best = ks.reduce((a, b) => rd.area[b] > rd.area[a] ? b : a), worst = ks.reduce((a, b) => rd.area[b] < rd.area[a] ? b : a);
+  if (rd.overall >= 70) return { k: 'bom', col: '#7ee0a6', icon: '✓', txt: `Dia feliz: ${PET_GOOD[best]}.` };
+  if (rd.overall <= 50 || rd.area[worst] <= 40) return { k: 'cuidado', col: '#ffb36b', icon: '!', txt: `Dia sensível: ${PET_BAD[worst]}.` };
+  return { k: 'misto', col: '#ffe3a3', icon: '≈', txt: `${cap1(PET_GOOD[best])}; ${PET_BAD[worst]}.` };
+}
+
+// ---------- NUMEROLOGIA ----------
+const redNum = n => { while (n > 9 && ![11, 22, 33].includes(n)) n = String(n).split('').reduce((a, b) => a + +b, 0); return n; };
+const digits = s => String(s).replace(/\D/g, '').split('').reduce((a, b) => a + +b, 0);
+const lifePath = d => redNum(digits(d));
+const personalYear = (d, y) => redNum(digits(d.slice(5)) + digits(String(y)));
+const numDay = (d, today) => redNum(personalYear(d, +today.slice(0, 4)) + digits(today.slice(5)));
+const NUM_MEAN = { 1: 'liderança e coragem', 2: 'harmonia e parcerias', 3: 'criatividade e alegria', 4: 'trabalho e estabilidade', 5: 'liberdade e mudança', 6: 'amor e família', 7: 'sabedoria e intuição', 8: 'sucesso e prosperidade', 9: 'generosidade e coração grande', 11: 'inspiração (número mestre)', 22: 'grande construtor (número mestre)', 33: 'amor sem limites (número mestre)' };
+const YEAR_MEAN = { 1: 'ano de recomeços', 2: 'ano de paciência e parcerias', 3: 'ano de alegria e expressão', 4: 'ano de trabalho e bases sólidas', 5: 'ano de mudanças e liberdade', 6: 'ano de família e amor', 7: 'ano de reflexão e aprendizagem', 8: 'ano de colheita e dinheiro', 9: 'ano de fechar ciclos', 11: 'ano de inspiração', 22: 'ano de grandes obras', 33: 'ano de amor' };
+const DAY_MEAN = { 1: 'começa algo novo', 2: 'coopera e ouve', 3: 'diverte-te e cria', 4: 'organiza e trabalha', 5: 'arrisca e muda a rotina', 6: 'cuida de quem amas', 7: 'reflete e descansa', 8: 'trata de dinheiro', 9: 'fecha assuntos pendentes', 11: 'confia na intuição', 22: 'pensa em grande', 33: 'ajuda alguém' };
+const sunSignOf = d => { const [y, m, dd] = d.split('-').map(Number); return Math.floor(sunLon(jdFromMs(Date.UTC(y, m - 1, dd, 12))) / 30); };
+
+// ---------- PERFIL ----------
+const P = {
+  get() { try { const p = JSON.parse(store.get('ceu_profile') || 'null'); if (p) return p; const me = JSON.parse(store.get('ceu_me') || 'null'); return me ? { name: '', d: me.d, t: me.t, c: me.c } : null; } catch (e) { return null; } },
+  set(p) { store.set('ceu_profile', JSON.stringify(p)); },
+  list(k) { try { return JSON.parse(store.get(k) || '[]'); } catch (e) { return []; } },
+  setList(k, v) { store.set(k, JSON.stringify(v)); }
+};
+function daysToBirthday(d, today = todayStr()) {
+  const [ty, tm, td] = dParts(today), [, m, dd] = dParts(d);
+  let next = Date.UTC(ty, m - 1, dd); const t0 = Date.UTC(ty, tm - 1, td);
+  if (next < t0) next = Date.UTC(ty + 1, m - 1, dd);
+  return Math.round((next - t0) / 864e5);
+}
+const ageOn = (d, today = todayStr()) => { const [y, m, dd] = dParts(d), [ty, tm, td] = dParts(today); return ty - y - ((tm < m || (tm === m && td < dd)) ? 1 : 0); };
+
+// ---------- ORÁCULO ----------
+const norm2 = s => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+const SIGN_KEYS = ['carneiro|aries', 'touro', 'gemeos', 'caranguejo|cancer', 'leao', 'virgem', 'balanca|libra', 'escorpiao', 'sagitario', 'capricornio', 'aquario', 'peixes'];
+const ORACLE_SUGGEST = ['Como vai o meu amor hoje?', 'Qual o melhor dia desta semana para o trabalho?', 'Combino com Leão?', 'Devo arriscar hoje?', 'Posso cortar o cabelo hoje?', 'Qual é o meu número da sorte?', 'Mercúrio está retrógrado?', 'Como vai ser amanhã?'];
+function oracle(q, prof) {
+  const t = norm2(q), name = prof && prof.name ? prof.name.split(' ')[0] : '';
+  const mySign = prof && prof.d ? sunSignOf(prof.d) : null;
+  const signs = SIGN_KEYS.map((k, i) => new RegExp('\\b(' + k + ')\\b').test(t) ? i : -1).filter(i => i >= 0);
+  const has = re => re.test(t);
+  let ds = todayStr(), when = 'hoje';
+  if (has(/amanha/)) { ds = dayStr(noonJd(ds) + 1); when = 'amanhã'; } else if (has(/ontem/)) { ds = dayStr(noonJd(ds) - 1); when = 'ontem'; }
+  const target = signs.length && !has(/combin|compat|dou-me|dou me|entendo|par\b/) ? signs[0] : mySign;
+  const hi = name ? name + ', ' : '';
+  if (target === null && !has(/lua|cabelo|semear|retrog|mercurio|hora/)) return `Para te responder melhor, guarda primeiro a tua data de nascimento aqui em cima, ou diz-me o teu signo na pergunta (ex.: «Como vai o amor para Leão?»).`;
+  const rd = target !== null ? readDay(target, ds, ST.modern) : null, sg = target !== null ? SIGNS[target] : null;
+  const st = n => '★'.repeat(n) + '☆'.repeat(5 - n);
+  const areaOf = () => has(/amor|namor|paixao|relac|crush|casar|beij|ex\b|coracao|romance/) ? 'amor' : has(/trabalh|emprego|chefe|entrevista|negocio|carreira|patrao|promoc|curso|exame/) ? 'trabalho' : has(/dinheiro|euromilh|lotari|totoloto|compr|invest|salario|divid|credito|financ|aposta/) ? 'dinheiro' : has(/saude|energia|cansad|dormir|treino|ginasio|doente|dieta/) ? 'energia' : null;
+  const area = areaOf();
+  if (has(/^(ola|oi|bom dia|boa tarde|boa noite)/)) return `Olá${name ? ' ' + name : ''}! ✨ Pergunta-me sobre o amor, o trabalho, o dinheiro, a sorte, a Lua ou com quem combinas.`;
+  if (signs.length >= 1 && has(/combin|compat|dou-me|dou me|entendo|par\b|com (o|a) /) && (mySign !== null || signs.length >= 2)) {
+    const a = signs.length >= 2 ? signs[0] : mySign, b = signs.length >= 2 ? signs[1] : signs[0];
+    const PD = pairsDay(ds, ST.modern), p = PD.pairs.find(x => (x.a === Math.min(a, b) && x.b === Math.max(a, b)));
+    return `${hi}${SIGNS[a].n} ${G(SIGNS[a].g)} + ${SIGNS[b].n} ${G(SIGNS[b].g)} ${when}: <b>${p.score}%</b>. ${cap1(PAIR_TXT[p.k])}${/[!.]$/.test(PAIR_TXT[p.k]) ? '' : '.'} ${p.score >= 80 ? 'Os astros aprovam! 💞' : p.score >= 60 ? 'Há química, com um pouco de paciência.' : 'Hoje pede calma e diálogo.'}`;
+  }
+  if (has(/cabelo|cortar|semear|plantar|horta|podar|lua/)) {
+    const D = lunarDay(ds); return `🌙 ${when[0].toUpperCase() + when.slice(1)} a Lua está em ${SIGN_IN[D.sign]} (${D.ph}). ✂ ${D.hair}. 🌱 ${D.type[0]}: bom para semear ${D.type[1]}.`;
+  }
+  if (has(/retrog|mercurio/)) {
+    const s = skyFor(ds), rx = (ST.modern ? ALLP : CLASSIC).filter(p => s[p].rx).map(p => PL[p].n);
+    const nxt = eventsBetween(ds, dayStr(noonJd(ds) + 120), false, true).filter(e => e.type === 'estacao' && e.p === 'mercury')[0];
+    return `${s.mercury.rx ? '☿ Sim, Mercúrio está retrógrado: revê mensagens e contratos.' : '☿ Não, Mercúrio está direto.'} ${rx.length ? 'Retrógrados agora: ' + rx.join(', ') + '.' : ''} ${nxt ? `Muda de sentido a ${new Date(msFromJd(nxt.jd)).getUTCDate()} de ${MESES[new Date(msFromJd(nxt.jd)).getUTCMonth()]}.` : ''}`;
+  }
+  if (has(/hora|agora|quando ligar|a que horas/) && !has(/melhor dia/)) {
+    const PH = planetaryHours(todayStr(), city()), now = Date.now(), cur = PH && PH.hours.find(h => now >= h.start && now < h.end);
+    const want = area === 'amor' ? 'venus' : area === 'dinheiro' ? 'jupiter' : area === 'trabalho' ? 'mercury' : null;
+    const nx = want && PH ? PH.hours.find(h => h.p === want && h.end > now) : null;
+    return `⏳ ${cur ? `Agora é a hora de ${PL[cur.p].n} (boa para ${HOUR_USE[cur.p]}) até às ${fmtHM(cur.end, city()[3])}.` : ''} ${nx ? `Para ${area}, espera pela hora de ${PL[want].n}: ${fmtHM(nx.start, city()[3])}.` : ''}`;
+  }
+  if (has(/numerolog|numero da vida|caminho de vida/) && prof && prof.d) {
+    const lp = lifePath(prof.d), py = personalYear(prof.d, +todayStr().slice(0, 4)), pd = numDay(prof.d, todayStr());
+    return `🔢 ${hi}o teu número da vida é <b>${lp}</b> (${NUM_MEAN[lp]}). Estás num ${YEAR_MEAN[py]} (ano pessoal ${py}) e hoje é dia ${pd}: ${DAY_MEAN[pd]}.`;
+  }
+  if (has(/sorte|numero/)) return `🍀 ${hi}${when}, o número da sorte de ${sg.n} é <b>${rd.lucky}</b>, a cor é ${PL[rd.fav].cor.toLowerCase()} e o astro a favor é ${PL[rd.fav].n}.${has(/euromilh|lotari|totoloto|aposta/) ? ' Lembra-te: os astros dão boa energia, mas não escolhem números vencedores — joga só por diversão.' : ''}`;
+  if (has(/quando|melhor dia|que dia/)) {
+    const k = area || 'amor', days = [...Array(14)].map((_, i) => dayStr(noonJd(todayStr()) + i)), sc = days.map(d => [d, scoreDay(target, skyFor(d), housesOf(target, skyFor(d)))[k]]).sort((a, b) => b[1] - a[1]);
+    const nd = d => { const [y, m, dd] = dParts(d); return `${DIAS[new Date(Date.UTC(y, m - 1, dd)).getUTCDay()].toLowerCase()}, ${dd} de ${MESES[m - 1]}`; };
+    return `📅 ${hi}nos próximos 14 dias, o melhor dia de ${sg.n} para ${k === 'energia' ? 'a energia' : 'o ' + k} é <b>${nd(sc[0][0])}</b>. Também é bom ${nd(sc[1][0])}.`;
+  }
+  if (has(/devo|vou conseguir|sera que|vale a pena|arrisc|sim ou nao/)) {
+    const v = rd.overall + (area ? rd.area[area] - 60 : 0) + (seeded(t + ds)() * 16 - 8);
+    const ans = v >= 72 ? 'Sim! Os astros estão do teu lado.' : v >= 58 ? 'Sim, mas com calma e sem pressas.' : v >= 46 ? 'Talvez. Espera por um dia melhor se puderes.' : 'Hoje não. Dá tempo ao tempo.';
+    return `🔮 ${hi}${hi ? ans[0].toLowerCase() + ans.slice(1) : ans} ${area ? `${cap1(area)} ${when}: ${st(rd.stars[area])}.` : `${sg.n} ${when}: ${st(toStars(rd.overall))}.`}`;
+  }
+  if (area) { const tx = { amor: rd.love, trabalho: rd.work, dinheiro: rd.money, energia: rd.energy }[area]; return `${hi}${area} para ${sg.n} ${when}: ${st(rd.stars[area])}<br>${tx}${has(/euromilh|lotari|totoloto|aposta|ganhar/) ? `<br><small>Os astros não escolhem números vencedores: joga só por diversão. Número da sorte de hoje: ${rd.lucky}.</small>` : ''}${area === 'energia' && has(/doente|dor/) ? '<br><small>Isto é só astrologia: se não te sentes bem, fala com um médico.</small>' : ''}`; }
+  if (signs.length && has(/como e|como sao|caracter|personalidade/)) return `${G(sg.g)} ${sg.n} (${sg.r}): elemento ${sg.el === 'agua' ? 'água' : sg.el}, regido por ${PL[sg.ruler].n}. A sua força é a ${['coragem', 'lealdade', 'alegria', 'ternura', 'generosidade', 'dedicação', 'elegância', 'intensidade', 'boa disposição', 'determinação', 'originalidade', 'sensibilidade'][target]}.`;
+  const v = verdict(rd);
+  return `${hi}${sg.n} ${when}: ${st(toStars(rd.overall))}<br>“${rd.headline}”<br>${v.txt}`;
+}
+
+// ---------- PARABÉNS (cartaz e vídeo) ----------
+const RELS = [['eu', 'x', 'Para mim', 'Hoje o dia é teu!'], ['pai', 'm', 'Pai', 'Ao melhor pai do mundo'], ['mae', 'f', 'Mãe', 'À melhor mãe do mundo'], ['filho', 'm', 'Filho', 'Ao meu filho'], ['filha', 'f', 'Filha', 'À minha filha'],
+  ['marido', 'm', 'Marido', 'Ao amor da minha vida'], ['mulher', 'f', 'Mulher', 'Ao amor da minha vida'], ['namorado', 'm', 'Namorado', 'Ao meu amor'], ['namorada', 'f', 'Namorada', 'Ao meu amor'],
+  ['bffm', 'm', 'Melhor amigo', 'Ao meu melhor amigo'], ['bfff', 'f', 'Melhor amiga', 'À minha melhor amiga'], ['amigo', 'm', 'Amigo', 'A um grande amigo'], ['amiga', 'f', 'Amiga', 'A uma grande amiga'],
+  ['irmao', 'm', 'Irmão', 'Ao meu irmão'], ['irma', 'f', 'Irmã', 'À minha irmã'], ['avom', 'm', 'Avô', 'Ao melhor avô'], ['avof', 'f', 'Avó', 'À melhor avó'], ['tio', 'm', 'Tio', 'Ao meu tio'], ['tia', 'f', 'Tia', 'À minha tia'],
+  ['sobrinho', 'm', 'Sobrinho', 'Ao meu sobrinho'], ['sobrinha', 'f', 'Sobrinha', 'À minha sobrinha'], ['primo', 'm', 'Primo', 'Ao meu primo'], ['prima', 'f', 'Prima', 'À minha prima'], ['neto', 'm', 'Neto', 'Ao meu neto'], ['neta', 'f', 'Neta', 'À minha neta'],
+  ['afilhado', 'm', 'Afilhado', 'Ao meu afilhado'], ['afilhada', 'f', 'Afilhada', 'À minha afilhada'], ['padrinho', 'm', 'Padrinho', 'Ao meu padrinho'], ['madrinha', 'f', 'Madrinha', 'À minha madrinha'], ['sogro', 'm', 'Sogro', 'Ao meu sogro'], ['sogra', 'f', 'Sogra', 'À minha sogra'],
+  ['colegam', 'm', 'Colega', 'Ao melhor colega'], ['colegaf', 'f', 'Colega', 'À melhor colega'], ['chefem', 'm', 'Chefe', 'Ao nosso chefe'], ['chefef', 'f', 'Chefe', 'À nossa chefe'], ['patrao', 'm', 'Patrão', 'Ao nosso patrão'], ['patroa', 'f', 'Patroa', 'À nossa patroa'],
+  ['cao', 'p', '🐶 Cão', 'Ao melhor cão do mundo'], ['gato', 'p', '🐱 Gato', 'Ao gato mais lindo do mundo'], ['pet', 'p', '🐾 Outro animal', 'Ao meu companheiro de quatro patas']];
+const REL_CAT = { pai: 'velho', mae: 'velho', avom: 'velho', avof: 'velho', tio: 'velho', tia: 'velho', sogro: 'velho', sogra: 'velho', padrinho: 'velho', madrinha: 'velho', filho: 'novo', filha: 'novo', neto: 'novo', neta: 'novo', sobrinho: 'novo', sobrinha: 'novo', afilhado: 'novo', afilhada: 'novo', marido: 'par', mulher: 'par', namorado: 'par', namorada: 'par', bffm: 'amigo', bfff: 'amigo', amigo: 'amigo', amiga: 'amigo', irmao: 'irmao', irma: 'irmao', primo: 'irmao', prima: 'irmao', colegam: 'trab', colegaf: 'trab', chefem: 'trab', chefef: 'trab', patrao: 'trab', patroa: 'trab', cao: 'pet', gato: 'pet', pet: 'pet', eu: 'eu' };
+const REL_WISH = { velho: ['Obrigado por tudo o que me ensinaste.', 'És o meu exemplo de todos os dias.'], novo: ['Que nunca percas esse brilho.', 'O mundo é teu: vai com tudo!'], par: ['Cada dia ao teu lado é um presente.', 'És a minha pessoa favorita no universo.'], amigo: ['Obrigado por estares sempre lá.', 'Amigos assim são estrelas raras.'], irmao: ['Crescemos juntos e ainda bem!', 'Para sempre a minha equipa.'], trab: ['Obrigado pela boa energia de todos os dias.', 'Que este ano traga ainda mais conquistas.'], pet: ['Obrigado por todo o amor sem condições.', 'A casa é mais feliz contigo.'], eu: ['Que este novo ano astral seja o teu melhor.', 'Celebra-te: mereces tudo de bom.'] };
+const SIGN_FORCE = ['coragem', 'lealdade', 'alegria', 'ternura', 'generosidade', 'dedicação', 'elegância', 'intensidade', 'boa disposição', 'determinação', 'originalidade', 'sensibilidade'];
+function makeBday(o) {
+  const rel = RELS.find(r => r[0] === o.rel) || RELS[0], si = sunSignOf(o.d), cat = REL_CAT[rel[0]];
+  const today = todayStr(), age = ageOn(o.d, today) + (daysToBirthday(o.d, today) === 0 ? 0 : 1);
+  const [ty] = dParts(today), [, m, dd] = dParts(o.d), bd = `${daysToBirthday(o.d) > 300 && dParts(today)[1] > m ? ty + 1 : ty}-${String(m).padStart(2, '0')}-${String(dd).padStart(2, '0')}`;
+  const B = birthday(bd, ST.modern), lp = lifePath(o.d), r = seeded(o.name + o.d + o.rel);
+  const force = cat === 'pet' ? `Um ${SIGNS[si].n} que ${PET_TRAIT[si]}.` : `Toda a ${SIGN_FORCE[si]} de um ${SIGNS[si].n}.`;
+  return { ...o, rel, cat, si, sign: SIGNS[si], age, lp, B, dedication: rel[3], wish: pick(REL_WISH[cat], r), force, year: cat === 'pet' ? 'Um ano cheio de mimos, passeios e petiscos.' : `Este ano: ${B.headline.replace(/^Um ano/, 'um ano').replace(/\.$/, '')}.`, num: `Número da vida ${lp}: ${NUM_MEAN[lp]}` };
+}
+const ease2 = (t, a, b) => Math.max(0, Math.min(1, (t - a) / (b - a)));
+function drawBdayFrame(ctx, W, H, S, Bd, t) {
+  const c = EL_COL[Bd.sign.el];
+  bg(ctx, W, H, 'bd' + Bd.name + Bd.d, c);
+  const r = seeded('cf' + Bd.name), cols = ['#f2c76e', '#ff6b98', '#6fd3ff', '#7ee0a6', '#c79bff', '#ffffff'];
+  for (let i = 0; i < 90; i++) { const x0 = r() * W, sp = 120 + r() * 260, y = ((r() * H + t * sp) % (H + 40)) - 20, sz = 6 + r() * 10, rot = r() * 6 + t * (r() * 4 - 2); ctx.save(); ctx.translate(x0 + Math.sin(t * 2 + i) * 14, y); ctx.rotate(rot); ctx.fillStyle = cols[i % cols.length]; ctx.globalAlpha = .75; ctx.fillRect(-sz / 2, -sz / 4, sz, sz / 2); ctx.restore(); }
+  ctx.globalAlpha = 1; ctx.textAlign = 'center';
+  const k = v => ease(Math.max(0, Math.min(1, v)));
+  const top = S ? 210 : 110;
+  ctx.globalAlpha = k(ease2(t, 0.3, 1.2)); ctx.fillStyle = '#f2c76e'; ctx.font = '700 28px Cinzel'; ctx.fillText(brand().toUpperCase(), W / 2, top - 40);
+  ctx.fillStyle = '#ffe3a3'; ctx.font = `italic 600 ${S ? 82 : 72}px "Cormorant Garamond"`; ctx.fillText('Feliz Aniversário', W / 2, top + 50);
+  const a2 = k(ease2(t, 1.2, 2.4)); ctx.globalAlpha = a2; ctx.save(); ctx.translate(W / 2, top + (S ? 190 : 175)); ctx.scale(.7 + .3 * a2, .7 + .3 * a2);
+  ctx.fillStyle = '#fff'; let fs = S ? 120 : 108; ctx.font = `700 ${fs}px Cinzel`; while (ctx.measureText(Bd.name.toUpperCase()).width > W - 120 && fs > 50) { fs -= 6; ctx.font = `700 ${fs}px Cinzel`; } ctx.fillText(Bd.name.toUpperCase(), 0, 0); ctx.restore();
+  ctx.globalAlpha = k(ease2(t, 2.0, 3.0)); ctx.fillStyle = '#c9c9ee'; ctx.font = `600 ${S ? 34 : 30}px Manrope`; ctx.fillText(Bd.dedication, W / 2, top + (S ? 260 : 245));
+  // círculo da idade / signo
+  const cy = top + (S ? 520 : 480), a3 = k(ease2(t, 2.8, 3.8)), R = (S ? 170 : 158) * (0.6 + 0.4 * a3);
+  ctx.globalAlpha = a3; const g = ctx.createRadialGradient(W / 2, cy, 10, W / 2, cy, R * 1.4); g.addColorStop(0, c[0] + '66'); g.addColorStop(1, c[0] + '00'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(W / 2, cy, R * 1.4, 0, 7); ctx.fill();
+  ctx.strokeStyle = '#f2c76e'; ctx.lineWidth = 6; ctx.beginPath(); ctx.arc(W / 2, cy, R, 0, 7); ctx.stroke();
+  ctx.textBaseline = 'middle';
+  if (Bd.showAge && Bd.age > 0) { ctx.fillStyle = '#fff'; ctx.font = `800 ${S ? 150 : 128}px Manrope`; ctx.fillText(String(Bd.age), W / 2, cy - 14); ctx.fillStyle = '#ffe3a3'; ctx.font = `700 ${S ? 34 : 30}px Manrope`; ctx.fillText('ANOS', W / 2, cy + (S ? 80 : 68)); }
+  else { ctx.fillStyle = '#fff6e0'; ctx.font = `${S ? 150 : 130}px ${SYMF}`; ctx.fillText(Bd.sign.g + VS, W / 2, cy + 8); }
+  ctx.textBaseline = 'alphabetic';
+  // signo e número
+  let y = cy + (S ? 170 : 158) + (S ? 90 : 84);
+  ctx.globalAlpha = k(ease2(t, 3.6, 4.6)); ctx.fillStyle = c[0]; ctx.font = `700 ${S ? 34 : 30}px Manrope, ${SYMF}`; ctx.fillText(`${Bd.sign.g}${VS} ${Bd.sign.n}${Bd.cat === 'pet' ? '' : '  ·  ' + Bd.num.split(':')[0]}`, W / 2, y);
+  y += S ? 90 : 86; const lines = [Bd.force, Bd.wish, Bd.year, Bd.cat === 'pet' ? '' : cap1(Bd.num.split(': ')[1]) + '.'].filter(Boolean);
+  ctx.font = `italic 600 ${S ? 46 : 44}px "Cormorant Garamond"`;
+  lines.forEach((l, i) => { ctx.globalAlpha = k(ease2(t, 4.6 + i * 0.7, 5.4 + i * 0.7)); ctx.fillStyle = i === 2 ? '#ffe3a3' : '#ececfb'; y = wrap(ctx, l, W / 2, y, W - 150, S ? 54 : 52, 2, 'center') + (S ? 18 : 16); });
+  ctx.globalAlpha = k(ease2(t, 7.4, 8.2)); ctx.fillStyle = '#f2c76e'; ctx.font = `700 ${S ? 30 : 26}px Manrope`;
+  ctx.textAlign = 'center'; ctx.fillText(Bd.from ? `Com carinho, ${Bd.from} ❤` : 'Partilha e deseja-lhe um dia feliz ❤', W / 2, H - (S ? 230 : 70));
+  ctx.globalAlpha = 1; ctx.textAlign = 'left';
+}
+function drawBday(Bd, fmt) { const [c, ctx, W, H, S] = mk(fmt); drawBdayFrame(ctx, W, H, S, Bd, 99); return c; }
+function capBday(Bd) {
+  return [`🎉 FELIZ ANIVERSÁRIO, ${Bd.name.toUpperCase()}!`, `${Bd.dedication} ${Bd.sign.g}`, '', Bd.force, Bd.wish, Bd.year, Bd.cat === 'pet' ? '' : `🔢 ${Bd.num}.`, '', Bd.from ? `Com carinho, ${Bd.from} ❤️` : '', `✨ Feito com ${brand()}`].filter((x, i, a) => x !== '' || a[i - 1] !== '').join('\n');
+}
+async function recordAnim(drawFn, dur, W, H, btn, label) {
+  const mime = reelMime(); if (!mime || !HTMLCanvasElement.prototype.captureStream) { toast('Este navegador não grava vídeo — usa o Chrome'); return null; }
+  const c = document.createElement('canvas'); c.width = W; c.height = H; const ctx = c.getContext('2d'); drawFn(ctx, 0);
+  const rec = new MediaRecorder(c.captureStream(30), { mimeType: mime, videoBitsPerSecond: 8e6 }), chunks = []; rec.ondataavailable = e => e.data.size && chunks.push(e.data);
+  const done = new Promise(r => rec.onstop = r); rec.start(250); const t0 = performance.now(), old = btn ? btn.textContent : '';
+  if (btn) btn.disabled = true;
+  await new Promise(res => { const step = () => { const t = (performance.now() - t0) / 1000; drawFn(ctx, Math.min(t, dur)); if (btn) btn.textContent = `${label} ${Math.max(0, Math.ceil(dur - t))}s`; t < dur ? requestAnimationFrame(step) : res(); }; requestAnimationFrame(step); });
+  rec.stop(); await done; if (btn) { btn.disabled = false; btn.textContent = old; }
+  return { blob: new Blob(chunks, { type: mime.split(';')[0] }), ext: mime.includes('mp4') ? 'mp4' : 'webm' };
+}
+
+// ---------- INSTALAR ----------
+let BIP = null;
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); BIP = e; document.querySelectorAll('.installBtn').forEach(b => b.hidden = false); });
+const isStandalone = () => (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone;
+const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent);
+async function doInstall() { if (BIP) { BIP.prompt(); const r = await BIP.userChoice.catch(() => null); BIP = null; if (r && r.outcome === 'accepted') toast('App instalada 🎉'); } else $('#installDlg').showModal(); }
+
 // ===== App de telemóvel =====
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
@@ -1416,7 +1651,7 @@ let SHEET = 0;
 function vTop() {
   computeTop();
   const alert = dayAlert();
-  let h = `<div class="alert">📣 ${esc(alert)}</div><p class="hint">Toca no teu signo para abrir o cartão completo</p>`;
+  let h = ST.pets ? `<div class="alert">🐾 O dia dos animais de estimação, pelo signo de cada um. Sabes quando nasceu o teu? Junta-o em ✨ Eu.</div><p class="hint">Toca no signo do teu animal para abrir o cartão</p>` : `<div class="alert">📣 ${esc(alert)}</div><p class="hint">Toca no teu signo para abrir o cartão completo</p>`;
   ST.rank.forEach((rd, i) => {
     const v = verdict(rd), c = elc(rd.sign);
     const ex = rd.mode === 'dia' ? `Sorte <b>${rd.lucky}</b> · <span class="dot" style="background:${PL[rd.fav].hex}"></span>${PL[rd.fav].cor} · ${G(PL[rd.fav].g)} ${PL[rd.fav].n} · Aliado ${G(SIGNS[rd.ally].g)} ${SIGNS[rd.ally].n}`
@@ -1425,7 +1660,7 @@ function vTop() {
       <div class="sc-h"><span class="rk">${i + 1}</span><span class="gl">${G(rd.sign.g)}</span><div class="nm"><b>${rd.sign.n}</b><small>${rd.sign.r} · ${rd.keyword}</small></div>${starsH(toStars(rd.overall))}</div>
       <div class="vd ${v.k}"><b>${v.icon}</b> ${esc(v.txt)}</div>
       <p class="ph">“${esc(rd.headline)}”</p>
-      <div class="ar4">${[['Amor', 'amor', rd.love], ['Trabalho', 'trabalho', rd.work], ['Dinheiro', 'dinheiro', rd.money], ['Energia', 'energia', rd.energy]].map(([l, k, t]) => `<div><span>${l}</span>${starsH(rd.stars[k])}<p>${esc(firstSentence(t))}</p></div>`).join('')}</div>
+      <div class="ar4">${AREAS4(rd).map(([l, k, t]) => `<div><span>${l}</span>${starsH(rd.stars[k])}<p>${esc(firstSentence(t))}</p></div>`).join('')}</div>
       <div class="ex">${ex}</div><span class="more">Abrir ›</span></article>`;
   });
   return h;
@@ -1459,11 +1694,6 @@ function vLua() {
     ${D.bad.length ? `<div class="box no"><h3>Evitar</h3>${D.bad.map(g => `<p>✕ ${g}</p>`).join('')}</div>` : ''}
     <div class="box"><h3>Próximas fases</h3>${nx.map(e => `<p>${{ nova: '🌑 Lua Nova', crescente: '🌓 Quarto Crescente', cheia: '🌕 Lua Cheia', minguante: '🌗 Quarto Minguante' }[e.kind]}${e.eclipse ? ' (eclipse)' : ''} · ${new Date(msFromJd(e.jd)).getUTCDate()} ${MESES[new Date(msFromJd(e.jd)).getUTCMonth()].slice(0, 3)} · ${SIGN_IN[e.sign]}</p>`).join('')}</div>`;
 }
-function vAnos() {
-  const B = birthday(ST.date, ST.modern), sg = SIGNS[B.si];
-  return `<div class="bday" style="--c:${elc(sg)}"><p class="pre">Se fazes anos hoje…</p><h2>Parabéns!</h2><span class="bg">${G(sg.g)}</span><p>Sol a ${B.deg}° de ${sg.n} · o teu novo ano astral</p><p class="ph">“${esc(B.headline)}”</p></div>
-    <div class="box">${B.lines.map(l => `<p>${esc(l)}</p>`).join('')}</div>`;
-}
 function vHoras() {
   const ci = city(), PH = planetaryHours(ST.date, ci); if (!PH) return '<p class="hint">Sem nascer do sol nesta data e cidade.</p>';
   const now = Date.now(), cur = PH.hours.find(h => now >= h.start && now < h.end);
@@ -1475,14 +1705,86 @@ function vHoras() {
   }
   return h;
 }
-function vEu() {
-  let me = null; try { me = JSON.parse(store.get('ceu_me') || 'null'); } catch (e) { }
-  const opts = CITIES.map((c, i) => `<option value="${i}"${me && +me.c === i ? ' selected' : ''}>${c[0]}</option>`).join('');
-  return `<h2 class="vt">✨ O meu céu</h2><p class="sub2">O teu Sol, Lua e Ascendente, e o que os astros de hoje fazem ao teu mapa. Fica guardado só neste telemóvel.</p>
-    <div class="form"><label>Data de nascimento<input type="date" id="bDate" min="1900-01-01" max="2050-12-31" value="${me ? me.d : ''}"></label>
-    <label>Hora (opcional)<input type="time" id="bTime" value="${me ? me.t : ''}"></label>
-    <label>Local<select id="bCity">${opts}</select></label><button class="btn main" id="ascGo">Ver o meu dia</button></div><div id="ascOut"></div>`;
+function vAnos() {
+  const list = P.list('ceu_bdays').map(x => ({ ...x, dd: daysToBirthday(x.d) })).sort((a, b) => a.dd - b.dd);
+  const relOpts = RELS.filter(r => r[0] !== 'eu').map(r => `<option value="${r[0]}">${r[2]}</option>`).join('');
+  let h = `<h2 class="vt">🎉 Criar parabéns</h2><p class="sub2">Cartaz e vídeo com o nome, o signo, a idade e a numerologia de quem faz anos.</p>
+    <div class="form"><label>Nome<input type="text" id="bdName" maxlength="24" placeholder="Ex.: João"></label>
+    <label>Quem é?<select id="bdRel">${relOpts}</select></label>
+    <label>Data de nascimento<input type="date" id="bdDate" min="1900-01-01" max="${todayStr()}"></label>
+    <label class="chk"><input type="checkbox" id="bdAge" checked> Mostrar a idade</label>
+    <label>De (opcional)<input type="text" id="bdFrom" maxlength="24" placeholder="O teu nome" value="${esc((P.get() || {}).name || '')}"></label>
+    <button class="btn main" id="bdGo">Criar cartaz</button></div><div id="bdOut"></div>`;
+  if (list.length) h += `<h2 class="vt">📅 Próximos aniversários</h2><div class="list">${list.map((x, i) => `<div class="li bd" data-k="${i}"><span class="g">${G(SIGNS[sunSignOf(x.d)].g)}</span><b>${esc(x.name)}</b><span></span><span></span><span>${(RELS.find(r => r[0] === x.rel) || RELS[0])[2]}</span><em>${x.dd === 0 ? 'HOJE 🎂' : x.dd === 1 ? 'amanhã' : 'em ' + x.dd + ' dias'}</em></div>`).join('')}</div>`;
+  const B = birthday(ST.date, ST.modern), sg = SIGNS[B.si];
+  h += `<div class="bday" style="--c:${elc(sg)}"><p class="pre">Se fazes anos hoje…</p><h2>Parabéns!</h2><span class="bg">${G(sg.g)}</span><p>Sol a ${B.deg}° de ${sg.n} · o teu novo ano astral</p><p class="ph">“${esc(B.headline)}”</p></div><div class="box">${B.lines.map(l => `<p>${esc(l)}</p>`).join('')}</div>`;
+  return h;
 }
+function showBday(o, save) {
+  if (!o.name || !o.d) { toast('Escreve o nome e a data'); return; }
+  const Bd = makeBday(o); ST.bd = Bd;
+  if (save) { const l = P.list('ceu_bdays').filter(x => !(x.name === o.name && x.d === o.d)); l.push({ name: o.name, rel: o.rel, d: o.d }); P.setList('ceu_bdays', l.slice(-40)); }
+  const c = drawBday(Bd, 'feed');
+  $('#bdOut').innerHTML = `<img class="poster" src="${c.toDataURL('image/jpeg', .9)}" alt="Cartaz de ${esc(Bd.name)}"><div class="row2"><button class="btn main" id="bdShare">Partilhar cartaz</button><button class="btn" id="bdVideo">🎬 Criar vídeo</button></div>`;
+  $('#bdShare').onclick = () => shareCanvases([{ name: 'parabens-' + norm2(Bd.name).replace(/\W+/g, '-'), c: drawBday(Bd, ST.fmt === 'story' ? 'story' : 'feed') }], capBday(Bd));
+  $('#bdVideo').onclick = async () => {
+    const v = await recordAnim((ctx, t) => drawBdayFrame(ctx, 1080, 1920, true, Bd, t), 10, 1080, 1920, $('#bdVideo'), '🎬 A gravar…'); if (!v) return;
+    $('#reelVid').src = URL.createObjectURL(v.blob); $('#reelInfo').textContent = 'Vídeo de parabéns pronto (9:16). Junta uma música no Facebook ou no WhatsApp Estado.'; $('#reelDlg').showModal();
+    $('#reelShare').onclick = async () => { const f = new File([v.blob], `parabens-${norm2(Bd.name).replace(/\W+/g, '-')}.${v.ext}`, { type: v.blob.type }); if (!(await shareFiles([f], capBday(Bd)))) { await saveBlob(f, f.name); toast('Vídeo guardado'); } };
+  };
+  $('#bdOut').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+function vEu() {
+  const p = P.get(), opts = sel => CITIES.map((c, i) => `<option value="${i}"${+sel === i ? ' selected' : ''}>${c[0]}</option>`).join('');
+  if (!p || !p.d || ST.editProfile) {
+    return `<h2 class="vt">✨ O meu espaço</h2><p class="sub2">Sem registo e sem palavras-passe: os teus dados ficam só neste telemóvel.</p>
+    <div class="form"><label>O teu nome<input type="text" id="pName" maxlength="24" value="${esc(p ? p.name || '' : '')}" placeholder="Como te chamas?"></label>
+    <label>Data de nascimento<input type="date" id="bDate" min="1900-01-01" max="${todayStr()}" value="${p ? p.d || '' : ''}"></label>
+    <label>Hora de nascimento (opcional, para o ascendente)<input type="time" id="bTime" value="${p ? p.t || '' : ''}"></label>
+    <label>Onde nasceste<select id="bCity">${opts(p ? p.c : 0)}</select></label><button class="btn main" id="pSave">Guardar</button></div>`;
+  }
+  const first = p.name ? p.name.split(' ')[0] : '', si = sunSignOf(p.d), ci = CITIES[+p.c || 0], today = todayStr();
+  const [y, m, dd] = dParts(p.d), [hh, mi] = (p.t || '12:00').split(':').map(Number), ms = localToUtcMs(y, m, dd, hh, mi, ci[3]);
+  const natal = natalChart(ms, ci), PD = personalDay(natal, today, ST.modern), base = p.t ? PD.byAsc : readDay(si, today, ST.modern);
+  const keepPets = ST.pets; ST.pets = false; computeTop(); ST.pets = keepPets; const pos = ST.rank.findIndex(r => r.si === si), rd = ST.rank[pos], v = verdict(rd);
+  const dtb = daysToBirthday(p.d), lp = lifePath(p.d), py = personalYear(p.d, +today.slice(0, 4)), pdn = numDay(p.d, today);
+  const cell = (l, s) => `<div class="trio"><span>${l}</span><b>${G(SIGNS[s].g)}</b><em>${SIGNS[s].n}</em></div>`;
+  let h = `<div class="hello"><div><small>${niceDate(today)}</small><h2>Olá${first ? ', ' + esc(first) : ''}! ${G(SIGNS[si].g)}</h2></div><button class="link" id="pEdit">editar</button></div>`;
+  if (dtb === 0) h += `<div class="party">🎂 <b>Feliz aniversário${first ? ', ' + esc(first) : ''}!</b> Hoje começa o teu novo ano astral.<button class="btn main" id="myPoster">Ver o meu cartaz</button></div>`;
+  else h += `<div class="count">🎂 Faltam <b>${dtb}</b> dia${dtb > 1 ? 's' : ''} para o teu aniversário</div>`;
+  h += `<article class="sc mine" id="myCard" style="--c:${elc(rd.sign)}"><div class="sc-h"><span class="rk">${pos + 1}º</span><span class="gl">${G(rd.sign.g)}</span><div class="nm"><b>${rd.sign.n} hoje</b><small>${pos + 1}º lugar no Top do Dia · toca para abrir</small></div>${starsH(toStars(rd.overall))}</div><div class="vd ${v.k}"><b>${v.icon}</b> ${esc(v.txt)}</div><p class="ph">“${esc(rd.headline)}”</p></article>`;
+  h += `<div class="trios">${cell('Sol', PD.sunSign)}${cell('Lua', PD.moonSign)}${p.t ? cell('Ascendente', PD.ascSign) : '<div class="trio"><span>Ascendente</span><b>?</b><em>põe a hora</em></div>'}</div>`;
+  h += `<div class="box"><h3>Hoje, só para ti</h3>${PD.aspects.filter(a => p.t || a.np !== 'asc').map(a => `<p>${esc(a.txt)}</p>`).join('') || '<p>Dia calmo no teu mapa: nenhum trânsito forte.</p>'}</div>`;
+  if (p.t) h += `<div class="box"><h3>Pelo teu ascendente em ${SIGNS[PD.ascSign].n}</h3><p class="ph">“${esc(base.headline)}”</p><p>❤️ ${starsH(base.stars.amor)} ${esc(firstSentence(base.love))}</p><p>💼 ${starsH(base.stars.trabalho)} ${esc(firstSentence(base.work))}</p></div>`;
+  h += `<div class="box num"><h3>🔢 Numerologia</h3><div class="nums"><div><b>${lp}</b><span>Número da vida</span></div><div><b>${py}</b><span>Ano pessoal</span></div><div><b>${pdn}</b><span>Dia de hoje</span></div></div><p>${cap1(NUM_MEAN[lp])}. Estás num ${YEAR_MEAN[py]}. Hoje: ${DAY_MEAN[pdn]}.</p></div>`;
+  h += `<div class="box oracle"><h3>🔮 Oráculo</h3><p class="sub3">Pergunta o que quiseres sobre o teu dia. Responde com os cálculos do céu, sem internet.</p><div id="chat">${(ST.chat || []).map(c => `<div class="msg ${c.who}">${c.txt}</div>`).join('')}</div>
+    <div class="chips">${ORACLE_SUGGEST.map(q => `<button class="qchip">${q}</button>`).join('')}</div><form id="askF" class="ask"><input type="text" id="askQ" placeholder="Escreve a tua pergunta…" autocomplete="off"><button class="btn main">↑</button></form></div>`;
+  const pets = P.list('ceu_pets');
+  h += `<div class="box"><h3>🐾 Os meus animais</h3>${pets.map((a, i) => { const ps = sunSignOf(a.d), r2 = petize(readDay(ps, today, ST.modern)), v2 = petVerdict(r2); return `<div class="pet" data-k="${i}"><span class="g" style="color:${elc(SIGNS[ps])}">${G(SIGNS[ps].g)}</span><div><b>${a.sp} ${esc(a.name)}</b><small>${SIGNS[ps].n} · ${esc(r2.headline)}</small><small class="vv ${v2.k}">${esc(v2.txt)}</small></div><button class="link" data-del="${i}">✕</button></div>`; }).join('') || '<p>Ainda não juntaste nenhum.</p>'}
+    <div class="petform"><input type="text" id="petName" maxlength="20" placeholder="Nome"><select id="petSp"><option>🐶</option><option>🐱</option><option>🐰</option><option>🐦</option><option>🐹</option><option>🐢</option><option>🐾</option></select><input type="date" id="petDate" max="${todayStr()}"><button class="btn" id="petAdd">Juntar</button></div></div>`;
+  return h;
+}
+function askOracle(q) {
+  if (!q.trim()) return; const p = P.get(); ST.chat = (ST.chat || []).concat([{ who: 'me', txt: esc(q) }, { who: 'or', txt: oracle(q, p) }]).slice(-12);
+  $('#chat').innerHTML = ST.chat.map(c => `<div class="msg ${c.who}">${c.txt}</div>`).join(''); $('#askQ').value = ''; $('#chat').lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+function bindEu() {
+  if ($('#pSave')) { $('#pSave').onclick = () => { const d = $('#bDate').value; if (!d) { toast('Indica a data de nascimento'); return; } P.set({ name: $('#pName').value.trim(), d, t: $('#bTime').value, c: $('#bCity').value }); ST.editProfile = false; toast('Guardado neste telemóvel ✨'); render(); }; return; }
+  $('#pEdit').onclick = () => { ST.editProfile = true; render(); };
+  const p = P.get(), si = sunSignOf(p.d);
+  $('#myCard').onclick = () => { const kp = ST.pets; ST.pets = false; computeTop(); ST.pets = kp; openSheet(ST.rank.findIndex(r => r.si === si)); };
+  if ($('#myPoster')) $('#myPoster').onclick = () => { ST.type = 'anos'; render(); showBday({ name: p.name || 'Tu', rel: 'eu', d: p.d, showAge: true, from: '' }, false); };
+  $('#askF').onsubmit = e => { e.preventDefault(); askOracle($('#askQ').value); };
+  document.querySelectorAll('.qchip').forEach(b => b.onclick = () => askOracle(b.textContent));
+  $('#petAdd').onclick = () => { const n = $('#petName').value.trim(), d = $('#petDate').value; if (!n || !d) { toast('Nome e data do animal'); return; } const l = P.list('ceu_pets'); l.push({ name: n, sp: $('#petSp').value, d }); P.setList('ceu_pets', l); render(); };
+  document.querySelectorAll('[data-del]').forEach(b => b.onclick = e => { e.stopPropagation(); const l = P.list('ceu_pets'); l.splice(+b.dataset.del, 1); P.setList('ceu_pets', l); render(); });
+  document.querySelectorAll('.pet').forEach(el => el.onclick = () => { const a = P.list('ceu_pets')[+el.dataset.k], ps = sunSignOf(a.d); const kp = ST.pets; ST.pets = true; computeTop(); ST.pets = kp; openSheet(ST.rank.findIndex(r => r.si === ps), `${a.sp} ${a.name}`); });
+}
+function bindAnos() {
+  $('#bdGo').onclick = () => showBday({ name: $('#bdName').value.trim(), rel: $('#bdRel').value, d: $('#bdDate').value, showAge: $('#bdAge').checked, from: $('#bdFrom').value.trim() }, true);
+  document.querySelectorAll('.li.bd').forEach(el => el.onclick = () => { const x = P.list('ceu_bdays').map(x => ({ ...x, dd: daysToBirthday(x.d) })).sort((a, b) => a.dd - b.dd)[+el.dataset.k]; $('#bdName').value = x.name; $('#bdRel').value = x.rel; $('#bdDate').value = x.d; showBday({ name: x.name, rel: x.rel, d: x.d, showAge: true, from: $('#bdFrom').value.trim() }, false); });
+}
+
 const VIEWS = { top: vTop, pares: vPares, lua: vLua, anos: vAnos, horas: vHoras, eu: vEu };
 
 function render() {
@@ -1490,12 +1792,15 @@ function render() {
   document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.t === ST.type));
   document.querySelectorAll('#modes button').forEach(b => { b.hidden = !TABS[ST.type].includes(b.dataset.m); b.classList.toggle('on', b.dataset.m === ST.mode); });
   $('#modes').hidden = TABS[ST.type].length < 2;
-  $('#datenav').hidden = ST.type === 'eu';
+  $('#datenav').hidden = ST.type === 'eu' || ST.type === 'anos' && false;
   $('#shareBtn').style.visibility = ST.type === 'eu' ? 'hidden' : 'visible';
+  $('#who').hidden = ST.type !== 'top';
+  document.querySelectorAll('#who button').forEach(b => b.classList.toggle('on', (b.dataset.w === 'a') === !!ST.pets));
   $('#when').textContent = ST.type === 'top' || ST.type === 'lua' ? periodLabel() : niceDate(ST.date);
   $('#view').innerHTML = VIEWS[ST.type]();
   if (ST.type === 'top') document.querySelectorAll('.sc').forEach(a => a.onclick = () => openSheet(+a.dataset.i));
-  if (ST.type === 'eu') { $('#ascGo').onclick = calcMine; if ($('#bDate').value) calcMine(); }
+  if (ST.type === 'eu') bindEu();
+  if (ST.type === 'anos') bindAnos();
 }
 
 // ---------- Cartão do signo ----------
@@ -1506,14 +1811,14 @@ function capOne(rd, i) {
     rd.mode === 'dia' ? `🍀 Sorte ${rd.lucky} · 🎨 ${PL[rd.fav].cor} · 🤝 ${SIGNS[rd.ally].n}` : `📆 ${rd.mode === 'ano' ? 'Melhor mês' : 'Melhor dia'}: ${rd.bestDay} · 🎨 ${PL[rd.fav].cor}`, '',
     `👉 Segue ${brand()} · marca alguém de ${rd.sign.n}!`, `#horoscopo #signos #${rd.sign.tag}`].join('\n');
 }
-function openSheet(i) {
+function openSheet(i, title) {
   SHEET = (i + 12) % 12; const rd = ST.rank[SHEET], v = verdict(rd);
   const keep = ST.fmt; ST.fmt = 'feed'; const c = drawSign(rd, SHEET); ST.fmt = keep;
-  $('#sheetTitle').textContent = `${SHEET + 1}º · ${rd.sign.n}`;
+  $('#sheetTitle').textContent = title || `${SHEET + 1}º · ${rd.sign.n}${rd.pet ? ' 🐾' : ''}`;
   const sec = (ic, l, k, t) => `<section><h4>${ic} ${l} ${starsH(rd.stars[k])}</h4><p>${esc(t)}</p></section>`;
   $('#sheetBody').innerHTML = `<img class="card" src="${c.toDataURL('image/jpeg', .9)}" alt="Cartão de ${rd.sign.n}">
     <div class="det"><div class="vd ${v.k}"><b>${v.icon}</b> ${esc(v.txt)}</div>
-    ${sec('❤️', 'Amor', 'amor', rd.love)}${sec('💼', 'Trabalho', 'trabalho', rd.work)}${sec('💰', 'Dinheiro', 'dinheiro', rd.money)}${sec('⚡', 'Energia', 'energia', rd.energy)}
+    ${AREAS4(rd).map(([l, k, t], j) => sec((rd.pet ? ['🥰', '🎾', '🍖', '🐾'] : ['❤️', '💼', '💰', '⚡'])[j], l, k, t)).join('')}
     <section><h4>🔮 Conselho</h4><p>${esc(rd.advice)}</p></section>
     ${rd.highlights && rd.highlights.length ? `<section><h4>📅 Em destaque</h4>${rd.highlights.map(x => `<p>${esc(x)}</p>`).join('')}</section>` : ''}</div>`;
   $('#sheetBody').scrollTop = 0; $('#sheet').dataset.canvas = '';
@@ -1535,22 +1840,7 @@ async function shareCanvases(list, cap) {
 }
 async function shareCurrent() {
   const btn = $('#shareBtn'); btn.disabled = true;
-  try { const { cs, cap } = buildPost(ST.type); await shareCanvases(cs, cap); } finally { btn.disabled = false; }
-}
-
-// ---------- O meu céu (na vista) ----------
-function calcMine() {
-  const d = $('#bDate').value, t = $('#bTime').value, ci = CITIES[+$('#bCity').value];
-  if (!d) { $('#ascOut').innerHTML = '<p class="hint">Indica a data de nascimento.</p>'; return; }
-  store.set('ceu_me', JSON.stringify({ d, t, c: $('#bCity').value }));
-  const [y, m, dd] = dParts(d), [h, mi] = (t || '12:00').split(':').map(Number), ms = localToUtcMs(y, m, dd, h, mi, ci[3]);
-  const natal = natalChart(ms, ci), P = personalDay(natal, todayStr(), ST.modern), base = t ? P.byAsc : readDay(P.sunSign, todayStr(), ST.modern);
-  const cell = (l, s) => `<div class="trio"><span>${l}</span><b>${G(SIGNS[s].g)}</b><em>${SIGNS[s].n}</em></div>`;
-  $('#ascOut').innerHTML = `<div class="trios">${cell('Sol', P.sunSign)}${cell('Lua', P.moonSign)}${t ? cell('Ascendente', P.ascSign) : ''}</div>
-    <div class="box"><h3>Hoje, só para ti</h3>${P.aspects.filter(a => t || a.np !== 'asc').map(a => `<p>${esc(a.txt)}</p>`).join('') || '<p>Dia calmo no teu mapa.</p>'}</div>
-    <div class="box"><h3>${t ? 'Pelo teu ascendente em ' + SIGNS[P.ascSign].n : 'Pelo teu signo, ' + SIGNS[P.sunSign].n}</h3><p class="ph">“${esc(base.headline)}”</p>
-    <p>❤️ ${starsH(base.stars.amor)} ${esc(base.love)}</p><p>💼 ${starsH(base.stars.trabalho)} ${esc(base.work)}</p><p>💰 ${starsH(base.stars.dinheiro)} ${esc(base.money)}</p><p>⚡ ${starsH(base.stars.energia)} ${esc(base.energy)}</p></div>
-    ${t ? '' : '<p class="hint">Sem a hora de nascimento não dá para calcular o ascendente.</p>'}`;
+  try { if (ST.type === 'anos' && ST.bd) { await shareCanvases([{ name: 'parabens', c: drawBday(ST.bd, ST.fmt === 'story' ? 'story' : 'feed') }], capBday(ST.bd)); return; } const { cs, cap } = buildPost(ST.type); await shareCanvases(cs, cap); } finally { btn.disabled = false; }
 }
 
 // ---------- Init ----------
@@ -1569,6 +1859,11 @@ async function init() {
   document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => { ST.type = b.dataset.t; render(); window.scrollTo({ top: 0 }); });
   document.querySelectorAll('#modes button').forEach(b => b.onclick = () => { ST.mode = b.dataset.m; render(); });
   $('#shareBtn').onclick = shareCurrent;
+  ST.pets = store.get('ceu_pets_mode') === '1';
+  document.querySelectorAll('#who button').forEach(b => b.onclick = () => { ST.pets = b.dataset.w === 'a'; store.set('ceu_pets_mode', ST.pets ? '1' : '0'); render(); });
+  document.querySelectorAll('.installBtn').forEach(b => { b.onclick = doInstall; b.hidden = isStandalone(); });
+  $('#installHelp').innerHTML = isIOS() ? '<p><b>iPhone:</b> abre no Safari ou no Chrome, toca em <b>Partilhar</b> (□↑) e escolhe <b>«Adicionar ao ecrã principal»</b>.</p>' : '<p><b>Android (Chrome):</b> toca nos <b>⋮</b> em cima à direita e escolhe <b>«Instalar app»</b> ou <b>«Adicionar ao ecrã principal»</b>.</p>';
+  if (!isStandalone() && !store.get('ceu_inst_hide')) { $('#instBanner').hidden = false; $('#instClose').onclick = () => { $('#instBanner').hidden = true; store.set('ceu_inst_hide', '1'); }; $('#instGo').onclick = doInstall; }
   $('#sheetShare').onclick = () => shareCanvases([{ name: $('#sheet')._name, c: $('#sheet')._canvas }], $('#sheet')._cap);
   $('#sheetPrev').onclick = () => openSheet(SHEET - 1); $('#sheetNext').onclick = () => openSheet(SHEET + 1);
   let tx = null; $('#sheetBody').addEventListener('touchstart', e => tx = e.touches[0].clientX, { passive: true });
