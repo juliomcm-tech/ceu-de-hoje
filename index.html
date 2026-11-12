@@ -2,160 +2,184 @@
 <html lang="pt-PT">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#06061a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Céu de Hoje">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
 <title>Céu de Hoje · Horóscopo diário</title>
 <meta name="description" content="Top dos signos e horóscopo diário, semanal e mensal, calculados a partir das posições reais dos astros.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Cormorant+Garamond:ital,wght@1,600&family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+Symbols&family=Noto+Sans+Symbols+2&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#06061a;--ink:#eeedff;--mute:#8f90c2;--line:#25285a;--gold:#f2c76e;--gold2:#ffe3a3;--sym:"Noto Sans Symbols","Noto Sans Symbols 2","Segoe UI Symbol",sans-serif}
-*{box-sizing:border-box}
-html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
-body{background:radial-gradient(900px 500px at 50% -10%,#2b1f66aa,transparent 70%),var(--bg);min-height:100vh}
-main{max-width:620px;margin:0 auto;padding:20px 16px 40px}
-.top{display:flex;align-items:center;justify-content:space-between}
-h1{font-family:Cinzel,serif;font-size:22px;letter-spacing:.12em;margin:0;color:var(--gold2);font-weight:700}
-.icon{background:none;border:1px solid var(--line);color:var(--mute);width:38px;height:38px;border-radius:50%;font-size:17px;cursor:pointer}
-.icon:hover{color:var(--gold2);border-color:var(--gold)}
-.nav{display:flex;align-items:center;justify-content:center;gap:10px;margin:22px 0 12px}
-.nav button.arrow{background:none;border:0;color:var(--mute);font-size:22px;cursor:pointer;padding:6px 10px}
-.nav button.arrow:hover{color:var(--gold2)}
-#when{background:none;border:0;color:var(--ink);font:600 18px Manrope;cursor:pointer;min-width:230px}
-#modes{display:flex;justify-content:center;gap:4px;margin-bottom:18px}
-#modes button{background:none;border:1px solid transparent;color:var(--mute);border-radius:999px;padding:6px 16px;font:700 13px Manrope;letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
+:root{--bg:#06061a;--ink:#eeedff;--mute:#9293c4;--line:#25285a;--card:#10123a;--gold:#f2c76e;--gold2:#ffe3a3;--sym:"Noto Sans Symbols","Noto Sans Symbols 2","Segoe UI Symbol",sans-serif;--sat:env(safe-area-inset-top,0px);--sab:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased;overscroll-behavior-y:none}
+body{background:radial-gradient(700px 420px at 50% -8%,#2b1f66aa,transparent 70%),var(--bg);min-height:100vh}
+.app{max-width:560px;margin:0 auto;padding:0 12px calc(86px + var(--sab))}
+header.bar{position:sticky;top:0;z-index:5;margin:0 -12px;padding:calc(10px + var(--sat)) 14px 8px;background:linear-gradient(#06061af2,#06061ad9 80%,#06061a00);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.brandrow{display:flex;align-items:center;justify-content:space-between;gap:8px}
+h1{font-family:Cinzel,serif;font-size:19px;letter-spacing:.14em;margin:0;color:var(--gold2);font-weight:700}
+.acts{display:flex;gap:8px}
+.icon{display:grid;place-items:center;background:#12143e;border:1px solid var(--line);color:var(--gold2);width:40px;height:40px;border-radius:50%;font-size:17px;cursor:pointer;padding:0}
+.icon:disabled{opacity:.5}
+#datenav{display:flex;align-items:center;justify-content:space-between;margin-top:8px}
+#datenav .arrow{background:none;border:0;color:var(--mute);font-size:26px;width:44px;height:36px;cursor:pointer}
+#when{background:none;border:0;color:var(--ink);font:700 16px Manrope;cursor:pointer;flex:1}
+#modes{display:flex;justify-content:center;gap:4px;margin:4px 0 6px}
+#modes button{background:none;border:1px solid transparent;color:var(--mute);border-radius:999px;padding:6px 13px;font:800 12px Manrope;letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
 #modes button.on{border-color:var(--gold);color:var(--gold2)}
-#strip{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 2px 12px;margin:0 -16px;padding-left:16px;padding-right:16px;scrollbar-width:thin}
-#strip img{flex:0 0 auto;width:min(80vw,440px);height:auto;max-width:none;scroll-snap-align:center;border-radius:14px;border:1px solid var(--line);background:#000;display:block}
-#strip img{cursor:zoom-in}
-.tip{color:var(--mute);font-size:12px;text-align:center;margin:-6px 0 12px}
-.viewer{max-width:520px;padding:14px}
-.viewer #viewImg{width:100%;max-height:68vh;object-fit:contain;border-radius:12px;display:block;background:#000}
-.vnav{display:flex;align-items:center;justify-content:center;gap:16px;margin:10px 0 2px;color:var(--mute);font-size:14px}
-.vnav .btn{padding:6px 16px}
-#strip img.story{width:min(58vw,320px)}
-.meta{display:flex;justify-content:space-between;align-items:flex-start;color:var(--mute);font-size:12.5px;margin:2px 2px 14px;gap:10px}
-#sum b{color:var(--ink)} #sum span{color:var(--mute)}
-.actions{display:grid;grid-template-columns:1fr auto;gap:10px}
-.btn{border:1px solid var(--line);background:#12133a;color:var(--ink);border-radius:14px;padding:15px 18px;font:700 15px Manrope;cursor:pointer}
-.btn:hover{border-color:var(--gold);color:var(--gold2)}
-.btn.main{background:linear-gradient(180deg,#f8d891,#d9a944);color:#1b1205;border-color:#f2c76e;font-size:16px}
-.btn.main:hover{color:#000;filter:brightness(1.06)}
-.btn:disabled{opacity:.5;cursor:wait}
-.link{background:none;border:0;color:var(--mute);font:600 13px Manrope;cursor:pointer;padding:6px 4px;text-decoration:underline;text-underline-offset:3px;text-decoration-color:#3a3d78}
-.link:hover{color:var(--gold2)}
-.sub{display:flex;justify-content:center;flex-wrap:wrap;gap:6px 16px;margin-top:10px}
-#capWrap{position:relative;height:0;overflow:hidden}
-#capWrap.on{height:auto;margin-top:12px}
-#cap{width:100%;min-height:160px;background:#0c0d2a;border:1px solid var(--line);border-radius:12px;color:var(--ink);padding:12px;font:13px/1.5 Manrope}
-footer{margin-top:30px;display:flex;justify-content:center;flex-wrap:wrap;gap:4px 18px;border-top:1px solid #1a1c45;padding-top:16px}
-footer small{width:100%;text-align:center;color:#5d5e8f;font-size:11.5px;margin-top:6px}
-dialog{background:#0f1033;color:var(--ink);border:1px solid var(--line);border-radius:18px;padding:22px;max-width:440px;width:calc(100% - 32px)}
-dialog::backdrop{background:#000a}
-dialog h2{font-family:Cinzel,serif;font-size:18px;color:var(--gold2);margin:0 0 14px;letter-spacing:.08em}
+nav#tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;display:grid;grid-template-columns:repeat(6,1fr);max-width:560px;margin:0 auto;padding:6px 6px calc(6px + var(--sab));background:#0b0c28f2;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid var(--line)}
+nav#tabs button{background:none;border:0;color:var(--mute);display:flex;flex-direction:column;align-items:center;gap:2px;font:700 10.5px Manrope;padding:6px 0;border-radius:12px;cursor:pointer}
+nav#tabs button span{font-size:21px;line-height:1;filter:grayscale(.6);opacity:.8}
+nav#tabs button.on{color:var(--gold2);background:#1a1c4c}
+nav#tabs button.on span{filter:none;opacity:1}
+.alert{background:#ffe3a314;border:1px solid #ffe3a333;color:var(--gold2);border-radius:14px;padding:11px 13px;font-weight:700;font-size:14px;line-height:1.4;margin:6px 0 4px}
+.hint{color:var(--mute);font-size:12.5px;text-align:center;margin:8px 0 10px}
+.stars{color:var(--gold);letter-spacing:1px;font-size:14px;white-space:nowrap}
+.stars i{font-style:normal;color:#f2c76e55}
+.sc{position:relative;background:var(--card);border:1px solid color-mix(in srgb,var(--c) 35%,transparent);border-radius:18px;padding:12px 12px 10px;margin:0 0 12px;cursor:pointer;overflow:hidden}
+.sc:active{transform:scale(.99)}
+.sc.r1{border-color:#f2c76e88;background:linear-gradient(#f2c76e14,#10123a)}.sc.r2{border-color:#dfe6ee66}.sc.r3{border-color:#e0a07077}
+.sc-h{display:flex;align-items:center;gap:9px}
+.rk{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:#2b2d63;font:800 14px Manrope;flex:none}
+.r1 .rk{background:#f2c76e;color:#1a1206}.r2 .rk{background:#dfe6ee;color:#1a1206}.r3 .rk{background:#e0a070;color:#1a1206}
+.gl{font-family:var(--sym);font-size:28px;color:var(--c);line-height:1;width:30px;text-align:center}
+.nm{flex:1;min-width:0}.nm b{display:block;font-family:Cinzel,serif;font-size:17px;letter-spacing:.04em}.nm small{color:var(--mute);font-size:11.5px}
+.vd{margin:10px 0 6px;padding:8px 11px;border-radius:12px;font-size:13.5px;font-weight:700;line-height:1.35}
+.vd.bom{background:#7ee0a61c;color:#8fe8b3}.vd.misto{background:#ffe3a314;color:var(--gold2)}.vd.cuidado{background:#ffb36b1c;color:#ffbf85}
+.ph{font-family:"Cormorant Garamond",serif;font-style:italic;font-weight:600;font-size:19px;color:var(--gold2);margin:6px 2px 9px;line-height:1.25}
+.ar4{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.ar4 div{background:#ffffff09;border-radius:11px;padding:8px 9px}
+.ar4 span:first-child{display:block;font:800 10.5px Manrope;letter-spacing:.07em;text-transform:uppercase;color:var(--c)}
+.ar4 .stars{font-size:12px}
+.ar4 p{margin:4px 0 0;font-size:12.5px;line-height:1.35;color:#dcdcf6}
+.ex{margin-top:9px;color:#c4c5ea;font-size:12px;text-align:center;line-height:1.6}
+.ex b{color:#fff}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin:0 4px 0 2px;vertical-align:0}
+.more{position:absolute;top:14px;right:12px;display:none}
+.vt{font-family:Cinzel,serif;font-size:18px;color:var(--gold2);letter-spacing:.05em;margin:14px 2px 10px;font-weight:700}
+.sub2{color:var(--mute);font-size:13px;margin:-4px 2px 12px;line-height:1.45}
+.pair{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;text-align:center;margin-bottom:10px}
+.pair.r1{border-color:#f2c76e88}.pg{display:flex;align-items:center;justify-content:center;gap:22px;font-family:var(--sym);font-size:40px}
+.pg b{font:800 30px Manrope;color:#ff6b98}.pn{font-family:Cinzel,serif;font-weight:700;margin-top:4px}.pair small{color:var(--mute)}
+.warn{color:var(--mute);text-align:center;font-size:13px;margin:4px 0 6px}
+.list{display:grid;gap:6px}.li{display:grid;grid-template-columns:30px 1fr 18px 30px 1fr auto;align-items:center;gap:6px;background:var(--card);border-radius:12px;padding:9px 10px;font-size:14px}
+.li .g{font-family:var(--sym);font-size:22px;text-align:center}.li b{font-family:Cinzel,serif;font-size:13px}.hrt{color:#ff6b98}.li em{font-style:normal;font-weight:800;color:#ffb3c9}
+.moonhero{text-align:center;padding:10px 0 4px}.moonhero img{width:140px;height:140px}.moonhero h2{font-family:Cinzel,serif;margin:8px 0 2px;font-size:24px}
+.moonhero p{color:var(--mute);margin:0 0 10px;font-size:13.5px;line-height:1.5}.moonhero small{display:block;color:#c9c9ee;font-size:12.5px;margin-top:6px}
+.chip{display:inline-block;padding:6px 14px;border-radius:999px;background:color-mix(in srgb,var(--c) 22%,transparent);color:var(--c);font-weight:800;font-size:13px;letter-spacing:.04em}
+.box{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 14px;margin:10px 0}
+.box h3{margin:0 0 6px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold2)}
+.box p{margin:5px 0;font-size:14px;line-height:1.45}.box.ok h3{color:#7ee0a6}.box.no h3{color:#ff8fa3}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal .wd{text-align:center;color:var(--mute);font-size:11px;font-weight:800}
+.cd{position:relative;background:var(--card);border-radius:10px;aspect-ratio:1/1.15;display:flex;flex-direction:column;align-items:center;justify-content:center;border-bottom:4px solid var(--c);font-size:12px}
+.cd b{position:absolute;top:3px;left:5px;font-size:11px}.cd img{width:22px;height:22px;margin-top:6px}.cd i{position:absolute;right:4px;bottom:2px;font-style:normal;color:var(--gold2);font-size:11px}
+.cd em{position:absolute;top:3px;right:4px;font-style:normal;font-size:8px;font-weight:800;color:var(--gold2);text-transform:uppercase}.cd.today{outline:2px solid var(--gold)}
+.leg{display:flex;flex-wrap:wrap;gap:6px 12px;justify-content:center;margin:10px 0;font-size:12px;color:#ccc}.leg span{display:flex;align-items:center;gap:5px}
+.leg span[style]::before{content:"";width:14px;height:6px;border-radius:3px;background:var(--c)}
+.bday{text-align:center;padding:14px 0 4px}.bday .pre{font-family:"Cormorant Garamond",serif;font-style:italic;font-size:22px;color:var(--gold2);margin:0}
+.bday h2{font-family:Cinzel,serif;font-size:34px;margin:4px 0 10px}.bg{display:inline-grid;place-items:center;width:96px;height:96px;border:3px solid var(--c);border-radius:50%;font-family:var(--sym);font-size:52px}
+.bday p{color:#c9c9ee;font-size:13.5px}
+.now{display:flex;gap:12px;align-items:center;background:color-mix(in srgb,var(--c) 16%,#10123a);border:1px solid var(--c);border-radius:16px;padding:12px 14px;margin-bottom:10px}
+.now>span{font-family:var(--sym);font-size:38px;color:var(--c)}.now small{color:var(--mute);font-size:10.5px;font-weight:800;letter-spacing:.08em}.now b{display:block;font-family:Cinzel,serif;font-size:18px}.now p{margin:2px 0 0;font-size:13px;color:#ddd}
+.hr{display:grid;grid-template-columns:40px 1fr;gap:4px 10px;align-items:center;background:var(--card);border-radius:14px;padding:10px 12px;margin-bottom:8px}
+.hr .g{font-family:var(--sym);font-size:28px;color:var(--c);text-align:center;grid-row:span 2}.hr b{font-family:Cinzel,serif;font-size:15px}.hr small{display:block;color:var(--mute);font-size:12px}
+.hr p{grid-column:2;margin:2px 0 0;display:flex;flex-wrap:wrap;gap:5px}.hr p span{background:#ffffff0d;border-radius:8px;padding:3px 7px;font-size:12.5px;font-weight:700;color:var(--gold2)}.hr p span.on{background:var(--c);color:#111}
+.form{display:grid;gap:10px}.form label{display:grid;gap:5px;font-size:12px;color:var(--mute);text-transform:uppercase;letter-spacing:.06em}
+input,select{width:100%;background:#080924;border:1px solid var(--line);border-radius:12px;padding:12px;color:var(--ink);font:16px Manrope;color-scheme:dark}
+.trios{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0 4px}.trio{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 4px;text-align:center}
+.trio span{display:block;font-size:10.5px;color:var(--mute);text-transform:uppercase;letter-spacing:.08em}.trio b{display:block;font-family:var(--sym);font-size:30px;color:var(--gold2);margin:4px 0;font-weight:400}.trio em{font-style:normal;font-weight:800;font-size:13px}
+.btn{border:1px solid var(--line);background:#14164a;color:var(--ink);border-radius:14px;padding:13px 16px;font:800 15px Manrope;cursor:pointer}
+.btn.main{background:linear-gradient(180deg,#f8d891,#d9a944);color:#1b1205;border-color:#f2c76e}
+.btn:disabled{opacity:.5}
+dialog{background:#0f1033;color:var(--ink);border:1px solid var(--line);border-radius:20px;padding:20px;max-width:440px;width:calc(100% - 24px);max-height:88vh}
+dialog::backdrop{background:#000b}
+dialog h2{font-family:Cinzel,serif;font-size:18px;color:var(--gold2);margin:0 0 12px;letter-spacing:.08em}
 dialog label{display:block;font-size:12px;color:var(--mute);margin:12px 0 5px;text-transform:uppercase;letter-spacing:.06em}
-dialog input[type=text],dialog input[type=date],dialog input[type=time],dialog select{width:100%;background:#080924;border:1px solid var(--line);border-radius:10px;padding:11px 12px;color:var(--ink);font:15px Manrope;color-scheme:dark}
-.chk{display:flex;align-items:center;gap:10px;text-transform:none!important;letter-spacing:0!important;font-size:14px!important;color:var(--ink)!important;cursor:pointer}
-.chk input{width:18px;height:18px;accent-color:#f2c76e}
-dialog p{color:#c8c9ee;font-size:14px;line-height:1.55;margin:10px 0}
-.dlgfoot{display:flex;justify-content:flex-end;margin-top:16px}
-#pack{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
-#packMsg{color:var(--gold2);font-size:13px;min-height:18px}
-.trios{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
-.trio{background:#080924;border:1px solid var(--line);border-radius:12px;padding:12px 6px;text-align:center}
-.trio span{display:block;font-size:11px;color:var(--mute);text-transform:uppercase;letter-spacing:.08em}
-.trio b{display:block;font-family:var(--sym);font-size:30px;color:var(--gold2);margin:4px 0;font-weight:400}
-.trio em{font-style:normal;font-weight:700;font-size:14px}
-#types{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:10px}
-#types button{background:#10113a;border:1px solid var(--line);color:var(--mute);border-radius:12px;padding:8px 2px;font:700 12px Manrope;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0;white-space:nowrap}
-#types button.on{border-color:var(--gold);color:var(--gold2);background:#1a1b4a}
-#modes[hidden],#modes button[hidden],.link[hidden]{display:none}
-#packTypes{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;margin-top:6px}
-#ascOut h3{font-family:Cinzel,serif;color:var(--gold2);font-size:15px;letter-spacing:.06em;margin:18px 0 6px}
-#ascOut ul{margin:0;padding-left:18px;color:#d6d7f5;font-size:14px;line-height:1.6}
-#ascOut .hl{font-family:"Cormorant Garamond",serif;font-style:italic;font-size:21px;color:var(--gold2);margin:4px 0}
-#ascOut .note{color:var(--mute);font-size:12.5px}
-#strip img.longa{width:min(70vw,420px);align-self:flex-start}
-#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:#1d2050;border:1px solid var(--gold);color:var(--gold2);padding:10px 16px;border-radius:12px;font-weight:700;opacity:0;transition:.25s;pointer-events:none;z-index:9;text-align:center}
+.chk{display:flex!important;align-items:center;gap:10px;text-transform:none!important;letter-spacing:0!important;font-size:14px!important;color:var(--ink)!important}
+.chk input{width:20px;height:20px;accent-color:#f2c76e}
+dialog p{color:#c8c9ee;font-size:14px;line-height:1.55}
+.dlgfoot{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+.tools{display:grid;gap:8px;margin-top:14px}.tools .btn{text-align:left;font-size:14px}
+dialog.sheet{width:100%;max-width:560px;height:100%;max-height:100%;margin:0 auto;padding:0;border:0;border-radius:0;background:var(--bg)}
+.sheetbar{position:sticky;top:0;display:flex;align-items:center;gap:8px;padding:calc(10px + var(--sat)) 12px 10px;background:#06061af0;z-index:2}
+.sheetbar b{flex:1;text-align:center;font-family:Cinzel,serif;color:var(--gold2);font-size:16px}
+#sheetShare{display:flex;align-items:center;gap:6px;width:auto;padding:0 14px;border-radius:999px;font:800 13px Manrope}
+#sheetBody{height:calc(100% - 120px - var(--sat) - var(--sab));overflow-y:auto;padding:0 12px 20px}
+#sheetBody .card{width:100%;border-radius:16px;display:block;border:1px solid var(--line)}
+.det section{background:var(--card);border-radius:14px;padding:11px 13px;margin:9px 0}.det h4{margin:0 0 5px;font-size:14px;display:flex;align-items:center;gap:8px}.det h4 .stars{margin-left:auto}
+.det p{margin:4px 0;font-size:14.5px;line-height:1.5;color:#e2e2f8}
+.sheetnav{position:absolute;left:0;right:0;bottom:0;display:flex;gap:10px;padding:10px 12px calc(10px + var(--sab));background:#06061af0}
+.sheetnav .btn{flex:1}
+#imgsBody{display:grid;gap:12px}#imgsBody figure{margin:0}#imgsBody img{width:100%;border-radius:12px;display:block}#imgsBody .btn{width:100%;margin-top:6px}
+#cap{position:fixed;left:-9999px;top:0;width:10px;height:10px;opacity:0}
+#toast{position:fixed;left:50%;bottom:calc(90px + var(--sab));transform:translateX(-50%) translateY(20px);background:#1d2050;border:1px solid var(--gold);color:var(--gold2);padding:10px 16px;border-radius:12px;font-weight:700;opacity:0;transition:.25s;pointer-events:none;z-index:20;text-align:center;max-width:90%}
 #toast.on{opacity:1;transform:translateX(-50%)}
-#count{white-space:nowrap;flex:none}
-#types button .ic{font-size:18px;line-height:1}
+footer.ft{color:#5d5e8f;font-size:11.5px;text-align:center;margin:18px 0 6px}
 </style>
 </head>
 <body>
-<main>
-  <div class="top">
-    <h1>CÉU DE HOJE</h1>
-    <button class="icon" data-open="settings" aria-label="Definições">⚙</button>
-  </div>
+<div class="app">
+  <header class="bar">
+    <div class="brandrow"><h1>CÉU DE HOJE</h1><div class="acts"><button class="icon" id="shareBtn" aria-label="Partilhar"></button><button class="icon" data-open="menu" aria-label="Menu">⚙</button></div></div>
+    <div id="datenav"><button class="arrow" id="prev" aria-label="Anterior">‹</button><button id="when" title="Voltar a hoje"></button><button class="arrow" id="next" aria-label="Seguinte">›</button></div>
+    <div id="modes"><button data-m="dia" class="on">Dia</button><button data-m="semana">Semana</button><button data-m="mes">Mês</button><button data-m="ano">Ano</button></div>
+  </header>
+  <main id="view"></main>
+  <footer class="ft">Posições reais dos astros · para entretenimento<br>© 2026 Júlio Melo</footer>
+</div>
+<nav id="tabs">
+  <button data-t="top" class="on"><span>🏆</span>Top</button><button data-t="pares"><span>💞</span>Pares</button><button data-t="lua"><span>🌙</span>Lua</button><button data-t="anos"><span>🎂</span>Anos</button><button data-t="horas"><span>⏳</span>Horas</button><button data-t="eu"><span>✨</span>Eu</button>
+</nav>
 
-  <div class="nav">
-    <button class="arrow" id="prev" aria-label="Anterior">‹</button>
-    <button id="when" title="Voltar a hoje"></button>
-    <button class="arrow" id="next" aria-label="Seguinte">›</button>
-  </div>
-  <div id="types"><button data-t="top" class="on"><span class="ic">🏆</span>Top</button><button data-t="pares"><span class="ic">💞</span>Pares</button><button data-t="lua"><span class="ic">🌙</span>Lua</button><button data-t="anos"><span class="ic">🎂</span>Anos</button><button data-t="horas"><span class="ic">⏳</span>Horas</button></div>
-  <div id="modes"><button data-m="dia" class="on">Dia</button><button data-m="semana">Semana</button><button data-m="mes">Mês</button><button data-m="ano">Ano</button></div>
+<dialog id="sheet" class="sheet">
+  <div class="sheetbar"><button class="icon" data-close aria-label="Fechar">✕</button><b id="sheetTitle"></b><button class="icon" id="sheetShare" aria-label="Partilhar"></button></div>
+  <div id="sheetBody"></div>
+  <div class="sheetnav"><button class="btn" id="sheetPrev">‹ Anterior</button><button class="btn" id="sheetNext">Seguinte ›</button></div>
+</dialog>
 
-  <div id="strip"></div>
-  <div class="meta"><div id="sum"></div><div id="count"></div></div>
-  <p class="tip">Toca numa foto para a abrir e partilhar sozinha (Facebook, WhatsApp…)</p>
+<dialog id="imgs">
+  <h2>Imagens</h2>
+  <p>O texto já está copiado. Guarda as imagens (ou carrega sem soltar) e publica.</p>
+  <div id="imgsBody"></div>
+  <div class="dlgfoot"><button class="btn" data-close>Fechar</button></div>
+</dialog>
 
-  <div class="actions">
-    <button class="btn main" id="share">Partilhar post</button>
-    <button class="btn" id="copy">Copiar legenda</button>
-  </div>
-  <div class="sub"><button class="link" id="reel">🎬 Criar Reel</button><button class="link" id="zip">Guardar fotos (.zip)</button><button class="link" onclick="document.getElementById('capWrap').classList.toggle('on')">Ver legenda</button></div>
-  <div id="capWrap"><textarea id="cap" readonly></textarea></div>
-
-  <footer>
-    <button class="link" data-open="packDlg">Preparar vários dias</button>
-    <button class="link" data-open="ascDlg">✨ O meu céu</button>
-    <button class="link" data-open="how">Como funciona</button>
-    <small>Para entretenimento · posições reais dos astros</small>
-  </footer>
-</main>
-
-<dialog id="settings">
-  <h2>Definições</h2>
-  <label for="brand">Nome da tua página</label>
+<dialog id="menu">
+  <h2>Menu</h2>
+  <label for="brand">Nome da tua página (aparece nas imagens)</label>
   <input type="text" id="brand" maxlength="32" placeholder="Ex.: Os Astros Dizem">
-  <label for="fmt">Formato das fotos</label>
-  <select id="fmt"><option value="feed">Feed 4:5 (recomendado)</option><option value="story">Story 9:16</option><option value="longa">Top numa imagem longa (WhatsApp)</option></select>
-  <label for="cityHours">Cidade (horas planetárias)</label>
-  <select id="cityHours"></select>
-  <label>Opções</label>
-  <label class="chk"><input type="checkbox" id="coverOn"> Juntar capa só com o ranking (antes dos quadrados)</label>
-  <label class="chk"><input type="checkbox" id="skyOn"> Juntar a foto «O céu» no fim</label>
-  <label class="chk"><input type="checkbox" id="modern"> Incluir Urano, Neptuno e Plutão (astrologia moderna)</label>
+  <label for="fmt">Imagens partilhadas</label>
+  <select id="fmt"><option value="feed">Feed 4:5 (Facebook)</option><option value="story">Story 9:16</option><option value="longa">Top numa imagem longa (WhatsApp)</option></select>
+  <label for="cityHours">A tua cidade</label><select id="cityHours"></select>
+  <label class="chk"><input type="checkbox" id="skyOn"> Juntar a imagem «O céu» ao Top</label>
+  <label class="chk"><input type="checkbox" id="modern"> Incluir Urano, Neptuno e Plutão</label>
+  <div class="tools">
+    <button class="btn" id="reel">🎬 Criar Reel do Top (vídeo 15 s)</button>
+    <button class="btn" id="copyCap">📋 Copiar legenda completa</button>
+    <button class="btn" data-open="packDlg">🗓️ Preparar vários dias (.zip)</button>
+    <button class="btn" data-open="how">ℹ️ Como funciona</button>
+  </div>
   <div class="dlgfoot"><button class="btn" data-close>Fechar</button></div>
 </dialog>
 
 <dialog id="packDlg">
   <h2>Preparar vários dias</h2>
-  <p>Gera um ficheiro com uma pasta por dia: as fotos pela ordem certa e a legenda. Depois programas tudo de uma vez no Meta Business Suite (aceita até 29 dias de antecedência).</p>
+  <p>Uma pasta por dia com as imagens e a legenda, para programar no Meta Business Suite (até 29 dias de antecedência).</p>
   <div id="packTypes"><label class="chk"><input type="checkbox" value="top" checked> 🏆 Top do dia</label><label class="chk"><input type="checkbox" value="pares"> 💞 Pares</label><label class="chk"><input type="checkbox" value="lua"> 🌙 Lua</label><label class="chk"><input type="checkbox" value="anos"> 🎂 Anos</label><label class="chk"><input type="checkbox" value="horas"> ⏳ Horas</label></div>
-  <div id="pack"><button class="btn" data-n="7">Próximos 7 dias</button><button class="btn" data-n="28">Próximos 28 dias</button></div>
+  <div id="pack" class="tools"><button class="btn" data-n="7">Próximos 7 dias</button><button class="btn" data-n="28">Próximos 28 dias</button></div>
   <p id="packMsg"></p>
   <div class="dlgfoot"><button class="btn" data-close>Fechar</button></div>
 </dialog>
 
-<dialog id="ascDlg">
-  <h2>O meu céu</h2>
-  <p>O teu Sol, Lua e Ascendente, e o que os astros de hoje fazem ao teu mapa. Fica guardado neste aparelho.</p>
-  <label for="bDate">Data de nascimento</label><input type="date" id="bDate" min="1900-01-01" max="2050-12-31">
-  <label for="bTime">Hora de nascimento (opcional)</label><input type="time" id="bTime">
-  <label for="bCity">Local</label><select id="bCity"></select>
-  <div class="dlgfoot" style="justify-content:space-between"><button class="btn main" id="ascGo">Ver o meu dia</button><button class="btn" data-close>Fechar</button></div>
-  <div id="ascOut"></div>
-</dialog>
-
-<dialog id="viewDlg" class="viewer">
-  <img id="viewImg" alt="Pré-visualização">
-  <div class="vnav"><button class="btn" id="viewPrev">‹</button><span id="viewN"></span><button class="btn" id="viewNext">›</button></div>
-  <div class="dlgfoot" style="justify-content:space-between;gap:8px"><button class="btn main" id="viewShare">Partilhar imagem</button><button class="btn" id="viewSave">Guardar</button><button class="btn" data-close>Fechar</button></div>
-  <p class="note" style="text-align:center;margin:8px 0 0">A legenda fica copiada: no Facebook é só colar.</p>
-</dialog>
 <dialog id="reelDlg">
   <h2>O teu Reel</h2>
   <video id="reelVid" controls playsinline loop style="width:100%;border-radius:12px;background:#000"></video>
@@ -163,7 +187,6 @@ dialog p{color:#c8c9ee;font-size:14px;line-height:1.55;margin:10px 0}
   <p>Junta uma música no Facebook antes de publicar — os Reels com som chegam a mais gente.</p>
   <div class="dlgfoot" style="justify-content:space-between"><button class="btn main" id="reelShare">Partilhar / guardar</button><button class="btn" data-close>Fechar</button></div>
 </dialog>
-
 <dialog id="how">
   <h2>Como funciona</h2>
   <p><b>Posições reais.</b> O Sol, a Lua e os planetas são calculados para cada dia com os algoritmos de Jean Meeus e os elementos orbitais do JPL/NASA (zodíaco tropical, válido de 1800 a 2050). Também calcula luas novas e cheias, eclipses, retrogradações, entradas nos signos e aspetos exatos.</p>
@@ -172,7 +195,7 @@ dialog p{color:#c8c9ee;font-size:14px;line-height:1.55;margin:10px 0}
   <p>Para entretenimento.</p>
   <div class="dlgfoot"><button class="btn" data-close>Fechar</button></div>
 </dialog>
-
+<textarea id="cap" readonly></textarea>
 <div id="toast"></div>
 <script>
 // ===== Motor astronómico (Meeus + elementos orbitais JPL, válido 1800–2050) =====
@@ -1378,6 +1401,187 @@ async function init() {
   ST.date = todayStr();
   try { await Promise.race([Promise.all(['700 40px Cinzel', 'italic 600 40px "Cormorant Garamond"', '500 20px Manrope', '600 20px Manrope', '700 20px Manrope', '800 20px Manrope'].map(f => document.fonts.load(f)).concat([document.fonts.load('40px "Noto Sans Symbols"', '♈♉♊♋♌♍♎♏♐♑♒♓☉☽☿♀♂♃♄'), document.fonts.load('40px "Noto Sans Symbols 2"', '♅♆♇★✂✓✕')])), new Promise(r => setTimeout(r, 3000))]); } catch (e) { }
   render();
+}
+
+
+// ===== App de telemóvel =====
+const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+const G = g => `${g}&#xFE0E;`;
+const starsH = n => `<span class="stars">${'★'.repeat(n)}<i>${'☆'.repeat(5 - n)}</i></span>`;
+const elc = sg => EL_COL[sg.el][0];
+let SHEET = 0;
+
+// ---------- Vistas ----------
+function vTop() {
+  computeTop();
+  const alert = dayAlert();
+  let h = `<div class="alert">📣 ${esc(alert)}</div><p class="hint">Toca no teu signo para abrir o cartão completo</p>`;
+  ST.rank.forEach((rd, i) => {
+    const v = verdict(rd), c = elc(rd.sign);
+    const ex = rd.mode === 'dia' ? `Sorte <b>${rd.lucky}</b> · <span class="dot" style="background:${PL[rd.fav].hex}"></span>${PL[rd.fav].cor} · ${G(PL[rd.fav].g)} ${PL[rd.fav].n} · Aliado ${G(SIGNS[rd.ally].g)} ${SIGNS[rd.ally].n}`
+      : `${rd.mode === 'ano' ? 'Melhor mês' : 'Melhor dia'} <b>${rd.bestDay}</b> · Amor <b>${rd.bestLove}</b> · <span class="dot" style="background:${PL[rd.fav].hex}"></span>${PL[rd.fav].cor}`;
+    h += `<article class="sc${i < 3 ? ' r' + (i + 1) : ''}" data-i="${i}" style="--c:${c}">
+      <div class="sc-h"><span class="rk">${i + 1}</span><span class="gl">${G(rd.sign.g)}</span><div class="nm"><b>${rd.sign.n}</b><small>${rd.sign.r} · ${rd.keyword}</small></div>${starsH(toStars(rd.overall))}</div>
+      <div class="vd ${v.k}"><b>${v.icon}</b> ${esc(v.txt)}</div>
+      <p class="ph">“${esc(rd.headline)}”</p>
+      <div class="ar4">${[['Amor', 'amor', rd.love], ['Trabalho', 'trabalho', rd.work], ['Dinheiro', 'dinheiro', rd.money], ['Energia', 'energia', rd.energy]].map(([l, k, t]) => `<div><span>${l}</span>${starsH(rd.stars[k])}<p>${esc(firstSentence(t))}</p></div>`).join('')}</div>
+      <div class="ex">${ex}</div><span class="more">Abrir ›</span></article>`;
+  });
+  return h;
+}
+function vPares() {
+  const P = pairsDay(ST.date, ST.modern);
+  let h = `<h2 class="vt">💞 Quem combina hoje</h2>`;
+  P.top.forEach((p, i) => h += `<div class="pair r${i + 1}"><div class="pg"><span style="color:${elc(SIGNS[p.a])}">${G(SIGNS[p.a].g)}</span><b>${p.score}%</b><span style="color:${elc(SIGNS[p.b])}">${G(SIGNS[p.b].g)}</span></div><div class="pn">${SIGNS[p.a].n} + ${SIGNS[p.b].n}</div><small>${cap1(PAIR_TXT[p.k])}</small></div>`);
+  h += `<div class="warn">Paciência hoje: ${G(SIGNS[P.worst.a].g)} ${SIGNS[P.worst.a].n} + ${G(SIGNS[P.worst.b].g)} ${SIGNS[P.worst.b].n} (${P.worst.score}%)</div>`;
+  h += `<h2 class="vt">O par ideal de cada signo</h2><div class="list">`;
+  P.best.forEach((p, i) => { const o = p.a === i ? p.b : p.a; h += `<div class="li"><span class="g" style="color:${elc(SIGNS[i])}">${G(SIGNS[i].g)}</span><b>${SIGNS[i].n}</b><span class="hrt">♥</span><span class="g" style="color:${elc(SIGNS[o])}">${G(SIGNS[o].g)}</span><span>${SIGNS[o].n}</span><em>${p.score}%</em></div>`; });
+  return h + '</div>';
+}
+function moonImg(e, px) { const c = document.createElement('canvas'); c.width = c.height = px * 2; drawMoon(c.getContext('2d'), px, px, px - 3, e); return c.toDataURL(); }
+function vLua() {
+  if (ST.mode === 'mes') {
+    const [y0, m0] = dParts(ST.date), [a, b] = periodRange(ST.date, 'mes'), days = daysIn(a, b), first = (new Date(Date.UTC(y0, m0 - 1, 1)).getUTCDay() + 6) % 7;
+    const evs = periodEvents(a, b, false).filter(e => e.type === 'lua');
+    let h = `<h2 class="vt">🌙 Calendário lunar · ${cap1(MESES[m0 - 1])}</h2><div class="cal">${['S', 'T', 'Q', 'Q', 'S', 'S', 'D'].map(d => `<span class="wd">${d}</span>`).join('')}`;
+    for (let i = 0; i < first; i++) h += '<span></span>';
+    days.forEach(d => { const D = lunarDay(d), ev = evs.find(e => dayStr(e.jd) === d && (e.kind === 'nova' || e.kind === 'cheia')); h += `<span class="cd${d === todayStr() ? ' today' : ''}" style="--c:${EL_COL[D.el][0]}"><b>${+d.slice(8)}</b><img src="${moonImg(D.e, 14)}" alt="">${D.hairGood ? '<i>✂</i>' : ''}${ev ? `<em>${ev.eclipse ? 'eclipse' : ev.kind}</em>` : ''}</span>`; });
+    h += `</div><div class="leg"><span style="--c:${EL_COL.fogo[0]}">Fruto</span><span style="--c:${EL_COL.terra[0]}">Raiz</span><span style="--c:${EL_COL.ar[0]}">Flor</span><span style="--c:${EL_COL.agua[0]}">Folha</span><span>✂ cabelo forte</span></div>`;
+    h += '<div class="box"><h3>Fases do mês</h3>' + evs.map(e => `<p>${{ nova: '🌑 Lua Nova', crescente: '🌓 Quarto Crescente', cheia: '🌕 Lua Cheia', minguante: '🌗 Quarto Minguante' }[e.kind]}${e.eclipse ? ' · eclipse ' + e.eclipse : ''} — dia ${new Date(msFromJd(e.jd)).getUTCDate()}, em ${SIGN_IN[e.sign]}</p>`).join('') + '</div>';
+    return h;
+  }
+  const D = lunarDay(ST.date), c = EL_COL[D.el][0];
+  const nx = periodEvents(ST.date, dayStr(noonJd(ST.date) + 30), false).filter(e => e.type === 'lua' && e.jd > noonJd(ST.date)).slice(0, 3);
+  return `<div class="moonhero"><img src="${moonImg(D.e, 70)}" alt=""><h2>Lua em ${SIGN_IN[D.sign]}</h2><p>${D.ph} · ${Math.round(D.s.phase.illum * 100)}% iluminada${D.ingress ? `<br>entra em ${SIGN_IN[D.ingress.to]} às ${fmtHM(+D.ingress.time, city()[3])}` : ''}</p><span class="chip" style="--c:${c}">${D.type[0]}</span><small>Semear: ${D.type[1]}</small></div>
+    <div class="box"><h3>✂ Cabelo</h3><p>${D.hair}</p></div>
+    <div class="box ok"><h3>Bom para</h3>${D.good.map(g => `<p>✓ ${g}</p>`).join('')}</div>
+    ${D.bad.length ? `<div class="box no"><h3>Evitar</h3>${D.bad.map(g => `<p>✕ ${g}</p>`).join('')}</div>` : ''}
+    <div class="box"><h3>Próximas fases</h3>${nx.map(e => `<p>${{ nova: '🌑 Lua Nova', crescente: '🌓 Quarto Crescente', cheia: '🌕 Lua Cheia', minguante: '🌗 Quarto Minguante' }[e.kind]}${e.eclipse ? ' (eclipse)' : ''} · ${new Date(msFromJd(e.jd)).getUTCDate()} ${MESES[new Date(msFromJd(e.jd)).getUTCMonth()].slice(0, 3)} · ${SIGN_IN[e.sign]}</p>`).join('')}</div>`;
+}
+function vAnos() {
+  const B = birthday(ST.date, ST.modern), sg = SIGNS[B.si];
+  return `<div class="bday" style="--c:${elc(sg)}"><p class="pre">Se fazes anos hoje…</p><h2>Parabéns!</h2><span class="bg">${G(sg.g)}</span><p>Sol a ${B.deg}° de ${sg.n} · o teu novo ano astral</p><p class="ph">“${esc(B.headline)}”</p></div>
+    <div class="box">${B.lines.map(l => `<p>${esc(l)}</p>`).join('')}</div>`;
+}
+function vHoras() {
+  const ci = city(), PH = planetaryHours(ST.date, ci); if (!PH) return '<p class="hint">Sem nascer do sol nesta data e cidade.</p>';
+  const now = Date.now(), cur = PH.hours.find(h => now >= h.start && now < h.end);
+  let h = `<h2 class="vt">⏳ Horas planetárias</h2><p class="sub2">${ci[0]} · ☀️ ${fmtHM(PH.rise, ci[3])} · 🌇 ${fmtHM(PH.set, ci[3])} · dia de ${PL[PH.ruler].n} ${G(PL[PH.ruler].g)}</p>`;
+  if (cur) h += `<div class="now" style="--c:${PL[cur.p].hex}"><span>${G(PL[cur.p].g)}</span><div><small>AGORA, ATÉ ÀS ${fmtHM(cur.end, ci[3])}</small><b>Hora de ${PL[cur.p].n}</b><p>boa para ${HOUR_USE[cur.p]}</p></div></div>`;
+  for (const p of ['venus', 'jupiter', 'mercury', 'sun', 'mars', 'moon', 'saturn']) {
+    const hs = PH.hours.filter(x => x.p === p);
+    h += `<div class="hr" style="--c:${PL[p].hex}"><span class="g">${G(PL[p].g)}</span><div><b>${PL[p].n}</b><small>${HOUR_USE[p]}</small></div><p>${hs.map(x => `<span${cur && x === cur ? ' class="on"' : ''}>${fmtHM(x.start, ci[3])}</span>`).join('')}</p></div>`;
+  }
+  return h;
+}
+function vEu() {
+  let me = null; try { me = JSON.parse(store.get('ceu_me') || 'null'); } catch (e) { }
+  const opts = CITIES.map((c, i) => `<option value="${i}"${me && +me.c === i ? ' selected' : ''}>${c[0]}</option>`).join('');
+  return `<h2 class="vt">✨ O meu céu</h2><p class="sub2">O teu Sol, Lua e Ascendente, e o que os astros de hoje fazem ao teu mapa. Fica guardado só neste telemóvel.</p>
+    <div class="form"><label>Data de nascimento<input type="date" id="bDate" min="1900-01-01" max="2050-12-31" value="${me ? me.d : ''}"></label>
+    <label>Hora (opcional)<input type="time" id="bTime" value="${me ? me.t : ''}"></label>
+    <label>Local<select id="bCity">${opts}</select></label><button class="btn main" id="ascGo">Ver o meu dia</button></div><div id="ascOut"></div>`;
+}
+const VIEWS = { top: vTop, pares: vPares, lua: vLua, anos: vAnos, horas: vHoras, eu: vEu };
+
+function render() {
+  if (!TABS[ST.type].includes(ST.mode)) ST.mode = TABS[ST.type][0];
+  document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.t === ST.type));
+  document.querySelectorAll('#modes button').forEach(b => { b.hidden = !TABS[ST.type].includes(b.dataset.m); b.classList.toggle('on', b.dataset.m === ST.mode); });
+  $('#modes').hidden = TABS[ST.type].length < 2;
+  $('#datenav').hidden = ST.type === 'eu';
+  $('#shareBtn').style.visibility = ST.type === 'eu' ? 'hidden' : 'visible';
+  $('#when').textContent = ST.type === 'top' || ST.type === 'lua' ? periodLabel() : niceDate(ST.date);
+  $('#view').innerHTML = VIEWS[ST.type]();
+  if (ST.type === 'top') document.querySelectorAll('.sc').forEach(a => a.onclick = () => openSheet(+a.dataset.i));
+  if (ST.type === 'eu') { $('#ascGo').onclick = calcMine; if ($('#bDate').value) calcMine(); }
+}
+
+// ---------- Cartão do signo ----------
+function capOne(rd, i) {
+  const v = verdict(rd);
+  return [`${rd.sign.g} ${rd.sign.n.toUpperCase()} · ${topTitle()} · ${periodLabel()}`, `${i + 1}º lugar ${starStr(toStars(rd.overall))}`, '', `✨ ${rd.headline}`, `${{ bom: '✅', misto: '⚖️', cuidado: '⚠️' }[v.k]} ${v.txt}`, '',
+    `❤️ Amor ${starStr(rd.stars.amor)}\n${rd.love}`, '', `💼 Trabalho ${starStr(rd.stars.trabalho)}\n${rd.work}`, '', `💰 Dinheiro ${starStr(rd.stars.dinheiro)}\n${rd.money}`, '', `⚡ Energia ${starStr(rd.stars.energia)}\n${rd.energy}`, '', `🔮 ${rd.advice}`,
+    rd.mode === 'dia' ? `🍀 Sorte ${rd.lucky} · 🎨 ${PL[rd.fav].cor} · 🤝 ${SIGNS[rd.ally].n}` : `📆 ${rd.mode === 'ano' ? 'Melhor mês' : 'Melhor dia'}: ${rd.bestDay} · 🎨 ${PL[rd.fav].cor}`, '',
+    `👉 Segue ${brand()} · marca alguém de ${rd.sign.n}!`, `#horoscopo #signos #${rd.sign.tag}`].join('\n');
+}
+function openSheet(i) {
+  SHEET = (i + 12) % 12; const rd = ST.rank[SHEET], v = verdict(rd);
+  const keep = ST.fmt; ST.fmt = 'feed'; const c = drawSign(rd, SHEET); ST.fmt = keep;
+  $('#sheetTitle').textContent = `${SHEET + 1}º · ${rd.sign.n}`;
+  const sec = (ic, l, k, t) => `<section><h4>${ic} ${l} ${starsH(rd.stars[k])}</h4><p>${esc(t)}</p></section>`;
+  $('#sheetBody').innerHTML = `<img class="card" src="${c.toDataURL('image/jpeg', .9)}" alt="Cartão de ${rd.sign.n}">
+    <div class="det"><div class="vd ${v.k}"><b>${v.icon}</b> ${esc(v.txt)}</div>
+    ${sec('❤️', 'Amor', 'amor', rd.love)}${sec('💼', 'Trabalho', 'trabalho', rd.work)}${sec('💰', 'Dinheiro', 'dinheiro', rd.money)}${sec('⚡', 'Energia', 'energia', rd.energy)}
+    <section><h4>🔮 Conselho</h4><p>${esc(rd.advice)}</p></section>
+    ${rd.highlights && rd.highlights.length ? `<section><h4>📅 Em destaque</h4>${rd.highlights.map(x => `<p>${esc(x)}</p>`).join('')}</section>` : ''}</div>`;
+  $('#sheetBody').scrollTop = 0; $('#sheet').dataset.canvas = '';
+  $('#sheet')._canvas = c; $('#sheet')._cap = capOne(rd, SHEET); $('#sheet')._name = `${rd.sign.tag}-${ST.date}`;
+  if (!$('#sheet').open) $('#sheet').showModal();
+}
+
+// ---------- Partilhar ----------
+const SHARE_SVG = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 8l5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg>';
+async function shareCanvases(list, cap) {
+  copySync(cap); ST.cap = cap;
+  const files = await Promise.all(list.map(async x => new File([await blobOf(x.c)], `${x.name}.jpg`, { type: 'image/jpeg' })));
+  try { if (navigator.canShare && navigator.canShare({ files })) { await navigator.share({ files }); toast('Texto copiado: cola-o na publicação'); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+  // sem partilha nativa: mostrar as imagens para guardar
+  ST.canvases = list;
+  $('#imgsBody').innerHTML = list.map((x, i) => `<figure><img src="${x.c.toDataURL('image/jpeg', .9)}" alt=""><button class="btn" data-k="${i}">Guardar</button></figure>`).join('');
+  $('#imgsBody').querySelectorAll('button').forEach(b => b.onclick = async () => { const x = list[+b.dataset.k]; await saveBlob(await blobOf(x.c), x.name + '.jpg'); });
+  $('#imgs').showModal(); toast('Texto copiado');
+}
+async function shareCurrent() {
+  const btn = $('#shareBtn'); btn.disabled = true;
+  try { const { cs, cap } = buildPost(ST.type); await shareCanvases(cs, cap); } finally { btn.disabled = false; }
+}
+
+// ---------- O meu céu (na vista) ----------
+function calcMine() {
+  const d = $('#bDate').value, t = $('#bTime').value, ci = CITIES[+$('#bCity').value];
+  if (!d) { $('#ascOut').innerHTML = '<p class="hint">Indica a data de nascimento.</p>'; return; }
+  store.set('ceu_me', JSON.stringify({ d, t, c: $('#bCity').value }));
+  const [y, m, dd] = dParts(d), [h, mi] = (t || '12:00').split(':').map(Number), ms = localToUtcMs(y, m, dd, h, mi, ci[3]);
+  const natal = natalChart(ms, ci), P = personalDay(natal, todayStr(), ST.modern), base = t ? P.byAsc : readDay(P.sunSign, todayStr(), ST.modern);
+  const cell = (l, s) => `<div class="trio"><span>${l}</span><b>${G(SIGNS[s].g)}</b><em>${SIGNS[s].n}</em></div>`;
+  $('#ascOut').innerHTML = `<div class="trios">${cell('Sol', P.sunSign)}${cell('Lua', P.moonSign)}${t ? cell('Ascendente', P.ascSign) : ''}</div>
+    <div class="box"><h3>Hoje, só para ti</h3>${P.aspects.filter(a => t || a.np !== 'asc').map(a => `<p>${esc(a.txt)}</p>`).join('') || '<p>Dia calmo no teu mapa.</p>'}</div>
+    <div class="box"><h3>${t ? 'Pelo teu ascendente em ' + SIGNS[P.ascSign].n : 'Pelo teu signo, ' + SIGNS[P.sunSign].n}</h3><p class="ph">“${esc(base.headline)}”</p>
+    <p>❤️ ${starsH(base.stars.amor)} ${esc(base.love)}</p><p>💼 ${starsH(base.stars.trabalho)} ${esc(base.work)}</p><p>💰 ${starsH(base.stars.dinheiro)} ${esc(base.money)}</p><p>⚡ ${starsH(base.stars.energia)} ${esc(base.energy)}</p></div>
+    ${t ? '' : '<p class="hint">Sem a hora de nascimento não dá para calcular o ascendente.</p>'}`;
+}
+
+// ---------- Init ----------
+async function init() {
+  $('#shareBtn').innerHTML = SHARE_SVG; $('#sheetShare').innerHTML = SHARE_SVG + '<span>Partilhar</span>';
+  $('#brand').value = ST.brand; $('#fmt').value = ST.fmt; $('#modern').checked = ST.modern; $('#skyOn').checked = ST.sky;
+  const opts = CITIES.map((c, i) => `<option value="${i}">${c[0]}</option>`).join(''); $('#cityHours').innerHTML = opts; $('#cityHours').value = ST.city;
+  $('#brand').oninput = e => { ST.brand = e.target.value.trim(); store.set('ceu_brand', ST.brand); };
+  $('#fmt').onchange = e => { ST.fmt = e.target.value; store.set('ceu_fmt', ST.fmt); };
+  $('#modern').onchange = e => { ST.modern = e.target.checked; store.set('ceu_modern', ST.modern ? '1' : '0'); render(); };
+  $('#skyOn').onchange = e => { ST.sky = e.target.checked; store.set('ceu_sky', ST.sky ? '1' : '0'); };
+  $('#cityHours').onchange = e => { ST.city = +e.target.value; store.set('ceu_city', ST.city); render(); };
+  $('#prev').onclick = () => { ST.date = shiftDate(ST.date, -1, ST.type === 'top' || ST.type === 'lua' ? ST.mode : 'dia'); render(); };
+  $('#next').onclick = () => { ST.date = shiftDate(ST.date, 1, ST.type === 'top' || ST.type === 'lua' ? ST.mode : 'dia'); render(); };
+  $('#when').onclick = () => { ST.date = todayStr(); render(); };
+  document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => { ST.type = b.dataset.t; render(); window.scrollTo({ top: 0 }); });
+  document.querySelectorAll('#modes button').forEach(b => b.onclick = () => { ST.mode = b.dataset.m; render(); });
+  $('#shareBtn').onclick = shareCurrent;
+  $('#sheetShare').onclick = () => shareCanvases([{ name: $('#sheet')._name, c: $('#sheet')._canvas }], $('#sheet')._cap);
+  $('#sheetPrev').onclick = () => openSheet(SHEET - 1); $('#sheetNext').onclick = () => openSheet(SHEET + 1);
+  let tx = null; $('#sheetBody').addEventListener('touchstart', e => tx = e.touches[0].clientX, { passive: true });
+  $('#sheetBody').addEventListener('touchend', e => { if (tx === null) return; const dx = e.changedTouches[0].clientX - tx; if (Math.abs(dx) > 70) openSheet(SHEET + (dx < 0 ? 1 : -1)); tx = null; });
+  document.querySelectorAll('[data-open]').forEach(b => b.onclick = () => { b.closest('dialog') && b.closest('dialog').close(); $('#' + b.dataset.open).showModal(); });
+  document.querySelectorAll('dialog [data-close]').forEach(b => b.onclick = () => b.closest('dialog').close());
+  document.querySelectorAll('#pack button').forEach(b => b.onclick = () => savePack(+b.dataset.n));
+  $('#reel').onclick = () => { $('#menu').close(); ST.type = 'top'; render(); makeReel(); };
+  $('#copyCap').onclick = () => { const { cap } = buildPost(ST.type === 'eu' ? 'top' : ST.type); ST.cap = cap; copyCap(); };
+  ST.date = todayStr();
+  render();
+  try { await Promise.race([Promise.all(['700 40px Cinzel', 'italic 600 40px "Cormorant Garamond"', '500 20px Manrope', '600 20px Manrope', '700 20px Manrope', '800 20px Manrope'].map(f => document.fonts.load(f)).concat([document.fonts.load('40px "Noto Sans Symbols"', '♈♉♊♋♌♍♎♏♐♑♒♓☉☽☿♀♂♃♄'), document.fonts.load('40px "Noto Sans Symbols 2"', '♅♆♇★✂✓✕')])), new Promise(r => setTimeout(r, 3000))]); } catch (e) { }
+  if (/github\.io$/.test(location.hostname) && 'serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { });
 }
 init();
 
