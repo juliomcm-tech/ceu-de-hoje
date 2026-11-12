@@ -187,7 +187,7 @@ textarea#dTxt{width:100%;background:var(--input);border:1px solid var(--line);bo
 .ilist{display:grid;gap:8px}.iit{display:flex;gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px;cursor:pointer}.iit img,.sug img{width:46px;height:66px;object-fit:cover;border-radius:6px;flex:none;background:var(--soft)}.ph0{width:46px;height:66px;border-radius:6px;background:var(--soft);display:grid;place-items:center;font-size:24px;flex:none}.iit div{min-width:0;flex:1}.iit b{display:block}.iit small{display:block;color:var(--mute);font-size:12px}.iit .stars{font-size:13px}.nx{color:var(--gold2)!important;font-weight:800}
 .vt small{font-family:Manrope;font-size:13px;color:var(--mute)}
 .sug{display:flex;gap:10px;align-items:center;padding:7px 0;border-top:1px solid var(--line);cursor:pointer}.sug img{width:34px;height:50px}.sug .ph0{width:34px;height:50px;font-size:18px}.sug div{flex:1;min-width:0}.sug b{display:block;font-size:13.5px}.sug small{color:var(--mute);font-size:12px}
-.srch{margin-bottom:8px}#iRes{max-height:240px;overflow:auto}
+.srch{margin-bottom:8px}.cvrow{display:flex;gap:12px;align-items:center;margin:6px 0 10px}#cvPrev{flex:0 0 74px;height:108px;border-radius:8px;background:var(--soft);display:grid;place-items:center;overflow:hidden;font-size:34px}#cvPrev img{width:100%;height:100%;object-fit:cover}.cvbtns{flex:1;min-width:0;display:grid;gap:6px}.cvbtns .btn{text-align:center;cursor:pointer}.cvbtns input[type=url]{width:100%;min-width:0}.wk{display:block;width:max-content;height:auto!important;min-height:0;margin:10px auto 0;line-height:1.4;font-size:13px;color:var(--gold);text-decoration:none;border:1px solid var(--line,#fff3);border-radius:20px;padding:3px 10px}#iRes{max-height:240px;overflow:auto}
 .rate{display:flex;gap:6px}.rate button{background:none;border:0;font-size:32px;color:#f2c76e44;cursor:pointer;padding:0 2px}.rate button.on{color:var(--gold)}
 .two{display:grid;grid-template-columns:1.4fr 1fr;gap:8px}
 textarea#iC{width:100%;background:var(--input);border:1px solid var(--line);border-radius:12px;padding:10px;color:var(--ink);font:14px/1.5 Manrope}
@@ -914,7 +914,7 @@ const starStr = n => '★'.repeat(n) + '☆'.repeat(5 - n);
 const firstSentence = t => { const m = t.match(/^.*?[.!?](\s|$)/); return m ? m[0].trim() : t; };
 const MEDAL = ['🥇', '🥈', '🥉'];
 const plainEmoji = t => t.replace(/^[^\p{L}\d]+/u, '');
-function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('on'), 2600); }
+function toast(msg, ms) { const t = $('#toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove("on"), ms || 2600); }
 const rxList = s => (ST.modern ? ALLP : CLASSIC).filter(p => s[p].rx);
 const rxText = s => { const l = rxList(s); return l.length ? `${l.map(p => PL[p].n).join(', ')} retrógrad${l.length > 1 ? 'os' : PL[l[0]].f ? 'a' : 'o'}` : ''; };
 function skyShort() {
@@ -2161,8 +2161,14 @@ function readingToday(ds) {
 // ---- internet (Open Library e TVmaze) ----
 async function jget(url) { const r = await fetch(url); if (!r.ok) throw new Error(r.status); return r.json(); }
 async function searchBooks(q) {
-  const j = await jget(`https://openlibrary.org/search.json?q=${encodeURIComponent(q)}&limit=6&fields=title,author_name,first_publish_year,cover_i,number_of_pages_median&lang=por`);
-  return (j.docs || []).map(d => ({ pages: d.number_of_pages_median || '', title: d.title, by: (d.author_name || [])[0] || '', year: d.first_publish_year, cover: d.cover_i ? `https://covers.openlibrary.org/b/id/${d.cover_i}-M.jpg` : '' }));
+  const [g, o] = await Promise.allSettled([
+    jget(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&maxResults=5&langRestrict=pt`),
+    jget(`https://openlibrary.org/search.json?q=${encodeURIComponent(q)}&limit=5&fields=title,author_name,first_publish_year,cover_i,number_of_pages_median`)]);
+  const R = [];
+  if (g.status === 'fulfilled') (g.value.items || []).forEach(it => { const v = it.volumeInfo || {}; R.push({ pages: v.pageCount || '', title: v.title || '', by: (v.authors || [])[0] || '', year: (v.publishedDate || '').slice(0, 4), cover: v.imageLinks ? (v.imageLinks.thumbnail || '').replace('http:', 'https:').replace('&edge=curl', '') : '' }); });
+  if (o.status === 'fulfilled') (o.value.docs || []).forEach(d => R.push({ pages: d.number_of_pages_median || '', title: d.title, by: (d.author_name || [])[0] || '', year: d.first_publish_year, cover: d.cover_i ? `https://covers.openlibrary.org/b/id/${d.cover_i}-M.jpg` : '' }));
+  if (g.status === 'rejected' && o.status === 'rejected') throw new Error('offline');
+  const seen = new Set(); return R.filter(r => { const k = (r.title + '|' + r.by).toLowerCase(); if (!r.title || seen.has(k)) return false; seen.add(k); return true; }).slice(0, 8);
 }
 async function searchShows(q) {
   const j = await jget(`https://api.tvmaze.com/search/shows?q=${encodeURIComponent(q)}`);
@@ -2310,10 +2316,24 @@ function placeAt(x, y) {
 // ---- ISBN e código de barras ----
 async function isbnLookup(isbn) {
   isbn = String(isbn).replace(/\D/g, '');
-  const j = await jget(`https://openlibrary.org/search.json?isbn=${isbn}&fields=title,author_name,cover_i,first_publish_year,number_of_pages_median&limit=1`);
-  const d = (j.docs || [])[0]; if (d) return { pages: d.number_of_pages_median || '', title: d.title, by: (d.author_name || [])[0] || '', cover: d.cover_i ? `https://covers.openlibrary.org/b/id/${d.cover_i}-M.jpg` : `https://covers.openlibrary.org/b/isbn/${isbn}-M.jpg?default=false` };
-  try { const g = await jget(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`); const v = g.items && g.items[0] && g.items[0].volumeInfo; if (v) return { pages: v.pageCount || '', title: v.title, by: (v.authors || [])[0] || '', cover: v.imageLinks ? (v.imageLinks.thumbnail || '').replace('http:', 'https:') : '' }; } catch (e) { }
-  return null;
+  const gb = v => ({ pages: v.pageCount || '', title: v.title + (v.subtitle && v.title.length < 30 ? '' : ''), by: (v.authors || [])[0] || '', cover: v.imageLinks ? (v.imageLinks.thumbnail || v.imageLinks.smallThumbnail || '').replace('http:', 'https:').replace('&edge=curl', '') : '' });
+  const olCover = `https://covers.openlibrary.org/b/isbn/${isbn}-M.jpg?default=false`;
+  let best = null; const better = r => { if (!r || !r.title) return; if (!best) best = r; else { if (!best.cover && r.cover) best.cover = r.cover; if (!best.pages && r.pages) best.pages = r.pages; if (!best.by && r.by) best.by = r.by; } };
+  // 1) Google Books (melhor para edições portuguesas)
+  try { const g = await jget(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`); const v = g.items && g.items[0] && g.items[0].volumeInfo; if (v) better(gb(v)); } catch (e) { }
+  if (best && best.cover && best.by) return best;
+  // 2) Open Library: pesquisa
+  try { const j = await jget(`https://openlibrary.org/search.json?isbn=${isbn}&fields=title,author_name,cover_i,number_of_pages_median&limit=1`); const d = (j.docs || [])[0]; if (d) better({ pages: d.number_of_pages_median || '', title: d.title, by: (d.author_name || [])[0] || '', cover: d.cover_i ? `https://covers.openlibrary.org/b/id/${d.cover_i}-M.jpg` : '' }); } catch (e) { }
+  if (best && best.cover && best.by) return best;
+  // 3) Open Library: ficha da edição
+  try { const e = await jget(`https://openlibrary.org/isbn/${isbn}.json`); if (e && e.title) { let by = e.by_statement || ''; try { if (e.authors && e.authors[0]) { const a = await jget(`https://openlibrary.org${e.authors[0].key}.json`); by = a.name || by; } } catch (x) { } better({ pages: e.number_of_pages || '', title: e.title, by, cover: e.covers && e.covers[0] > 0 ? `https://covers.openlibrary.org/b/id/${e.covers[0]}-M.jpg` : olCover }); } } catch (e) { }
+  // 4) Google Books pesquisa livre
+  if (!best) try { const g = await jget(`https://www.googleapis.com/books/v1/volumes?q=${isbn}`); const v = g.items && g.items[0] && g.items[0].volumeInfo; if (v) better(gb(v)); } catch (e) { }
+  return best;
+}
+function wookLink(q) { return `https://www.google.com/search?q=${encodeURIComponent(q + ' site:wook.pt')}`; }
+function photoToCover(file) {
+  return new Promise((res, rej) => { const fr = new FileReader(); fr.onerror = rej; fr.onload = () => { const im = new Image(); im.onerror = rej; im.onload = () => { const w = 200, h = Math.round(im.height * w / im.width), c = document.createElement('canvas'); c.width = w; c.height = Math.min(h, 320); c.getContext('2d').drawImage(im, 0, 0, w, h); res(c.toDataURL('image/jpeg', .78)); }; im.src = fr.result; }; fr.readAsDataURL(file); });
 }
 async function scanBarcode() {
   if (!('BarcodeDetector' in window) || !navigator.mediaDevices) { const v = window.prompt ? prompt('Escreve o ISBN (13 números, atrás do livro):') : null; return v; }
@@ -2339,7 +2359,7 @@ function editEstante(e) {
 }
 
 // ===== App de telemóvel =====
-const APP_VERSION = '12.11.2026 23:23';
+const APP_VERSION = '12.11.2026 23:58';
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const G = g => `${g}&#xFE0E;`;
@@ -2652,7 +2672,7 @@ function bindInteresses() {
   document.querySelectorAll('[data-it]').forEach(b => b.onclick = () => { ST.intTab = b.dataset.it; render(); });
   $('#intAdd').onclick = () => openItem(t, null, true);
   document.querySelectorAll('[data-vw]').forEach(b => b.onclick = () => { ST.bookView = b.dataset.vw; render(); });
-  if ($('#intScan')) $('#intScan').onclick = async () => { try { const code = await scanBarcode(); if (!code) return; toast('A procurar o livro…'); const b = await isbnLookup(code); if (!b) { toast('Não encontrei esse ISBN'); openItem('livros', null, true, { isbn: code }); return; } openItem('livros', null, true, { ...b, isbn: code, status: 2 }); } catch (e) { toast('Sem câmara ou sem internet'); } };
+  if ($('#intScan')) $('#intScan').onclick = async () => { try { const code = await scanBarcode(); if (!code) return; toast('A procurar o livro…'); const b = await isbnLookup(code); if (!b) { toast('Não está nas bases abertas — preenche ou fotografa a capa 📷', 4000); openItem('livros', null, true, { isbn: code, status: 2, notFound: 1 }); return; } openItem('livros', null, true, { ...b, isbn: code, status: 2 }); } catch (e) { toast('Sem câmara ou sem internet'); } };
   if (t === 'livros' && ST.bookView === 'estante') bindShelf();
   if (t === 'livros' && ST.bookView === 'stats') { $('#syPrev').onclick = () => { ST.statYear = +(ST.statYear || todayStr().slice(0, 4)) - 1; render(); }; $('#syNext').onclick = () => { ST.statYear = +(ST.statYear || todayStr().slice(0, 4)) + 1; render(); }; }
   document.querySelectorAll('.iit').forEach(el => el.onclick = () => openItem(t, el.dataset.id, false));
@@ -2681,7 +2701,7 @@ function openItem(t, id, edit, preset) {
   $('#intTitle').textContent = id ? (edit ? 'Editar' : '') : `Novo ${C.one}`;
   if (!edit) {
     const dur = durTxt(dtJoin(x.sd, x.st), dtJoin(x.ed, x.et)), sky = x.sd ? skyFor(x.sd) : null;
-    $('#intBody').innerHTML = `<div class="ihero">${x.cover ? `<img src="${esc(x.cover)}" alt="">` : `<span class="ph1">${C.ic}</span>`}<h3>${esc(x.title)}</h3><p>${esc(x.by || '')}${x.place ? ' · ' + esc(x.place) : ''}${x.genre ? ' · ' + x.genre : ''}</p><span class="stars big">${'★'.repeat(x.rating || 0)}<i>${'☆'.repeat(5 - (x.rating || 0))}</i></span><span class="chip" style="--c:var(--gold)">${C.verb[x.status]}</span></div>
+    $('#intBody').innerHTML = `<div class="ihero">${x.cover ? `<img src="${esc(x.cover)}" alt="">` : `<span class="ph1">${C.ic}</span>`}<h3>${esc(x.title)}</h3><p>${esc(x.by || '')}${x.place ? ' · ' + esc(x.place) : ''}${x.genre ? ' · ' + x.genre : ''}</p><span class="stars big">${'★'.repeat(x.rating || 0)}<i>${'☆'.repeat(5 - (x.rating || 0))}</i></span><span class="chip" style="--c:var(--gold)">${C.verb[x.status]}</span>${t === 'livros' && (x.isbn || x.title) ? `<a class="wk" href="${wookLink(x.isbn || (x.title + ' ' + (x.by || '')))}" target="_blank" rel="noopener">🔎 Ver na Wook</a>` : ''}</div>
       ${x.sd ? `<div class="box"><p>▶️ Início: <b>${niceDate(x.sd)}${x.st ? ' às ' + x.st : ''}</b></p>${x.ed ? `<p>🏁 Fim: <b>${niceDate(x.ed)}${x.et ? ' às ' + x.et : ''}</b></p>` : ''}${dur ? `<p>⏱ ${C.done} em <b>${dur}</b>.</p>` : ''}${sky ? `<p class="note">🌙 Começaste com a Lua em ${SIGN_IN[sky.moon.sign]} (${moonPhaseName(sky.phase.elong)}).</p>` : ''}</div>` : ''}
       ${t === 'livros' && (x.status === 1 || x.status === 3) ? `<div class="box"><h3>📖 A tua leitura</h3>${progH(x)}<div class="drow"><input type="number" id="logPg" inputmode="numeric" placeholder="Página onde vais" value="${x.page || ''}"><button class="btn main" id="logGo">Li hoje</button></div></div>` : ''}
       ${x.comment ? `<div class="box"><h3>💬 O teu comentário</h3><p>${esc(x.comment).replace(/\n/g, '<br>')}</p></div>` : ''}${x.next ? `<div class="box"><p>📺 Próximo episódio: <b>${x.next}</b></p></div>` : ''}`;
@@ -2691,9 +2711,11 @@ function openItem(t, id, edit, preset) {
   }
   const gOpt = GENRES[t].map(g => `<option${g === x.genre ? ' selected' : ''}>${g}</option>`).join('');
   $('#intBody').innerHTML = `${ONLINE() && t !== 'viagens' ? `<div class="srch"><input type="search" id="iQ" placeholder="🔎 Procurar ${t === 'livros' ? 'livro ou autor' : 'série'} na internet…"><div id="iRes"></div></div>` : ''}
+    ${t === 'livros' ? `${x.notFound ? `<p class="hint">📕 Não encontrei o ISBN ${esc(x.isbn)} nas bases abertas. Escreve o título, ou <a href="${wookLink(x.isbn)}" target="_blank" rel="noopener">vê-o na Wook</a> e copia de lá.</p>` : ''}<div class="cvrow"><div id="cvPrev">${x.cover ? `<img src="${esc(x.cover)}" alt="">` : '<span>📕</span>'}</div><div class="cvbtns"><label class="btn ghost">📷 Fotografar a capa<input type="file" id="cvFile" accept="image/*" capture="environment" hidden></label><input type="url" id="cvUrl" placeholder="ou cola o link da imagem da capa" value="${x.cover && !x.cover.startsWith('data:') ? esc(x.cover) : ''}"><button class="btn ghost" id="cvDel" type="button"${x.cover ? '' : ' hidden'}>Tirar capa</button></div></div>` : ''}
     <div class="form"><label>${t === 'viagens' ? 'Destino / nome da viagem' : 'Título'}<input type="text" id="iT" maxlength="80" value="${esc(x.title)}"></label>
     <label>${C.by}<input type="text" id="iB" maxlength="60" value="${esc(x.by)}"></label>${t === 'viagens' ? `<label>Cidade / lugar<input type="text" id="iP" maxlength="60" value="${esc(x.place || '')}"></label>` : ''}
     ${t === 'livros' ? `<div class="two"><label>Nº de páginas<input type="number" id="iPg" min="1" max="5000" inputmode="numeric" value="${x.pages || ''}"></label><label>Página atual<input type="number" id="iCp" min="0" max="5000" inputmode="numeric" value="${x.page || ''}"></label></div>` : ''}
+    ${t === 'livros' ? `<label>ISBN<input type="text" id="iIsbn" inputmode="numeric" maxlength="17" value="${esc(x.isbn || '')}"></label>` : ''}
     <label>${t === 'viagens' ? 'Tipo' : 'Género'}<select id="iG"><option value="">—</option>${gOpt}</select></label>
     <label>Estado<select id="iS">${C.verb.map((v, i) => `<option value="${i}"${i === x.status ? ' selected' : ''}>${v}</option>`).join('')}</select></label>
     <label>Avaliação</label><div class="rate">${[1, 2, 3, 4, 5].map(n => `<button data-r="${n}"${n <= x.rating ? ' class="on"' : ''}>★</button>`).join('')}</div>
@@ -2702,14 +2724,16 @@ function openItem(t, id, edit, preset) {
     <label>Comentário<textarea id="iC" rows="3" maxlength="1000">${esc(x.comment || '')}</textarea></label>
     ${t === 'livros' ? (() => { const S = SHELF.get(), pe = x.pos ? x.pos.e : +(store.get('ceu_lastshelf') || '0').split(',')[0] || 0, pp = x.pos ? x.pos.p : +(store.get('ceu_lastshelf') || '0,0').split(',')[1] || 0; return `<label>Lugar na estante</label><div class="two"><select id="iPE">${[...Array(S.e)].map((_, i) => `<option value="${i}"${i === pe ? ' selected' : ''}>${esc(S.names[i] || 'Estante ' + (i + 1))}</option>`).join('')}</select><select id="iPP">${[...Array(S.p)].map((_, i) => `<option value="${i}"${i === pp ? ' selected' : ''}>Prateleira ${i + 1}</option>`).join('')}</select></div>`; })() : ''}</div>`;
   let rating = x.rating || 0, cover = x.cover || '', tvm = x.tvmaze || null;
+  const setCv = c => { cover = c || ''; if ($('#cvPrev')) { $('#cvPrev').innerHTML = cover ? `<img src="${esc(cover)}" alt="">` : '<span>📕</span>'; $('#cvDel').hidden = !cover; } };
+  if ($('#cvFile')) { $('#cvFile').onchange = async e => { const f = e.target.files[0]; if (!f) return; try { setCv(await photoToCover(f)); $('#cvUrl').value = ''; toast('Capa guardada 📕'); } catch (er) { toast('Não consegui ler a foto'); } }; $('#cvUrl').onchange = () => { const v = $('#cvUrl').value.trim(); if (/^https?:\/\//.test(v)) setCv(v); }; $('#cvDel').onclick = () => { setCv(''); $('#cvUrl').value = ''; }; }
   document.querySelectorAll('.rate button').forEach(b => b.onclick = () => { rating = +b.dataset.r === rating ? 0 : +b.dataset.r; document.querySelectorAll('.rate button').forEach(z => z.classList.toggle('on', +z.dataset.r <= rating)); });
-  if ($('#iQ')) $('#iQ').oninput = () => { clearTimeout(openItem.t); const q = $('#iQ').value.trim(); if (q.length < 3) { $('#iRes').innerHTML = ''; return; } openItem.t = setTimeout(async () => { try { $('#iRes').innerHTML = '<p class="hint">A procurar…</p>'; const R = t === 'livros' ? await searchBooks(q) : await searchShows(q); $('#iRes').innerHTML = R.map((r, i) => `<div class="sug" data-i="${i}">${r.cover ? `<img src="${r.cover}" alt="">` : `<span class="ph0">${C.ic}</span>`}<div><b>${esc(r.title)}</b><small>${esc(r.by)}${r.year ? ' · ' + r.year : ''}</small></div></div>`).join('') || '<p class="hint">Sem resultados.</p>'; $('#iRes').querySelectorAll('.sug').forEach(el => el.onclick = () => { const r = R[+el.dataset.i]; $('#iT').value = r.title; $('#iB').value = r.by; cover = r.cover; if (r.pages && $('#iPg') && !$('#iPg').value) $('#iPg').value = r.pages; tvm = r.tvmaze || null; $('#iRes').innerHTML = `<p class="hint">✓ ${esc(r.title)}</p>`; }); } catch (e) { $('#iRes').innerHTML = '<p class="hint">Sem ligação à internet.</p>'; } }, 450); };
+  if ($('#iQ')) $('#iQ').oninput = () => { clearTimeout(openItem.t); const q = $('#iQ').value.trim(); if (q.length < 3) { $('#iRes').innerHTML = ''; return; } openItem.t = setTimeout(async () => { try { $('#iRes').innerHTML = '<p class="hint">A procurar…</p>'; const R = t === 'livros' ? await searchBooks(q) : await searchShows(q); $('#iRes').innerHTML = R.map((r, i) => `<div class="sug" data-i="${i}">${r.cover ? `<img src="${r.cover}" alt="">` : `<span class="ph0">${C.ic}</span>`}<div><b>${esc(r.title)}</b><small>${esc(r.by)}${r.year ? ' · ' + r.year : ''}</small></div></div>`).join('') || '<p class="hint">Sem resultados.</p>'; $('#iRes').querySelectorAll('.sug').forEach(el => el.onclick = () => { const r = R[+el.dataset.i]; $('#iT').value = r.title; $('#iB').value = r.by; cover = r.cover; if ($('#cvPrev')) setCv(r.cover); if (r.pages && $('#iPg') && !$('#iPg').value) $('#iPg').value = r.pages; tvm = r.tvmaze || null; $('#iRes').innerHTML = `<p class="hint">✓ ${esc(r.title)}</p>`; }); } catch (e) { $('#iRes').innerHTML = '<p class="hint">Sem ligação à internet.</p>'; } }, 450); };
   $('#iS').onchange = () => { if ($('#iS').value === '2' && !$('#iED').value) $('#iED').value = todayStr(); };
   $('#intSave').textContent = 'Guardar'; $('#intDel').hidden = !id;
   $('#intSave').onclick = () => {
     const ti = $('#iT').value.trim(); if (!ti) { toast('Escreve o título'); return; }
     const npos = t === 'livros' && $('#iPE') ? (() => { const e = +$('#iPE').value, p = +$('#iPP').value; store.set('ceu_lastshelf', e + ',' + p); return x.pos && x.pos.e === e && x.pos.p === p ? x.pos : { e, p, i: 1e6 }; })() : x.pos;
-    const o = { pages: $('#iPg') ? $('#iPg').value : x.pages || '', page: $('#iCp') ? $('#iCp').value : x.page || '', lastRead: x.lastRead || '', log: x.log || [], pos: npos, isbn: x.isbn || '', id: id || 'i' + Date.now().toString(36), title: ti, by: $('#iB').value.trim(), place: $('#iP') ? $('#iP').value.trim() : '', genre: $('#iG').value, status: +$('#iS').value, rating, sd: $('#iSD').value, st: $('#iST').value, ed: $('#iED').value, et: $('#iET').value, comment: $('#iC').value.trim(), cover, tvmaze: tvm, next: x.next || '', ts: Date.now() };
+    const o = { pages: $('#iPg') ? $('#iPg').value : x.pages || '', page: $('#iCp') ? $('#iCp').value : x.page || '', lastRead: x.lastRead || '', log: x.log || [], pos: npos, isbn: $('#iIsbn') ? $('#iIsbn').value.replace(/[^\dXx]/g, '') : x.isbn || '', id: id || 'i' + Date.now().toString(36), title: ti, by: $('#iB').value.trim(), place: $('#iP') ? $('#iP').value.trim() : '', genre: $('#iG').value, status: +$('#iS').value, rating, sd: $('#iSD').value, st: $('#iST').value, ed: $('#iED').value, et: $('#iET').value, comment: $('#iC').value.trim(), cover, tvmaze: tvm, next: x.next || '', ts: Date.now() };
     const all = intList(t); if (id) all[all.findIndex(z => z.id === id)] = o; else all.push(o); intSave(t, all); $('#intDlg').close(); toast(o.status === 2 && o.ed ? `${C.done} em ${durTxt(dtJoin(o.sd, o.st), dtJoin(o.ed, o.et)) || '—'} 🎉` : 'Guardado'); render();
   };
   $('#intDel').onclick = () => { if (!confirmBox('Apagar?')) return; intSave(t, intList(t).filter(z => z.id !== id)); $('#intDlg').close(); render(); };
