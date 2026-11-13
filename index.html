@@ -4968,7 +4968,7 @@ async function testAlert() {
 }
 
 // ---------- Avisos à hora certa (servidor Cloudflare; também no iPhone com a app no ecrã principal) ----------
-const PUSH_URL = ''; // endereço do Worker (ex.: https://ceu-avisos.NOME.workers.dev); vazio = desligado
+const PUSH_URL = 'https://ceu-avisos.juliomcm.workers.dev'; // endereço do Worker (ex.: https://ceu-avisos.NOME.workers.dev); vazio = desligado
 const pushUrl = () => (store.get('ceu_push_url') || PUSH_URL).replace(/\/$/, '');
 const PS = { get: () => { try { return JSON.parse(store.get('ceu_push') || '{}'); } catch (e) { return {}; } }, set: o => store.set('ceu_push', JSON.stringify(o)) };
 const u8 = s => { const b = atob(s.replace(/-/g, '+').replace(/_/g, '/') + '==='.slice((s.length + 3) % 4)); return Uint8Array.from(b, c => c.charCodeAt(0)); };
@@ -5000,7 +5000,7 @@ function bindPushBox() {
 }
 
 // ===== App de telemóvel =====
-const APP_VERSION = '13.11.2026 23:45';
+const APP_VERSION = '13.11.2026 21:25';
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const G = g => `${g}&#xFE0E;`;
