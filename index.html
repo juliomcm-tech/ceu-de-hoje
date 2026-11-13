@@ -246,7 +246,7 @@ footer.ft{color:var(--mute);font-size:11.5px;text-align:center;margin:18px 0 6px
   </header>
   <div id="instBanner" class="inst" hidden><span>📲</span><div><b>Instala a app Céu de Hoje</b><small>Fica no ecrã do telemóvel. Usa o Chrome.</small></div><button class="btn main" id="instGo">Instalar</button><button class="link" id="instClose">✕</button></div>
   <main id="view"></main>
-  <footer class="ft">Posições reais dos astros · para entretenimento<br>© 2026 Júlio Melo</footer>
+  <footer class="ft">Posições reais dos astros · para entretenimento<br>© 2026 Júlio Melo · <a href="privacidade.html" style="color:inherit">Privacidade e termos</a></footer>
 </div>
 <nav id="tabs">
   <button data-t="top" class="on"><span>🏆</span>Top</button><button data-t="pares"><span>💞</span>Pares</button><button data-t="lua"><span>🌙</span>Lua</button><button data-t="anos"><span>🎂</span>Anos</button><button data-t="horas"><span>⏳</span>Horas</button><button data-t="eu"><span>✨</span>Eu</button>
@@ -273,6 +273,7 @@ footer.ft{color:var(--mute);font-size:11.5px;text-align:center;margin:18px 0 6px
   <div class="box"><h3>💾 Cópia de segurança</h3><div id="bkMenu"></div></div>
   <div id="pushMenu"></div>
   <div class="box"><h3>🔊 Voz da leitura</h3><div id="voiceMenu"><p class="note">A carregar as vozes…</p></div></div>
+  <div class="box"><h3>📄 Privacidade e termos</h3><p>Os teus dados ficam só neste telemóvel. Sem contas, sem publicidade, sem rastreio.</p><a class="btn" href="privacidade.html" style="display:block;text-align:center;text-decoration:none">Ler a política e os termos</a><p class="note">© 2026 Júlio Melo · Todos os direitos reservados</p></div>
   <h2 style="margin-top:18px">Para quem publica</h2>
   <label for="brand">Nome da página (aparece nas imagens partilhadas)</label>
   <input type="text" id="brand" maxlength="32" placeholder="Ex.: Os Astros Dizem">
@@ -5000,7 +5001,7 @@ function bindPushBox() {
 }
 
 // ===== App de telemóvel =====
-const APP_VERSION = '13.11.2026 21:25';
+const APP_VERSION = '13.11.2026 21:45';
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const G = g => `${g}&#xFE0E;`;
