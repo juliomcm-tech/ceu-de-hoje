@@ -2485,9 +2485,9 @@ function fileToCanvas(file, max = 1400, invert = false) {
 }
 const ocrGood = x => x.confidence >= 55 && /\p{L}{2,}/u.test(x.text);
 function ocrLines(data) { return (data.blocks || []).flatMap(b => b.paragraphs.flatMap(p => p.lines)).map(l => { const ws = (l.words || []).filter(ocrGood); return { text: ws.map(x => x.text).join(' '), conf: ws.length ? ws.reduce((s, x) => s + x.confidence, 0) / ws.length : 0, h: ws.length ? Math.max(...ws.map(x => x.bbox.y1 - x.bbox.y0)) : 0, y: l.bbox.y0, words: ws.map(x => x.text) }; }).filter(l => l.text); }
-async function ocrCover(file, onStep) {
+async function ocrCover0(file, onStep, passesOverride) {
   const w = await ocrWorker(); try { await w.setParameters({ tessedit_pageseg_mode: '11' }); } catch (e) { }
-  const passes = [[1400, false], [1400, true], [800, false]], all = [], parsed = [];
+  const passes = passesOverride || [[1400, false], [1400, true], [800, false]], all = [], parsed = [];
   for (let i = 0; i < passes.length; i++) {
     if (onStep) onStep(i + 1, passes.length);
     const { data } = await w.recognize(await fileToCanvas(file, passes[i][0], passes[i][1]), {}, { blocks: true });
@@ -2501,6 +2501,15 @@ async function ocrCover(file, onStep) {
   const longW = [...words].sort((x, y) => y.length - x.length).slice(0, 6), names = parsed.map(p => p.by).filter(Boolean);
   const queries = [...new Set([best.query, [best.title, names[0]].filter(Boolean).join(' '), longW.join(' '), names[0] && (names[0] + ' ' + longW.filter(x => !names[0].includes(x)).slice(0, 2).join(' '))].filter(q => q && q.trim().length > 3))].slice(0, 4);
   return { ...best, raw: [...new Set(parsed.flatMap(p => p.raw))], words, queries };
+}
+async function resetOcr(useCdn) { try { if (_ocrW) await _ocrW.terminate(); } catch (e) { } _ocrW = null; if (useCdn) { if (!window.Tesseract) await loadScript('https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js'); _ocrW = await Tesseract.createWorker('por', 1); } }
+async function ocrCover(file, onStep) {
+  try { return await ocrCover0(file, onStep); }
+  catch (e1) {
+    console.warn('OCR falhou, a tentar de novo', e1);
+    try { await resetOcr(false); return await ocrCover0(file, onStep, [[1000, false]]); }
+    catch (e2) { console.warn('OCR falhou outra vez, a usar o servidor alternativo', e2); await resetOcr(true); return await ocrCover0(file, onStep, [[1000, false]]); }
+  }
 }
 function ocrRank(results, words) {
   const W = words.map(w => nrm(w).replace(/[^a-z0-9]/g, '')).filter(w => w.length >= 3);
@@ -3537,7 +3546,7 @@ function checkAddLink() {
 }
 
 // ===== App de telemóvel =====
-const APP_VERSION = '13.11.2026 17:20';
+const APP_VERSION = '13.11.2026 17:45';
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const G = g => `${g}&#xFE0E;`;
@@ -3941,7 +3950,7 @@ function openItem(t, id, edit, preset) {
         ob.querySelector('.hint').innerHTML = top ? `✨ Parece ser <b>${esc(top.title)}</b>${top.by ? ' de ' + esc(top.by) : ''}. Toca para confirmar, ou escolhe outro.` : `✍️ Li: <i>${esc(r.words.slice(0, 8).join(' '))}</i>. Confirma ou corrige o título e o autor.`;
         $('#ocrRes').innerHTML = (R.length ? `${R.map((b, i) => `<div class="sug${i === 0 && top ? ' best' : ''}" data-i="${i}">${b.cover ? `<img src="${b.cover}" alt="">` : '<span class="ph0">📚</span>'}<div><b>${esc(b.title)}</b><small>${esc(b.by)}${b.year ? ' · ' + b.year : ''}${b.pages ? ' · ' + b.pages + ' pág.' : ''}</small></div></div>`).join('')}` : '<p class="hint">Não encontrei nas bases abertas.</p>') + `<p class="hint"><a href="${googleLink(r.words.slice(0, 6).join(' '))}" target="_blank" rel="noopener">🔎 Procurar no Google</a> · <a href="${wookLink(r.words.slice(0, 5).join(' '))}" target="_blank" rel="noopener">Ver na Wook</a></p>`;
         $('#ocrRes').querySelectorAll('.sug').forEach(el => el.onclick = () => { const b = R[+el.dataset.i]; $('#iT').value = b.title; if (b.by) $('#iB').value = b.by; if (b.pages && $('#iPg') && !$('#iPg').value) $('#iPg').value = b.pages; if (!cover && b.cover) setCv(b.cover); $('#ocrRes').innerHTML = `<p class="hint">✓ ${esc(b.title)}</p>`; });
-      } catch (er) { ob.innerHTML = '<p class="hint">Não consegui ligar ao leitor de capas (precisa de internet).</p>'; } }; $('#cvUrl').onchange = () => { const v = $('#cvUrl').value.trim(); if (/^https?:\/\//.test(v)) setCv(v); }; $('#cvDel').onclick = () => { setCv(''); $('#cvUrl').value = ''; }; }
+      } catch (er) { console.error(er); ob.innerHTML = `<p class="hint">${navigator.onLine === false ? 'Sem internet: liga os dados ou o Wi-Fi e tenta outra vez.' : 'O leitor de capas falhou neste telemóvel 😕 Tenta outra vez, ou escreve o título à mão.'}<br><small style="opacity:.6">Detalhe: ${esc(String(er && (er.message || er)).slice(0, 120))}</small></p><button class="btn ghost" id="ocrRetry" type="button">🔄 Tentar outra vez</button>`; $('#ocrRetry').onclick = async () => { await resetOcr(false); readCover(f); }; } }; $('#cvUrl').onchange = () => { const v = $('#cvUrl').value.trim(); if (/^https?:\/\//.test(v)) setCv(v); }; $('#cvDel').onclick = () => { setCv(''); $('#cvUrl').value = ''; }; }
   document.querySelectorAll('.rate button').forEach(b => b.onclick = () => { rating = +b.dataset.r === rating ? 0 : +b.dataset.r; document.querySelectorAll('.rate button').forEach(z => z.classList.toggle('on', +z.dataset.r <= rating)); });
   if ($('#iQ')) $('#iQ').oninput = () => { clearTimeout(openItem.t); const q = $('#iQ').value.trim(); if (q.length < 3) { $('#iRes').innerHTML = ''; return; } openItem.t = setTimeout(async () => { try { $('#iRes').innerHTML = '<p class="hint">A procurar…</p>'; const R = t === 'livros' ? await searchBooks(q) : await searchShows(q); $('#iRes').innerHTML = R.map((r, i) => `<div class="sug" data-i="${i}">${r.cover ? `<img src="${r.cover}" alt="">` : `<span class="ph0">${C.ic}</span>`}<div><b>${esc(r.title)}</b><small>${esc(r.by)}${r.year ? ' · ' + r.year : ''}</small></div></div>`).join('') || '<p class="hint">Sem resultados.</p>'; $('#iRes').querySelectorAll('.sug').forEach(el => el.onclick = () => { const r = R[+el.dataset.i]; $('#iT').value = r.title; $('#iB').value = r.by; cover = r.cover; if ($('#cvPrev')) setCv(r.cover); if (r.pages && $('#iPg') && !$('#iPg').value) $('#iPg').value = r.pages; tvm = r.tvmaze || null; $('#iRes').innerHTML = `<p class="hint">✓ ${esc(r.title)}</p>`; }); } catch (e) { $('#iRes').innerHTML = '<p class="hint">Sem ligação à internet.</p>'; } }, 450); };
   $('#iS').onchange = () => { if ($('#iS').value === '2' && !$('#iED').value) $('#iED').value = todayStr(); };
