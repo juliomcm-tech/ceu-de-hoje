@@ -1,7 +1,7 @@
 {
   "name": "Céu de Hoje",
   "short_name": "Céu de Hoje",
-  "description": "Top dos signos, pares, calendário lunar e horas planetárias com as posições reais dos astros.",
+  "description": "Horóscopo diário, carta de tarot do dia, Lua, aniversários e o teu diário. Grátis, sem registo e com os dados só no teu telemóvel.",
   "lang": "pt-PT",
   "start_url": "./",
   "scope": "./",
@@ -14,13 +14,19 @@
       "src": "icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
   "shortcuts": [
@@ -68,5 +74,11 @@
         }
       ]
     }
-  ]
+  ],
+  "id": "./",
+  "categories": [
+    "lifestyle",
+    "entertainment"
+  ],
+  "dir": "ltr"
 }
