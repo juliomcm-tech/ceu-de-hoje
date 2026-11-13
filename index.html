@@ -271,6 +271,7 @@ footer.ft{color:var(--mute);font-size:11.5px;text-align:center;margin:18px 0 6px
   <div class="box"><h3>🎨 Cores</h3><select id="themeSel"><option value="astral">🌌 Astral (original)</option><option value="branco">🤍 Branco</option><option value="pink">🌸 Pink</option><option value="menta">🌿 Menta</option></select></div>
   <div class="box"><h3>🔒 PIN de entrada</h3><p id="pinState" style="margin:0 0 6px"></p><div class="drow"><input type="password" id="pinNew" inputmode="numeric" maxlength="6" placeholder="4 a 6 números"><button class="btn main" id="pinSet">Guardar</button></div><button class="btn" id="pinDel" style="width:100%;margin-top:6px">Tirar o PIN</button><p class="note">Opcional. Protege o teu espaço e o diário neste telemóvel.</p></div>
   <div class="box"><h3>💾 Cópia de segurança</h3><div id="bkMenu"></div></div>
+  <div id="pushMenu"></div>
   <div class="box"><h3>🔊 Voz da leitura</h3><div id="voiceMenu"><p class="note">A carregar as vozes…</p></div></div>
   <h2 style="margin-top:18px">Para quem publica</h2>
   <label for="brand">Nome da página (aparece nas imagens partilhadas)</label>
@@ -4966,8 +4967,40 @@ async function testAlert() {
   try { navigator.vibrate && navigator.vibrate([30, 60, 30]); } catch (e) { }
 }
 
+// ---------- Avisos à hora certa (servidor Cloudflare; também no iPhone com a app no ecrã principal) ----------
+const PUSH_URL = ''; // endereço do Worker (ex.: https://ceu-avisos.NOME.workers.dev); vazio = desligado
+const pushUrl = () => (store.get('ceu_push_url') || PUSH_URL).replace(/\/$/, '');
+const PS = { get: () => { try { return JSON.parse(store.get('ceu_push') || '{}'); } catch (e) { return {}; } }, set: o => store.set('ceu_push', JSON.stringify(o)) };
+const u8 = s => { const b = atob(s.replace(/-/g, '+').replace(/_/g, '/') + '==='.slice((s.length + 3) % 4)); return Uint8Array.from(b, c => c.charCodeAt(0)); };
+async function pushSync(force) {
+  const o = PS.get(), url = pushUrl(); if (!url || !o.on || !('serviceWorker' in navigator) || !('PushManager' in window)) return false;
+  try { const reg = await navigator.serviceWorker.ready; let sub = await reg.pushManager.getSubscription();
+    if (!sub) { const { key } = await (await fetch(url + '/vapid')).json(); sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: u8(key) }); force = true; }
+    const off = new Date().getTimezoneOffset(), sig = [sub.endpoint, off, o.m, o.n, o.mOn, o.nOn].join('|');
+    if (!force && o.sig === sig && Date.now() - (o.at || 0) < 7 * 864e5) return true;
+    o.id = o.id || (crypto.randomUUID ? crypto.randomUUID() : 'u' + Date.now() + Math.random().toString(36).slice(2));
+    const r = await fetch(url + '/sub', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id: o.id, endpoint: sub.endpoint, off, m: o.m || '08:00', n: o.n || '21:30', on: { m: o.mOn !== false, n: !!o.nOn } }) });
+    if (!r.ok) throw new Error('servidor ' + r.status); o.sig = sig; o.at = Date.now(); PS.set(o); return true;
+  } catch (e) { o.err = String(e.message || e).slice(0, 80); PS.set(o); return false; }
+}
+async function pushOff() { const o = PS.get(), url = pushUrl(); o.on = false; PS.set(o); try { if (url && o.id) await fetch(url + '/unsub', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id: o.id }) }); const reg = await navigator.serviceWorker.ready, s = await reg.pushManager.getSubscription(); s && s.unsubscribe(); } catch (e) { } }
+function pushBox() {
+  if (!pushUrl()) return ''; const o = PS.get(), ios = /iPhone|iPad/.test(navigator.userAgent), standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone, can = 'PushManager' in window;
+  return `<div class="box pushb"><h3>⏰ Avisos à hora certa</h3><p class="note">Chegam mesmo com a app fechada, à hora que escolheres${ios ? ', também no iPhone' : ''}. O servidor não guarda nada teu: só a hora do toque.</p>
+    ${ios && !standalone ? '<p class="note">📲 No iPhone, primeiro instala a app: Safari → Partilhar → Adicionar ao ecrã principal. Depois abre-a pelo ícone e volta aqui.</p>' : !can ? '<p class="note">Este navegador não deixa avisos com a app fechada.</p>' : `
+    <label class="chk"><input type="checkbox" id="psOn"${o.on ? ' checked' : ''}> Ligar os avisos à hora certa</label>
+    <div class="two"><label>☀️ Manhã<input type="time" id="psM" value="${o.m || '08:00'}"></label><label class="chk"><input type="checkbox" id="psMOn"${o.mOn === false ? '' : ' checked'}> carta e dia</label></div>
+    <div class="two"><label>🌙 Noite<input type="time" id="psN" value="${o.n || '21:30'}"></label><label class="chk"><input type="checkbox" id="psNOn"${o.nOn ? ' checked' : ''}> ritual da noite</label></div>
+    <p class="note" id="psSt">${o.on ? (o.err ? '⚠️ ' + esc(o.err) : '✅ Ligado') : ''}</p>`}</div>`;
+}
+function bindPushBox() {
+  if (!$('#psOn')) return; const save = async () => { const o = PS.get(); Object.assign(o, { m: $('#psM').value || '08:00', n: $('#psN').value || '21:30', mOn: $('#psMOn').checked, nOn: $('#psNOn').checked }); PS.set(o); if (o.on) { $('#psSt').textContent = 'A ligar…'; const ok = await pushSync(true); $('#psSt').textContent = ok ? '✅ Ligado' : '⚠️ ' + (PS.get().err || 'Não deu'); } };
+  $('#psOn').onchange = async e => { if (e.target.checked) { if (Notification.permission !== 'granted') { const p = await Notification.requestPermission(); if (p !== 'granted') { e.target.checked = false; toast('Sem autorização para avisos'); return; } } const o = PS.get(); o.on = true; PS.set(o); save(); } else { await pushOff(); $('#psSt').textContent = 'Desligado'; } };
+  ['#psM', '#psN', '#psMOn', '#psNOn'].forEach(id => $(id).onchange = save);
+}
+
 // ===== App de telemóvel =====
-const APP_VERSION = '13.11.2026 23:15';
+const APP_VERSION = '13.11.2026 23:45';
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const G = g => `${g}&#xFE0E;`;
@@ -5601,7 +5634,7 @@ async function init() {
   document.querySelectorAll('[data-open]').forEach(b => b.onclick = () => { b.closest('dialog') && b.closest('dialog').close(); $('#' + b.dataset.open).showModal(); });
   document.querySelectorAll('dialog [data-close]').forEach(b => b.onclick = () => b.closest('dialog').close());
   document.querySelectorAll('#pack button').forEach(b => b.onclick = () => savePack(+b.dataset.n));
-  document.querySelectorAll('[data-open="menu"]').forEach(b => b.addEventListener('click', () => setTimeout(() => { bindBackupMenu(); voiceMenu(); }, 0)));
+  document.querySelectorAll('[data-open="menu"]').forEach(b => b.addEventListener('click', () => setTimeout(() => { bindBackupMenu(); voiceMenu(); if ($('#pushMenu')) { $('#pushMenu').innerHTML = pushBox(); bindPushBox(); } }, 0)));
   $('#reel').onclick = () => { $('#menu').close(); ST.type = 'top'; render(); makeReel(); };
   $('#studioBtn').onclick = () => { $('#menu').close(); openStudio(); }; $('#tourBtn').onclick = () => { $('#menu').close(); maybeTour(true); }; $('#testAl').onclick = testAlert;
   $('#copyCap').onclick = () => { const { cap } = buildPost(ST.type === 'eu' ? 'top' : ST.type); ST.cap = cap; copyCap(); };
@@ -5611,7 +5644,7 @@ async function init() {
   if (/aniversarios/.test(location.search + location.hash)) { ST.type = 'anos'; ST.anosView = 'agenda'; }
   const qs = location.search; if (/carta/.test(qs)) setTimeout(() => openTarot(!tarOpened()), 600); if (/[?&]semana($|&)/.test(qs)) setTimeout(() => openTarot(!store.get('ceu_tarw_' + mondayOf(todayStr())), true), 600); if (/asemana/.test(qs)) setTimeout(openWeekView, 600); if (/semana-lua/.test(qs)) { ST.type = 'eu'; ST.euView = 'me'; setTimeout(() => { const n = document.querySelector('#sec-rout'); n && n.scrollIntoView({ block: 'start' }); }, 700); } if (/posts/.test(qs)) setTimeout(() => openStudio(), 600); if (/noite/.test(qs)) setTimeout(openNight, 600); if (/wrapped/.test(qs)) setTimeout(() => openWrapped(), 600); if (/ciclo|resumo|livro|patudos/.test(qs)) { ST.type = 'eu'; ST.euView = 'me'; setTimeout(() => { if (/ciclo/.test(qs)) (CY.get().preg ? openPreg() : openCycle()); else if (/resumo/.test(qs)) openMonth(); else if (/livro/.test(qs)) openAno(); }, 700); }
   document.addEventListener('visibilitychange', () => { if (document.visibilityState !== 'visible') return; const t = todayStr(); if (ST._day && ST._day !== t) { if (ST.date === ST._day) ST.date = t; ST._day = t; render(); setTimeout(() => showTodayDlg(false), 400); } });
-  ST._day = todayStr(); try { if (navigator.storage && navigator.storage.persist && hasPersonalData()) navigator.storage.persist(); } catch (e) { }
+  ST._day = todayStr(); setTimeout(() => pushSync(false), 4000); try { if (navigator.storage && navigator.storage.persist && hasPersonalData()) navigator.storage.persist(); } catch (e) { }
   render();
   if (/#add=/.test(location.hash)) setTimeout(checkAddLink, 400); else if (/#casal=/.test(location.hash)) checkCoupleLink(); else setTimeout(() => { if (!showTodayDlg(false)) maybeTour(); }, 600);
   setTimeout(() => { try { if (alertState() === 'granted' && navigator.serviceWorker && navigator.serviceWorker.controller) navigator.serviceWorker.controller.postMessage('check-bdays'); } catch (e) { } }, 1500);
