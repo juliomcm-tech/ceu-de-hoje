@@ -3653,7 +3653,7 @@ function checkAddLink() {
 }
 
 // ===== App de telemóvel =====
-const APP_VERSION = '13.11.2026 20:40';
+const APP_VERSION = '13.11.2026 21:00';
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const G = g => `${g}&#xFE0E;`;
@@ -3824,12 +3824,12 @@ function showBday(o, save, seed) {
   let Bd = makeBday(o); if (style === 'plain') Bd = plainize(Bd, seed ?? Math.floor(Math.random() * 1e6)); ST.bd = Bd; ST.bdO = o;
   if (save) { const l = P.list('ceu_bdays').filter(x => !(x.name === o.name && x.d === o.d)); l.push({ name: o.name, rel: o.rel, d: o.d }); P.setList('ceu_bdays', l.slice(-40)); }
   const c = bdDraw(Bd, 'feed');
-  $('#bdOut').innerHTML = `<img class="poster" src="${c.toDataURL('image/jpeg', .9)}" alt="Cartaz de ${esc(Bd.name)}"><div class="row2"><button class="btn main" id="bdShare">Partilhar cartaz</button><button class="btn" id="bdVideo">🎬 Criar vídeo</button></div>${Bd.theme === 'plain' ? '<button class="btn" id="bdAgain" style="width:100%;margin-top:8px">🎲 Outro layout e outras frases</button>' : ''}`;
+  $('#bdOut').innerHTML = `<img class="poster" src="${c.toDataURL('image/jpeg', .9)}" alt="Cartaz de ${esc(Bd.name)}"><div class="row2"><button class="btn main" id="bdShare">Partilhar cartaz</button><button class="btn" id="bdVideo">🎬 Criar reel</button></div>${Bd.theme === 'plain' ? '<button class="btn" id="bdAgain" style="width:100%;margin-top:8px">🎲 Outro layout e outras frases</button>' : ''}`;
   if ($('#bdAgain')) $('#bdAgain').onclick = () => showBday(o, false);
   $('#bdShare').onclick = () => shareCanvases([{ name: 'parabens-' + norm2(Bd.name).replace(/\W+/g, '-'), c: bdDraw(Bd, ST.fmt === 'story' ? 'story' : 'feed') }], bdCap(Bd));
   $('#bdVideo').onclick = async () => {
     const v = await recordAnim(bdFrame(Bd), 10, 1080, 1920, $('#bdVideo'), '🎬 A gravar…'); if (!v) return;
-    $('#reelVid').src = URL.createObjectURL(v.blob); $('#reelInfo').textContent = 'Vídeo de parabéns pronto (9:16). Junta uma música no Facebook ou no WhatsApp Estado.'; $('#reelDlg').showModal();
+    $('#reelVid').src = URL.createObjectURL(v.blob); $('#reelInfo').innerHTML = v.ext === 'mp4' ? 'Reel de parabéns pronto (vertical 9:16, 10 segundos, MP4). Serve para Reels e Stories do Instagram e do Facebook, e para o Estado do WhatsApp. Junta a música lá dentro, na própria app.' : 'Reel pronto (9:16), mas este telemóvel gravou em <b>WebM</b>: o Facebook e o WhatsApp aceitam, o Instagram pode recusar. Atualiza o Chrome para gravar em MP4.'; $('#reelDlg').showModal();
     $('#reelShare').onclick = async () => { const f = new File([v.blob], `parabens-${norm2(Bd.name).replace(/\W+/g, '-')}.${v.ext}`, { type: v.blob.type }); if (!(await shareFiles([f], bdCap(Bd)))) { await saveBlob(f, f.name); toast('Vídeo guardado'); } };
   };
   $('#bdOut').scrollIntoView({ behavior: 'smooth', block: 'start' });
