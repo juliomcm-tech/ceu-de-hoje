@@ -79,7 +79,7 @@ export default {
     for (const t of ['m', 'n']) { let cursor; do { const r = await env.PUSH.list({ prefix: `${t}:${s}:`, cursor }); r.keys.forEach(x => x.metadata && due.push({ id: x.metadata.id, e: x.metadata.e })); cursor = r.list_complete ? null : r.cursor; } while (cursor); }
     if (!due.length) return;
     if (due.length <= FAN) { await sendAll(due, env); return; }
-    const k = await vapid(env), self = env.SELF_URL; // com muita gente: divide em lotes
+    const k = await vapid(env), self = env.SELF_URL || 'https://ceu-avisos.juliomcm.workers.dev'; // com muita gente: divide em lotes
     for (let i = 0; i < due.length; i += FAN) {
       const part = due.slice(i, i + FAN);
       if (self) ctx.waitUntil(fetch(self.replace(/\/$/, '') + '/fan', { method: 'POST', headers: { 'content-type': 'application/json', 'x-fan': k.fan }, body: JSON.stringify({ list: part }) }));
