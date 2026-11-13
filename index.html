@@ -271,6 +271,7 @@ footer.ft{color:var(--mute);font-size:11.5px;text-align:center;margin:18px 0 6px
   <div class="box"><h3>🎨 Cores</h3><select id="themeSel"><option value="astral">🌌 Astral (original)</option><option value="branco">🤍 Branco</option><option value="pink">🌸 Pink</option><option value="menta">🌿 Menta</option></select></div>
   <div class="box"><h3>🔒 PIN de entrada</h3><p id="pinState" style="margin:0 0 6px"></p><div class="drow"><input type="password" id="pinNew" inputmode="numeric" maxlength="6" placeholder="4 a 6 números"><button class="btn main" id="pinSet">Guardar</button></div><button class="btn" id="pinDel" style="width:100%;margin-top:6px">Tirar o PIN</button><p class="note">Opcional. Protege o teu espaço e o diário neste telemóvel.</p></div>
   <div class="box"><h3>💾 Cópia de segurança</h3><div id="bkMenu"></div></div>
+  <div class="box"><h3>🔊 Voz da leitura</h3><div id="voiceMenu"><p class="note">A carregar as vozes…</p></div></div>
   <h2 style="margin-top:18px">Para quem publica</h2>
   <label for="brand">Nome da página (aparece nas imagens partilhadas)</label>
   <input type="text" id="brand" maxlength="32" placeholder="Ex.: Os Astros Dizem">
@@ -4562,18 +4563,61 @@ const weekCardI = () => Math.floor(seeded('wk' + ((P.get() || {}).name || '') + 
 // ---------- Ouvir o meu dia ----------
 function dayScript() {
   const me = P.get() || {}, t = todayStr(), s = skyFor(t), first = (me.name || '').split(' ')[0], out = [];
-  out.push(`${new Date().getHours() < 13 ? 'Bom dia' : new Date().getHours() < 20 ? 'Boa tarde' : 'Boa noite'}${first ? ', ' + first : ''}. Hoje é ${niceDate(t)}.`);
+  out.push(`${new Date().getHours() < 13 ? 'Bom dia' : new Date().getHours() < 20 ? 'Boa tarde' : 'Boa noite'}${first ? ', ' + first : ''}. Hoje é ${niceDate(t).toLowerCase()}.`);
   if (me.d) { const si = sunSignOf(me.d), r = readDay(si, t, ST.modern); out.push(`Para ${SIGNS[si].n}: ${r.headline}`); out.push(`No amor: ${firstSentence(r.love)}`); out.push(`No trabalho: ${firstSentence(r.work || r.trabalho || '')}`); }
   out.push(`A Lua está em ${SIGNS[s.moon.sign].n}, ${moonPhaseName(s.phase.elong)}.`);
   out.push(tarOpened() ? `A tua carta de hoje é ${TAROT[dailyCard(me).i][0]}. ${TDAY[dailyCard(me).i][3]}` : 'A tua carta de hoje está à tua espera. Abre-a quando quiseres.');
   try { const L = todaysBirthdays(); if (L.length) out.push(`Hoje faz anos: ${L.map(x => x.name || x.label).join(', ')}. Não te esqueças de dar os parabéns!`); } catch (e) { }
   out.push('Tem um dia bonito!'); return out.join(' ').replace(/\s+/g, ' ').replace(/[«»“”]/g, '');
 }
-function speakDay(btn) {
+// voz: a melhor voz de Portugal que o telemóvel tiver, leitura calma frase a frase e música suave por baixo
+function getVoicesP() { const S = window.speechSynthesis; if (!S) return Promise.resolve([]); const v = S.getVoices(); if (v.length) return Promise.resolve(v); return new Promise(r => { const t = setTimeout(() => r(S.getVoices()), 1500); S.onvoiceschanged = () => { clearTimeout(t); r(S.getVoices()); }; }); }
+const isPT = v => /^pt[-_]PT/i.test(v.lang), isPTany = v => /^pt/i.test(v.lang);
+function voiceScore(v) { return (isPT(v) ? 100 : isPTany(v) ? 5 : 0) + (/natural|neural|online|enhanced|premium|melhorad|wavenet/i.test(v.name) ? 25 : 0) + (/joana|catarina|raquel|in[eê]s|fernanda|helia|beatriz|ana/i.test(v.name) ? 8 : 0) + (v.localService ? 2 : 0); }
+async function bestVoice() { const V = (await getVoicesP()).filter(isPTany), want = store.get('ceu_voice'), chosen = V.find(v => v.voiceURI === want); if (chosen) return chosen; return V.sort((a, b) => voiceScore(b) - voiceScore(a))[0] || null; }
+const AMB = { ctx: null, nodes: [], t: 0 };
+function ambientStart() {
+  if (store.get('ceu_music') === '0') return; try {
+    const C = AMB.ctx = new (window.AudioContext || window.webkitAudioContext)(), out = C.createGain(); out.gain.value = 0; out.connect(C.destination); out.gain.linearRampToValueAtTime(.05, C.currentTime + 2.5);
+    const lp = C.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 900; lp.Q.value = .6; lp.connect(out);
+    const lfo = C.createOscillator(), lg = C.createGain(); lfo.frequency.value = .07; lg.gain.value = 350; lfo.connect(lg); lg.connect(lp.frequency); lfo.start();
+    const chords = [[174.6, 261.6, 329.6, 440], [196, 293.7, 349.2, 440], [164.8, 246.9, 329.6, 392], [174.6, 261.6, 349.2, 440]];
+    const voices = [0, 1, 2, 3].map(k => { const o = C.createOscillator(), g = C.createGain(); o.type = k ? 'sine' : 'triangle'; o.frequency.value = chords[0][k]; o.detune.value = (k - 1.5) * 4; g.gain.value = k ? .5 : .35; o.connect(g); g.connect(lp); o.start(); return o; });
+    let ci = 0; AMB.t = setInterval(() => { ci = (ci + 1) % chords.length; voices.forEach((o, k) => o.frequency.setTargetAtTime(chords[ci][k], C.currentTime, 1.2)); const n = [523.3, 587.3, 659.3, 784, 880][Math.floor(Math.random() * 5)], b = C.createOscillator(), bg2 = C.createGain(); b.type = 'sine'; b.frequency.value = n; bg2.gain.setValueAtTime(0, C.currentTime); bg2.gain.linearRampToValueAtTime(.12, C.currentTime + .02); bg2.gain.exponentialRampToValueAtTime(.0005, C.currentTime + 3.5); b.connect(bg2); bg2.connect(out); b.start(); b.stop(C.currentTime + 3.6); }, 4200);
+    AMB.nodes = [out, lfo, ...voices];
+  } catch (e) { }
+}
+function ambientStop() { clearInterval(AMB.t); const C = AMB.ctx; if (!C) return; try { AMB.nodes[0].gain.cancelScheduledValues(C.currentTime); AMB.nodes[0].gain.setTargetAtTime(0, C.currentTime, .6); setTimeout(() => { try { C.close(); } catch (e) { } }, 2500); } catch (e) { } AMB.ctx = null; }
+let _spkRun = 0;
+async function speakText(text, btn, label) {
   const S = window.speechSynthesis; if (!S) { toast('Este telemóvel não lê em voz alta'); return; }
-  if (S.speaking) { S.cancel(); if (btn) btn.textContent = '🔊 Ouvir o meu dia'; return; }
-  const u = new SpeechSynthesisUtterance(dayScript()), vs = S.getVoices(); u.voice = vs.find(v => /pt[-_]PT/i.test(v.lang)) || vs.find(v => /^pt/i.test(v.lang)) || null; u.lang = (u.voice && u.voice.lang) || 'pt-PT'; u.rate = .97;
-  u.onend = u.onerror = () => { if (btn) btn.textContent = '🔊 Ouvir o meu dia'; }; if (btn) btn.textContent = '⏹️ Parar'; S.speak(u);
+  if (S.speaking || _spkRun) { _spkRun = 0; S.cancel(); ambientStop(); if (btn) btn.textContent = label; return; }
+  const v = await bestVoice(); if (!v || !isPT(v)) { if (!store.get('ceu_voicehelp')) { store.set('ceu_voicehelp', '1'); voiceHelp(!v); } }
+  const run = ++_spkRun, parts = text.match(/[^.!?]+[.!?]*/g) || [text]; if (btn) btn.textContent = '⏹️ Parar'; ambientStart();
+  const say = k => { if (run !== _spkRun) return; if (k >= parts.length) { setTimeout(() => { if (run === _spkRun) { _spkRun = 0; ambientStop(); if (btn) btn.textContent = label; } }, 900); return; }
+    const u = new SpeechSynthesisUtterance(parts[k].trim()); if (v) u.voice = v; u.lang = v ? v.lang : 'pt-PT'; u.rate = +(store.get('ceu_vrate') || .9); u.pitch = 1; u.volume = 1;
+    u.onend = () => setTimeout(() => say(k + 1), /[.!?]$/.test(parts[k].trim()) ? 420 : 150); u.onerror = () => say(k + 1); S.speak(u); };
+  setTimeout(() => say(0), store.get('ceu_music') === '0' ? 0 : 1400);
+}
+function speakDay(btn) { return speakText(dayScript(), btn, '🔊 Ouvir o meu dia'); }
+function voiceHelp(none) {
+  $('#infoTitle').textContent = '🔊 Voz portuguesa';
+  $('#infoBody').innerHTML = `<div class="box"><p>${none ? 'Este telemóvel ainda não tem nenhuma voz em português.' : 'Este telemóvel só tem voz do Brasil.'} Para ouvires uma voz de Portugal, suave, instala-a uma vez (é grátis):</p>
+    <p><b>📱 Android:</b> Definições → procura «texto para voz» → motor da Google → instalar dados de voz → <b>Português (Portugal)</b>. Escolhe a voz que mais gostares.</p>
+    <p><b>🍎 iPhone:</b> Definições → Acessibilidade → Conteúdo falado → Vozes → Português (Portugal) → <b>Joana</b> ou <b>Catarina (melhorada)</b>.</p><p class="note">Depois, em Definições da app → 🔊 Voz da leitura, escolhe a voz e experimenta.</p></div>`;
+  if (!$('#infoDlg').open) $('#infoDlg').showModal();
+}
+async function voiceMenu() {
+  const box = $('#voiceMenu'); if (!box) return; const V = (await getVoicesP()).filter(isPTany).sort((a, b) => voiceScore(b) - voiceScore(a)), best = await bestVoice();
+  box.innerHTML = V.length ? `<select id="vSel">${V.map(v => `<option value="${esc(v.voiceURI)}"${best && v.voiceURI === best.voiceURI ? ' selected' : ''}>${isPT(v) ? '🇵🇹' : '🇧🇷'} ${esc(v.name.replace(/Microsoft |Google |Online |\(.*?\)|\s*-\s*Portug.*$/g, '').trim() || v.name)}${/natural|neural|online|enhanced|premium|melhorad/i.test(v.name) ? ' ✨' : ''}</option>`).join('')}</select>
+    <label>Velocidade<select id="vRate">${[['.82', 'Muito calma'], ['.9', 'Calma'], ['1', 'Normal']].map(r => `<option value="${r[0]}"${(store.get('ceu_vrate') || '.9') === r[0] ? ' selected' : ''}>${r[1]}</option>`).join('')}</select></label>
+    <label class="chk"><input type="checkbox" id="vMus"${store.get('ceu_music') === '0' ? '' : ' checked'}> 🎵 Música suave por baixo</label><button class="btn" id="vTry" style="width:100%">▶️ Experimentar</button>${V.some(isPT) ? '' : '<button class="link" id="vHelp">Como ter uma voz de Portugal ›</button>'}`
+    : '<p class="note">Este telemóvel não tem vozes em português.</p><button class="link" id="vHelp">Como instalar uma voz de Portugal ›</button>';
+  if ($('#vSel')) $('#vSel').onchange = () => store.set('ceu_voice', $('#vSel').value);
+  if ($('#vRate')) $('#vRate').onchange = () => store.set('ceu_vrate', $('#vRate').value);
+  if ($('#vMus')) $('#vMus').onchange = e => store.set('ceu_music', e.target.checked ? '1' : '0');
+  if ($('#vTry')) $('#vTry').onclick = e => speakText(`Olá${(P.get() || {}).name ? ', ' + P.get().name.split(' ')[0] : ''}. Esta é a voz do Céu de Hoje. Hoje a Lua está em ${SIGNS[skyFor(todayStr()).moon.sign].n}. Tem um dia bonito.`, e.currentTarget, '▶️ Experimentar');
+  if ($('#vHelp')) $('#vHelp').onclick = () => { $('#menu').close(); voiceHelp(!V.length); };
 }
 
 // ---------- O meu ano astral (aniversário) ----------
@@ -4665,7 +4709,7 @@ function maybeTour(force) {
 }
 
 // ===== App de telemóvel =====
-const APP_VERSION = '13.11.2026 19:30';
+const APP_VERSION = '13.11.2026 19:50';
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const G = g => `${g}&#xFE0E;`;
@@ -5298,7 +5342,7 @@ async function init() {
   document.querySelectorAll('[data-open]').forEach(b => b.onclick = () => { b.closest('dialog') && b.closest('dialog').close(); $('#' + b.dataset.open).showModal(); });
   document.querySelectorAll('dialog [data-close]').forEach(b => b.onclick = () => b.closest('dialog').close());
   document.querySelectorAll('#pack button').forEach(b => b.onclick = () => savePack(+b.dataset.n));
-  document.querySelectorAll('[data-open="menu"]').forEach(b => b.addEventListener('click', () => setTimeout(bindBackupMenu, 0)));
+  document.querySelectorAll('[data-open="menu"]').forEach(b => b.addEventListener('click', () => setTimeout(() => { bindBackupMenu(); voiceMenu(); }, 0)));
   $('#reel').onclick = () => { $('#menu').close(); ST.type = 'top'; render(); makeReel(); };
   $('#studioBtn').onclick = () => { $('#menu').close(); openStudio(); }; $('#tourBtn').onclick = () => { $('#menu').close(); maybeTour(true); };
   $('#copyCap').onclick = () => { const { cap } = buildPost(ST.type === 'eu' ? 'top' : ST.type); ST.cap = cap; copyCap(); };
