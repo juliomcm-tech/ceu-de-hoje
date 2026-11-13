@@ -16,7 +16,7 @@ const enc = s => new TextEncoder().encode(s);
 async function vapid(env) { // gera as chaves na primeira vez e guarda-as no KV
   let k = await env.PUSH.get('_vapid', 'json');
   if (!k) {
-    const kp = await crypto.subtle.generateKey({ name: 'ECDSA', namedCurve: 'P-256' }, true, ['sign', 'verify']);
+    const kp = /** @type {CryptoKeyPair} */ (await crypto.subtle.generateKey({ name: 'ECDSA', namedCurve: 'P-256' }, true, ['sign', 'verify']));
     k = { priv: await crypto.subtle.exportKey('jwk', kp.privateKey), pub: b64u(await crypto.subtle.exportKey('raw', kp.publicKey)), fan: crypto.randomUUID() };
     await env.PUSH.put('_vapid', JSON.stringify(k));
   }
@@ -87,5 +87,3 @@ export default {
     }
   }
 };
-// exportado para os testes locais
-export { slot, nowSlot, okEndpoint };
