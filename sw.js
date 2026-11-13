@@ -1,6 +1,6 @@
 // Céu de Hoje — funciona sem rede e avisa dos aniversários
-const CACHE = 'ceu-v55';
-const CORE = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png'];
+const CACHE = 'ceu-v56';
+const CORE = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './badge-96.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE && k !== 'ceu-data').map(k => caches.delete(k)))).then(() => self.clients.claim())); });
 self.addEventListener('fetch', e => {
@@ -21,7 +21,7 @@ async function checkEvents() { // ciclo, patudos, resumo do mês, livro do ano
   const c = await caches.open('ceu-data'), r = await c.match('./__events.json'); if (!r) return;
   const ev = await r.json(), now = new Date(), pad = n => String(n).padStart(2, '0'), today = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
   const dn = await c.match('./__notified-ev'), done = dn ? await dn.json() : []; let changed = false;
-  for (const e of ev) { if (e.d !== today || done.includes(e.tag) || (e.h && now.getHours() < e.h)) continue; await self.registration.showNotification(e.t, { body: e.b, icon: 'icon-192.png', badge: 'icon-192.png', tag: e.tag, data: { url: e.url || './' } }); done.push(e.tag); changed = true; }
+  for (const e of ev) { if (e.d !== today || done.includes(e.tag) || (e.h && now.getHours() < e.h)) continue; await self.registration.showNotification(e.t, { body: e.b, icon: 'icon-192.png', badge: 'badge-96.png', tag: e.tag, data: { url: e.url || './' } }); done.push(e.tag); changed = true; }
   if (changed) await c.put('./__notified-ev', new Response(JSON.stringify(done.slice(-500))));
 }
 async function checkAll() { try { await checkEvents(); } catch (e) { } try { await checkBirthdays(); } catch (e) { } }
@@ -34,8 +34,8 @@ async function checkBirthdays() {
   const leap = y => (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0, f29 = (x, m, y) => x.md === m || (m === '02-28' && x.md === '02-29' && !leap(y));
   const today = list.filter(x => f29(x, md, now.getFullYear())), tomorrow = list.filter(x => f29(x, mdT, tm.getFullYear()));
   const age = x => x.y ? ` · faz ${now.getFullYear() - x.y}` : '';
-  if (today.length) await self.registration.showNotification(today.length === 1 ? `🎂 Hoje faz anos: ${today[0].n}` : `🎂 Hoje fazem anos: ${today.map(x => x.n).join(', ')}`, { body: today.map(x => `${x.n} (${x.r})${age(x)}`).join('\n') + '\nToca para criar o cartaz e enviar os parabéns.', icon: 'icon-192.png', badge: 'icon-192.png', tag: 'ceu-bday-' + key, requireInteraction: true, data: { url: './?aniversarios' } });
-  else if (tomorrow.length) await self.registration.showNotification(`⏰ Amanhã faz${tomorrow.length > 1 ? 'em' : ''} anos: ${tomorrow.map(x => x.n).join(', ')}`, { body: 'Prepara já o cartaz ou a mensagem.', icon: 'icon-192.png', badge: 'icon-192.png', tag: 'ceu-bday-t-' + key, data: { url: './?aniversarios' } });
+  if (today.length) await self.registration.showNotification(today.length === 1 ? `🎂 Hoje faz anos: ${today[0].n}` : `🎂 Hoje fazem anos: ${today.map(x => x.n).join(', ')}`, { body: today.map(x => `${x.n} (${x.r})${age(x)}`).join('\n') + '\nToca para criar o cartaz e enviar os parabéns.', icon: 'icon-192.png', badge: 'badge-96.png', tag: 'ceu-bday-' + key, requireInteraction: true, data: { url: './?aniversarios' } });
+  else if (tomorrow.length) await self.registration.showNotification(`⏰ Amanhã faz${tomorrow.length > 1 ? 'em' : ''} anos: ${tomorrow.map(x => x.n).join(', ')}`, { body: 'Prepara já o cartaz ou a mensagem.', icon: 'icon-192.png', badge: 'badge-96.png', tag: 'ceu-bday-t-' + key, data: { url: './?aniversarios' } });
   if (today.length || tomorrow.length) { await c.put('./__notified', new Response(key)); try { self.navigator.setAppBadge && self.navigator.setAppBadge(today.length || tomorrow.length); } catch (e) { } }
 }
 self.addEventListener('periodicsync', e => { if (e.tag === 'ceu-bdays') e.waitUntil(checkAll()); });

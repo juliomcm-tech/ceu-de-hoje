@@ -1882,7 +1882,7 @@ async function enableAlerts() {
   try {
     const reg = await navigator.serviceWorker.ready;
     if ('periodicSync' in reg) { try { await reg.periodicSync.register('ceu-bdays', { minInterval: 12 * 3600 * 1000 }); store.set('ceu_psync', '1'); } catch (e) { store.set('ceu_psync', '0'); } }
-    reg.showNotification('🔔 Alertas ligados', { body: 'Vais receber um aviso no dia de anos de quem guardaste.', icon: 'icon-192.png', badge: 'icon-192.png', tag: 'ceu-test' });
+    reg.showNotification('🔔 Alertas ligados', { body: 'Vais receber um aviso no dia de anos de quem guardaste.', icon: 'icon-192.png', badge: 'badge-96.png', tag: 'ceu-test' });
   } catch (e) { new Notification('🔔 Alertas ligados', { body: 'Vais receber um aviso no dia de anos de quem guardaste.' }); }
   render();
 }
@@ -4887,7 +4887,7 @@ const _ci0 = cardImg; cardImg = function (i, back) { const pr = _ci0(i, back); p
 function wrapAlerts() { const y = +todayStr().slice(0, 4), d = y + '-12-01'; return d >= todayStr() ? [{ d, t: `🎁 O teu ${y} em vídeo está pronto`, b: 'Os teus livros, viagens, a carta que mais te saiu… pronto para Stories.', tag: 'wrap-' + y, url: './?wrapped', h: 10 }] : []; }
 
 // ===== App de telemóvel =====
-const APP_VERSION = '13.11.2026 21:45';
+const APP_VERSION = '13.11.2026 21:55';
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const G = g => `${g}&#xFE0E;`;
