@@ -1696,8 +1696,10 @@ function oracle(q, prof) {
 }
 
 // ---------- PARABÉNS (cartaz e vídeo) ----------
+const REL_ICON = { pai: '👨', mae: '👩', filho: '👦', filha: '👧', marido: '💍', mulher: '💍', namorado: '💞', namorada: '💞', bffm: '💛', bfff: '💛', amigo: '🤝', amiga: '🤝', irmao: '🧑', irma: '👩‍🦰', avom: '👴', avof: '👵', tio: '🧔', tia: '👱‍♀️', sobrinho: '🧒', sobrinha: '👧', primo: '🙋‍♂️', prima: '🙋‍♀️', neto: '👶', neta: '👶', sogro: '👴', sogra: '👵', padrinho: '🤵', madrinha: '👰', afilhado: '🧒', afilhada: '👧', colegam: '💼', colegaf: '💼', chefem: '👔', chefef: '👔', patrao: '👔', patroa: '👔', vizinho: '🏠', vizinha: '🏠', professor: '🎓', professora: '🎓' };
+const relIcon = x => REL_ICON[x.rel] || (x.relTxt ? '🌟' : (x.name || '?')[0].toUpperCase());
 const RELS = [['eu', 'x', 'Para mim', 'Hoje o dia é teu!'], ['pai', 'm', 'Pai', 'Ao melhor pai do mundo'], ['mae', 'f', 'Mãe', 'À melhor mãe do mundo'], ['filho', 'm', 'Filho', 'Ao meu filho'], ['filha', 'f', 'Filha', 'À minha filha'],
-  ['marido', 'm', 'Marido', 'Ao amor da minha vida'], ['mulher', 'f', 'Mulher', 'Ao amor da minha vida'], ['namorado', 'm', 'Namorado', 'Ao meu amor'], ['namorada', 'f', 'Namorada', 'Ao meu amor'],
+  ['marido', 'm', 'Marido', 'Ao amor da minha vida'], ['mulher', 'f', 'Esposa / mulher', 'Ao amor da minha vida'], ['namorado', 'm', 'Namorado', 'Ao meu amor'], ['namorada', 'f', 'Namorada', 'Ao meu amor'],
   ['bffm', 'm', 'Melhor amigo', 'Ao meu melhor amigo'], ['bfff', 'f', 'Melhor amiga', 'À minha melhor amiga'], ['amigo', 'm', 'Amigo', 'A um grande amigo'], ['amiga', 'f', 'Amiga', 'A uma grande amiga'],
   ['irmao', 'm', 'Irmão', 'Ao meu irmão'], ['irma', 'f', 'Irmã', 'À minha irmã'], ['avom', 'm', 'Avô', 'Ao melhor avô'], ['avof', 'f', 'Avó', 'À melhor avó'], ['tio', 'm', 'Tio', 'Ao meu tio'], ['tia', 'f', 'Tia', 'À minha tia'],
   ['sobrinho', 'm', 'Sobrinho', 'Ao meu sobrinho'], ['sobrinha', 'f', 'Sobrinha', 'À minha sobrinha'], ['primo', 'm', 'Primo', 'Ao meu primo'], ['prima', 'f', 'Prima', 'À minha prima'], ['neto', 'm', 'Neto', 'Ao meu neto'], ['neta', 'f', 'Neta', 'À minha neta'],
@@ -3653,7 +3655,7 @@ function checkAddLink() {
 }
 
 // ===== App de telemóvel =====
-const APP_VERSION = '13.11.2026 21:00';
+const APP_VERSION = '13.11.2026 21:15';
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const G = g => `${g}&#xFE0E;`;
@@ -3729,7 +3731,7 @@ function vAgenda() {
   const today = todayStr(), ym = ST.agMonth || today.slice(0, 7), [yy, mm] = ym.split('-').map(Number), all = agendaAll();
   const days = new Date(Date.UTC(yy, mm, 0)).getUTCDate(), first = (new Date(Date.UTC(yy, mm - 1, 1)).getUTCDay() + 6) % 7;
   const inMonth = all.filter(x => +x.d.slice(5, 7) === mm).sort((a, b) => +a.d.slice(8) - +b.d.slice(8));
-  const ico = x => x.kind === 'a' ? spOf(P.list('ceu_pets')[x.k] || {}).at(1) : x.kind === 'me' ? '✨' : (x.name[0] || '?').toUpperCase();
+  const ico = x => x.kind === 'a' ? spOf(P.list('ceu_pets')[x.k] || {}).at(1) : x.kind === 'me' ? '✨' : relIcon(x);
   let h = `<div class="agnav"><button class="arrow" id="agPrev">‹</button><b>${cap1(MESES[mm - 1])} ${yy}</b><button class="arrow" id="agNext">›</button></div><div class="cal ag">${['S', 'T', 'Q', 'Q', 'S', 'S', 'D'].map(d => `<span class="wd">${d}</span>`).join('')}`;
   for (let i = 0; i < first; i++) h += '<span></span>';
   for (let d = 1; d <= days; d++) { const ds = `${ym}-${String(d).padStart(2, '0')}`, xs = inMonth.filter(x => +x.d.slice(8) === d); h += `<span class="ac${ds === today ? ' today' : ''}${xs.length ? ' has' : ''}" data-d="${d}"><b>${d}</b>${xs.slice(0, 3).map(x => `<i>${esc(ico(x))}</i>`).join('')}</span>`; }
@@ -4210,7 +4212,7 @@ function showTodayDlg(force) {
   const key = 'ceu_seen_' + todayStr(), T = bdaysOn(0), M = bdaysOn(1), CD = careDue(3), YN = yearNudge(), AD = adoptToday(), sig = `${T.length + M.length}|${CD.length}|${YN ? 1 : 0}|${AD.length}`;
   if (!T.length && !M.length && !CD.length && !YN && !AD.length) return false;
   if (!force && store.get(key) === sig) return false;
-  const card = (x, tom) => { const si = x.t ? sunSignAt(x.d, x.t) : sunSignOf(x.d), age = ageOn(x.d, dayStr(noonJd(todayStr()) + (tom ? 1 : 0))), em = x.kind === 'a' ? spOf(P.list('ceu_pets')[x.k] || {})[1] : x.kind === 'me' ? '🥳' : (x.name[0] || '?').toUpperCase();
+  const card = (x, tom) => { const si = x.t ? sunSignAt(x.d, x.t) : sunSignOf(x.d), age = ageOn(x.d, dayStr(noonJd(todayStr()) + (tom ? 1 : 0))), em = x.kind === 'a' ? spOf(P.list('ceu_pets')[x.k] || {})[1] : x.kind === 'me' ? '🥳' : relIcon(x);
     return `<div class="tcard${tom ? ' tom' : ''}" style="--c:${elc(SIGNS[si])}"><span class="av">${esc(em)}</span><div class="who"><b>${esc(x.kind === 'me' ? 'Tu!' : x.name)}</b><small>${esc(x.kind === 'me' ? 'O teu dia' : relLabel(x))} · ${age > 0 ? (tom ? 'faz ' : 'faz ') + age + (age === 1 ? ' ano' : ' anos') : ''} · ${G(SIGNS[si].g)} ${SIGNS[si].n}</small></div>
       ${tom ? '' : `<div class="tacts"><button class="btn main" data-a="c">🎉 Cartaz</button><button class="btn" data-a="v">🎬 Vídeo</button>${x.kind === 'me' ? '' : `<a class="btn" href="${waLink(x)}" target="_blank" rel="noopener">💬 WhatsApp</a>`}</div>`}</div>`; };
   $('#todayBody').innerHTML = (T.length ? `<div class="tbig">🎂</div><h2>Hoje é dia de festa!</h2>${T.map(x => card(x, false)).join('')}` : '') + (M.length ? `<h3 class="tmh">⏰ Amanhã faz${M.length > 1 ? 'em' : ''} anos</h3>${M.map(x => card(x, true)).join('')}` : '');
