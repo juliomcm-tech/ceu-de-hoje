@@ -4577,7 +4577,7 @@ function dayScript() {
 function getVoicesP() { const S = window.speechSynthesis; if (!S) return Promise.resolve([]); const v = S.getVoices(); if (v.length) return Promise.resolve(v); return new Promise(r => { const t = setTimeout(() => r(S.getVoices()), 1500); S.onvoiceschanged = () => { clearTimeout(t); r(S.getVoices()); }; }); }
 const isPT = v => /^pt[-_]PT/i.test(v.lang), isPTany = v => /^pt/i.test(v.lang);
 function voiceScore(v) { return (isPT(v) ? 100 : isPTany(v) ? 5 : 0) + (/natural|neural|online|enhanced|premium|melhorad|wavenet/i.test(v.name) ? 25 : 0) + (/joana|catarina|raquel|in[eê]s|fernanda|helia|beatriz|ana/i.test(v.name) ? 8 : 0) + (v.localService ? 2 : 0); }
-async function bestVoice() { const V = (await getVoicesP()).filter(isPTany), want = store.get('ceu_voice'), chosen = want && V.find(v => v.voiceURI === want); if (chosen) return chosen; return V.sort((a, b) => voiceScore(b) - voiceScore(a))[0] || null; }
+async function bestVoice() { const V = (await getVoicesP()).filter(isPT), want = store.get('ceu_voice'), chosen = want && V.find(v => v.voiceURI === want); return chosen || null; } // null = pedir «pt-PT» ao telemóvel
 const useSystemVoice = () => !store.get('ceu_voice'); // vazio = a voz escolhida nas definições do telemóvel
 const AMB = { ctx: null, nodes: [], t: 0 };
 function ambientStart() {
@@ -4596,31 +4596,31 @@ let _spkRun = 0;
 async function speakText(text, btn, label) {
   const S = window.speechSynthesis; if (!S) { toast('Este telemóvel não lê em voz alta'); return; }
   if (S.speaking || _spkRun) { _spkRun = 0; S.cancel(); ambientStop(); if (btn) btn.textContent = label; return; }
-  const v = await bestVoice(); if (!v || !isPT(v)) { if (store.get('ceu_voicehelp') !== todayStr()) { store.set('ceu_voicehelp', todayStr()); voiceHelp(!v); return; } }
-  const sys = useSystemVoice() && v && isPT(v), run = ++_spkRun, parts = text.match(/[^.!?]+[.!?]*/g) || [text]; if (btn) btn.textContent = '⏹️ Parar'; ambientStart();
+  const v = await bestVoice();
+  const run = ++_spkRun, parts = text.match(/[^.!?]+[.!?]*/g) || [text]; if (btn) btn.textContent = '⏹️ Parar'; ambientStart();
   const say = k => { if (run !== _spkRun) return; if (k >= parts.length) { setTimeout(() => { if (run === _spkRun) { _spkRun = 0; ambientStop(); if (btn) btn.textContent = label; } }, 900); return; }
-    const u = new SpeechSynthesisUtterance(parts[k].trim()); if (sys) u.lang = 'pt-PT'; else { if (v) u.voice = v; u.lang = v ? v.lang : 'pt-PT'; } u.rate = +(store.get('ceu_vrate') || .9); u.pitch = 1; u.volume = 1;
+    const u = new SpeechSynthesisUtterance(parts[k].trim()); if (v) u.voice = v; u.lang = 'pt-PT'; u.rate = +(store.get('ceu_vrate') || .9); u.pitch = 1; u.volume = 1;
     u.onend = () => setTimeout(() => say(k + 1), /[.!?]$/.test(parts[k].trim()) ? 420 : 150); u.onerror = () => say(k + 1); S.speak(u); };
   setTimeout(() => say(0), store.get('ceu_music') === '0' ? 0 : 1400);
 }
 function speakDay(btn) { return speakText(dayScript(), btn, '🔊 Ouvir o meu dia'); }
 function voiceHelp(none) {
   $('#infoTitle').textContent = '🔊 Voz portuguesa';
-  $('#infoBody').innerHTML = `<div class="box"><p>${none ? 'O telemóvel não está a dar nenhuma voz em português à app.' : '<b>O telemóvel só está a dar vozes do Brasil à app.</b> A app não consegue usar uma voz que o telemóvel não lhe dá.'} Isto acontece quando o motor de voz do telemóvel (muitas vezes o da Samsung) não tem português de Portugal. Resolve-se uma vez, de graça:</p><div class="vsteps"><p><b>Passo 1:</b> nas Definições do telemóvel, procura <b>«texto para voz»</b> (nos Samsung: Gestão geral → Idioma → Texto para voz).</p><p><b>Passo 2:</b> em «Motor preferido», escolhe <b>Serviços de voz da Google</b> (Speech Services by Google). Se não aparecer, instala-o grátis na Play Store.</p><p><b>Passo 3:</b> toca na ⚙️ ao lado → Instalar dados de voz → <b>Português (Portugal)</b> → descarrega e escolhe a voz que mais gostares.</p><p><b>Passo 4:</b> no Idioma do texto para voz, escolhe <b>Português (Portugal)</b>.</p><p><b>Passo 5:</b> fecha a app e o Chrome por completo (nas apps recentes) e volta a abrir.</p><p class="note">No iPhone: Definições → Acessibilidade → Conteúdo falado → Vozes → Português (Portugal) → Joana ou Catarina (melhorada).</p></div></div>`;
+  $('#infoBody').innerHTML = `<div class="box"><p>A app pede sempre <b>português de Portugal</b>. Se ouves sotaque do Brasil, é porque o motor de voz do telemóvel (muitas vezes o da Samsung) ainda não tem a voz de Portugal, e usa a do Brasil no lugar dela. Resolve-se uma vez, de graça:</p><div class="vsteps"><p><b>Passo 1:</b> nas Definições do telemóvel, procura <b>«texto para voz»</b> (nos Samsung: Gestão geral → Idioma → Texto para voz).</p><p><b>Passo 2:</b> em «Motor preferido», escolhe <b>Serviços de voz da Google</b> (Speech Services by Google). Se não aparecer, instala-o grátis na Play Store.</p><p><b>Passo 3:</b> toca na ⚙️ ao lado → Instalar dados de voz → <b>Português (Portugal)</b> → descarrega e escolhe a voz que mais gostares.</p><p><b>Passo 4:</b> no Idioma do texto para voz, escolhe <b>Português (Portugal)</b>.</p><p><b>Passo 5:</b> fecha a app e o Chrome por completo (nas apps recentes) e volta a abrir.</p><p class="note">No iPhone: Definições → Acessibilidade → Conteúdo falado → Vozes → Português (Portugal) → Joana ou Catarina (melhorada).</p></div></div>`;
   if (!$('#infoDlg').open) $('#infoDlg').showModal();
 }
 async function voiceMenu() {
-  const box = $('#voiceMenu'); if (!box) return; const V = (await getVoicesP()).filter(isPTany).sort((a, b) => voiceScore(b) - voiceScore(a)), best = await bestVoice();
-  const nPT = V.filter(isPT).length, nBR = V.length - nPT, diag = `<p class="vdiag ${nPT ? 'ok' : 'bad'}">${nPT ? `✅ O telemóvel dá à app ${nPT} voz${nPT > 1 ? 'es' : ''} de Portugal 🇵🇹` : `⚠️ O telemóvel só dá à app vozes do Brasil 🇧🇷 (${nBR}). Por isso ouves sotaque do Brasil.`}</p>${nPT ? '' : '<button class="btn main" id="vHelp2" style="width:100%">Como ter a voz de Portugal (2 minutos)</button>'}`;
-  const cur = store.get('ceu_voice') || ''; box.innerHTML = diag + (V.length ? `<select id="vSel"><option value=""${cur ? '' : ' selected'}>📱 A voz escolhida no telemóvel (recomendado)</option>${V.map(v => `<option value="${esc(v.voiceURI)}"${cur && v.voiceURI === cur ? ' selected' : ''}>${isPT(v) ? '🇵🇹' : '🇧🇷'} ${esc(v.name.replace(/Microsoft |Google |Online |\(.*?\)|\s*-\s*Portug.*$/g, '').trim() || v.name)}${/natural|neural|online|enhanced|premium|melhorad/i.test(v.name) ? ' ✨' : ''}</option>`).join('')}</select>
+  const box = $('#voiceMenu'); if (!box) return; const V = (await getVoicesP()).filter(isPT).sort((a, b) => voiceScore(b) - voiceScore(a)), cur = store.get('ceu_voice') || '';
+  const nm = v => esc(v.name.replace(/Microsoft |Google |Online |\(.*?\)|\s*-\s*Portug.*$/g, '').trim() || v.name);
+  box.innerHTML = `<select id="vSel"><option value=""${cur ? '' : ' selected'}>🇵🇹 Português (Portugal)</option>${V.map(v => `<option value="${esc(v.voiceURI)}"${cur === v.voiceURI ? ' selected' : ''}>🇵🇹 ${nm(v)}${/natural|neural|online|enhanced|premium|melhorad/i.test(v.name) ? ' ✨' : ''}</option>`).join('')}</select>
     <label>Velocidade<select id="vRate">${[['.82', 'Muito calma'], ['.9', 'Calma'], ['1', 'Normal']].map(r => `<option value="${r[0]}"${(store.get('ceu_vrate') || '.9') === r[0] ? ' selected' : ''}>${r[1]}</option>`).join('')}</select></label>
-    <label class="chk"><input type="checkbox" id="vMus"${store.get('ceu_music') === '0' ? '' : ' checked'}> 🎵 Música suave por baixo</label><button class="btn" id="vTry" style="width:100%">▶️ Experimentar</button><p class="note">Mudaste a voz nas definições do telemóvel? Fecha a app (e o Chrome) por completo e volta a abrir: o telemóvel só passa a nova voz às apps quando reabrem.</p>`
-    : '<button class="link" id="vHelp">Como instalar uma voz de Portugal ›</button>');
-  if ($('#vSel')) $('#vSel').onchange = () => { const v = $('#vSel').value; if (v) store.set('ceu_voice', v); else localStorage.removeItem('ceu_voice'); };
-  if ($('#vRate')) $('#vRate').onchange = () => store.set('ceu_vrate', $('#vRate').value);
-  if ($('#vMus')) $('#vMus').onchange = e => store.set('ceu_music', e.target.checked ? '1' : '0');
-  if ($('#vTry')) $('#vTry').onclick = e => speakText(`Olá${(P.get() || {}).name ? ', ' + P.get().name.split(' ')[0] : ''}. Esta é a voz do Céu de Hoje. Hoje a Lua está em ${SIGNS[skyFor(todayStr()).moon.sign].n}. Tem um dia bonito.`, e.currentTarget, '▶️ Experimentar');
-  ['#vHelp', '#vHelp2'].forEach(id => { if ($(id)) $(id).onclick = () => { $('#menu').close(); voiceHelp(!V.length); }; });
+    <label class="chk"><input type="checkbox" id="vMus"${store.get('ceu_music') === '0' ? '' : ' checked'}> 🎵 Música suave por baixo</label><button class="btn" id="vTry" style="width:100%">▶️ Experimentar</button>
+    <p class="note">A app pede sempre português de Portugal. Se mesmo assim ouvires sotaque do Brasil, é porque o telemóvel ainda não tem a voz de Portugal instalada. <button class="link" id="vHelp">Como instalar (2 minutos) ›</button></p>`;
+  $('#vSel').onchange = () => { const v = $('#vSel').value; if (v) store.set('ceu_voice', v); else localStorage.removeItem('ceu_voice'); };
+  $('#vRate').onchange = () => store.set('ceu_vrate', $('#vRate').value);
+  $('#vMus').onchange = e => store.set('ceu_music', e.target.checked ? '1' : '0');
+  $('#vTry').onclick = e => speakText(`Olá${(P.get() || {}).name ? ', ' + P.get().name.split(' ')[0] : ''}. Esta é a voz do Céu de Hoje. Hoje a Lua está em ${SIGNS[skyFor(todayStr()).moon.sign].n}. Tem um dia bonito.`, e.currentTarget, '▶️ Experimentar');
+  $('#vHelp').onclick = () => { $('#menu').close(); voiceHelp(false); };
 }
 
 // ---------- O meu ano astral (aniversário) ----------
@@ -4754,7 +4754,7 @@ function coupleStart() {
 }
 
 // ===== App de telemóvel =====
-const APP_VERSION = '13.11.2026 20:40';
+const APP_VERSION = '13.11.2026 20:55';
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const G = g => `${g}&#xFE0E;`;
