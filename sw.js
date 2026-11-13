@@ -1,5 +1,5 @@
 // Céu de Hoje — funciona sem rede e avisa dos aniversários
-const CACHE = 'ceu-v44';
+const CACHE = 'ceu-v45';
 const CORE = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE && k !== 'ceu-data').map(k => caches.delete(k)))).then(() => self.clients.claim())); });
@@ -21,8 +21,8 @@ async function checkEvents() { // ciclo, patudos, resumo do mês, livro do ano
   const c = await caches.open('ceu-data'), r = await c.match('./__events.json'); if (!r) return;
   const ev = await r.json(), now = new Date(), pad = n => String(n).padStart(2, '0'), today = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
   const dn = await c.match('./__notified-ev'), done = dn ? await dn.json() : []; let changed = false;
-  for (const e of ev) { if (e.d !== today || done.includes(e.tag)) continue; await self.registration.showNotification(e.t, { body: e.b, icon: 'icon-192.png', badge: 'icon-192.png', tag: e.tag, data: { url: e.url || './' } }); done.push(e.tag); changed = true; }
-  if (changed) await c.put('./__notified-ev', new Response(JSON.stringify(done.slice(-300))));
+  for (const e of ev) { if (e.d !== today || done.includes(e.tag) || (e.h && now.getHours() < e.h)) continue; await self.registration.showNotification(e.t, { body: e.b, icon: 'icon-192.png', badge: 'icon-192.png', tag: e.tag, data: { url: e.url || './' } }); done.push(e.tag); changed = true; }
+  if (changed) await c.put('./__notified-ev', new Response(JSON.stringify(done.slice(-500))));
 }
 async function checkAll() { try { await checkEvents(); } catch (e) { } try { await checkBirthdays(); } catch (e) { } }
 async function checkBirthdays() {
