@@ -2373,16 +2373,17 @@ function normShelf() { // garante que todos os livros têm lugar e numeração s
 }
 function bookEl(x, look) {
   const st = x.lent ? '<i class="bdg l">🤝</i>' : x.status === 1 ? '<i class="bdg">a ler</i>' : x.status === 0 ? '<i class="bdg w">quero</i>' : '', ln = x.lent ? ' lent' : '';
-  if (look === 'capas' && x.cover) return `<div class="bk cv${ln}" data-id="${x.id}"><img src="${esc(x.cover)}" alt="${esc(x.title)}" draggable="false" loading="lazy">${st}</div>`;
+  const gp = x.pos && x.pos.g ? ` style="margin-left:${x.pos.g}%"` : '';
+  if (look === 'capas' && x.cover) return `<div class="bk cv${ln}" data-id="${x.id}"${gp}><img src="${esc(x.cover)}" alt="${esc(x.title)}" draggable="false" loading="lazy">${st}</div>`;
   const len = x.title.length, h = 78 + (len % 4) * 6, w = 24 + Math.min(16, Math.floor(len / 6) * 2);
-  return `<div class="bk sp${ln}" data-id="${x.id}" style="--bc:${col(x.title + x.by)};height:${h}px;width:${w}px" title="${esc(x.title)}"><span>${esc(x.title)}</span>${st}</div>`;
+  return `<div class="bk sp${ln}" data-id="${x.id}" style="--bc:${col(x.title + x.by)};height:${h}px;width:${w}px${x.pos && x.pos.g ? `;margin-left:${x.pos.g}%` : ''}" title="${esc(x.title)}"><span>${esc(x.title)}</span>${st}</div>`;
 }
 function vShelf() {
   const S = SHELF.get(), sort = ST.shelfSort || 'manual', look = S.look;
   let L = sort === 'manual' ? normShelf() : intList('livros');
   let h = `<div class="shtools"><select id="shSort">${SORTS.map(([k, n]) => `<option value="${k}"${k === sort ? ' selected' : ''}>${n}</option>`).join('')}</select><div class="seg3"><button data-look="capas"${look === 'capas' ? ' class="on"' : ''}>Capas</button><button data-look="lombadas"${look === 'lombadas' ? ' class="on"' : ''}>Lombadas</button></div></div>
     <div class="woods">${[['madeira', 'Madeira'], ['branca', 'Branca'], ['preta', 'Preta']].map(([k, n]) => `<button data-wood="${k}" class="wd-${k}${S.wood === k ? ' on' : ''}">${n}</button>`).join('')}</div>`;
-  if (sort === 'manual') h += `<div class="shcfg"><span>Estantes</span><button class="ib" data-c="e-">−</button><b>${S.e}</b><button class="ib" data-c="e+">＋</button></div><p class="hint">Carrega sem soltar num livro e arrasta-o. Toca no nome da estante para mudar a largura e as prateleiras.</p>`;
+  if (sort === 'manual') h += `<div class="shcfg"><span>Estantes</span><button class="ib" data-c="e-">−</button><b>${S.e}</b><button class="ib" data-c="e+">＋</button></div><p class="hint">Carrega sem soltar num livro e arrasta-o para onde quiseres, até para o meio ou para a ponta da prateleira. Toca no nome da estante para mudar a largura e as prateleiras.</p>`;
   if (!L.length) return h + '<p class="hint">Ainda não há livros na estante.</p>';
   if (sort === 'manual') {
     for (let e = 0; e < S.e; e++) {
@@ -2392,7 +2393,7 @@ function vShelf() {
     }
   } else {
     const A = sortBooks(L, sort), per = look === 'capas' ? 5 : 9;
-    h += `<div class="estante wood-${S.wood}">`; for (let i = 0; i < A.length; i += per) h += `<div class="prat auto">${A.slice(i, i + per).map(x => bookEl(x, look)).join('')}</div>`; h += '</div>';
+    h += `<div class="estante wood-${S.wood}">`; for (let i = 0; i < A.length; i += per) h += `<div class="prat auto">${A.slice(i, i + per).map(x => bookEl({ ...x, pos: x.pos ? { ...x.pos, g: 0 } : x.pos }, look)).join('')}</div>`; h += '</div>';
   }
   return h;
 }
@@ -2425,13 +2426,13 @@ function bookDown(ev, el, manual) {
     window.removeEventListener('pointermove', onMove); window.removeEventListener('pointerup', onUp); window.removeEventListener('pointercancel', onUp); document.removeEventListener('touchmove', block, { passive: false });
     if (timer) { clearTimeout(timer); timer = null; if (!moved) pullOut(el); return; }
     if (!DRAG) { if (!moved && !manual) pullOut(el); return; }
-    const row = DRAG.ph.parentElement, kids = [...row.children].filter(c => c !== DRAG.el && !c.classList.contains('ghost'));
+    const row = DRAG.ph.parentElement, kids = [...row.children].filter(c => c !== DRAG.el && !c.classList.contains('ghost')), gap = DRAG.gap || 0;
     const idx = kids.indexOf(DRAG.ph), e2 = +row.dataset.e, p2 = +row.dataset.p, id = DRAG.el.dataset.id;
     DRAG.g.remove(); DRAG.ph.remove(); DRAG.el.classList.remove('lift'); DRAG = null;
     const L = intList('livros'), me = L.find(x => x.id === id), from = { ...me.pos };
     L.filter(x => x.id !== id && x.pos && x.pos.e === from.e && x.pos.p === from.p && x.pos.i > from.i).forEach(x => x.pos.i--);
     L.filter(x => x.id !== id && x.pos && x.pos.e === e2 && x.pos.p === p2 && x.pos.i >= idx).forEach(x => x.pos.i++);
-    me.pos = { e: e2, p: p2, i: idx }; intSave('livros', L); render(); toast('Arrumado 📚');
+    me.pos = { e: e2, p: p2, i: idx, g: gap }; intSave('livros', L); render(); toast('Arrumado 📚');
   };
   const block = e => { if (DRAG) e.preventDefault(); };
   window.addEventListener('pointermove', onMove, { passive: false }); window.addEventListener('pointerup', onUp); window.addEventListener('pointercancel', onUp);
@@ -2444,6 +2445,12 @@ function placeAt(x, y) {
   const kids = [...row.querySelectorAll('.bk:not(.phd):not(.lift)')]; let before = null;
   for (const k of kids) { const r = k.getBoundingClientRect(); if (y < r.bottom + 6 && x < r.left + r.width / 2) { before = k; break; } }
   if (before) { if (DRAG.ph.nextSibling !== before) row.insertBefore(DRAG.ph, before); } else if (row.lastElementChild !== DRAG.ph) row.appendChild(DRAG.ph);
+  // espaço livre à esquerda do livro (para o pôr ao meio, à direita, onde quiseres)
+  DRAG.ph.style.marginLeft = '0'; const rr = row.getBoundingClientRect(), cs = getComputedStyle(row), padL = parseFloat(cs.paddingLeft) || 0, inner = rr.width - padL - (parseFloat(cs.paddingRight) || 0);
+  const prev = DRAG.ph.previousElementSibling && !DRAG.ph.previousElementSibling.classList.contains('ghost') ? DRAG.ph.previousElementSibling : null, gapCss = parseFloat(cs.columnGap || cs.gap) || 0;
+  const natural = prev ? prev.getBoundingClientRect().right + gapCss : rr.left + padL, want = x - DRAG.dx;
+  const used = [...row.children].filter(c => c !== DRAG.el && !c.classList.contains('ghost')).reduce((a, c) => a + c.getBoundingClientRect().width + (c === DRAG.ph ? 0 : parseFloat(c.style.marginLeft ? c.style.marginLeft : 0) / 100 * inner) + gapCss, 0);
+  let gap = Math.max(0, Math.min(want - natural, inner - used)); if (gap < 10) gap = 0; DRAG.gap = inner ? +(gap / inner * 100).toFixed(1) : 0; DRAG.ph.style.marginLeft = DRAG.gap + '%';
 }
 // ---- ISBN e código de barras ----
 async function isbnLookup(isbn) {
@@ -2608,7 +2615,15 @@ async function frameCamera(opts = {}) {
 }
 
 // ---------- Procurar nos meus livros (título, autor ou código de barras) ----------
-function placeTxt(x) { const S = SHELF.get(); if (!x.pos) return 'ainda sem lugar na estante'; return `${S.names[x.pos.e] || 'Estante ' + (x.pos.e + 1)} · prateleira ${x.pos.p + 1}`; }
+function placeTxt(x) {
+  const S = SHELF.get(); if (!x.pos) return 'ainda sem lugar na estante';
+  const row = intList('livros').filter(z => z.pos && z.pos.e === x.pos.e && z.pos.p === x.pos.p).sort((a, b) => a.pos.i - b.pos.i), i = row.findIndex(z => z.id === x.id), n = row.length, np = shP(S, x.pos.e);
+  const est = S.e > 1 || S.names[x.pos.e] ? `${S.names[x.pos.e] ? '«' + S.names[x.pos.e] + '»' : 'Estante ' + (x.pos.e + 1)} → ` : '';
+  const shelf = x.pos.p === 0 ? 'prateleira de cima' : x.pos.p === np - 1 ? 'prateleira de baixo' : `${x.pos.p + 1}.ª prateleira a contar de cima`;
+  const t = s => '«' + (s.length > 28 ? s.slice(0, 26) + '…' : s) + '»', L = row[i - 1], Rr = row[i + 1];
+  const zone = n === 1 ? (x.pos.g > 30 ? 'sozinho, mais ao meio' : 'sozinho na prateleira') : i === 0 ? `o primeiro à esquerda${Rr ? ', antes de ' + t(Rr.title) : ''}` : i === n - 1 ? `o último à direita, depois de ${t(L.title)}` : `${i + 1}.º a contar da esquerda, entre ${t(L.title)} e ${t(Rr.title)}`;
+  return `${est}${shelf} → ${zone}`;
+}
 function libFind(q) {
   const n = nrm(q).trim(), dig = q.replace(/\D/g, ''); if (!n) return [];
   return intList('livros').filter(x => (dig.length >= 8 && (x.isbn || '').replace(/\D/g, '') === dig) || nrm(x.title).includes(n) || nrm(x.by || '').includes(n) || n.split(/\s+/).every(w => nrm(x.title + ' ' + (x.by || '')).includes(w)));
@@ -3605,7 +3620,7 @@ function checkAddLink() {
 }
 
 // ===== App de telemóvel =====
-const APP_VERSION = '13.11.2026 19:30';
+const APP_VERSION = '13.11.2026 20:00';
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const G = g => `${g}&#xFE0E;`;
