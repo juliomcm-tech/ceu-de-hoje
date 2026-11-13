@@ -1809,7 +1809,16 @@ const PET_MIX = { fogo: ['uma bola de energia com coração de ouro', 'corajoso 
 function breedProfile(a) {
   const s = spOf(a)[0], ps = sunSignAt(a.d, a.t), sg = SIGNS[ps], list = BREEDS[s] || [], b = list.find(x => x[0] === a.breed);
   const lines = [];
-  if (b) {
+  const mx = a.mix && a.mix.map(n => list.find(x => x[0] === n)).filter(Boolean);
+  if (mx && mx.length === 2) {
+    const [A, B] = mx, r = seeded('mix' + a.name + a.d), dom = r() < .5 ? 0 : 1, D = mx[dom], O = mx[1 - dom], short = n => n.replace(/ \(.*\)/, '');
+    const enB = Math.round((A[1] + B[1]) / 2 + (D[1] - O[1]) * .25), en = Math.max(1, Math.min(5, enB + (sg.el === 'fogo' ? 1 : sg.el === 'terra' ? -1 : 0)));
+    const tA = A[2].split(/, | e /), tB = B[2].split(/, | e /), pick = L => L[Math.floor(r() * L.length)];
+    lines.push(`Cruzado de ${short(A[0])} e ${short(B[0])}: o melhor de dois mundos.`);
+    lines.push(`Do ${short(D[0])} herdou o feitio mais forte (${D[2]}); do ${short(O[0])} ficou com um toque ${pick(dom ? tA : tB).trim()}.`);
+    lines.push(`Como ${sg.n}, ${EL_PET[sg.el]}. ${en >= 4 ? 'Mistura cheia de energia: passeios e brincadeira todos os dias.' : en <= 2 ? 'Mistura tranquila: adora sossego e colo.' : 'Mistura equilibrada: tanto brinca como descansa.'}`);
+    lines.push(`Energia: ${'●'.repeat(en)}${'○'.repeat(5 - en)} · Cuidados: ${D[3]}; ${O[3]}.`);
+  } else if (b) {
     const en = Math.max(1, Math.min(5, b[1] + (sg.el === 'fogo' ? 1 : sg.el === 'terra' ? -1 : 0)));
     lines.push(`Como ${b[0]}, é ${b[2]}.`);
     lines.push(`Como ${sg.n}, ${EL_PET[sg.el]}. ${b[1] >= 4 && sg.el === 'fogo' ? 'Juntos dão uma verdadeira bomba de energia!' : b[1] <= 2 && sg.el === 'terra' ? 'Juntos dão o rei (ou a rainha) do sofá.' : b[1] >= 4 && sg.el === 'agua' ? 'Muita energia, mas também muita sensibilidade: precisa de ti por perto.' : 'A raça e o signo equilibram-se bem.'}`);
@@ -3365,7 +3374,7 @@ function signPicker(cur, cb) {
 }
 
 // ===== App de telemóvel =====
-const APP_VERSION = '13.11.2026 14:40';
+const APP_VERSION = '13.11.2026 15:10';
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const G = g => `${g}&#xFE0E;`;
@@ -3595,7 +3604,7 @@ function openPet(i, isNew, edit) {
   const pets = P.list('ceu_pets'), a = isNew ? { name: '', sp: 'cao', d: '', t: '' } : pets[i];
   const spOpts = SPECIES.map(s => `<option value="${s[0]}"${spOf(a)[0] === s[0] ? ' selected' : ''}>${s[1]} ${s[2]}</option>`).join('');
   let h = `<div class="form"><label>Nome<input type="text" id="aName" maxlength="20" value="${esc(a.name)}" placeholder="Ex.: Bobi"></label><label>Espécie<select id="aSp">${spOpts}</select></label>
-    <label>Raça<select id="aBreed"></select></label><label id="aBreedTxtL" hidden>Escreve a raça<input type="text" id="aBreedTxt" maxlength="30" value="${esc(a.breed || '')}" placeholder="Ex.: Lop, Canário, Ruivo…"></label>
+    <label class="chk" id="aMixL"><input type="checkbox" id="aMix"${a.mix ? ' checked' : ''}> 🧬 É cruzado (mistura de duas raças)</label><label id="aBreedL">Raça<select id="aBreed"></select></label><div class="two" id="aMixBox" hidden><label>Raça 1<select id="aMix1"></select></label><label>Raça 2<select id="aMix2"></select></label></div><label id="aBreedTxtL" hidden>Escreve a raça<input type="text" id="aBreedTxt" maxlength="30" value="${esc(a.breed || '')}" placeholder="Ex.: Lop, Canário, Ruivo…"></label>
     <label>Data de nascimento (ou de adoção)<input type="date" id="aDate" max="${todayStr()}" value="${a.d}"></label><label>Hora (opcional)<input type="time" id="aTime" value="${a.t || ''}"></label><label>Dia de adoção (opcional)<input type="date" id="aAdoptD" max="${todayStr()}" value="${a.adopt || ''}"></label></div>`;
   if (!isNew && a.d && !edit) {
     const s = spOf(a), ps = sunSignAt(a.d, a.t), cn = chineseSign(a.d), age = ageOn(a.d), ha = humanAge(a), dd = daysToBirthday(a.d);
@@ -3615,11 +3624,13 @@ function openPet(i, isNew, edit) {
       ` + `<div class="tools"><button class="btn main" id="aPoster">🎉 Criar cartaz de parabéns</button><button class="btn" id="aCard">🃏 Abrir o cartão do dia</button><button class="btn" id="aLost">🆘 Cartaz de perdido</button><button class="btn" id="aEdit">✏️ Editar</button><button class="btn" id="aDel">🗑️ Apagar</button></div>` + '<div id="petMore"></div>';
   }
   $('#petBody').innerHTML = h;
-  const fillBreeds = () => { if (!$('#aBreed')) return; const sp = $('#aSp').value, L = BREEDS[sp]; if (L) { $('#aBreed').innerHTML = L.map(b => `<option${b[0] === a.breed ? ' selected' : ''}>${b[0]}</option>`).join('') + `<option value="__outra"${a.breed && !L.find(b => b[0] === a.breed) ? ' selected' : ''}>Outra…</option>`; $('#aBreed').parentElement.hidden = false; } else { $('#aBreed').parentElement.hidden = true; } $('#aBreedTxtL').hidden = !!L && $('#aBreed').value !== '__outra'; };
-  if ($('#aSp')) { $('#aSp').onchange = fillBreeds; $('#aBreed').onchange = () => $('#aBreedTxtL').hidden = $('#aBreed').value !== '__outra'; fillBreeds(); }
+  const fillBreeds = () => { if (!$('#aBreed')) return; const sp = $('#aSp').value, L = BREEDS[sp], mix = $('#aMix').checked && !!L; $('#aMixL').hidden = !L; $('#aMixBox').hidden = !mix; if (L) { const M = L.slice(1).map(b => b[0]); $('#aMix1').innerHTML = M.map(n => `<option${a.mix && a.mix[0] === n ? ' selected' : ''}>${n}</option>`).join(''); $('#aMix2').innerHTML = M.map((n, j) => `<option${a.mix ? (a.mix[1] === n ? ' selected' : '') : (j === 1 ? ' selected' : '')}>${n}</option>`).join(''); }
+    if (mix) { $('#aBreed').parentElement.hidden = true; $('#aBreedTxtL').hidden = true; return; }
+    if (L) { $('#aBreed').innerHTML = L.map(b => `<option${b[0] === a.breed ? ' selected' : ''}>${b[0]}</option>`).join('') + `<option value="__outra"${a.breed && !L.find(b => b[0] === a.breed) ? ' selected' : ''}>Outra…</option>`; $('#aBreed').parentElement.hidden = false; } else { $('#aBreed').parentElement.hidden = true; } $('#aBreedTxtL').hidden = !!L && $('#aBreed').value !== '__outra'; };
+  if ($('#aSp')) { $('#aMix').onchange = fillBreeds; $('#aSp').onchange = fillBreeds; $('#aBreed').onchange = () => $('#aBreedTxtL').hidden = $('#aBreed').value !== '__outra'; fillBreeds(); }
   $('#petTitle').textContent = isNew ? 'Juntar animal' : edit ? 'Editar ' + a.name : '';
   $('#petSave').hidden = !(isNew || edit);
-  const save = () => { const n = $('#aName').value.trim(), d = $('#aDate').value; if (!n || !d) { toast('Nome e data do animal'); return; } const l = P.list('ceu_pets'), sp = $('#aSp').value, br = BREEDS[sp] && $('#aBreed').value !== '__outra' ? $('#aBreed').value : $('#aBreedTxt').value.trim(), o = { name: n, sp, breed: br, d, t: $('#aTime').value, adopt: $('#aAdoptD').value || '' }; if (isNew) l.push(o); else l[i] = { ...l[i], ...o }; P.setList('ceu_pets', l); $('#petDlg').close(); toast('Guardado 🐾'); render(); };
+  const save = () => { const n = $('#aName').value.trim(), d = $('#aDate').value; if (!n || !d) { toast('Nome e data do animal'); return; } const l = P.list('ceu_pets'), sp = $('#aSp').value, mix = BREEDS[sp] && $('#aMix').checked ? [$('#aMix1').value, $('#aMix2').value] : null; if (mix && mix[0] === mix[1]) { toast('Escolhe duas raças diferentes'); return; } const br = mix ? `${mix[0].replace(/ \(.*\)/, '')} × ${mix[1].replace(/ \(.*\)/, '')}` : BREEDS[sp] && $('#aBreed').value !== '__outra' ? $('#aBreed').value : $('#aBreedTxt').value.trim(), o = { name: n, sp, breed: br, mix, d, t: $('#aTime').value, adopt: $('#aAdoptD').value || '' }; if (isNew) l.push(o); else l[i] = { ...l[i], ...o }; P.setList('ceu_pets', l); $('#petDlg').close(); toast('Guardado 🐾'); render(); };
   $('#petSave').onclick = save;
   document.querySelectorAll('[data-pt]').forEach(b => b.onclick = () => { ST.petTab = b.dataset.pt; openPet(i, false, false); });
   if ($('.care')) bindCare(i); bindOwnerPet(a);
