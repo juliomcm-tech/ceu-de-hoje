@@ -234,7 +234,7 @@ footer.ft{color:var(--mute);font-size:11.5px;text-align:center;margin:18px 0 6px
 [data-theme=branco] .inst,[data-theme=pink] .inst,[data-theme=menta] .inst{background:var(--btn2);border-color:var(--line)}
 [data-theme=branco] .today,[data-theme=pink] .today,[data-theme=menta] .today{background:var(--dlg)}
 [data-theme=branco] .r1 .rk,[data-theme=pink] .r1 .rk,[data-theme=menta] .r1 .rk{background:var(--gold);color:#fff}
-</style>
+.migb{background:linear-gradient(135deg,color-mix(in srgb,var(--gold) 22%,var(--card)),var(--card));border:1px solid var(--gold);border-radius:20px;padding:12px 14px;margin:0 0 14px}.migb h3{margin:0 0 4px;font:700 20px "Cormorant Garamond",serif}.migb p{margin:4px 0 10px;font-size:14px}.migb .note{margin:8px 0 0}</style>
 </head>
 <body>
 <div class="app">
@@ -1842,7 +1842,7 @@ function breedProfile(a) {
 // ---------- Agenda ----------
 const REL_GROUPS = [['Família', ['pai', 'mae', 'filho', 'filha', 'irmao', 'irma', 'avom', 'avof', 'neto', 'neta', 'tio', 'tia', 'sobrinho', 'sobrinha', 'primo', 'prima', 'sogro', 'sogra', 'padrinho', 'madrinha', 'afilhado', 'afilhada']], ['Amor', ['marido', 'mulher', 'namorado', 'namorada']], ['Amigos', ['bffm', 'bfff', 'amigo', 'amiga']], ['Trabalho', ['colegam', 'colegaf', 'chefem', 'chefef', 'patrao', 'patroa']], ['Animais', ['cao', 'gato', 'pet']]];
 const relLabel = x => x.relTxt || (RELS.find(r => r[0] === x.rel) || RELS[0])[2];
-const APP_URL = 'https://juliomcm-tech.github.io/ceu-de-hoje/';
+const APP_URL = 'https://ceudehoje.com/';
 function agendaAll() {
   const out = P.list('ceu_bdays').map((x, i) => ({ ...x, kind: 'p', k: i }));
   P.list('ceu_pets').forEach((a, i) => { const s = spOf(a); out.push({ name: a.name, rel: s[0] === 'cao' ? 'cao' : s[0] === 'gato' ? 'gato' : 'pet', relTxt: s[1] + ' ' + s[2], d: a.d, t: a.t, kind: 'a', k: i }); });
@@ -2669,10 +2669,13 @@ async function doBackup() {
 }
 async function doRestore(file) {
   let j; try { j = JSON.parse(await file.text()); } catch (e) { toast('Ficheiro inválido'); return; }
+  return restoreObj(j);
+}
+async function restoreObj(j, ask) {
   if (!j || j.app !== 'ceu-de-hoje') { toast('Este ficheiro não é uma cópia do Céu de Hoje'); return; }
   if (j.v >= 2 && j.data) {
     const n = Object.keys(j.data).length; if (!n) { toast('A cópia está vazia'); return; }
-    if (!confirmBox(`Repor a cópia de ${new Date(j.at).toLocaleDateString('pt-PT')}? Os dados deste telemóvel são substituídos pelos da cópia.`)) return;
+    if (ask !== false && !confirmBox(ask || `Repor a cópia de ${new Date(j.at).toLocaleDateString('pt-PT')}? Os dados deste telemóvel são substituídos pelos da cópia.`)) return;
     const snap = {}; try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && k.startsWith('ceu_') && !BK_SKIP.test(k)) snap[k] = localStorage.getItem(k); } } catch (e) { }
     try { Object.keys(snap).forEach(k => { if (!(k in j.data)) localStorage.removeItem(k); }); for (const [k, v] of Object.entries(j.data)) if (k.startsWith('ceu_') && !BK_SKIP.test(k)) localStorage.setItem(k, v); } catch (e) { try { Object.keys(j.data).forEach(k => localStorage.removeItem(k)); for (const [k, v] of Object.entries(snap)) localStorage.setItem(k, v); } catch (x) { } toast('Sem espaço no telemóvel para repor tudo: ficou tudo como estava.', 5000); return; }
     if (j.photos) for (const [k, v] of Object.entries(j.photos)) try { await PHDB.put(k, v); } catch (e) { }
@@ -2683,6 +2686,44 @@ async function doRestore(file) {
   }
   store.set('ceu_lastbk', todayStr()); try { syncAlertData(); } catch (e) { }
   toast('Cópia reposta ✅'); setTimeout(() => location.reload(), 900);
+}
+
+// ---------- Mudança de casa: juliomcm-tech.github.io → ceudehoje.com ----------
+const NEW_SITE = 'https://ceudehoje.com/';
+function isOldHost() { return /github\.io$/.test(location.hostname) || /[?&]oldhost/.test(location.search); }
+async function gzB64(str) { const b = await new Response(new Blob([str]).stream().pipeThrough(new CompressionStream('gzip'))).arrayBuffer(), u = new Uint8Array(b); let s = ''; for (let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000)); return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }
+async function gunB64(b64) { const s = atob(b64.replace(/-/g, '+').replace(/_/g, '/')), u = Uint8Array.from(s, c => c.charCodeAt(0)); return new Response(new Blob([u]).stream().pipeThrough(new DecompressionStream('gzip'))).text(); }
+function migBox() {
+  if (!isOldHost()) return '';
+  const has = Object.keys(backupData().data).length > 2, done = store.get('ceu_migrated');
+  return `<div class="migb"><h3>🏠 A Céu de Hoje mudou de casa</h3><p>A nova morada é <b>ceudehoje.com</b>. ${has ? (done ? 'Os teus dados já foram levados. Abre a nova morada e instala de lá a app.' : 'Leva os teus dados contigo num toque: perfil, aniversários, animais, diário, ciclo e fotos.') : 'Abre a nova morada e instala de lá a app.'}</p><button class="btn main" id="migGo" style="width:100%">${has && !done ? '📦 Levar os meus dados' : '✨ Abrir ceudehoje.com'}</button>${has && !done ? '<p class="note">Os dados viajam dentro do próprio link, diretamente do teu telemóvel para a nova morada. Não passam por nenhum servidor.</p>' : ''}</div>`;
+}
+function bindMig() {
+  const b = $('#migGo'); if (!b) return;
+  b.onclick = async () => {
+    const has = Object.keys(backupData().data).length > 2;
+    if (!has || store.get('ceu_migrated')) { location.href = NEW_SITE; return; }
+    b.disabled = true; b.textContent = 'A preparar…';
+    try {
+      const bk = backupData(); bk.mig = 1; try { if (typeof PHDB !== 'undefined') bk.photos = await PHDB.all(); } catch (e) { }
+      let enc = await gzB64(JSON.stringify(bk)), noPh = false;
+      if (enc.length > 1800000 && bk.photos) { delete bk.photos; enc = await gzB64(JSON.stringify(bk)); noPh = true; }
+      if (enc.length > 1800000) { b.disabled = false; b.textContent = '📦 Levar os meus dados'; toast('Tens muitos dados para um link: faz uma cópia de segurança aqui e repõe-na em ceudehoje.com', 7000); doBackup(); return; }
+      if (noPh && !confirmBox('As fotos são grandes demais para o link. Os outros dados vão todos. Para levar as fotos, faz também uma cópia de segurança e repõe-na lá. Continuar?')) { b.disabled = false; b.textContent = '📦 Levar os meus dados'; return; }
+      store.set('ceu_migrated', todayStr());
+      try { if (PS.get().on) await pushOff(); } catch (e) { }
+      location.href = NEW_SITE + '#mig=' + enc;
+    } catch (e) { b.disabled = false; b.textContent = '📦 Levar os meus dados'; toast('Não deu para preparar o link. Usa a cópia de segurança.', 6000); }
+  };
+}
+async function checkMigLink() {
+  const m = location.hash.match(/^#mig=([\w-]+)/); if (!m) return false;
+  try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { }
+  let j; try { j = JSON.parse(await gunB64(m[1])); } catch (e) { toast('O link de mudança está incompleto. Usa a cópia de segurança.', 6000); return true; }
+  if (!j || j.app !== 'ceu-de-hoje' || !j.mig) return true;
+  const here = Object.keys(backupData().data).length > 2;
+  await restoreObj(j, here ? 'Já tens dados nesta morada. Substituir pelos que trouxeste da morada antiga?' : `Bem-vindo à nova casa! 🏠 Trazer os teus dados da morada antiga (${Object.keys(j.data).length} itens${j.photos ? ' e fotos' : ''})?`);
+  return true;
 }
 function bkDue() { if (!hasPersonalData()) return false; const last = store.get('ceu_lastbk'), sn = store.get('ceu_bksnooze'); if (sn && sn > todayStr()) return false; return !last || (noonJd(todayStr()) - noonJd(last)) >= 30; }
 function bkCard() {
@@ -5001,7 +5042,7 @@ function bindPushBox() {
 }
 
 // ===== App de telemóvel =====
-const APP_VERSION = '13.11.2026 21:45';
+const APP_VERSION = '13.11.2026 22:15';
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const G = g => `${g}&#xFE0E;`;
@@ -5025,7 +5066,7 @@ function vTop() {
       <div class="ar4">${AREAS4(rd).map(([l, k, t]) => `<div><span>${l}</span>${starsH(rd.stars[k])}<p>${esc(firstSentence(t))}</p></div>`).join('')}</div>
       <div class="ex">${ex}</div><span class="more">Abrir ›</span></article>`;
   });
-  return todayStrip() + (ST.date === todayStr() ? bdayBanner() : '') + h;
+  return migBox() + todayStrip() + (ST.date === todayStr() ? bdayBanner() : '') + h;
 }
 function vPares() {
   const PR = pairsDay(ST.date, ST.modern);
@@ -5499,7 +5540,7 @@ function render() {
   document.querySelectorAll('#who button').forEach(b => b.classList.toggle('on', (b.dataset.w === 'a') === !!ST.pets));
   $('#when').textContent = ST.type === 'top' || ST.type === 'lua' ? periodLabel() : niceDate(ST.date);
   $('#view').innerHTML = VIEWS[ST.type]();
-  if (ST.type === 'top') { document.querySelectorAll('.sc').forEach(a => a.onclick = () => openSheet(+a.dataset.i)); bindTodayStrip(); }
+  if (ST.type === 'top') { document.querySelectorAll('.sc').forEach(a => a.onclick = () => openSheet(+a.dataset.i)); bindTodayStrip(); bindMig(); }
   if (ST.type === 'pares') { document.querySelectorAll('.pair,.li[data-a]').forEach(el => el.onclick = () => openPair(el.dataset.a, el.dataset.b)); const me2 = P.get(); document.querySelectorAll('.spk').forEach(b => b.onclick = () => { const side = b.dataset.side, cur = side === 'A' ? (ST.pkA ?? (me2 && me2.d ? sunSignOf(me2.d) : 0)) : (ST.pkB ?? 4); ST.nmA = $('#nmA').value; ST.nmB = $('#nmB').value; signPicker(cur, v => { if (side === 'A') ST.pkA = v; else ST.pkB = v; render(); }); }); $('#pkGo').onclick = () => { ST.nmA = $('#nmA').value.trim(); ST.nmB = $('#nmB').value.trim(); ST.pkA = ST.pkA ?? (me2 && me2.d ? sunSignOf(me2.d) : 0); ST.pkB = ST.pkB ?? 4; openPair(ST.pkA, ST.pkB, ST.nmA && ST.nmB ? [ST.nmA, ST.nmB] : null); }; }
   bindBanner();
   if (ST.type === 'lua') { document.querySelectorAll('[data-cat]').forEach(b => b.onclick = () => { ST.luaCat = b.dataset.cat; ST.mode = 'mes'; render(); }); if ($('#fertCalc')) $('#fertCalc').onclick = openFert; }
@@ -5647,7 +5688,7 @@ async function init() {
   document.addEventListener('visibilitychange', () => { if (document.visibilityState !== 'visible') return; const t = todayStr(); if (ST._day && ST._day !== t) { if (ST.date === ST._day) ST.date = t; ST._day = t; render(); setTimeout(() => showTodayDlg(false), 400); } });
   ST._day = todayStr(); setTimeout(() => pushSync(false), 4000); try { if (navigator.storage && navigator.storage.persist && hasPersonalData()) navigator.storage.persist(); } catch (e) { }
   render();
-  if (/#add=/.test(location.hash)) setTimeout(checkAddLink, 400); else if (/#casal=/.test(location.hash)) checkCoupleLink(); else setTimeout(() => { if (!showTodayDlg(false)) maybeTour(); }, 600);
+  if (/^#mig=/.test(location.hash)) setTimeout(checkMigLink, 300); else if (/#add=/.test(location.hash)) setTimeout(checkAddLink, 400); else if (/#casal=/.test(location.hash)) checkCoupleLink(); else if (!isOldHost()) setTimeout(() => { if (!showTodayDlg(false)) maybeTour(); }, 600);
   setTimeout(() => { try { if (alertState() === 'granted' && navigator.serviceWorker && navigator.serviceWorker.controller) navigator.serviceWorker.controller.postMessage('check-bdays'); } catch (e) { } }, 1500);
   try { await Promise.race([Promise.all(['700 40px Cinzel', 'italic 600 40px "Cormorant Garamond"', '500 20px Manrope', '600 20px Manrope', '700 20px Manrope', '800 20px Manrope'].map(f => document.fonts.load(f)).concat([document.fonts.load('40px "Noto Sans Symbols"', '♈♉♊♋♌♍♎♏♐♑♒♓☉☽☿♀♂♃♄'), document.fonts.load('40px "Noto Sans Symbols 2"', '♅♆♇★✂✓✕')])), new Promise(r => setTimeout(r, 3000))]); } catch (e) { }
   if (/github\.io$/.test(location.hostname) && 'serviceWorker' in navigator) {
