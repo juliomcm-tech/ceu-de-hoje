@@ -1,5 +1,5 @@
 // Céu de Hoje — funciona sem rede e avisa dos aniversários
-const CACHE = 'ceu-v58';
+const CACHE = 'ceu-v59';
 const CORE = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './badge-96.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE && k !== 'ceu-data').map(k => caches.delete(k)))).then(() => self.clients.claim())); });
@@ -21,7 +21,12 @@ async function checkEvents() { // ciclo, patudos, resumo do mês, livro do ano
   const c = await caches.open('ceu-data'), r = await c.match('./__events.json'); if (!r) return;
   const ev = await r.json(), now = new Date(), pad = n => String(n).padStart(2, '0'), today = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
   const dn = await c.match('./__notified-ev'), done = dn ? await dn.json() : []; let changed = false;
-  for (const e of ev) { if (e.d !== today || done.includes(e.tag) || (e.h && now.getHours() < e.h)) continue; await self.registration.showNotification(e.t, { body: e.b, icon: 'icon-192.png', badge: 'badge-96.png', tag: e.tag, data: { url: e.url || './' } }); done.push(e.tag); changed = true; }
+  const PRI = ['cy', 'preg', 'gift', 'cd0', 'cd1', 'pet', 'week', 'tar', 'tarw', 'rt', 'month', 'night'], pr = e => { const k = PRI.findIndex(p => e.tag.startsWith(p)); return k < 0 ? 50 : k; };
+  const due = ev.filter(e => e.d === today && !done.includes(e.tag) && !(e.h && now.getHours() < e.h)).sort((a, b) => pr(a) - pr(b));
+  const show = (t, b, tag, url) => self.registration.showNotification(t, { body: b, icon: 'icon-192.png', badge: 'badge-96.png', tag, data: { url: url || './' } });
+  for (const e of due.slice(0, 2)) await show(e.t, e.b, e.tag, e.url); // no máximo 2 avisos de cada vez
+  if (due.length > 2) { const rest = due.slice(2); await show(`✨ Mais ${rest.length} aviso${rest.length > 1 ? 's' : ''} de hoje`, rest.map(e => e.t).join('\n'), 'more-' + today, './'); }
+  due.forEach(e => done.push(e.tag)); if (due.length) changed = true;
   if (changed) await c.put('./__notified-ev', new Response(JSON.stringify(done.slice(-500))));
 }
 async function checkAll() { try { await checkEvents(); } catch (e) { } try { await checkBirthdays(); } catch (e) { } }
