@@ -133,7 +133,7 @@ dialog.sheet{width:100%;max-width:560px;height:100%;max-height:100%;margin:0 aut
 .sc.mine .rk{width:auto;padding:0 8px;border-radius:999px;background:#f2c76e;color:#1a1206}
 .num .nums{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:6px 0}.num .nums div{background:var(--soft);border-radius:12px;padding:10px 4px;text-align:center}.num .nums b{display:block;font:800 26px Manrope;color:var(--gold2)}.num .nums span{font-size:11px;color:var(--mute)}
 .oracle .sub3{color:var(--mute);font-size:12.5px;margin:0 0 8px}#chat{display:grid;gap:8px;margin:6px 0}.msg{padding:10px 12px;border-radius:14px;font-size:14px;line-height:1.45;max-width:88%}.msg.me{justify-self:end;background:var(--btn2)}.msg.or{background:#ffe3a314;border:1px solid #ffe3a333}.msg small{color:var(--mute)}
-.anophoto{aspect-ratio:4/3;border-radius:14px;background:var(--soft);display:grid;place-items:center;overflow:hidden;margin-bottom:10px;font-size:54px}.anophoto img{width:100%;height:100%;object-fit:cover}.qpick{max-height:180px;overflow:auto;margin-top:6px;padding:8px;background:var(--soft);border-radius:10px;line-height:2;text-align:left;font-size:15px}.qpick span{padding:2px 3px;border-radius:5px;cursor:pointer}.qpick span.on{background:var(--gold);color:#222}.chips{display:flex;gap:6px;overflow-x:auto;padding:4px 0 8px;scrollbar-width:none}.qchip{flex:none;background:var(--btn);border:1px solid var(--line);color:var(--ink2);border-radius:999px;padding:7px 11px;font:600 12.5px Manrope;cursor:pointer}
+.anophoto{aspect-ratio:4/3;border-radius:14px;background:var(--soft);display:grid;place-items:center;overflow:hidden;margin-bottom:10px;font-size:54px}.anophoto img{width:100%;height:100%;object-fit:cover}.qpick{max-height:180px;overflow:auto;margin-top:6px;padding:8px;background:var(--soft);border-radius:10px;line-height:2;text-align:left;font-size:15px}.qpick span{padding:2px 3px;border-radius:5px;cursor:pointer}.qpick span.on{background:var(--gold);color:#222}.care .due{margin:4px 0;padding:6px 10px;border-radius:10px;background:var(--soft)}.care .due.soon{background:#f2c76e22;border:1px solid #f2c76e66}.carebtns{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin:10px 0}.carebtns button{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:6px 0;font:600 10px Manrope;color:inherit;cursor:pointer}.carebtns button span{display:block;font-size:20px}.cf h4{margin:4px 0 6px}.wspark{margin:8px 0}.wspark svg{width:100%;height:70px}.wspark small{color:var(--mute)}.cfotos{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}.cfotos img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px}.ctl>div{display:flex;gap:10px;align-items:center;padding:7px 0;border-top:1px solid var(--line)}.ctl span{font-size:22px}.ctl div div{flex:1;min-width:0}.ctl b{display:block;font-size:14px}.ctl small{color:var(--mute);font-size:12px}.opr{display:flex;justify-content:center;align-items:center;gap:18px;font-size:34px;margin:4px 0}.opr b{font:700 34px Cinzel;color:var(--gold)}.bookv img.stv{flex:0 0 62%;max-width:62%}.chips{display:flex;gap:6px;overflow-x:auto;padding:4px 0 8px;scrollbar-width:none}.qchip{flex:none;background:var(--btn);border:1px solid var(--line);color:var(--ink2);border-radius:999px;padding:7px 11px;font:600 12.5px Manrope;cursor:pointer}
 .ask{display:flex;gap:8px}.ask input{flex:1}.ask .btn{padding:0 18px;font-size:18px}
 .pet{display:flex;align-items:center;gap:10px;background:var(--soft);border-radius:12px;padding:9px 10px;margin:6px 0;cursor:pointer}.pet .g{font-family:var(--sym);font-size:26px;width:32px;text-align:center}.pet div{flex:1;min-width:0}.pet b{display:block}.pet small{display:block;color:var(--mute);font-size:12px}.pet small.vv{color:var(--ink2)}.pet small.vv.cuidado{color:var(--badc)}
 .petform{display:grid;grid-template-columns:1fr 64px;gap:6px;margin-top:8px}.petform input[type=date]{grid-column:1}.petform .btn{grid-column:2;grid-row:2;padding:8px}
@@ -1810,7 +1810,7 @@ function breedProfile(a) {
     lines.push(`Energia: ${'●'.repeat(en)}${'○'.repeat(5 - en)} · Cuidado especial: ${b[3]}.`);
   } else lines.push(`Como ${sg.n}, ${EL_PET[sg.el]}.`, a.breed ? `Raça: ${a.breed}.` : '');
   const p = P.get();
-  if (p && p.d) { const os = sunSignOf(p.d), k = Math.min((os - ps + 12) % 12, (ps - os + 12) % 12), sc = PAIR_BASE[k] + 6; lines.push(`Compatibilidade contigo (${SIGNS[os].n}): ${Math.min(99, sc)}% · ${PAIR_TXT[k]}.`); }
+
   return lines.filter(Boolean);
 }
 
@@ -2861,6 +2861,15 @@ async function buildYearBook(y) {
     if (D.pets.length) yy = para(ctx, `E não esquecer ${D.pets.map(a => a.name).join(', ')}, que esteve${D.pets.length > 1 ? 'ram' : ''} sempre lá 🐾`.replace(' 🐾', '.'), 140, yy, W - 280, 34) + 20;
     try { ornament(ctx, W, H, Math.max(yy, 0), '💛'); } catch (e) { } pageNum(ctx, W, H, ++pn);
   }, 'pessoas');
+  // 7b. Patudos
+  const petsY = P.list('ceu_pets').map(a => ({ a, C: petCare(a).filter(c => (c.d || '').startsWith(String(y))) })).filter(o => o.C.length);
+  if (petsY.length) { const pics = []; for (const o of petsY) for (const c of o.C.filter(c => c.photo).slice(-3)) { const im = await loadImg(c.photo); if (im) pics.push(im); } page(ctx => {
+    paper(ctx, W, H, 75); let yy = chapter(ctx, W, roman[++ch], petsY.length > 1 ? 'Os patudos' : `O ano ${spOf(petsY[0].a)[0] === 'gata' ? 'da' : 'do'} ${petsY[0].a.name}`);
+    petsY.slice(0, 3).forEach(o => { const C = o.C, n = k => C.filter(c => c.k === k).length, ps = C.filter(c => c.k === 'peso' && +c.kg).sort((a, b) => a.d.localeCompare(b.d)); const bits = [n('foto') && `${n('foto')} momento${n('foto') > 1 ? 's' : ''} fofo${n('foto') > 1 ? 's' : ''}`, n('vet') && `${n('vet')} ida${n('vet') > 1 ? 's' : ''} ao veterinário`, n('vac') && `vacinas em dia`, n('banho') && `${n('banho')} banho${n('banho') > 1 ? 's' : ''}`, ps.length > 1 && `de ${ps[0].kg} para ${ps[ps.length - 1].kg} kg`].filter(Boolean);
+      ctx.fillStyle = INK; ctx.font = '700 40px Cinzel'; ctx.fillText(`${spOf(o.a)[1]}  ${o.a.name}`, 140, yy); yy = para(ctx, bits.join(' · ') || 'Sempre ao teu lado.', 140, yy + 50, W - 280, 34) + 30; });
+    if (pics.length) { const n = Math.min(3, pics.length), pw = 250, gap = 40, x0 = W / 2 - (n * pw + (n - 1) * gap) / 2; pics.slice(0, n).forEach((im, j) => { const x = x0 + j * (pw + gap), h = pw; ctx.save(); ctx.translate(x + pw / 2, yy + 160); ctx.rotate((j - 1) * .06); ctx.shadowColor = '#0004'; ctx.shadowBlur = 18; ctx.fillStyle = '#fffdf8'; ctx.fillRect(-pw / 2 - 14, -h / 2 - 14, pw + 28, h + 60); ctx.shadowColor = 'transparent'; const s = Math.min(im.width, im.height); ctx.drawImage(im, (im.width - s) / 2, (im.height - s) / 2, s, s, -pw / 2, -h / 2, pw, h); ctx.restore(); }); yy += 380; }
+    try { ornament(ctx, W, H, yy, '🐾'); } catch (e) { } pageNum(ctx, W, H, ++pn);
+  }, 'patudos'); }
   // 8. Diário
   if (D.notes.length) page(ctx => {
     paper(ctx, W, H, 8); let yy = chapter(ctx, W, roman[++ch], 'O teu diário');
@@ -2956,13 +2965,14 @@ function openAno(step) {
 async function showAnoBook(y) {
   $('#anoTitle').textContent = `📖 O meu livro de ${y}`; $('#anoBody').innerHTML = '<p class="hint">A escrever o teu livro… ✍️</p>'; $('#anoFoot').innerHTML = '';
   ANO_PAGES = await buildYearBook(y);
-  $('#anoBody').innerHTML = `<div class="bookv">${ANO_PAGES.map((p, i) => `<img src="${p.c.toDataURL('image/jpeg', .85)}" alt="Página ${i + 1}" data-i="${i}">`).join('')}</div><p class="hint">Desliza para folhear · ${ANO_PAGES.length} páginas</p><div class="anoact"><button class="btn main" id="anoShare">📤 Partilhar páginas</button><button class="btn" id="anoPdf">📄 PDF</button><button class="btn" id="anoVid">🎬 Vídeo</button></div>`;
+  $('#anoBody').innerHTML = `<div class="bookv">${ANO_PAGES.map((p, i) => `<img src="${p.c.toDataURL('image/jpeg', .85)}" alt="Página ${i + 1}" data-i="${i}">`).join('')}</div><p class="hint">Desliza para folhear · ${ANO_PAGES.length} páginas</p><div class="anoact"><button class="btn main" id="anoShare">📤 Partilhar páginas</button><button class="btn" id="anoPdf">📄 PDF</button><button class="btn" id="anoVid">🎬 Vídeo</button></div><button class="btn ghost" id="anoSt" style="width:100%;margin-top:6px">📱 Versão stories (9:16) para Instagram e Facebook</button>`;
   $('#anoFoot').innerHTML = `<button class="btn" id="anoEdit">✏️ Respostas</button><button class="btn" data-close>Fechar</button>`;
   $('#anoFoot').querySelector('[data-close]').onclick = () => $('#anoDlg').close();
   $('#anoEdit').onclick = () => openAno(1);
   const cap = `O meu ${y}, em livro 📖✨\n\nFeito com a app Céu de Hoje: ${APP_URL}`;
   $('#anoShare').onclick = () => shareCanvases(ANO_PAGES, cap);
   $('#anoPdf').onclick = async () => { const b = $('#anoPdf'); b.disabled = true; b.textContent = 'A criar…'; try { const pdf = await pagesToPdf(ANO_PAGES), f = new File([pdf], `o-meu-livro-${y}.pdf`, { type: 'application/pdf' }); let ok = false; try { if (navigator.canShare && navigator.canShare({ files: [f] })) { await navigator.share({ files: [f] }); ok = true; } } catch (e) { if (e && e.name === 'AbortError') ok = true; } if (!ok) await saveBlob(f, f.name); } finally { b.disabled = false; b.textContent = '📄 PDF'; } };
+  $('#anoSt').onclick = async () => { const b = $('#anoSt'); b.disabled = true; b.textContent = 'A criar os stories…'; try { const st = await buildYearStories(y); $('#anoBody').querySelector('.bookv').innerHTML = st.map(p => `<img class="stv" src="${p.c.toDataURL('image/jpeg', .82)}" alt="">`).join(''); b.textContent = '📤 Partilhar os stories'; b.disabled = false; b.onclick = () => shareCanvases(st, cap); const v = $('#anoVid'); v.onclick = async () => { const per = 2.6, dur = st.length * per; const r = await recordAnim((ctx, t) => { const i = Math.min(st.length - 1, Math.floor(t / per)), f = t - i * per; ctx.globalAlpha = 1; ctx.drawImage(st[i].c, 0, 0); if (f > per - .4 && i < st.length - 1) { ctx.globalAlpha = (f - (per - .4)) / .4; ctx.drawImage(st[i + 1].c, 0, 0); ctx.globalAlpha = 1; } }, dur, 1080, 1920, v, '🎬'); if (!r) return; const f = new File([r.blob], `o-meu-${y}-story.${r.ext}`, { type: r.blob.type }); copySync(cap); try { if (navigator.canShare && navigator.canShare({ files: [f] })) { await navigator.share({ files: [f] }); return; } } catch (e) { if (e && e.name === 'AbortError') return; } await saveBlob(f, f.name); }; } catch (e) { b.disabled = false; b.textContent = '📱 Versão stories'; toast('Não consegui criar os stories'); } };
   $('#anoVid').onclick = async () => {
     const per = 3.2, dur = ANO_PAGES.length * per;
     const draw = (ctx, t) => { const i = Math.min(ANO_PAGES.length - 1, Math.floor(t / per)), f = t - i * per; ctx.globalAlpha = 1; ctx.drawImage(ANO_PAGES[i].c, 0, 0); if (f > per - .5 && i < ANO_PAGES.length - 1) { ctx.globalAlpha = (f - (per - .5)) / .5; ctx.drawImage(ANO_PAGES[i + 1].c, 0, 0); ctx.globalAlpha = 1; } };
@@ -2982,8 +2992,89 @@ function bindMore() {
   if ($('#anoGo')) $('#anoGo').onclick = () => openAno();
 }
 
+// ---------- Patudos: caderneta, cuidados, tu e o patudo ----------
+const CARE_T = { vac: ['💉', 'Vacina', 365], des: ['🪱', 'Desparasitação', 90], vet: ['🩺', 'Veterinário', 0], peso: ['⚖️', 'Peso', 0], banho: ['🛁', 'Banho / tosquia', 0], foto: ['📸', 'Momento fofo', 0] };
+const petCare = a => (a && a.care) || [];
+function careNext(a, k) { const L = petCare(a).filter(c => c.k === k).sort((x, y) => x.d.localeCompare(y.d)), l = L[L.length - 1]; if (!l) return null; return l.next || dayStr(noonJd(l.d) + CARE_T[k][2]); }
+function careDue(days = 3) {
+  const out = [], t = noonJd(todayStr());
+  P.list('ceu_pets').forEach((a, i) => ['vac', 'des'].forEach(k => { const n = careNext(a, k); if (!n) return; const dd = Math.round(noonJd(n) - t); if (dd <= days && dd >= -60) out.push({ i, a, k, n, dd }); }));
+  return out.sort((x, y) => x.dd - y.dd);
+}
+const dueTxt = dd => dd === 0 ? 'é hoje' : dd === 1 ? 'é amanhã' : dd > 1 ? `daqui a ${dd} dias` : `está atrasada ${-dd} dia${dd < -1 ? 's' : ''}`;
+function careBox(a, i) {
+  const C = petCare(a).slice().sort((x, y) => y.d.localeCompare(x.d)), due = ['vac', 'des'].map(k => [k, careNext(a, k)]).filter(e => e[1]);
+  const pesos = petCare(a).filter(c => c.k === 'peso' && +c.kg).sort((x, y) => x.d.localeCompare(y.d)), fotos = C.filter(c => c.k === 'foto' && c.photo).slice(0, 6);
+  let spark = '';
+  if (pesos.length >= 2) { const v = pesos.map(p => +p.kg), mn = Math.min(...v), mx = Math.max(...v), rg = mx - mn || 1, pts = v.map((k, j) => `${(j / (v.length - 1) * 280 + 10).toFixed(1)},${(70 - (k - mn) / rg * 50).toFixed(1)}`).join(' '); spark = `<div class="wspark"><svg viewBox="0 0 300 80"><polyline points="${pts}" fill="none" stroke="var(--gold)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>${pts.split(' ').map(p => `<circle cx="${p.split(',')[0]}" cy="${p.split(',')[1]}" r="4" fill="var(--gold)"/>`).join('')}</svg><small>⚖️ ${v[0]} kg → <b>${v[v.length - 1]} kg</b></small></div>`; }
+  return `<div class="box care"><h3>📋 Caderneta de ${esc(a.name)}</h3>
+    ${due.map(([k, n]) => { const dd = Math.round(noonJd(n) - noonJd(todayStr())); return `<p class="due${dd <= 7 ? ' soon' : ''}">${CARE_T[k][0]} Próxima ${CARE_T[k][1].toLowerCase()}: <b>${niceDate(n).replace(/-feira/, '')}</b> (${dueTxt(dd)})</p>`; }).join('')}
+    <div class="carebtns">${Object.entries(CARE_T).map(([k, v]) => `<button data-ck="${k}"><span>${v[0]}</span>${v[1].split(' ')[0]}</button>`).join('')}</div><div id="careForm"></div>
+    ${spark}${fotos.length ? `<div class="cfotos">${fotos.map(f => `<img src="${f.photo}" alt="">`).join('')}</div>` : ''}
+    ${C.length ? `<div class="ctl">${C.slice(0, 8).map(c => `<div data-cid="${c.id}"><span>${CARE_T[c.k][0]}</span><div><b>${CARE_T[c.k][1]}${c.kg ? ' · ' + c.kg + ' kg' : ''}</b><small>${niceDate(c.d).replace(/-feira/, '')}${c.note ? ' · ' + esc(c.note) : ''}</small></div><button class="ib cdel">✕</button></div>`).join('')}</div>` : '<p class="note">Regista vacinas, desparasitações, idas ao veterinário, o peso e os momentos fofos. Avisamos-te quando chegar a próxima vacina.</p>'}</div>`;
+}
+function bindCare(i) {
+  const upd = fn => { const l = P.list('ceu_pets'); fn(l[i]); P.setList('ceu_pets', l); openPet(i, false, false); };
+  document.querySelectorAll('[data-ck]').forEach(b => b.onclick = () => {
+    const k = b.dataset.ck, def = CARE_T[k][2] ? dayStr(noonJd(todayStr()) + CARE_T[k][2]) : '';
+    $('#careForm').innerHTML = `<div class="form cf"><h4>${CARE_T[k][0]} ${CARE_T[k][1]}</h4><div class="two"><label>Data<input type="date" id="cD" value="${todayStr()}"></label>${k === 'peso' ? '<label>Peso (kg)<input type="number" id="cKg" step="0.1" min="0" inputmode="decimal"></label>' : def ? `<label>Próxima<input type="date" id="cN" value="${def}"></label>` : '<span></span>'}</div>${k === 'foto' ? '<label class="btn ghost" style="text-align:center;cursor:pointer">📷 Escolher foto<input type="file" id="cPh" accept="image/*" hidden></label><div id="cPhP"></div>' : ''}<label>Nota<input type="text" id="cNote" maxlength="80" placeholder="${k === 'vac' ? 'Ex.: Raiva, Polivalente' : k === 'vet' ? 'Ex.: Consulta de rotina' : k === 'foto' ? 'Ex.: Primeira vez na praia' : 'Opcional'}"></label><button class="btn main" id="cSave">Guardar</button></div>`;
+    let photo = '';
+    if ($('#cPh')) $('#cPh').onchange = async e => { const f = e.target.files[0]; if (!f) return; const u = URL.createObjectURL(f), im = await loadImg(u); URL.revokeObjectURL(u); if (!im) return; const s = Math.min(1, 640 / Math.max(im.width, im.height)), c = document.createElement('canvas'); c.width = Math.round(im.width * s); c.height = Math.round(im.height * s); c.getContext('2d').drawImage(im, 0, 0, c.width, c.height); photo = c.toDataURL('image/jpeg', .78); $('#cPhP').innerHTML = `<img src="${photo}" alt="" style="width:100%;border-radius:10px;margin:6px 0">`; };
+    $('#cSave').onclick = () => { const e = { id: 'c' + Date.now().toString(36), k, d: $('#cD').value || todayStr(), note: $('#cNote').value.trim() }; if ($('#cN') && $('#cN').value) e.next = $('#cN').value; if ($('#cKg')) { if (!+$('#cKg').value) { toast('Escreve o peso'); return; } e.kg = +(+$('#cKg').value).toFixed(1); } if (k === 'foto') { if (!photo) { toast('Escolhe a foto'); return; } e.photo = photo; } upd(a => a.care = petCare(a).concat(e)); toast('Registado 🐾'); };
+    $('#careForm').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+  document.querySelectorAll('.ctl [data-cid]').forEach(el => el.querySelector('.cdel').onclick = () => { if (confirmBox('Apagar este registo?')) upd(a => a.care = petCare(a).filter(c => c.id !== el.dataset.cid)); });
+}
+// tu e o patudo
+const EL_FRIEND = { fogo: 'ar', ar: 'fogo', terra: 'agua', agua: 'terra' };
+function ownerPet(a) {
+  const p = P.get(); if (!p || !p.d) return null;
+  const o = sunSignOf(p.d), s = sunSignAt(a.d, a.t), O = SIGNS[o], S = SIGNS[s];
+  const k = o === s ? 'same' : O.el === S.el ? 'el' : EL_FRIEND[O.el] === S.el ? 'friend' : 'diff';
+  const kd = Math.min((sunSignOf(p.d) - s + 12) % 12, (s - sunSignOf(p.d) + 12) % 12), pct = Math.min(99, PAIR_BASE[kd] + 6);
+  const txt = { same: `Mesmo signo! ${a.name} é praticamente o teu reflexo de quatro patas: sentem as coisas da mesma maneira.`, el: `Os dois são de ${O.el === 'agua' ? 'água' : O.el}: entendem-se sem palavras e têm o mesmo ritmo.`, friend: `${O.n} e ${S.n} completam-se: ${O.el === 'fogo' || O.el === 'ar' ? 'um dá a faísca, o outro o entusiasmo' : 'um dá estabilidade, o outro carinho'}. Dupla de sucesso.`, diff: `Feitios diferentes, e é aí que está a graça: ${a.name} ensina-te ${['paciência', 'a viver o momento', 'a brincar mais', 'a abrandar'][(seeded(a.name)() * 4) | 0]}, tu dás-lhe segurança.` }[k];
+  return { o, s, O, S, pct: Math.min(100, pct), txt, me: (p.name || 'Tu').split(' ')[0] };
+}
+function ownerPetBox(a) { const r = ownerPet(a); if (!r) return ''; return `<div class="box opet"><h3>💞 Tu e ${esc(a.name)}</h3><div class="opr"><span>${G(r.O.g)}</span><b>${r.pct}%</b><span>${G(r.S.g)}</span></div><p>${esc(r.txt)}</p><button class="btn" id="opShare" style="width:100%">📤 Partilhar</button></div>`; }
+async function drawOwnerPet(a) {
+  await fontsReady(); const r = ownerPet(a), [c, ctx, W, H] = newCanvas(), sp = spOf(a);
+  bg(ctx, W, H, 'op' + a.name, EL_COL[r.S.el]);
+  ctx.textAlign = 'center'; ctx.fillStyle = '#f2c76e'; ctx.font = '700 30px Cinzel'; ctx.fillText('TU E O TEU PATUDO', W / 2, 120);
+  ctx.font = `150px ${SYMF}`; ctx.fillStyle = EL_COL[r.O.el][0]; ctx.fillText(r.O.g + VS, W / 2 - 260, 420); ctx.fillStyle = EL_COL[r.S.el][0]; ctx.fillText(r.S.g + VS, W / 2 + 260, 420);
+  ctx.font = `110px ${EMOJI_F}`; ctx.fillText('💞', W / 2, 400);
+  ctx.fillStyle = '#fff'; ctx.font = '700 46px Cinzel'; ctx.fillText(r.me.toUpperCase(), W / 2 - 260, 520); ctx.fillText(a.name.toUpperCase(), W / 2 + 260, 520);
+  ctx.font = 'italic 600 34px "Cormorant Garamond"'; ctx.fillStyle = '#d8d0f5'; ctx.fillText(r.O.n, W / 2 - 260, 570); ctx.fillText(`${sp[1]} ${r.S.n}`, W / 2 + 260, 570);
+  ctx.fillStyle = '#f2c76e'; ctx.font = '700 190px Cinzel'; ctx.fillText(r.pct + '%', W / 2, 820);
+  ctx.font = 'italic 600 44px "Cormorant Garamond"'; ctx.fillStyle = '#fff'; wrap(ctx, r.txt, W / 2, 940, W - 200, 58, 5, 'center');
+  brandFoot(ctx, W, H); return c;
+}
+function bindOwnerPet(a) { if ($('#opShare')) $('#opShare').onclick = async () => { const r = ownerPet(a); toast('A preparar…'); await shareCanvases([{ name: 'tu-e-' + a.name.toLowerCase(), c: await drawOwnerPet(a) }], `${r.me} ${r.O.g} 💞 ${a.name} ${r.S.g}: ${r.pct}% de sintonia!\n\nFeito com Céu de Hoje ✨ ${APP_URL}`); }; }
+
+// ---------- Aviso do livro do ano (1 dez a 31 jan) ----------
+function yearNudge() { const t = todayStr(), m = +t.slice(5, 7), y = anoYear(); if (!(m === 12 || m === 1)) return false; if (anoGet(y).done) return false; return !store.get('ceu_ynudge_' + y); }
+
+// ---------- Stories do ano (9:16) ----------
+async function buildYearStories(y) {
+  await fontsReady();
+  const D = yearData(y), A = anoGet(y), W = 1080, H = 1920, out = [], first = (D.p.name || '').split(' ')[0] || 'Eu';
+  const PAL = [['#ff5f6d', '#5b247a'], ['#1fa2ff', '#12285a'], ['#f7971e', '#6a1b4d'], ['#00b09b', '#0b3d4a'], ['#ee0979', '#2b1055'], ['#8e2de2', '#1a0b3a'], ['#f2c76e', '#3a2208']];
+  const slide = (k, fn) => { const [c, ctx] = newCanvas(W, H), p = PAL[k % PAL.length], g = ctx.createLinearGradient(0, 0, W, H); g.addColorStop(0, p[0]); g.addColorStop(1, p[1]); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H); const r = seeded('s' + k + y); ctx.globalAlpha = .18; for (let i = 0; i < 9; i++) { ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(r() * W, r() * H, 60 + r() * 260, 0, 7); ctx.fill(); } ctx.globalAlpha = 1; ctx.textAlign = 'center'; ctx.fillStyle = '#ffffffcc'; ctx.font = '700 30px Cinzel'; ctx.fillText(`O MEU ${y}`, W / 2, 130); fn(ctx); ctx.textAlign = 'center'; ctx.fillStyle = '#ffffffcc'; ctx.font = '700 28px Cinzel'; ctx.fillText((store.get('ceu_brand') || '').trim() || 'CÉU DE HOJE', W / 2, H - 90); out.push({ name: `story-${String(out.length + 1).padStart(2, '0')}`, c }); };
+  const big = (ctx, n, lbl, y0 = 820) => { ctx.textAlign = 'center'; ctx.fillStyle = '#fff'; fitFont(ctx, String(n), W - 160, 330, 120, s => `700 ${s}px Cinzel`); ctx.fillText(String(n), W / 2, y0); ctx.font = '800 54px Manrope'; ctx.fillText(lbl, W / 2, y0 + 110); };
+  const line = (ctx, t, y0, sz = 46) => { ctx.fillStyle = '#fff'; ctx.font = `italic 600 ${sz}px "Cormorant Garamond"`; wrap(ctx, t, W / 2, y0, W - 180, sz * 1.25, 4, 'center'); };
+  let k = 0;
+  slide(k++, ctx => { ctx.fillStyle = '#fff'; ctx.font = '800 60px Manrope'; ctx.fillText(`${first},`, W / 2, 620); ctx.fillText('este foi o teu ano.', W / 2, 700); ctx.font = '700 260px Cinzel'; ctx.fillText(String(y), W / 2, 1060); if (A.word) { ctx.font = '700 36px Cinzel'; ctx.fillText('NUMA PALAVRA', W / 2, 1240); ctx.font = 'italic 600 110px "Cormorant Garamond"'; ctx.fillText(A.word, W / 2, 1370); } });
+  if (D.read.length) slide(k++, ctx => { ctx.font = `150px ${EMOJI_F}`; ctx.fillText('📚', W / 2, 470); big(ctx, D.read.length, D.read.length > 1 ? 'livros lidos' : 'livro lido'); if (D.pages) line(ctx, `${D.pages.toLocaleString('pt-PT')} páginas viradas`, 1090, 56); const lvl = READER.filter(r => D.read.length >= r[0]).pop(); line(ctx, lvl[1], 1220, 52); if (D.favB) line(ctx, `O favorito: «${D.favB.title}»`, 1400, 46); });
+  if (D.trips.length) slide(k++, ctx => { ctx.font = `${D.countries.length > 4 ? 110 : 160}px ${EMOJI_F}`; const fl = D.countries.slice(0, 8).map(c => flagOf(c[1])); [fl.slice(0, 4), fl.slice(4)].forEach((row, j) => row.length && ctx.fillText(row.join(' '), W / 2, 470 + j * 170)); big(ctx, D.countries.length || D.trips.length, D.countries.length ? (D.countries.length > 1 ? 'países' : 'país') : 'viagens', 980); line(ctx, `${D.trips.length} ${D.trips.length > 1 ? 'viagens' : 'viagem'}${D.favT ? `. A melhor: ${D.favT.title}` : ''}`, 1250, 50); });
+  if (D.shows.length) slide(k++, ctx => { ctx.font = `150px ${EMOJI_F}`; ctx.fillText('🍿', W / 2, 470); big(ctx, D.shows.length, 'séries e filmes'); if (D.favS) line(ctx, `O que mais gostaste: «${D.favS.title}»`, 1130, 50); });
+  const petsY = P.list('ceu_pets').map(a => ({ a, n: petCare(a).filter(c => (c.d || '').startsWith(String(y))).length })).filter(o => o.n);
+  if (D.cards.length || petsY.length) slide(k++, ctx => { ctx.font = `150px ${EMOJI_F}`; ctx.fillText(petsY.length && !D.cards.length ? '🐾' : '🎂', W / 2, 470); if (D.cards.length) { big(ctx, D.cards.length, D.cards.length > 1 ? 'cartões de parabéns' : 'cartão de parabéns'); line(ctx, `Para ${D.cards.slice(0, 4).join(', ')}${D.cards.length > 4 ? '…' : ''}`, 1130, 48); } if (petsY.length) line(ctx, `🐾 ${petsY.map(o => o.a.name).join(' e ')}: ${petsY.reduce((s, o) => s + o.n, 0)} momentos na caderneta`, D.cards.length ? 1330 : 900, 50); });
+  if (D.notes.length) slide(k++, ctx => { const mm = MOODS.reduce((b, m) => Math.abs(m[0] - D.avgM) < Math.abs(b[0] - D.avgM) ? m : b, MOODS[0]); ctx.font = `220px ${EMOJI_F}`; ctx.fillText(mm[1], W / 2, 560); big(ctx, D.notes.length, D.notes.length > 1 ? 'páginas de diário' : 'página de diário', 900); if (D.bestM) line(ctx, `O mês mais feliz: ${MESES[D.bestM[0] - 1]}`, 1170, 54); });
+  slide(k++, ctx => { const T2 = tarotFor((D.p.name || '') + (y + 1) + 'ano'); ctx.fillStyle = '#fff'; ctx.font = '700 40px Cinzel'; ctx.fillText(`PARA ${y + 1}`, W / 2, 470); ctx.font = `160px ${EMOJI_F}`; ctx.fillText('🃏', W / 2, 700); ctx.font = 'italic 600 96px "Cormorant Garamond"'; ctx.fillText(T2[0], W / 2, 900); line(ctx, cap1(T2[2].replace(/viagem|viajar/g, 'caminho')) + '.', 1020, 50); if (A.wish) line(ctx, `«${A.wish}»`, 1300, 52); ctx.textAlign = 'center'; ctx.font = '600 34px Manrope'; ctx.fillStyle = '#ffffffdd'; ctx.fillText('Faz o teu em', W / 2, H - 240); ctx.fillText(APP_URL.replace(/^https?:\/\//, ''), W / 2, H - 190); });
+  return out;
+}
+
 // ===== App de telemóvel =====
-const APP_VERSION = '13.11.2026 11:05';
+const APP_VERSION = '13.11.2026 11:40';
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const G = g => `${g}&#xFE0E;`;
@@ -3220,7 +3311,7 @@ function openPet(i, isNew, edit) {
       <p>${age > 0 ? age + (age === 1 ? ' ano' : ' anos') : 'Menos de 1 ano'}${ha ? ` · ≈ ${ha} anos humanos` : ''} · ${dd === 0 ? '🎂 <b>faz anos hoje!</b>' : `🎂 anos em ${dd} dias`}</p></div>
       <div class="vd ${v2.k}"><b>${v2.icon}</b> ${esc(v2.txt)}</div><p class="ph">“${esc(r2.headline)}”</p><div class="tip">💡 <b>Dica do dia:</b> ${esc(petTip(r2, a.name))}</div>
       <div class="ar4" style="--c:${elc(SIGNS[ps])}">${AREAS4(r2).map(([l, k, t]) => `<div><span>${l}</span>${starsH(r2.stars[k])}<p>${esc(t)}</p></div>`).join('')}</div>
-      <div class="box prof"><h3>🧬 Perfil ${a.breed ? '· ' + esc(a.breed) : ''}</h3>${breedProfile(a).map(l => `<p>${esc(l)}</p>`).join('')}<p>No horóscopo chinês é ${cn.e} ${cn.n} (${cn.el}).</p></div>
+      ${careBox(a, i)}${ownerPetBox(a)}<div class="box prof"><h3>🧬 Perfil ${a.breed ? '· ' + esc(a.breed) : ''}</h3>${breedProfile(a).map(l => `<p>${esc(l)}</p>`).join('')}<p>No horóscopo chinês é ${cn.e} ${cn.n} (${cn.el}).</p></div>
       <div class="tools"><button class="btn main" id="aPoster">🎉 Criar cartaz de parabéns</button><button class="btn" id="aCard">🃏 Abrir o cartão do dia</button><button class="btn" id="aEdit">✏️ Editar</button><button class="btn" id="aDel">🗑️ Apagar</button></div>`;
   }
   $('#petBody').innerHTML = h;
@@ -3228,13 +3319,13 @@ function openPet(i, isNew, edit) {
   if ($('#aSp')) { $('#aSp').onchange = fillBreeds; $('#aBreed').onchange = () => $('#aBreedTxtL').hidden = $('#aBreed').value !== '__outra'; fillBreeds(); }
   $('#petTitle').textContent = isNew ? 'Juntar animal' : edit ? 'Editar ' + a.name : '';
   $('#petSave').hidden = !(isNew || edit);
-  const save = () => { const n = $('#aName').value.trim(), d = $('#aDate').value; if (!n || !d) { toast('Nome e data do animal'); return; } const l = P.list('ceu_pets'), sp = $('#aSp').value, br = BREEDS[sp] && $('#aBreed').value !== '__outra' ? $('#aBreed').value : $('#aBreedTxt').value.trim(), o = { name: n, sp, breed: br, d, t: $('#aTime').value }; if (isNew) l.push(o); else l[i] = o; P.setList('ceu_pets', l); $('#petDlg').close(); toast('Guardado 🐾'); render(); };
+  const save = () => { const n = $('#aName').value.trim(), d = $('#aDate').value; if (!n || !d) { toast('Nome e data do animal'); return; } const l = P.list('ceu_pets'), sp = $('#aSp').value, br = BREEDS[sp] && $('#aBreed').value !== '__outra' ? $('#aBreed').value : $('#aBreedTxt').value.trim(), o = { name: n, sp, breed: br, d, t: $('#aTime').value }; if (isNew) l.push(o); else l[i] = { ...l[i], ...o }; P.setList('ceu_pets', l); $('#petDlg').close(); toast('Guardado 🐾'); render(); };
   $('#petSave').onclick = save;
   if ($('#aPoster')) {
     const s = spOf(a), p = P.get();
     $('#aPoster').onclick = () => { $('#petDlg').close(); ST.type = 'anos'; ST.anosView = 'criar'; render(); showBday({ name: a.name, rel: s[0] === 'cao' ? 'cao' : s[0] === 'gato' ? 'gato' : 'pet', d: a.d, t: a.t, showAge: true, from: p && p.name ? p.name.split(' ')[0] : '' }, false); };
     $('#aCard').onclick = () => { $('#petDlg').close(); const kp = ST.pets; ST.pets = true; computeTop(); ST.pets = kp; openSheet(ST.rank.findIndex(r => r.si === sunSignAt(a.d, a.t)), `${spOf(a)[1]} ${a.name}`); };
-    $('#aEdit').onclick = () => openPetEdit(i);
+    $('#aEdit').onclick = () => openPetEdit(i); bindCare(i); bindOwnerPet(a);
     $('#aDel').onclick = () => { const l = P.list('ceu_pets'); l.splice(i, 1); P.setList('ceu_pets', l); $('#petDlg').close(); render(); };
   }
   if (!$('#petDlg').open) $('#petDlg').showModal();
@@ -3506,20 +3597,25 @@ async function shareCurrent() {
 
 // ---------- Janela de aniversários ----------
 function showTodayDlg(force) {
-  const key = 'ceu_seen_' + todayStr(), T = bdaysOn(0), M = bdaysOn(1);
-  if (!T.length && !M.length) return false;
-  if (!force && store.get(key) === String(T.length + M.length)) return false;
+  const key = 'ceu_seen_' + todayStr(), T = bdaysOn(0), M = bdaysOn(1), CD = careDue(3), YN = yearNudge(), sig = `${T.length + M.length}|${CD.length}|${YN ? 1 : 0}`;
+  if (!T.length && !M.length && !CD.length && !YN) return false;
+  if (!force && store.get(key) === sig) return false;
   const card = (x, tom) => { const si = x.t ? sunSignAt(x.d, x.t) : sunSignOf(x.d), age = ageOn(x.d, dayStr(noonJd(todayStr()) + (tom ? 1 : 0))), em = x.kind === 'a' ? spOf(P.list('ceu_pets')[x.k] || {})[1] : x.kind === 'me' ? '🥳' : (x.name[0] || '?').toUpperCase();
     return `<div class="tcard${tom ? ' tom' : ''}" style="--c:${elc(SIGNS[si])}"><span class="av">${esc(em)}</span><div class="who"><b>${esc(x.kind === 'me' ? 'Tu!' : x.name)}</b><small>${esc(x.kind === 'me' ? 'O teu dia' : relLabel(x))} · ${age > 0 ? (tom ? 'faz ' : 'faz ') + age + (age === 1 ? ' ano' : ' anos') : ''} · ${G(SIGNS[si].g)} ${SIGNS[si].n}</small></div>
       ${tom ? '' : `<div class="tacts"><button class="btn main" data-a="c">🎉 Cartaz</button><button class="btn" data-a="v">🎬 Vídeo</button>${x.kind === 'me' ? '' : `<a class="btn" href="${waLink(x)}" target="_blank" rel="noopener">💬 WhatsApp</a>`}</div>`}</div>`; };
   $('#todayBody').innerHTML = (T.length ? `<div class="tbig">🎂</div><h2>Hoje é dia de festa!</h2>${T.map(x => card(x, false)).join('')}` : '') + (M.length ? `<h3 class="tmh">⏰ Amanhã faz${M.length > 1 ? 'em' : ''} anos</h3>${M.map(x => card(x, true)).join('')}` : '');
+  if (CD.length) $('#todayBody').innerHTML += `<h3 class="tmh">🐾 Cuidados dos patudos</h3>${CD.map((c, j) => `<div class="tcard care1"><span class="av">${CARE_T[c.k][0]}</span><div class="who"><b>${CARE_T[c.k][1]} ${spOf(c.a)[0] === 'gata' ? 'da' : 'do'} ${esc(c.a.name)}</b><small>${cap1(dueTxt(c.dd))} · ${niceDate(c.n).replace(/-feira/, '')}</small></div><div class="tacts"><button class="btn main" data-cd="${j}" data-a="done">✅ Feito</button><button class="btn" data-cd="${j}" data-a="open">Abrir</button></div></div>`).join('')}`;
+  if (YN) $('#todayBody').innerHTML += `<div class="tcard ynudge"><span class="av">📖</span><div class="who"><b>O teu livro de ${anoYear()} já pode ser escrito ✨</b><small>10 perguntas e a app junta o teu ano todo num mini-livro.</small></div><div class="tacts"><button class="btn main" id="ynGo">Criar agora</button></div></div>`;
+  $('#todayBody').querySelectorAll('[data-cd]').forEach(b => b.onclick = () => { const c = CD[+b.dataset.cd]; if (b.dataset.a === 'open') { $('#todayDlg').close(); openPet(c.i, false, false); return; } const l = P.list('ceu_pets'); l[c.i].care = petCare(l[c.i]).concat({ id: 'c' + Date.now().toString(36), k: c.k, d: todayStr(), note: '', next: dayStr(noonJd(todayStr()) + CARE_T[c.k][2]) }); P.setList('ceu_pets', l); b.closest('.tcard').remove(); toast('Registado 🐾'); });
+  if ($('#ynGo')) $('#ynGo').onclick = () => { store.set('ceu_ynudge_' + anoYear(), '1'); $('#todayDlg').close(); ST.type = 'eu'; ST.euView = 'me'; render(); openAno(); };
+  if (YN) store.set('ceu_ynudge_' + anoYear(), '1');
   const from = ((P.get() || {}).name || '').split(' ')[0];
-  $('#todayBody').querySelectorAll('.tcard:not(.tom)').forEach((el, i) => {
+  $('#todayBody').querySelectorAll('.tcard:not(.tom):not(.care1):not(.ynudge)').forEach((el, i) => {
     const x = T[i], o = { name: x.kind === 'me' ? (x.name || 'Tu') : x.name, rel: x.rel, d: x.d, t: x.t, showAge: true, from: x.kind === 'me' ? '' : from };
     el.querySelector('[data-a=c]').onclick = () => { $('#todayDlg').close(); ST.type = 'anos'; ST.anosView = 'criar'; render(); showBday(o, false); };
     el.querySelector('[data-a=v]').onclick = () => { $('#todayDlg').close(); ST.type = 'anos'; ST.anosView = 'criar'; render(); showBday(o, false); setTimeout(() => $('#bdVideo') && $('#bdVideo').click(), 300); };
   });
-  $('#todayDlg').onclose = () => store.set(key, String(T.length + M.length));
+  $('#todayDlg').onclose = () => store.set(key, sig);
   $('#todayDlg').showModal(); return true;
 }
 
