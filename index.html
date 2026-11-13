@@ -4577,7 +4577,8 @@ function dayScript() {
 function getVoicesP() { const S = window.speechSynthesis; if (!S) return Promise.resolve([]); const v = S.getVoices(); if (v.length) return Promise.resolve(v); return new Promise(r => { const t = setTimeout(() => r(S.getVoices()), 1500); S.onvoiceschanged = () => { clearTimeout(t); r(S.getVoices()); }; }); }
 const isPT = v => /^pt[-_]PT/i.test(v.lang), isPTany = v => /^pt/i.test(v.lang);
 function voiceScore(v) { return (isPT(v) ? 100 : isPTany(v) ? 5 : 0) + (/natural|neural|online|enhanced|premium|melhorad|wavenet/i.test(v.name) ? 25 : 0) + (/joana|catarina|raquel|in[eê]s|fernanda|helia|beatriz|ana/i.test(v.name) ? 8 : 0) + (v.localService ? 2 : 0); }
-async function bestVoice() { const V = (await getVoicesP()).filter(isPTany), want = store.get('ceu_voice'), chosen = V.find(v => v.voiceURI === want); if (chosen) return chosen; return V.sort((a, b) => voiceScore(b) - voiceScore(a))[0] || null; }
+async function bestVoice() { const V = (await getVoicesP()).filter(isPTany), want = store.get('ceu_voice'), chosen = want && V.find(v => v.voiceURI === want); if (chosen) return chosen; return V.sort((a, b) => voiceScore(b) - voiceScore(a))[0] || null; }
+const useSystemVoice = () => !store.get('ceu_voice'); // vazio = a voz escolhida nas definições do telemóvel
 const AMB = { ctx: null, nodes: [], t: 0 };
 function ambientStart() {
   if (store.get('ceu_music') === '0') return; try {
@@ -4596,9 +4597,9 @@ async function speakText(text, btn, label) {
   const S = window.speechSynthesis; if (!S) { toast('Este telemóvel não lê em voz alta'); return; }
   if (S.speaking || _spkRun) { _spkRun = 0; S.cancel(); ambientStop(); if (btn) btn.textContent = label; return; }
   const v = await bestVoice(); if (!v || !isPT(v)) { if (!store.get('ceu_voicehelp')) { store.set('ceu_voicehelp', '1'); voiceHelp(!v); } }
-  const run = ++_spkRun, parts = text.match(/[^.!?]+[.!?]*/g) || [text]; if (btn) btn.textContent = '⏹️ Parar'; ambientStart();
+  const sys = useSystemVoice() && v && isPT(v), run = ++_spkRun, parts = text.match(/[^.!?]+[.!?]*/g) || [text]; if (btn) btn.textContent = '⏹️ Parar'; ambientStart();
   const say = k => { if (run !== _spkRun) return; if (k >= parts.length) { setTimeout(() => { if (run === _spkRun) { _spkRun = 0; ambientStop(); if (btn) btn.textContent = label; } }, 900); return; }
-    const u = new SpeechSynthesisUtterance(parts[k].trim()); if (v) u.voice = v; u.lang = v ? v.lang : 'pt-PT'; u.rate = +(store.get('ceu_vrate') || .9); u.pitch = 1; u.volume = 1;
+    const u = new SpeechSynthesisUtterance(parts[k].trim()); if (sys) u.lang = 'pt-PT'; else { if (v) u.voice = v; u.lang = v ? v.lang : 'pt-PT'; } u.rate = +(store.get('ceu_vrate') || .9); u.pitch = 1; u.volume = 1;
     u.onend = () => setTimeout(() => say(k + 1), /[.!?]$/.test(parts[k].trim()) ? 420 : 150); u.onerror = () => say(k + 1); S.speak(u); };
   setTimeout(() => say(0), store.get('ceu_music') === '0' ? 0 : 1400);
 }
@@ -4607,16 +4608,16 @@ function voiceHelp(none) {
   $('#infoTitle').textContent = '🔊 Voz portuguesa';
   $('#infoBody').innerHTML = `<div class="box"><p>${none ? 'Este telemóvel ainda não tem nenhuma voz em português.' : 'Este telemóvel só tem voz do Brasil.'} Para ouvires uma voz de Portugal, suave, instala-a uma vez (é grátis):</p>
     <p><b>📱 Android:</b> Definições → procura «texto para voz» → motor da Google → instalar dados de voz → <b>Português (Portugal)</b>. Escolhe a voz que mais gostares.</p>
-    <p><b>🍎 iPhone:</b> Definições → Acessibilidade → Conteúdo falado → Vozes → Português (Portugal) → <b>Joana</b> ou <b>Catarina (melhorada)</b>.</p><p class="note">Depois, em Definições da app → 🔊 Voz da leitura, escolhe a voz e experimenta.</p></div>`;
+    <p><b>🍎 iPhone:</b> Definições → Acessibilidade → Conteúdo falado → Vozes → Português (Portugal) → <b>Joana</b> ou <b>Catarina (melhorada)</b>.</p><p class="note">Depois fecha a app e o Chrome por completo e volta a abrir. Em Definições da app → 🔊 Voz da leitura, deixa «A voz escolhida no telemóvel» e carrega em Experimentar.</p></div>`;
   if (!$('#infoDlg').open) $('#infoDlg').showModal();
 }
 async function voiceMenu() {
   const box = $('#voiceMenu'); if (!box) return; const V = (await getVoicesP()).filter(isPTany).sort((a, b) => voiceScore(b) - voiceScore(a)), best = await bestVoice();
-  box.innerHTML = V.length ? `<select id="vSel">${V.map(v => `<option value="${esc(v.voiceURI)}"${best && v.voiceURI === best.voiceURI ? ' selected' : ''}>${isPT(v) ? '🇵🇹' : '🇧🇷'} ${esc(v.name.replace(/Microsoft |Google |Online |\(.*?\)|\s*-\s*Portug.*$/g, '').trim() || v.name)}${/natural|neural|online|enhanced|premium|melhorad/i.test(v.name) ? ' ✨' : ''}</option>`).join('')}</select>
+  const cur = store.get('ceu_voice') || ''; box.innerHTML = V.length ? `<select id="vSel"><option value=""${cur ? '' : ' selected'}>📱 A voz escolhida no telemóvel (recomendado)</option>${V.map(v => `<option value="${esc(v.voiceURI)}"${cur && v.voiceURI === cur ? ' selected' : ''}>${isPT(v) ? '🇵🇹' : '🇧🇷'} ${esc(v.name.replace(/Microsoft |Google |Online |\(.*?\)|\s*-\s*Portug.*$/g, '').trim() || v.name)}${/natural|neural|online|enhanced|premium|melhorad/i.test(v.name) ? ' ✨' : ''}</option>`).join('')}</select>
     <label>Velocidade<select id="vRate">${[['.82', 'Muito calma'], ['.9', 'Calma'], ['1', 'Normal']].map(r => `<option value="${r[0]}"${(store.get('ceu_vrate') || '.9') === r[0] ? ' selected' : ''}>${r[1]}</option>`).join('')}</select></label>
-    <label class="chk"><input type="checkbox" id="vMus"${store.get('ceu_music') === '0' ? '' : ' checked'}> 🎵 Música suave por baixo</label><button class="btn" id="vTry" style="width:100%">▶️ Experimentar</button>${V.some(isPT) ? '' : '<button class="link" id="vHelp">Como ter uma voz de Portugal ›</button>'}`
+    <label class="chk"><input type="checkbox" id="vMus"${store.get('ceu_music') === '0' ? '' : ' checked'}> 🎵 Música suave por baixo</label><button class="btn" id="vTry" style="width:100%">▶️ Experimentar</button><p class="note">Mudaste a voz nas definições do telemóvel? Fecha a app (e o Chrome) por completo e volta a abrir: o telemóvel só passa a nova voz às apps quando reabrem.</p>${V.some(isPT) ? '' : '<button class="link" id="vHelp">Como ter uma voz de Portugal ›</button>'}`
     : '<p class="note">Este telemóvel não tem vozes em português.</p><button class="link" id="vHelp">Como instalar uma voz de Portugal ›</button>';
-  if ($('#vSel')) $('#vSel').onchange = () => store.set('ceu_voice', $('#vSel').value);
+  if ($('#vSel')) $('#vSel').onchange = () => { const v = $('#vSel').value; if (v) store.set('ceu_voice', v); else localStorage.removeItem('ceu_voice'); };
   if ($('#vRate')) $('#vRate').onchange = () => store.set('ceu_vrate', $('#vRate').value);
   if ($('#vMus')) $('#vMus').onchange = e => store.set('ceu_music', e.target.checked ? '1' : '0');
   if ($('#vTry')) $('#vTry').onclick = e => speakText(`Olá${(P.get() || {}).name ? ', ' + P.get().name.split(' ')[0] : ''}. Esta é a voz do Céu de Hoje. Hoje a Lua está em ${SIGNS[skyFor(todayStr()).moon.sign].n}. Tem um dia bonito.`, e.currentTarget, '▶️ Experimentar');
@@ -4754,7 +4755,7 @@ function coupleStart() {
 }
 
 // ===== App de telemóvel =====
-const APP_VERSION = '13.11.2026 20:10';
+const APP_VERSION = '13.11.2026 20:25';
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const G = g => `${g}&#xFE0E;`;
