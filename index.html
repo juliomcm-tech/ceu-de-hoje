@@ -277,6 +277,7 @@ footer.ft{color:var(--mute);font-size:11.5px;text-align:center;margin:18px 0 6px
   <h2 style="margin-top:18px">Para quem publica</h2>
   <label for="brand">Nome da página (aparece nas imagens partilhadas)</label>
   <input type="text" id="brand" maxlength="32" placeholder="Ex.: Os Astros Dizem">
+  <p class="note">O nome da tua página aparece em destaque. A assinatura pequena «✦ ceudehoje.com» segue sempre em todas as imagens e vídeos.</p>
   <label for="fmt">Imagens partilhadas</label>
   <select id="fmt"><option value="feed">Feed 4:5 (Facebook)</option><option value="story">Story 9:16</option><option value="longa">Top numa imagem longa (WhatsApp)</option></select>
   <label for="cityHours">A tua cidade</label><select id="cityHours"></select>
@@ -1421,7 +1422,7 @@ function render() {
   $('#when').textContent = periodLabel();
   const { cs, cap } = buildPost(); ST.canvases = cs; ST.cap = cap;
   const strip = $('#strip'); strip.innerHTML = '';
-  cs.forEach((x, i) => { const im = new Image(); im.src = x.c.toDataURL('image/jpeg', .9); im.alt = x.name; im.className = ST.fmt; im.onclick = () => openViewer(i); strip.appendChild(im); });
+  cs.forEach((x, i) => { const im = new Image(); im.src = stampOnce(x.c).toDataURL('image/jpeg', .9); im.alt = x.name; im.className = ST.fmt; im.onclick = () => openViewer(i); strip.appendChild(im); });
   $('#count').textContent = cs.length + (cs.length > 1 ? ' fotos' : ' foto');
   $('#reel').hidden = ST.type !== 'top';
   $('#sum').innerHTML = ST.type === 'top' ? `<b>${ST.rank[0].sign.g}&#xFE0E; ${ST.rank[0].sign.n}</b> lidera · <span>${skyShort()}</span>` : `<span>${skyShort()}</span>`;
@@ -1429,7 +1430,15 @@ function render() {
 }
 
 // ---------- Partilhar / guardar ----------
-const blobOf = (c, q = .92) => new Promise(r => c.toBlob(r, 'image/jpeg', q));
+// assinatura fixa em tudo o que sai da app (imagens, PDFs e vídeos): «✦ ceudehoje.com»
+const SITE_MARK = '✦ ceudehoje.com';
+function stampMark(ctx, W, H) {
+  const fs = Math.max(14, Math.round(W * .019)); ctx.save(); ctx.globalAlpha = 1; ctx.textAlign = 'right'; ctx.textBaseline = 'alphabetic'; ctx.font = `600 ${fs}px Manrope, sans-serif`;
+  ctx.lineJoin = 'round'; ctx.lineWidth = Math.max(3, fs * .22); ctx.strokeStyle = 'rgba(10,6,30,.55)'; const y = H - Math.max(12, Math.round(fs * .9)), x = W - Math.round(W * .03);
+  ctx.strokeText(SITE_MARK, x, y); ctx.fillStyle = 'rgba(255,255,255,.88)'; ctx.fillText(SITE_MARK, x, y); ctx.restore();
+}
+function stampOnce(c) { if (c && !c._stamped) { try { stampMark(c.getContext('2d'), c.width, c.height); c._stamped = 1; } catch (e) { } } return c; }
+const blobOf = (c, q = .92) => new Promise(r => stampOnce(c).toBlob(r, 'image/jpeg', q));
 function copySync(txt) { const ta = $('#cap'); ta.value = txt; ta.focus(); ta.select(); try { return document.execCommand('copy'); } catch (e) { return false; } }
 async function copyCap() { try { await navigator.clipboard.writeText(ST.cap); toast('Legenda copiada'); } catch (e) { if (copySync(ST.cap)) toast('Legenda copiada'); else { ($('#capWrap') || { classList: { add() { } } }).classList.add('on'); toast('Seleciona o texto e copia'); } } }
 let JSZipP = null;
@@ -1521,7 +1530,7 @@ async function makeReel() {
   rec.ondataavailable = e => e.data.size && chunks.push(e.data);
   const done = new Promise(r => rec.onstop = r);
   rec.start(250); const DUR = 15, t0 = performance.now();
-  await new Promise(res => { const step = () => { const t = (performance.now() - t0) / 1000; reelFrame(ctx, base, Math.min(t, DUR)); btn.textContent = `🎬 A gravar… ${Math.max(0, Math.ceil(DUR - t))}s`; if (t < DUR) requestAnimationFrame(step); else res(); }; requestAnimationFrame(step); });
+  await new Promise(res => { const step = () => { const t = (performance.now() - t0) / 1000; reelFrame(ctx, base, Math.min(t, DUR)); stampMark(ctx, 1080, 1920); btn.textContent = `🎬 A gravar… ${Math.max(0, Math.ceil(DUR - t))}s`; if (t < DUR) requestAnimationFrame(step); else res(); }; requestAnimationFrame(step); });
   rec.stop(); await done; btn.disabled = false; btn.textContent = '🎬 Criar Reel';
   const ext = mime.includes('mp4') ? 'mp4' : 'webm', blob = new Blob(chunks, { type: mime.split(';')[0] });
   const v = $('#reelVid'); v.src = URL.createObjectURL(blob); $('#reelDlg').showModal();
@@ -1768,7 +1777,7 @@ async function recordAnim(drawFn, dur, W, H, btn, label) {
   const rec = new MediaRecorder(c.captureStream(30), { mimeType: mime, videoBitsPerSecond: 8e6 }), chunks = []; rec.ondataavailable = e => e.data.size && chunks.push(e.data);
   const done = new Promise(r => rec.onstop = r); rec.start(250); const t0 = performance.now(), old = btn ? btn.textContent : '';
   if (btn) btn.disabled = true;
-  await new Promise(res => { const step = () => { const t = (performance.now() - t0) / 1000; drawFn(ctx, Math.min(t, dur)); if (btn) btn.textContent = `${label} ${Math.max(0, Math.ceil(dur - t))}s`; t < dur ? requestAnimationFrame(step) : res(); }; requestAnimationFrame(step); });
+  await new Promise(res => { const step = () => { const t = (performance.now() - t0) / 1000; drawFn(ctx, Math.min(t, dur)); stampMark(ctx, W, H); if (btn) btn.textContent = `${label} ${Math.max(0, Math.ceil(dur - t))}s`; t < dur ? requestAnimationFrame(step) : res(); }; requestAnimationFrame(step); });
   rec.stop(); await done; if (btn) { btn.disabled = false; btn.textContent = old; }
   return { blob: new Blob(chunks, { type: mime.split(';')[0] }), ext: mime.includes('mp4') ? 'mp4' : 'webm' };
 }
@@ -3172,7 +3181,7 @@ function openAno(step) {
 async function showAnoBook(y) {
   $('#anoTitle').textContent = `📖 O meu livro de ${y}`; $('#anoBody').innerHTML = '<p class="hint">A escrever o teu livro… ✍️</p>'; $('#anoFoot').innerHTML = '';
   ANO_PAGES = await buildYearBook(y);
-  $('#anoBody').innerHTML = `<div class="bookv">${ANO_PAGES.map((p, i) => `<img src="${p.c.toDataURL('image/jpeg', .85)}" alt="Página ${i + 1}" data-i="${i}">`).join('')}</div><p class="hint">Desliza para folhear · ${ANO_PAGES.length} páginas</p><div class="anoact"><button class="btn main" id="anoShare">📤 Partilhar páginas</button><button class="btn" id="anoPdf">📄 PDF</button><button class="btn" id="anoVid">🎬 Vídeo</button></div><button class="btn ghost" id="anoSt" style="width:100%;margin-top:6px">📱 Versão stories (9:16) para Instagram e Facebook</button>${anoYears().length > 1 ? `<button class="btn ghost" id="anoAll" style="width:100%;margin-top:6px">📚 Todos os anos num só livro (${anoYears()[0]}–${anoYears()[anoYears().length - 1]})</button>` : ''}`;
+  $('#anoBody').innerHTML = `<div class="bookv">${ANO_PAGES.map((p, i) => `<img src="${stampOnce(p.c).toDataURL('image/jpeg', .85)}" alt="Página ${i + 1}" data-i="${i}">`).join('')}</div><p class="hint">Desliza para folhear · ${ANO_PAGES.length} páginas</p><div class="anoact"><button class="btn main" id="anoShare">📤 Partilhar páginas</button><button class="btn" id="anoPdf">📄 PDF</button><button class="btn" id="anoVid">🎬 Vídeo</button></div><button class="btn ghost" id="anoSt" style="width:100%;margin-top:6px">📱 Versão stories (9:16) para Instagram e Facebook</button>${anoYears().length > 1 ? `<button class="btn ghost" id="anoAll" style="width:100%;margin-top:6px">📚 Todos os anos num só livro (${anoYears()[0]}–${anoYears()[anoYears().length - 1]})</button>` : ''}`;
   $('#anoFoot').innerHTML = `<button class="btn" id="anoEdit">✏️ Respostas</button><button class="btn" data-close>Fechar</button>`;
   $('#anoFoot').querySelector('[data-close]').onclick = () => $('#anoDlg').close();
   $('#anoEdit').onclick = () => openAno(1);
@@ -4551,7 +4560,7 @@ function openStudio(type) {
   if (!$('#infoDlg').open) $('#infoDlg').showModal(); $('#infoDlg').scrollTop = 0;
   document.querySelectorAll('[data-pt]').forEach(b => b.onclick = () => openStudio(b.dataset.pt));
   if ($('#stTh')) $('#stTh').onchange = () => { ST.postTheme = $('#stTh').value; openStudio('quando'); };
-  drawPost(type, { theme: ST.postTheme }).then(r => { ST._post = r; $('#stPrev').innerHTML = `<img src="${r.c.toDataURL('image/jpeg', .85)}" alt="">`; $('#stCap').value = r.cap; });
+  drawPost(type, { theme: ST.postTheme }).then(r => { ST._post = r; $('#stPrev').innerHTML = `<img src="${stampOnce(r.c).toDataURL('image/jpeg', .85)}" alt="">`; $('#stCap').value = r.cap; });
   $('#stSh').onclick = () => ST._post && shareCanvases([{ name: 'post-' + type, c: ST._post.c }], $('#stCap').value);
   $('#stCp').onclick = () => copyAny($('#stCap').value);
 }
@@ -5042,7 +5051,7 @@ function bindPushBox() {
 }
 
 // ===== App de telemóvel =====
-const APP_VERSION = '13.11.2026 22:15';
+const APP_VERSION = '13.11.2026 22:50';
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const G = g => `${g}&#xFE0E;`;
@@ -5220,7 +5229,7 @@ function showBday(o, save, seed) {
   let Bd = makeBday(o); if (style === 'plain') Bd = plainize(Bd, seed ?? Math.floor(Math.random() * 1e6)); ST.bd = Bd; ST.bdO = o;
   if (save) { const l = P.list('ceu_bdays'), j = l.findIndex(x => x.name === o.name && x.d === o.d); if (j >= 0) l[j] = { ...l[j], rel: o.rel }; else l.push({ name: o.name, rel: o.rel, d: o.d, t: o.t || '' }); P.setList('ceu_bdays', l); }
   const c = bdDraw(Bd, 'feed');
-  $('#bdOut').innerHTML = `<img class="poster" src="${c.toDataURL('image/jpeg', .9)}" alt="Cartaz de ${esc(Bd.name)}"><div class="row2"><button class="btn main" id="bdShare">Partilhar cartaz</button><button class="btn" id="bdVideo">🎬 Criar reel</button></div>${Bd.theme === 'plain' ? '<button class="btn" id="bdAgain" style="width:100%;margin-top:8px">🎲 Outro layout e outras frases</button>' : ''}`;
+  $('#bdOut').innerHTML = `<img class="poster" src="${stampOnce(c).toDataURL('image/jpeg', .9)}" alt="Cartaz de ${esc(Bd.name)}"><div class="row2"><button class="btn main" id="bdShare">Partilhar cartaz</button><button class="btn" id="bdVideo">🎬 Criar reel</button></div>${Bd.theme === 'plain' ? '<button class="btn" id="bdAgain" style="width:100%;margin-top:8px">🎲 Outro layout e outras frases</button>' : ''}`;
   if ($('#bdAgain')) $('#bdAgain').onclick = () => showBday(o, false);
   $('#bdShare').onclick = () => shareCanvases([{ name: 'parabens-' + norm2(Bd.name).replace(/\W+/g, '-'), c: bdDraw(Bd, ST.fmt === 'story' ? 'story' : 'feed') }], bdCap(Bd));
   $('#bdVideo').onclick = async () => {
@@ -5562,7 +5571,7 @@ function openSheet(i, title) {
   const keep = ST.fmt; ST.fmt = 'feed'; const c = drawSign(rd, SHEET); ST.fmt = keep;
   $('#sheetTitle').textContent = title || `${SHEET + 1}º · ${rd.sign.n}${rd.pet ? ' 🐾' : ''}`;
   const sec = (ic, l, k, t) => `<section><h4>${ic} ${l} ${starsH(rd.stars[k])}</h4><p>${esc(t)}</p></section>`;
-  $('#sheetBody').innerHTML = `<img class="card" src="${c.toDataURL('image/jpeg', .9)}" alt="Cartão de ${rd.sign.n}">
+  $('#sheetBody').innerHTML = `<img class="card" src="${stampOnce(c).toDataURL('image/jpeg', .9)}" alt="Cartão de ${rd.sign.n}">
     <div class="det"><button class="link spkx" id="shSpk">🔊 Ouvir</button><div class="vd ${v.k}"><b>${v.icon}</b> ${esc(v.txt)}</div>
     ${AREAS4(rd).map(([l, k, t], j) => sec((rd.pet ? ['🥰', '🎾', '🍖', '🐾'] : ['❤️', '💼', '💰', '⚡'])[j], l, k, t)).join('')}
     <section><h4>🔮 Conselho</h4><p>${esc(rd.advice)}</p></section>${rd.pet ? '' : signExtras(rd)}
@@ -5584,7 +5593,7 @@ function openPair(a, b, names) {
     <div class="box"><h3>🌙 Hoje para os dois</h3>${D.sky.map(x => `<p>${esc(x)}</p>`).join('')}<p><b>💡 ${esc(D.advice)}</b></p></div>
     <div class="box"><h3>📅 Esta semana</h3><div class="wk">${D.week.map(([d, v]) => `<div${d === D.best[0] ? ' class="best"' : ''}><i style="height:${Math.max(8, v - 30)}%"></i><b>${v}</b><span>${nd(d).split(',')[0].slice(0, 3)}</span></div>`).join('')}</div><p>Melhor dia para os dois: <b>${nd(D.best[0])}</b> (${D.best[1]}%).</p></div>
     <div class="box"><h3>🪐 Ritmo e regentes</h3><p>${esc(D.mod)}</p><p>${esc(D.rel)}</p></div>
-    <img class="card" src="${c.toDataURL('image/jpeg', .9)}" alt="Cartão do par">`;
+    <img class="card" src="${stampOnce(c).toDataURL('image/jpeg', .9)}" alt="Cartão do par">`;
   $('#sheet')._canvas = c; $('#sheet')._cap = capPair(D); $('#sheet')._name = `par-${D.A.tag}-${D.B.tag}`; $('#sheet')._extra = null;
   const NM = names ? nameMatch(names[0], names[1]) : null; if (NM) { $('#sheetTitle').textContent = `${NM.fa} + ${NM.fb}`; drawNameMatch(NM, D).then(nc => { $('#sheet')._extra = [{ name: 'nomes', c: nc }]; $('#sheet')._cap = `🔤 ${NM.fa} + ${NM.fb}: ${NM.pct}% pelos nomes · ${D.A.n} + ${D.B.n}: ${D.today}% pelos signos 💞\n\n` + capPair(D); const im = document.createElement('img'); im.className = 'card'; im.src = nc.toDataURL('image/jpeg', .9); const bx = $('#sheetBody .nmatch'); if (bx) bx.after(im); }); }
   $('#sheet').classList.add('nonav'); $('#sheetBody').scrollTop = 0;
@@ -5599,7 +5608,7 @@ async function shareCanvases(list, cap) {
   try { if (navigator.canShare && navigator.canShare({ files })) { await navigator.share({ files }); toast('Texto copiado: cola-o na publicação'); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
   // sem partilha nativa: mostrar as imagens para guardar
   ST.canvases = list;
-  $('#imgsBody').innerHTML = list.map((x, i) => `<figure><img src="${x.c.toDataURL('image/jpeg', .9)}" alt=""><button class="btn" data-k="${i}">Guardar</button></figure>`).join('');
+  $('#imgsBody').innerHTML = list.map((x, i) => `<figure><img src="${stampOnce(x.c).toDataURL('image/jpeg', .9)}" alt=""><button class="btn" data-k="${i}">Guardar</button></figure>`).join('');
   $('#imgsBody').querySelectorAll('button').forEach(b => b.onclick = async () => { const x = list[+b.dataset.k]; await saveBlob(await blobOf(x.c), x.name + '.jpg'); });
   $('#imgs').showModal(); toast('Texto copiado');
 }
