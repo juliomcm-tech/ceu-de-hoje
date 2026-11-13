@@ -887,7 +887,7 @@ function personalDay(natal, ds, modern) {
 const $ = s => document.querySelector(s);
 const MESES = MES_N;
 const DIAS = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
-const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) { } } };
+const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); return true; } catch (e) { if (!store._warned || Date.now() - store._warned > 20000) { store._warned = Date.now(); setTimeout(() => { try { toast('⚠️ A memória da app está cheia: não foi possível guardar. Faz uma cópia de segurança e apaga algumas fotos.', 6000); } catch (x) { } }, 50); } return false; } } };
 const ST = { date: '', type: 'top', mode: 'dia', fmt: store.get('ceu_fmt') || 'feed', modern: store.get('ceu_modern') === '1', sky: store.get('ceu_sky') !== '0', cover: store.get('ceu_cover') === '1', brand: store.get('ceu_brand') || '', city: +(store.get('ceu_city') || 0), reads: [], rank: [], canvases: [], cap: '' };
 const TYPE_MODES = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'] };
 let DL = null;
@@ -1424,7 +1424,7 @@ function render() {
 // ---------- Partilhar / guardar ----------
 const blobOf = (c, q = .92) => new Promise(r => c.toBlob(r, 'image/jpeg', q));
 function copySync(txt) { const ta = $('#cap'); ta.value = txt; ta.focus(); ta.select(); try { return document.execCommand('copy'); } catch (e) { return false; } }
-async function copyCap() { try { await navigator.clipboard.writeText(ST.cap); toast('Legenda copiada'); } catch (e) { if (copySync(ST.cap)) toast('Legenda copiada'); else { $('#capWrap').classList.add('on'); toast('Seleciona o texto e copia'); } } }
+async function copyCap() { try { await navigator.clipboard.writeText(ST.cap); toast('Legenda copiada'); } catch (e) { if (copySync(ST.cap)) toast('Legenda copiada'); else { ($('#capWrap') || { classList: { add() { } } }).classList.add('on'); toast('Seleciona o texto e copia'); } } }
 let JSZipP = null;
 function loadZip() { return JSZipP || (JSZipP = new Promise((res, rej) => { if (window.JSZip) return res(window.JSZip); const s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js'; s.onload = () => res(window.JSZip); s.onerror = () => { JSZipP = null; rej(); }; document.head.appendChild(s); })); }
 async function saveBlob(blob, name) {
@@ -2069,7 +2069,7 @@ function lockScreen() {
     const go = async () => { if (await checkPin(inp.value)) { el.hidden = true; res(true); } else { inp.value = ''; el.querySelector('.lockbox').classList.add('shake'); setTimeout(() => el.querySelector('.lockbox').classList.remove('shake'), 400); toast('PIN errado'); } };
     $('#lockGo').onclick = go; inp.onkeydown = e => { if (e.key === 'Enter') go(); };
     inp.oninput = () => { if (inp.value.length >= 4 && inp.value.length === (+store.get('ceu_pinlen') || 4)) go(); };
-    $('#lockForgot').onclick = () => { if (confirmBox('Esqueceste o PIN? Para entrar, os teus dados pessoais deste telemóvel (perfil, diário, aniversários, animais) vão ser apagados.')) { ['ceu_pin', 'ceu_profile', 'ceu_me', 'ceu_diario', 'ceu_bdays', 'ceu_pets', 'ceu_cycle', 'ceu_moments'].forEach(k => { try { localStorage.removeItem(k); } catch (e) { } }); el.hidden = true; res(true); } };
+    $('#lockForgot').onclick = () => { if (confirmBox('Esqueceste o PIN? Para entrar, os teus dados pessoais deste telemóvel (perfil, diário, aniversários, animais) vão ser apagados.')) { ['ceu_pin', 'ceu_profile', 'ceu_me', 'ceu_diario', 'ceu_bdays', 'ceu_pets', 'ceu_cycle', 'ceu_moments'].forEach(k => { try { localStorage.removeItem(k); } catch (e) { } }); try { Object.keys(localStorage).filter(k => /^ceu_ano_/.test(k)).forEach(k => localStorage.removeItem(k)); indexedDB.deleteDatabase('ceu-fotos'); } catch (e) { } el.hidden = true; res(true); } };
   });
 }
 function confirmBox(msg) { try { return window.confirm(msg); } catch (e) { return false; } }
@@ -2649,7 +2649,7 @@ function bindLibSearch() {
 // ===== Mais: cópia de segurança, partilhar itens, citações, passaporte, meta, empréstimos, O meu ano =====
 
 // ---------- Cópia de segurança ----------
-const BK_SKIP = /^ceu_(pin|news|sug_|lastbk|bksnooze)/;
+const BK_SKIP = /^ceu_(pin|news|sug_|lastbk|bksnooze|seen_|ep_|monseen_)/;
 function hasPersonalData() { return ['ceu_moments', 'ceu_books', 'ceu_bdays', 'ceu_diario', 'ceu_trips', 'ceu_shows', 'ceu_pets'].some(k => { try { const v = JSON.parse(localStorage.getItem(k) || '[]'); return Array.isArray(v) && v.length; } catch (e) { return false; } }); }
 function backupData() { const o = {}; try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && k.startsWith('ceu_') && !BK_SKIP.test(k)) o[k] = localStorage.getItem(k); } } catch (e) { } return { app: 'ceu-de-hoje', v: 2, at: new Date().toISOString(), data: o }; }
 async function doBackup() {
@@ -2666,7 +2666,8 @@ async function doRestore(file) {
   if (j.v >= 2 && j.data) {
     const n = Object.keys(j.data).length; if (!n) { toast('A cópia está vazia'); return; }
     if (!confirmBox(`Repor a cópia de ${new Date(j.at).toLocaleDateString('pt-PT')}? Os dados deste telemóvel são substituídos pelos da cópia.`)) return;
-    try { for (const [k, v] of Object.entries(j.data)) if (k.startsWith('ceu_') && !BK_SKIP.test(k)) localStorage.setItem(k, v); } catch (e) { toast('Sem espaço no telemóvel para repor tudo'); return; }
+    const snap = {}; try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && k.startsWith('ceu_') && !BK_SKIP.test(k)) snap[k] = localStorage.getItem(k); } } catch (e) { }
+    try { Object.keys(snap).forEach(k => { if (!(k in j.data)) localStorage.removeItem(k); }); for (const [k, v] of Object.entries(j.data)) if (k.startsWith('ceu_') && !BK_SKIP.test(k)) localStorage.setItem(k, v); } catch (e) { try { Object.keys(j.data).forEach(k => localStorage.removeItem(k)); for (const [k, v] of Object.entries(snap)) localStorage.setItem(k, v); } catch (x) { } toast('Sem espaço no telemóvel para repor tudo: ficou tudo como estava.', 5000); return; }
     if (j.photos) for (const [k, v] of Object.entries(j.photos)) try { await PHDB.put(k, v); } catch (e) { }
   } else { // cópia antiga (só diário, perfil, aniversários, animais)
     if (!confirmBox('Repor esta cópia? Junta as notas e substitui o perfil, aniversários e animais.')) return;
@@ -3109,7 +3110,7 @@ function openAno(step) {
     body.innerHTML = `<div class="anoprog"><i style="width:${step / ANO_Q.length * 100}%"></i></div><h3 class="anoq">${q}</h3>${ph === 'photo' ? `<div class="anophoto">${A.photo ? `<img src="${A.photo}" alt="">` : '<span>🖼️</span>'}</div><div class="drow"><label class="btn main" style="text-align:center;cursor:pointer">${A.photo ? 'Trocar foto' : 'Escolher foto'}<input type="file" id="anoPh" accept="image/*" hidden></label>${A.photo ? '<button class="btn" id="anoPhDel">Tirar</button>' : ''}</div><p class="note">Fica na primeira página do livro, como uma polaroid.</p>` : ph === 'pick' ? `<div class="anopick">${ANO_MOODS.map((m, i) => `<button data-m="${i}"${A.mood === i ? ' class="on"' : ''}><span>${m[0]}</span>${m[1]}</button>`).join('')}</div>` : `<textarea id="anoA" rows="3" maxlength="${k === 'word' ? 24 : 220}" placeholder="${ph}">${esc(A[k] || '')}</textarea>`}`;
     foot.innerHTML = `<button class="btn" id="anoBack">←</button><button class="btn main" id="anoNext">${step === ANO_Q.length ? '📖 Criar o livro' : 'Seguinte →'}</button><button class="btn" id="anoSkip">Saltar</button>`;
     if (ph === 'pick') body.querySelectorAll('[data-m]').forEach(b => b.onclick = () => { A.mood = +b.dataset.m; anoSet(y, A); openAno(step + 1); });
-    if ($('#anoPh')) $('#anoPh').onchange = async e => { const f = e.target.files[0]; if (!f) return; try { const u = URL.createObjectURL(f), im = await loadImg(u); URL.revokeObjectURL(u); if (!im) throw 0; const k = Math.min(1, 900 / Math.max(im.width, im.height)), c2 = document.createElement('canvas'); c2.width = Math.round(im.width * k); c2.height = Math.round(im.height * k); c2.getContext('2d').drawImage(im, 0, 0, c2.width, c2.height); A.photo = c2.toDataURL('image/jpeg', .8); anoSet(y, A); openAno(step); } catch (er) { toast('Não consegui usar essa foto'); } };
+    if ($('#anoPh')) $('#anoPh').onchange = async e => { const f = e.target.files[0]; if (!f) return; try { const u = URL.createObjectURL(f), im = await loadImg(u); URL.revokeObjectURL(u); if (!im) throw 0; const k = Math.min(1, 760 / Math.max(im.width, im.height)), c2 = document.createElement('canvas'); c2.width = Math.round(im.width * k); c2.height = Math.round(im.height * k); c2.getContext('2d').drawImage(im, 0, 0, c2.width, c2.height); A.photo = c2.toDataURL('image/jpeg', .8); anoSet(y, A); openAno(step); } catch (er) { toast('Não consegui usar essa foto'); } };
     if ($('#anoPhDel')) $('#anoPhDel').onclick = () => { delete A.photo; anoSet(y, A); openAno(step); };
     const save = () => { if ($('#anoA')) { A[k] = $('#anoA').value.trim(); anoSet(y, A); } };
     $('#anoBack').onclick = () => { save(); openAno(step - 1); };
@@ -3178,7 +3179,7 @@ function bindCare(i) {
     const k = b.dataset.ck, def = CARE_T[k][2] ? dayStr(noonJd(todayStr()) + CARE_T[k][2]) : '';
     $('#careForm').innerHTML = `<div class="form cf"><h4>${CARE_T[k][0]} ${CARE_T[k][1]}</h4><div class="two"><label>Data<input type="date" id="cD" value="${todayStr()}"></label>${k === 'peso' ? '<label>Peso (kg)<input type="number" id="cKg" step="0.1" min="0" inputmode="decimal"></label>' : def ? `<label>Próxima<input type="date" id="cN" value="${def}"></label>` : '<span></span>'}</div>${k === 'foto' ? '<label class="btn ghost" style="text-align:center;cursor:pointer">📷 Escolher foto<input type="file" id="cPh" accept="image/*" hidden></label><div id="cPhP"></div>' : ''}<label>Nota<input type="text" id="cNote" maxlength="80" placeholder="${k === 'vac' ? 'Ex.: Raiva, Polivalente' : k === 'vet' ? 'Ex.: Consulta de rotina' : k === 'foto' ? 'Ex.: Primeira vez na praia' : 'Opcional'}"></label><button class="btn main" id="cSave">Guardar</button></div>`;
     let photo = '';
-    if ($('#cPh')) $('#cPh').onchange = async e => { const f = e.target.files[0]; if (!f) return; const u = URL.createObjectURL(f), im = await loadImg(u); URL.revokeObjectURL(u); if (!im) return; const s = Math.min(1, 640 / Math.max(im.width, im.height)), c = document.createElement('canvas'); c.width = Math.round(im.width * s); c.height = Math.round(im.height * s); c.getContext('2d').drawImage(im, 0, 0, c.width, c.height); photo = c.toDataURL('image/jpeg', .78); $('#cPhP').innerHTML = `<img src="${photo}" alt="" style="width:100%;border-radius:10px;margin:6px 0">`; };
+    if ($('#cPh')) $('#cPh').onchange = async e => { const f = e.target.files[0]; if (!f) return; const u = URL.createObjectURL(f), im = await loadImg(u); URL.revokeObjectURL(u); if (!im) return; const s = Math.min(1, 480 / Math.max(im.width, im.height)), c = document.createElement('canvas'); c.width = Math.round(im.width * s); c.height = Math.round(im.height * s); c.getContext('2d').drawImage(im, 0, 0, c.width, c.height); photo = c.toDataURL('image/jpeg', .72); $('#cPhP').innerHTML = `<img src="${photo}" alt="" style="width:100%;border-radius:10px;margin:6px 0">`; };
     $('#cSave').onclick = () => { const e = { id: 'c' + Date.now().toString(36), k, d: $('#cD').value || todayStr(), note: $('#cNote').value.trim() }; if ($('#cN') && $('#cN').value) e.next = $('#cN').value; if ($('#cKg')) { if (!+$('#cKg').value) { toast('Escreve o peso'); return; } e.kg = +(+$('#cKg').value).toFixed(1); } if (k === 'foto') { if (!photo) { toast('Escolhe a foto'); return; } e.photo = photo; } upd(a => a.care = petCare(a).concat(e)); toast('Registado 🐾'); };
     $('#careForm').scrollIntoView({ behavior: 'smooth', block: 'center' });
   });
@@ -3736,7 +3737,7 @@ function cycleStats(o) {
   const irregular = last6.length >= 3 && (Math.max(...last6) - Math.min(...last6) > 8);
   const last = S[S.length - 1] || null; if (!last) return { S, lens, avg, per, last: null };
   const t = noonJd(todayStr()), l0 = noonJd(last.d); let day = Math.round(t - l0) + 1, next = l0 + avg;
-  const late = day > avg ? day - avg : 0; while (next < t && late > 20) next += avg;
+  const late = Math.max(0, Math.round(t - next)); while (next < t && late > 20) next += avg;
   const ovC = next - 14, fertC = [ovC - 5, ovC + 1], ov = t > ovC + 1 ? ovC + avg : ovC, fert = [ov - 5, ov + 1], cur = Math.round(t - l0) + 1;
   const ongoing = !last.e && cur <= Math.max(per, 7);
   const phase = cur <= per || ongoing ? 'menstrual' : t >= fertC[0] && t <= fertC[1] ? (Math.abs(t - ovC) < .5 ? 'ovulacao' : 'fertil') : t < fertC[0] ? 'folicular' : 'lutea';
@@ -3752,7 +3753,7 @@ const CY_PH = {
 function cycleRing(st) {
   const R = 46, C = 2 * Math.PI * R, A = st.avg, seg = (from, to, col) => `<circle cx="55" cy="55" r="${R}" fill="none" stroke="${col}" stroke-width="10" stroke-dasharray="${C * (to - from + 1) / A} ${C}" stroke-dashoffset="${-C * (from - 1) / A}"/>`;
   const fo = A - 14 - 5, ft = A - 14 + 1, dpos = Math.min(A, st.day), ang = (dpos - .5) / A * 2 * Math.PI - Math.PI / 2;
-  return `<div class="cyring"><svg viewBox="0 0 110 110" style="transform:rotate(-90deg)"><circle cx="55" cy="55" r="${R}" fill="none" stroke="var(--soft)" stroke-width="10"/>${seg(1, st.per, '#e0566f')}${seg(Math.max(1, fo), Math.min(A, ft), '#e98bc4')}</svg><i style="left:${55 + Math.cos(ang) * R}px;top:${55 + Math.sin(ang) * R}px"></i><b>${st.day > A ? '+' + (st.day - A) : st.day}<small>${st.day > A ? 'dias de atraso' : 'dia do ciclo'}</small></b></div>`;
+  return `<div class="cyring"><svg viewBox="0 0 110 110" style="transform:rotate(-90deg)"><circle cx="55" cy="55" r="${R}" fill="none" stroke="var(--soft)" stroke-width="10"/>${seg(1, st.per, '#e0566f')}${seg(Math.max(1, fo), Math.min(A, ft), '#e98bc4')}</svg><i style="left:${55 + Math.cos(ang) * R}px;top:${55 + Math.sin(ang) * R}px"></i><b>${st.late ? '+' + st.late : st.day}<small>${st.late ? (st.late === 1 ? 'dia de atraso' : 'dias de atraso') : 'dia do ciclo'}</small></b></div>`;
 }
 function cycleBox() {
   const o = CY.get(); if (!o.on) return `<button class="yrow" id="cyOn">🌸 <span>O meu ciclo menstrual (opcional)</span><i>›</i></button>`;
@@ -3785,8 +3786,8 @@ function openCycle(ym) {
   $('#infoBody').querySelectorAll('[data-cym]').forEach(b => b.onclick = () => { const [y, m] = ym.split('-').map(Number), dd = new Date(y, m - 1 + +b.dataset.cym, 1); openCycle(`${dd.getFullYear()}-${String(dd.getMonth() + 1).padStart(2, '0')}`); });
   $('#infoBody').querySelectorAll('[data-cd]').forEach(el => el.onclick = () => {
     const ds = el.dataset.cd, c = CY.get(), isStart = c.starts.some(s => s.d === ds), syms = c.sym[ds] || [];
-    $('#cyDay').innerHTML = `<div class="box"><h3>${niceDate(ds)}</h3><div class="drow"><button class="btn${isStart ? '' : ' main'}" id="cyTog">${isStart ? '✕ Não começou aqui' : '🩸 O período começou neste dia'}</button>${!isStart && c.starts.some(s => !s.e && s.d < ds) ? '<button class="btn" id="cyEndD">✔️ Terminou neste dia</button>' : ''}</div><div class="chips cysym">${CY_SYM.map(s => `<button class="qchip${syms.includes(s) ? ' on' : ''}">${s}</button>`).join('')}</div></div>`;
-    $('#cyTog').onclick = () => { save(c2 => { if (isStart) c2.starts = c2.starts.filter(s => s.d !== ds); else c2.starts.push({ d: ds }); }); openCycle(ym); };
+    $('#cyDay').innerHTML = `<div class="box"><h3>${niceDate(ds)}</h3><div class="drow">${ds > todayStr() && !isStart ? '<p class="note">Este dia ainda não chegou: aqui vês a previsão.</p>' : `<button class="btn${isStart ? '' : ' main'}" id="cyTog">${isStart ? '✕ Não começou aqui' : '🩸 O período começou neste dia'}</button>${!isStart && ds <= todayStr() && c.starts.some(s => !s.e && s.d < ds) ? '<button class="btn" id="cyEndD">✔️ Terminou neste dia</button>' : ''}`}</div><div class="chips cysym">${CY_SYM.map(s => `<button class="qchip${syms.includes(s) ? ' on' : ''}">${s}</button>`).join('')}</div></div>`;
+    if ($('#cyTog')) $('#cyTog').onclick = () => { save(c2 => { if (isStart) c2.starts = c2.starts.filter(s => s.d !== ds); else c2.starts.push({ d: ds }); }); openCycle(ym); };
     if ($('#cyEndD')) $('#cyEndD').onclick = () => { save(c2 => { const s = c2.starts.filter(s => s.d < ds && !s.e).sort((a, b) => b.d.localeCompare(a.d))[0]; if (s) s.e = ds; }); openCycle(ym); };
     $('#cyDay').querySelectorAll('.cysym .qchip').forEach(b => b.onclick = () => { b.classList.toggle('on'); save(c2 => { c2.sym[ds] = [...$('#cyDay').querySelectorAll('.cysym .qchip.on')].map(z => z.textContent); if (!c2.sym[ds].length) delete c2.sym[ds]; }); });
     $('#cyDay').scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -3931,7 +3932,7 @@ function oracleExtra(t, prof) {
 }
 
 // ===== App de telemóvel =====
-const APP_VERSION = '13.11.2026 23:50';
+const APP_VERSION = '14.11.2026 00:20';
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const G = g => `${g}&#xFE0E;`;
@@ -4104,7 +4105,7 @@ function showBday(o, save, seed) {
   logBday(o);
   const style = o.style || store.get('ceu_bdstyle') || 'plain'; o.style = style;
   let Bd = makeBday(o); if (style === 'plain') Bd = plainize(Bd, seed ?? Math.floor(Math.random() * 1e6)); ST.bd = Bd; ST.bdO = o;
-  if (save) { const l = P.list('ceu_bdays').filter(x => !(x.name === o.name && x.d === o.d)); l.push({ name: o.name, rel: o.rel, d: o.d }); P.setList('ceu_bdays', l.slice(-40)); }
+  if (save) { const l = P.list('ceu_bdays'), j = l.findIndex(x => x.name === o.name && x.d === o.d); if (j >= 0) l[j] = { ...l[j], rel: o.rel }; else l.push({ name: o.name, rel: o.rel, d: o.d, t: o.t || '' }); P.setList('ceu_bdays', l); }
   const c = bdDraw(Bd, 'feed');
   $('#bdOut').innerHTML = `<img class="poster" src="${c.toDataURL('image/jpeg', .9)}" alt="Cartaz de ${esc(Bd.name)}"><div class="row2"><button class="btn main" id="bdShare">Partilhar cartaz</button><button class="btn" id="bdVideo">🎬 Criar reel</button></div>${Bd.theme === 'plain' ? '<button class="btn" id="bdAgain" style="width:100%;margin-top:8px">🎲 Outro layout e outras frases</button>' : ''}`;
   if ($('#bdAgain')) $('#bdAgain').onclick = () => showBday(o, false);
@@ -4360,7 +4361,7 @@ function openItem(t, id, edit, preset) {
     const ti = $('#iT').value.trim(); if (!ti) { toast('Escreve o título'); return; }
     const npos = t === 'livros' && $('#iPE') ? (() => { const e = +$('#iPE').value, p = +$('#iPP').value; store.set('ceu_lastshelf', e + ',' + p); return x.pos && x.pos.e === e && x.pos.p === p ? x.pos : { e, p, i: 1e6 }; })() : x.pos;
     const o = { pages: $('#iPg') ? $('#iPg').value : x.pages || '', page: $('#iCp') ? $('#iCp').value : x.page || '', lastRead: x.lastRead || '', log: x.log || [], pos: npos, isbn: $('#iIsbn') ? $('#iIsbn').value.replace(/[^\dXx]/g, '') : x.isbn || '', id: id || 'i' + Date.now().toString(36), title: ti, by: $('#iB').value.trim(), place: $('#iP') ? $('#iP').value.trim() : '', genre: $('#iG').value, status: +$('#iS').value, rating, sd: $('#iSD').value, st: $('#iST').value, ed: $('#iED').value, et: $('#iET').value, comment: $('#iC').value.trim(), cover, tvmaze: tvm, next: x.next || '', quotes: x.quotes || [], lent: x.lent, lentLog: x.lentLog, realized: x.realized, ts0: x.ts0 || x.ts || Date.now(), ...(t === 'series' ? { kind, season: $('#iSe') ? $('#iSe').value : x.season || '', ep: $('#iEp') ? $('#iEp').value : x.ep || '', eplog: x.eplog || [] } : {}), ts: Date.now() };
-    const all = intList(t); if (id) all[all.findIndex(z => z.id === id)] = o; else all.push(o); intSave(t, all); $('#intDlg').close(); if (t === 'viagens' && o.status >= 1) dreamCheck(o); toast(o.status === 2 && o.ed ? `${C.done} em ${durTxt(dtJoin(o.sd, o.st), dtJoin(o.ed, o.et)) || '—'} 🎉` : 'Guardado'); render();
+    const all = intList(t), jx = id ? all.findIndex(z => z.id === id) : -1; if (jx >= 0) all[jx] = o; else all.push(o); intSave(t, all); $('#intDlg').close(); if (t === 'viagens' && o.status >= 1) dreamCheck(o); toast(o.status === 2 && o.ed ? `${C.done} em ${durTxt(dtJoin(o.sd, o.st), dtJoin(o.ed, o.et)) || '—'} 🎉` : 'Guardado'); render();
   };
   $('#intDel').onclick = () => { if (!confirmBox('Apagar?')) return; intSave(t, intList(t).filter(z => z.id !== id)); $('#intDlg').close(); render(); };
   if (!$('#intDlg').open) $('#intDlg').showModal();
@@ -4566,13 +4567,15 @@ async function init() {
   ST.date = todayStr();
   if (/aniversarios/.test(location.search + location.hash)) { ST.type = 'anos'; ST.anosView = 'agenda'; }
   const qs = location.search; if (/ciclo|resumo|livro|patudos/.test(qs)) { ST.type = 'eu'; ST.euView = 'me'; setTimeout(() => { if (/ciclo/.test(qs)) openCycle(); else if (/resumo/.test(qs)) openMonth(); else if (/livro/.test(qs)) openAno(); }, 700); }
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState !== 'visible') return; const t = todayStr(); if (ST._day && ST._day !== t) { if (ST.date === ST._day) ST.date = t; ST._day = t; render(); setTimeout(() => showTodayDlg(false), 400); } });
+  ST._day = todayStr(); try { if (navigator.storage && navigator.storage.persist && hasPersonalData()) navigator.storage.persist(); } catch (e) { }
   render();
   if (/#add=/.test(location.hash)) setTimeout(checkAddLink, 400); else setTimeout(() => showTodayDlg(false), 600);
   setTimeout(() => { try { if (alertState() === 'granted' && navigator.serviceWorker && navigator.serviceWorker.controller) navigator.serviceWorker.controller.postMessage('check-bdays'); } catch (e) { } }, 1500);
   try { await Promise.race([Promise.all(['700 40px Cinzel', 'italic 600 40px "Cormorant Garamond"', '500 20px Manrope', '600 20px Manrope', '700 20px Manrope', '800 20px Manrope'].map(f => document.fonts.load(f)).concat([document.fonts.load('40px "Noto Sans Symbols"', '♈♉♊♋♌♍♎♏♐♑♒♓☉☽☿♀♂♃♄'), document.fonts.load('40px "Noto Sans Symbols 2"', '♅♆♇★✂✓✕')])), new Promise(r => setTimeout(r, 3000))]); } catch (e) { }
   if (/github\.io$/.test(location.hostname) && 'serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(r => { r.update(); setInterval(() => r.update(), 30 * 60 * 1000); }).catch(() => { });
-    let reloaded = false; navigator.serviceWorker.addEventListener('controllerchange', () => { if (!reloaded) { reloaded = true; location.reload(); } });
+    let reloaded = false; const hadCtl = !!navigator.serviceWorker.controller; navigator.serviceWorker.addEventListener('controllerchange', () => { if (reloaded || !hadCtl) return; const busy = () => !!document.querySelector('dialog[open]') || /INPUT|TEXTAREA/.test((document.activeElement || {}).tagName || ''); const go = () => { if (!reloaded) { reloaded = true; location.reload(); } }; if (!busy()) go(); else { toast('✨ Há uma versão nova: atualiza quando acabares (ou fecha e abre a app).', 6000); const iv = setInterval(() => { if (!busy() && document.visibilityState === 'hidden') { clearInterval(iv); go(); } }, 4000); } });
   }
 }
 init();
