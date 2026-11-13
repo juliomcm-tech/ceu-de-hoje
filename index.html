@@ -2145,8 +2145,8 @@ const INT = {
   series: { key: 'ceu_shows', ic: '🎬', one: 'série ou filme', by: 'Plataforma / realizador', verb: ['Quero ver', 'A ver', 'Visto', 'Em pausa', 'Desisti'], done: 'Viste', doing: 'a ver' },
   viagens: { key: 'ceu_trips', ic: '✈️', one: 'viagem', by: 'País', verb: ['Sonho', 'A decorrer', 'Feita'], done: 'Viajaste', doing: 'em viagem' }
 };
-const GENRES = { livros: ['Romance', 'Policial', 'Thriller', 'Fantasia', 'Ficção científica', 'História', 'Biografia', 'Autoajuda', 'Poesia', 'Infantil', 'Clássico', 'Outro'], series: ['Drama', 'Comédia', 'Policial', 'Thriller', 'Ficção científica', 'Fantasia', 'Romance', 'Documentário', 'Animação', 'Terror', 'Novela', 'Outro'], viagens: ['Praia', 'Cidade', 'Natureza', 'Montanha', 'Cultura', 'Gastronomia', 'Aventura', 'Romântica', 'Família', 'Trabalho', 'Outro'] };
-const OL_SUBJ = { Romance: 'romance', Policial: 'mystery', Thriller: 'thriller', Fantasia: 'fantasy', 'Ficção científica': 'science_fiction', História: 'history', Biografia: 'biography', Autoajuda: 'self-help', Poesia: 'poetry', Infantil: 'juvenile_fiction', Clássico: 'classic_literature' };
+const GENRES = { livros: ['Romance', 'Romance escaldante (picante)', 'Romance histórico', 'Erótico', 'Policial', 'Thriller / Suspense', 'Mistério', 'Terror', 'Fantasia', 'Ficção científica', 'Distopia', 'Aventura', 'Drama', 'Humor', 'Juvenil (Young Adult)', 'Infantil', 'Banda desenhada / Manga', 'Clássico', 'Literatura portuguesa', 'Poesia', 'Teatro', 'Conto', 'História', 'Biografia / Memórias', 'Autoajuda / Desenvolvimento pessoal', 'Espiritualidade', 'Psicologia', 'Filosofia', 'Religião', 'Ciência', 'Saúde e bem-estar', 'Culinária', 'Viagens', 'Negócios / Finanças', 'Arte e fotografia', 'Ensaio', 'Escolar / Estudo', 'Outro'], series: ['Drama', 'Comédia', 'Policial', 'Thriller', 'Ficção científica', 'Fantasia', 'Romance', 'Documentário', 'Animação', 'Terror', 'Novela', 'Outro'], viagens: ['Praia', 'Cidade', 'Natureza', 'Montanha', 'Cultura', 'Gastronomia', 'Aventura', 'Romântica', 'Família', 'Trabalho', 'Outro'] };
+const OL_SUBJ = { 'Romance escaldante (picante)': 'romance', 'Romance histórico': 'historical_fiction', 'Thriller / Suspense': 'thriller', Mistério: 'mystery', Terror: 'horror', Distopia: 'dystopias', Aventura: 'adventure', Humor: 'humor', 'Juvenil (Young Adult)': 'young_adult_fiction', 'Banda desenhada / Manga': 'comics', Teatro: 'drama', Conto: 'short_stories', 'Biografia / Memórias': 'biography', 'Autoajuda / Desenvolvimento pessoal': 'self-help', Espiritualidade: 'spirituality', Psicologia: 'psychology', Filosofia: 'philosophy', Ciência: 'science', Culinária: 'cooking', Viagens: 'travel', 'Negócios / Finanças': 'business', 'Literatura portuguesa': 'portuguese_literature', Romance: 'romance', Policial: 'mystery', Thriller: 'thriller', Fantasia: 'fantasy', 'Ficção científica': 'science_fiction', História: 'history', Biografia: 'biography', Autoajuda: 'self-help', Poesia: 'poetry', Infantil: 'juvenile_fiction', Clássico: 'classic_literature' };
 const intList = t => P.list(INT[t].key), intSave = (t, l) => P.setList(INT[t].key, l);
 const ONLINE = () => navigator.onLine !== false && !/claude|claudeusercontent|anthropic/.test(location.hostname);
 function durTxt(a, b) {
@@ -3586,7 +3586,7 @@ function checkAddLink() {
 }
 
 // ===== App de telemóvel =====
-const APP_VERSION = '13.11.2026 18:40';
+const APP_VERSION = '13.11.2026 18:55';
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const G = g => `${g}&#xFE0E;`;
