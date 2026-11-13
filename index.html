@@ -3406,6 +3406,40 @@ function bindDreams() {
   document.querySelectorAll('.dr[data-id]').forEach(el => { el.onclick = e => { if (e.target.closest('.drok')) return; openItem('viagens', el.dataset.id, false); }; const b = el.querySelector('.drok'); if (b) b.onclick = () => { const d = dreams().find(x => x.id === el.dataset.id); if (d && confirmBox(`Já foste a «${d.title}»? 🎉`)) { realizeDream(d, todayStr(), '', 'manual'); toast('🎉 Sonho realizado!', 3000); render(); } }; });
 }
 
+// ---------- Partilhar as estatísticas de leitura (mês ou ano) ----------
+async function drawReadStats(y, mo) {
+  await fontsReady(); const [c, ctx, W, H] = newCanvas(), B = bookStats(String(y)), ym = mo ? `${y}-${String(mo).padStart(2, '0')}` : null, me = P.get() || {};
+  const read = ym ? B.done.filter(x => (x.ed || '').startsWith(ym)) : B.yr, pages = read.reduce((a, x) => a + (+x.pages || 0), 0), rated = read.filter(x => x.rating), avgR = rated.length ? rated.reduce((a, x) => a + x.rating, 0) / rated.length : 0;
+  const days = new Set(intList('livros').flatMap(x => x.log || []).filter(d => d.startsWith(ym || String(y)))), byA = {}; read.forEach(x => x.by && (byA[x.by] = (byA[x.by] || 0) + 1)); const topA = Object.entries(byA).sort((a, b) => b[1] - a[1])[0];
+  const byG = {}; read.forEach(x => x.genre && (byG[x.genre] = (byG[x.genre] || 0) + 1)); const topG = Object.entries(byG).sort((a, b) => b[1] - a[1])[0], fav = [...read].sort((a, b) => (b.rating || 0) - (a.rating || 0))[0];
+  bg(ctx, W, H, 'rs' + y + (mo || ''), ['#7a5cff', '#2a1d6a']);
+  ctx.textAlign = 'center'; ctx.fillStyle = '#f2c76e'; ctx.font = '700 30px Cinzel'; ctx.fillText(ym ? `AS MINHAS LEITURAS · ${MESES[mo - 1].toUpperCase()} ${y}` : `AS MINHAS LEITURAS DE ${y}`, W / 2, 100);
+  if (me.name) { ctx.fillStyle = '#d8d0f5'; ctx.font = 'italic 600 36px "Cormorant Garamond"'; ctx.fillText(me.name.split(' ')[0], W / 2, 150); }
+  ctx.fillStyle = '#fff'; ctx.font = '700 200px Cinzel'; ctx.fillText(String(read.length), W / 2, 360); ctx.font = '800 40px Manrope'; ctx.fillText(read.length === 1 ? 'livro lido' : 'livros lidos', W / 2, 420);
+  const st = [[pages ? pages.toLocaleString('pt-PT') : '–', 'páginas'], [pages ? Math.round(pages * 250 / 1000) + ' mil' : '–', 'palavras'], [days.size || '–', 'dias a ler'], [avgR ? avgR.toFixed(1) + '★' : '–', 'nota média']];
+  st.forEach(([v, l], i) => { const x = 140 + i * 267, yy = 520; ctx.fillStyle = '#ffffff14'; rr(ctx, x - 120, yy - 60, 240, 130, 20); ctx.fill(); ctx.fillStyle = '#f2c76e'; fitFont(ctx, String(v), 220, 50, 26, z => `700 ${z}px Cinzel`); ctx.fillText(String(v), x, yy); ctx.fillStyle = '#e8e2ff'; ctx.font = '600 24px Manrope'; ctx.fillText(l, x, yy + 44); });
+  let y0 = 680;
+  if (!ym) { const mx = Math.max(1, ...B.months), mn = 'JFMAMJJASOND'; ctx.textAlign = 'center'; B.months.forEach((v, k) => { const x = 110 + k * 79, h = v / mx * 180; ctx.fillStyle = '#ffffff18'; rr(ctx, x - 26, y0, 52, 190, 10); ctx.fill(); if (v) { ctx.fillStyle = '#f2c76e'; rr(ctx, x - 26, y0 + 190 - h, 52, h, 10); ctx.fill(); ctx.fillStyle = '#fff'; ctx.font = '700 22px Manrope'; ctx.fillText(String(v), x, y0 + 180 - h); } ctx.fillStyle = '#cfc6ee'; ctx.font = '700 22px Manrope'; ctx.fillText(mn[k], x, y0 + 222); }); y0 += 270; }
+  else { const dim = new Date(y, mo, 0).getDate(), first = (new Date(y, mo - 1, 1).getDay() + 6) % 7; ctx.font = '700 20px Manrope'; ctx.textAlign = 'center'; 'STQQSSD'.split('').forEach((d, i) => { ctx.fillStyle = '#cfc6ee'; ctx.fillText(d, 230 + i * 104, y0); }); for (let d = 1; d <= dim; d++) { const k = first + d - 1, x = 230 + (k % 7) * 104, yy = y0 + 30 + Math.floor(k / 7) * 58, on = days.has(`${ym}-${String(d).padStart(2, '0')}`); ctx.fillStyle = on ? '#f2c76e' : '#ffffff12'; ctx.beginPath(); ctx.arc(x, yy + 18, 24, 0, 7); ctx.fill(); ctx.fillStyle = on ? '#2a1d05' : '#e8e2ff'; ctx.font = '700 20px Manrope'; ctx.fillText(String(d), x, yy + 25); } y0 += 30 + Math.ceil((first + dim) / 7) * 58 + 30; }
+  ctx.textAlign = 'left'; const lines = [];
+  if (fav && fav.rating) lines.push(`❤️ Favorito: «${fav.title}» ${'★'.repeat(fav.rating)}`);
+  if (topA) lines.push(`✍️ Autor(a): ${topA[0]}${topA[1] > 1 ? ` (${topA[1]})` : ''}`); if (topG) lines.push(`🏷️ Género: ${topG[0]}`);
+  const lvl = READER.filter(r => B.yr.length >= r[0]).pop(); if (!ym && lvl) lines.push(lvl[1]);
+  ctx.font = '600 32px Manrope'; ctx.fillStyle = '#efeaff'; lines.slice(0, 4).forEach((l, i) => { let s = l; while (ctx.measureText(s).width > W - 200 && s.length > 4) s = s.slice(0, -2); ctx.fillText(s === l ? s : s + '…', 100, y0 + i * 52); }); y0 += Math.min(4, lines.length) * 52 + 10;
+  const covers = []; for (const x of read.filter(x => x.cover).slice(-6)) { const im = await loadImg(x.cover); if (im) covers.push(im); }
+  if (covers.length && y0 < H - 330) { const cw = 130, chh = 195, gap = 18, n = covers.length, x0 = W / 2 - (n * cw + (n - 1) * gap) / 2; covers.forEach((im, i) => { ctx.save(); ctx.shadowColor = '#0008'; ctx.shadowBlur = 16; rr(ctx, x0 + i * (cw + gap), y0 + 10, cw, chh, 8); ctx.clip(); ctx.drawImage(im, x0 + i * (cw + gap), y0 + 10, cw, chh); ctx.restore(); }); }
+  else if (!read.length) { ctx.textAlign = 'center'; ctx.font = 'italic 600 40px "Cormorant Garamond"'; ctx.fillStyle = '#fff'; ctx.fillText('O próximo livro está à espera 📚', W / 2, y0 + 80); }
+  brandFoot(ctx, W, H); return { c, n: read.length, pages };
+}
+function readShareBox(y) { const cur = todayStr(), sameY = String(y) === cur.slice(0, 4), m = sameY ? +cur.slice(5, 7) : 12; return `<div class="box rshare"><h3>📤 Partilhar as minhas leituras</h3><div class="seg2"><button data-rsp="m" class="on">${MESES[m - 1][0].toUpperCase() + MESES[m - 1].slice(1)}</button><button data-rsp="y">Ano ${y}</button></div><div class="drow" style="margin-top:8px"><button class="btn main" id="rsGo">📤 Partilhar</button><button class="btn" id="rsSave">⬇️ Guardar</button></div></div>`; }
+function bindReadShare(y) {
+  if (!$('#rsGo')) return; const cur = todayStr(), m = String(y) === cur.slice(0, 4) ? +cur.slice(5, 7) : 12; let per = 'm';
+  document.querySelectorAll('[data-rsp]').forEach(b => b.onclick = () => { per = b.dataset.rsp; document.querySelectorAll('[data-rsp]').forEach(z => z.classList.toggle('on', z === b)); });
+  const make = () => drawReadStats(+y, per === 'm' ? m : 0);
+  $('#rsGo').onclick = async () => { toast('A preparar…'); const r = await make(); await shareCanvases([{ name: `leituras-${y}${per === 'm' ? '-' + String(m).padStart(2, '0') : ''}`, c: r.c }], `📚 ${per === 'm' ? 'O meu ' + MESES[m - 1] : 'O meu ' + y} em livros: ${r.n} livro${r.n === 1 ? '' : 's'}${r.pages ? ', ' + r.pages.toLocaleString('pt-PT') + ' páginas' : ''}!\n\nFeito com Céu de Hoje ✨ ${APP_URL}`); };
+  $('#rsSave').onclick = async () => { const r = await make(); await saveBlob(await blobOf(r.c), `leituras-${y}${per === 'm' ? '-' + String(m).padStart(2, '0') : ''}.jpg`); };
+}
+
 // ===== Família (filhos) e amuletos dos signos =====
 const KID_SIGN = [
   { c: 'Corajoso(a), rápido(a) e cheio(a) de energia. Quer ser o primeiro em tudo.', t: 'desporto, liderança, iniciativa', m: 'desafios e corridas: «aposto que não consegues…»', b: 'As birras são curtas e explosivas: dá-lhe espaço para arrefecer e depois fala. Gastar energia antes evita muitas.', s: 'Precisa de correr durante o dia para dormir bem à noite.' },
@@ -3655,7 +3689,7 @@ function checkAddLink() {
 }
 
 // ===== App de telemóvel =====
-const APP_VERSION = '13.11.2026 21:15';
+const APP_VERSION = '13.11.2026 21:40';
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const G = g => `${g}&#xFE0E;`;
@@ -3997,6 +4031,7 @@ function bindInteresses() {
   bindGoal(); bindLibSearch(); bindDreams(); if ($('#ppShare')) $('#ppShare').onclick = async () => { toast('A preparar o passaporte…'); const P2 = passportStamps(); await shareCanvases([{ name: 'passaporte', c: await drawPassport() }], `🛂 O meu passaporte: ${P2.S.map(s => flagOf(s.iso)).join(' ')}\n${P2.S.length} países · ${P2.euPct}% da Europa\n\nFeito com Céu de Hoje ✨ ${APP_URL}`); };
   if ($('#intScan')) $('#intScan').onclick = async () => { try { const code = await scanBarcode(); if (!code) return; toast('A procurar o livro…'); const b = await isbnLookup(code); if (!b) { toast('Não está nas bases abertas — preenche ou fotografa a capa 📷', 4000); openItem('livros', null, true, { isbn: code, status: 2, notFound: 1 }); return; } openItem('livros', null, true, { ...b, isbn: code, status: 2 }); } catch (e) { toast('Sem câmara ou sem internet'); } };
   if (t === 'livros' && ST.bookView === 'estante') bindShelf();
+  if (t === 'livros' && ST.bookView === 'stats') bindReadShare(ST.statYear || todayStr().slice(0, 4));
   if (t === 'livros' && ST.bookView === 'stats') { $('#syPrev').onclick = () => { ST.statYear = +(ST.statYear || todayStr().slice(0, 4)) - 1; render(); }; $('#syNext').onclick = () => { ST.statYear = +(ST.statYear || todayStr().slice(0, 4)) + 1; render(); }; }
   document.querySelectorAll('.iit').forEach(el => el.onclick = () => openItem(t, el.dataset.id, false));
   document.querySelectorAll('.tvpick').forEach(el => el.onclick = () => openItem('series', el.dataset.id, false));
@@ -4090,6 +4125,7 @@ function progH(x) {
 function vBookStats() {
   const y = String(ST.statYear || todayStr().slice(0, 4)), B = bookStats(y), mx = Math.max(1, ...B.months), mn = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
   let h = `<div class="agnav"><button class="arrow" id="syPrev">‹</button><b>${y}</b><button class="arrow" id="syNext">›</button></div>`;
+  h += readShareBox(y);
   h += `<div class="box lvl"><div class="lv">${B.lvl[1]}</div><p><b>${B.yr.length}</b> livro${B.yr.length === 1 ? '' : 's'} lido${B.yr.length === 1 ? '' : 's'} em ${y}${B.next ? ` · faltam ${B.next[0] - B.yr.length} para «${B.next[1].replace(/^\S+ /, '')}»` : ''}</p>${B.streak > 1 ? `<p>🔥 ${B.streak} dias seguidos a ler!</p>` : ''}</div>`;
   h += `<div class="box"><h3>📅 Livros por mês</h3><div class="mbars">${B.months.map((v, k) => `<div><b>${v || ''}</b><i style="height:${v / mx * 100}%"></i><span>${mn[k]}</span></div>`).join('')}</div></div>`;
   h += `<div class="sgrid"><div><b>${B.pagesY.toLocaleString('pt-PT')}</b><span>páginas em ${y}</span></div><div><b>${(B.words / 1000).toLocaleString('pt-PT', { maximumFractionDigits: 0 })} mil</b><span>palavras (estimativa)</span></div><div><b>${B.avgPages || '–'}</b><span>páginas por livro</span></div><div><b>${B.avgDays || '–'}</b><span>dias por livro</span></div><div><b>${B.speed || '–'}</b><span>páginas por dia</span></div><div><b>${B.avgR ? B.avgR.toFixed(1) + '★' : '–'}</b><span>nota média</span></div></div>`;
