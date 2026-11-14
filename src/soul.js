@@ -269,10 +269,20 @@ function soulMoonDoubt() { // sem hora de nascimento, a Lua pode ter mudado de s
   return a.m === z.m ? '' : `<div class="soulwant"><b>🌙 A tua Lua está indecisa</b><p>No dia em que nasceste a Lua passou de ${SIGNS[a.m].n} para ${SIGNS[z.m].n}. Sem a hora de nascimento, usei o meio-dia.</p><p class="note">Se souberes a hora, junta-a no teu perfil: a carta fica certa (e muda, por isso faz isto antes de a partilhar ou imprimir).</p></div>`;
 }
 async function soulSendLink(o, msg = '💫 Esta é a minha Carta da Alma. Abre e descobre se és a minha metade:') {
+  soulSeal(o);
   const url = soulLink(o), txt = `${msg} ${url}`; try { if (navigator.share) { await navigator.share({ title: 'A minha Carta da Alma', text: msg, url }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
   try { await navigator.clipboard.writeText(txt); } catch (e) { if (!copySync(txt)) { toast('Não deu para copiar'); return; } } toast('Link copiado 📋');
 }
-function soulMe() { const p = P.get(); return p && p.d ? soulOf(p) : null; }
+// Selo: a partir da 1.ª partilha / link / chip, a carta fica fixa (mudar o perfil já não a muda)
+const soulSealed = () => { try { const j = JSON.parse(store.get('ceu_soul_seal') || 'null'); return j && j.o && j.o.serial ? j : null; } catch (e) { return null; } };
+function soulSeal(o) { if (!o || soulSealed()) return; store.set('ceu_soul_seal', JSON.stringify({ o, d: todayStr() })); }
+function soulFresh() { const p = P.get(); return p && p.d ? soulOf(p) : null; }
+function soulMe() { const j = soulSealed(); if (j) return j.o; return soulFresh(); }
+function soulSealBox(o) {
+  const j = soulSealed(); if (!j) return '';
+  const f = soulFresh(), changed = f && f.serial !== j.o.serial, dd = j.d.split('-').reverse().join('/');
+  return `<div class="soulwant"><b>🔏 Carta selada desde ${dd}</b><p>${changed ? 'Mudaste o teu perfil, mas a tua carta continua a mesma: é ela que está nos links, no QR e nos chips que já partilhaste.' : 'Desde que a partilhaste, esta é para sempre a tua carta, mesmo que mudes o perfil.'}</p>${changed ? '<button class="btn" id="soulRedo" style="width:100%">↻ Refazer a minha carta com o perfil novo</button>' : ''}</div>`;
+}
 function openSoul() {
   const dlg = $('#soulDlg'), o = soulMe();
   if (!o) { dlg.innerHTML = `<div class="soulwrap"><h2>💫 A tua Carta da Alma</h2><p>Para criar a tua carta única preciso do teu nome e da tua data de nascimento (e, se souberes, da hora).</p><div class="dlgfoot"><button class="btn" id="soulX">Fechar</button><button class="btn main" id="soulPf">Preencher o meu perfil</button></div></div>`; dlg.showModal(); $('#soulX').onclick = () => dlg.close(); $('#soulPf').onclick = () => { dlg.close(); ST.tab = 'eu'; render(); }; return; }
@@ -282,7 +292,7 @@ function openSoul() {
     <div class="soulstage">${soul3dHtml(o, first)}</div>
     <div class="soulbtns"><button class="btn" id="soulFlip">↻ Ver o verso</button><button class="btn main" id="soulSh">📤 Partilhar</button><button class="btn" id="soulLk">🔗 Enviar o link</button>${'NDEFReader' in window ? '<button class="btn" id="soulNfc">📶 Gravar num chip NFC</button>' : ''}${SOUL_SHOP ? '<button class="btn soon" data-soon="porta-chaves">🔑 Encomendar porta-chaves <small>brevemente</small></button><button class="btn soon" data-soon="carta">🃏 Encomendar a carta <small>brevemente</small></button>' : ''}</div>
     <div class="soulinfo" id="soulInfo"${first ? ' hidden' : ''}>
-      ${soulMoonDoubt()}
+      ${soulSealBox(o) || soulMoonDoubt()}
       <div class="soulwant"><b>💞 A tua metade perfeita</b><p>${soulWantTxt(o)}</p><p class="note">Só cerca de 1 em cada 1300 pessoas tem estas três ligações contigo. Partilha a tua carta: quem a ler descobre se é a tua metade.</p></div>
       ${soulCapToday()}<div class="soulbtns"><button class="btn" id="soulVault">🔐 Cofre da alma (${SMEM.all().length})</button><button class="btn" id="soulRead">🔭 Ler a carta de alguém</button><button class="btn" id="soulLinks">💫 As minhas ligações (${soulLinks().length})</button></div>
       <h3 class="soulh">A leitura da tua alma</h3>${soulReading(o)}
@@ -295,6 +305,7 @@ function openSoul() {
   $('#soulFlip').onclick = async () => { await soulMotionOk(); card.classList.toggle('flip'); $('#soulFlip').textContent = card.classList.contains('flip') ? '↻ Ver a frente' : '↻ Ver o verso'; };
   $('#soulSh').onclick = () => shareSoul(o);
   $('#soulLk').onclick = () => soulSendLink(o);
+  if ($('#soulRedo')) $('#soulRedo').onclick = () => { if (!confirmBox('Refazer a tua Carta da Alma com o perfil novo?\n\nVais ter uma carta nova. Os links, QR e chips que já partilhaste continuam a abrir a carta antiga, que deixa de ser a tua.')) return; try { localStorage.removeItem('ceu_soul_seal'); } catch (e) { } toast('✨ A tua carta nova está pronta'); openSoul(); };
   if ($('#soulNfc')) $('#soulNfc').onclick = () => soulWriteNfc(o);
   dlg.querySelectorAll('[data-soon]').forEach(b => b.onclick = () => toast(b.dataset.soon === 'carta' ? '🃏 Em breve vais poder encomendar a tua carta impressa a sério ✨' : '🔑 Em breve vais poder encomendar o teu porta-chaves da alma ✨', 4000));
   $('#soulVault').onclick = () => soulVault(); if ($('#soulCapGo')) $('#soulCapGo').onclick = () => soulVault();
@@ -305,6 +316,7 @@ function openSoul() {
 // ---------- Partilhar (frente + selo QR) ----------
 function svgImg(svg) { return new Promise(res => { const im = new Image(); im.onload = () => (im.decode ? im.decode().then(() => res(im), () => res(im)) : res(im)); im.onerror = () => res(null); im.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg); }); }
 async function shareSoul(o) {
+  soulSeal(o);
   await fontsReady(); const [c, ctx, W, H] = newCanvas(1080, 1350), E = SOUL_EL[o.el];
   bg(ctx, W, H, 'alma' + o.serial, [E.c[1], '#07050f']);
   const fr = await svgImg(soulSVG2(o)), bk = await svgImg(soulBackSVG(o)); if (!fr) { toast('Não deu para criar a imagem'); return; }
@@ -355,7 +367,7 @@ function soulMatch(other) {
   const L = soulLinks().filter(x => x.serial !== other.serial); L.unshift({ serial: other.serial, first: other.first, code: soulCode(other), l, pct, d: todayStr() }); store.set('ceu_soul_links', JSON.stringify(L.slice(0, 500)));
   const chk = (ok, txt) => `<li class="${ok ? 'ok' : ''}">${ok ? '✦' : '·'} ${txt}</li>`;
   dlg.innerHTML = `<div class="soulwrap"><button class="tclose" id="smX" aria-label="Fechar">✕</button><h2>${h}</h2>
-    <div class="soulpair lvl${l}"><div class="sp a">${soulSVG2(me)}</div><div class="sp b">${soulSVG2(other)}</div>${l === 3 ? '<div class="spglow"></div>' : ''}</div>
+    <div class="soulpair lvl${l}"><div class="sp a">${soulSVG2(me)}</div><div class="sp b">${soulSVG2(other)}</div>${l === 3 ? '<div class="spglow"></div><svg class="spbridge" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path pathLength="100" vector-effect="non-scaling-stroke" d="M33 30 Q50 6 67 30"/></svg><i class="spstar">✦</i>' : l === 2 ? '<svg class="spbridge half" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path pathLength="100" vector-effect="non-scaling-stroke" d="M33 30 Q50 6 67 30"/></svg>' : ''}</div>
     <p>${p}</p>
     <ul class="soulchk">${chk(other.s === w.s, `Sol: ${SIGNS[me.s].n} ↔ ${SIGNS[other.s].n}`)}${chk(other.m === w.m, `Lua: ${SIGNS[me.m].n} ↔ ${SIGNS[other.m].n}`)}${chk(other.n === w.n, `Números da alma: ${me.n} + ${other.n}${other.n + me.n === 10 ? ' = 10' : ''}`)}</ul>
     <p class="note">Compatibilidade dos signos: ${pct}%. A ligação ficou guardada na tua carta, em "As minhas ligações".</p>
@@ -429,7 +441,7 @@ function soulAlerts() { return SMEM.all().filter(x => x.open && x.open >= todayS
 // ---------- Gravar a carta num chip NFC (porta-chaves, carta impressa) ----------
 async function soulWriteNfc(o) {
   if (!('NDEFReader' in window)) { toast('Este telemóvel não grava chips NFC pelo navegador (só Android com Chrome)', 5000); return; }
-  if (!confirmBox('Encosta o chip NFC à parte de trás do telemóvel depois de carregares em OK. A tua carta fica gravada no chip: quem o encostar ao telemóvel abre a tua Carta da Alma.')) return;
+  if (!confirmBox('Encosta o chip NFC à parte de trás do telemóvel depois de carregares em OK. A tua carta fica gravada no chip: quem o encostar ao telemóvel abre a tua Carta da Alma.')) return; soulSeal(o);
   try { const nd = new NDEFReader(); toast('📶 Encosta o chip ao telemóvel…', 8000); await nd.write({ records: [{ recordType: 'url', data: soulLink(o) }] }); toast('✨ Carta gravada no chip!'); try { navigator.vibrate && navigator.vibrate([80, 40, 80]); } catch (e) { } }
   catch (e) { toast(e && e.name === 'NotAllowedError' ? 'Sem autorização para usar o NFC' : 'Não deu para gravar: tenta encostar melhor o chip', 5000); }
 }

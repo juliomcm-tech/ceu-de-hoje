@@ -247,7 +247,7 @@ footer.ft{color:var(--mute);font-size:11.5px;text-align:center;margin:18px 0 6px
 .soulwant{background:linear-gradient(135deg,color-mix(in srgb,var(--gold) 20%,var(--card)),var(--card));border:1px solid var(--gold);border-radius:18px;padding:10px 14px;margin:10px 0}.soulwant p{margin:4px 0}.soulwant>p:first-of-type{font:700 18px Manrope;color:var(--gold)}
 .soulh{font:700 22px "Cormorant Garamond",serif;color:var(--gold);margin:16px 0 4px}.soulsec{border-top:1px solid var(--line);padding:8px 0}.soulsec b{color:var(--gold)}.soulsec p{margin:3px 0 0}
 .soulpair{position:relative;display:flex;gap:10px;justify-content:center;margin:8px 0 12px}.soulpair .sp{width:46%;max-width:210px;filter:drop-shadow(0 14px 18px #000a)}.soulpair .sp svg{width:100%;height:auto;display:block}.soulpair .a{transform:rotate(-4deg)}.soulpair .b{transform:rotate(4deg)}.soulpair.one svg{width:60%;max-width:240px;display:block;margin:0 auto}
-.soulpair.lvl3 .a{animation:spA 1.4s ease forwards}.soulpair.lvl3 .b{animation:spB 1.4s ease forwards}@keyframes spA{to{transform:rotate(0) translateX(6%)}}@keyframes spB{to{transform:rotate(0) translateX(-6%)}}
+.spbridge{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;z-index:3}.spbridge path{fill:none;stroke:#f7e08a;stroke-width:2.5;stroke-linecap:round;stroke-dasharray:100;stroke-dashoffset:100;filter:drop-shadow(0 0 4px #f2c76e) drop-shadow(0 0 10px #f2c76e99);animation:spdraw 1.3s ease 1.3s forwards}.spbridge.half path{stroke-dasharray:3 4;opacity:.75;animation:spfade 1s ease .6s both}.spstar{position:absolute;left:50%;top:18%;transform:translate(-50%,-50%) scale(0);z-index:4;font-style:normal;font-size:30px;color:#fff7d0;text-shadow:0 0 10px #f7e08a,0 0 24px #f2c76e;animation:spstar 1.2s cubic-bezier(.3,1.6,.5,1) 2.5s forwards,sptw 2.4s ease-in-out 3.7s infinite;pointer-events:none}@keyframes spdraw{to{stroke-dashoffset:0}}@keyframes spfade{from{opacity:0}}@keyframes spstar{to{transform:translate(-50%,-50%) scale(1)}}@keyframes sptw{50%{transform:translate(-50%,-50%) scale(1.25) rotate(45deg)}}@media (prefers-reduced-motion:reduce){.spbridge path{animation:none;stroke-dashoffset:0}.spstar{animation:none;transform:translate(-50%,-50%)}}.soulpair.lvl3 .a{animation:spA 1.4s ease forwards}.soulpair.lvl3 .b{animation:spB 1.4s ease forwards}@keyframes spA{to{transform:rotate(0) translateX(6%)}}@keyframes spB{to{transform:rotate(0) translateX(-6%)}}
 .spglow{position:absolute;left:50%;top:22%;width:44%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,#fff7d0cc,#f2c76e55 40%,transparent 70%);animation:spg 1.8s ease 1s both;pointer-events:none}@keyframes spg{0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}50%{opacity:1}100%{opacity:.75;transform:translate(-50%,-50%) scale(1)}}
 .soulchk{list-style:none;padding:0;margin:8px 0}.soulchk li{padding:5px 0;opacity:.7}.soulchk li.ok{opacity:1;color:var(--gold);font-weight:700}
 .soullist{display:flex;flex-direction:column;gap:8px;margin:10px 0}.soulli{display:grid;grid-template-columns:54px 1fr;grid-template-rows:auto auto;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px 12px;color:var(--tx)}.soulli .lv{grid-row:span 2;align-self:center;color:var(--gold);font-size:18px}.soulli i{font-size:13px;opacity:.75;font-style:normal}
@@ -5392,10 +5392,20 @@ function soulMoonDoubt() { // sem hora de nascimento, a Lua pode ter mudado de s
   return a.m === z.m ? '' : `<div class="soulwant"><b>🌙 A tua Lua está indecisa</b><p>No dia em que nasceste a Lua passou de ${SIGNS[a.m].n} para ${SIGNS[z.m].n}. Sem a hora de nascimento, usei o meio-dia.</p><p class="note">Se souberes a hora, junta-a no teu perfil: a carta fica certa (e muda, por isso faz isto antes de a partilhar ou imprimir).</p></div>`;
 }
 async function soulSendLink(o, msg = '💫 Esta é a minha Carta da Alma. Abre e descobre se és a minha metade:') {
+  soulSeal(o);
   const url = soulLink(o), txt = `${msg} ${url}`; try { if (navigator.share) { await navigator.share({ title: 'A minha Carta da Alma', text: msg, url }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
   try { await navigator.clipboard.writeText(txt); } catch (e) { if (!copySync(txt)) { toast('Não deu para copiar'); return; } } toast('Link copiado 📋');
 }
-function soulMe() { const p = P.get(); return p && p.d ? soulOf(p) : null; }
+// Selo: a partir da 1.ª partilha / link / chip, a carta fica fixa (mudar o perfil já não a muda)
+const soulSealed = () => { try { const j = JSON.parse(store.get('ceu_soul_seal') || 'null'); return j && j.o && j.o.serial ? j : null; } catch (e) { return null; } };
+function soulSeal(o) { if (!o || soulSealed()) return; store.set('ceu_soul_seal', JSON.stringify({ o, d: todayStr() })); }
+function soulFresh() { const p = P.get(); return p && p.d ? soulOf(p) : null; }
+function soulMe() { const j = soulSealed(); if (j) return j.o; return soulFresh(); }
+function soulSealBox(o) {
+  const j = soulSealed(); if (!j) return '';
+  const f = soulFresh(), changed = f && f.serial !== j.o.serial, dd = j.d.split('-').reverse().join('/');
+  return `<div class="soulwant"><b>🔏 Carta selada desde ${dd}</b><p>${changed ? 'Mudaste o teu perfil, mas a tua carta continua a mesma: é ela que está nos links, no QR e nos chips que já partilhaste.' : 'Desde que a partilhaste, esta é para sempre a tua carta, mesmo que mudes o perfil.'}</p>${changed ? '<button class="btn" id="soulRedo" style="width:100%">↻ Refazer a minha carta com o perfil novo</button>' : ''}</div>`;
+}
 function openSoul() {
   const dlg = $('#soulDlg'), o = soulMe();
   if (!o) { dlg.innerHTML = `<div class="soulwrap"><h2>💫 A tua Carta da Alma</h2><p>Para criar a tua carta única preciso do teu nome e da tua data de nascimento (e, se souberes, da hora).</p><div class="dlgfoot"><button class="btn" id="soulX">Fechar</button><button class="btn main" id="soulPf">Preencher o meu perfil</button></div></div>`; dlg.showModal(); $('#soulX').onclick = () => dlg.close(); $('#soulPf').onclick = () => { dlg.close(); ST.tab = 'eu'; render(); }; return; }
@@ -5405,7 +5415,7 @@ function openSoul() {
     <div class="soulstage">${soul3dHtml(o, first)}</div>
     <div class="soulbtns"><button class="btn" id="soulFlip">↻ Ver o verso</button><button class="btn main" id="soulSh">📤 Partilhar</button><button class="btn" id="soulLk">🔗 Enviar o link</button>${'NDEFReader' in window ? '<button class="btn" id="soulNfc">📶 Gravar num chip NFC</button>' : ''}${SOUL_SHOP ? '<button class="btn soon" data-soon="porta-chaves">🔑 Encomendar porta-chaves <small>brevemente</small></button><button class="btn soon" data-soon="carta">🃏 Encomendar a carta <small>brevemente</small></button>' : ''}</div>
     <div class="soulinfo" id="soulInfo"${first ? ' hidden' : ''}>
-      ${soulMoonDoubt()}
+      ${soulSealBox(o) || soulMoonDoubt()}
       <div class="soulwant"><b>💞 A tua metade perfeita</b><p>${soulWantTxt(o)}</p><p class="note">Só cerca de 1 em cada 1300 pessoas tem estas três ligações contigo. Partilha a tua carta: quem a ler descobre se é a tua metade.</p></div>
       ${soulCapToday()}<div class="soulbtns"><button class="btn" id="soulVault">🔐 Cofre da alma (${SMEM.all().length})</button><button class="btn" id="soulRead">🔭 Ler a carta de alguém</button><button class="btn" id="soulLinks">💫 As minhas ligações (${soulLinks().length})</button></div>
       <h3 class="soulh">A leitura da tua alma</h3>${soulReading(o)}
@@ -5418,6 +5428,7 @@ function openSoul() {
   $('#soulFlip').onclick = async () => { await soulMotionOk(); card.classList.toggle('flip'); $('#soulFlip').textContent = card.classList.contains('flip') ? '↻ Ver a frente' : '↻ Ver o verso'; };
   $('#soulSh').onclick = () => shareSoul(o);
   $('#soulLk').onclick = () => soulSendLink(o);
+  if ($('#soulRedo')) $('#soulRedo').onclick = () => { if (!confirmBox('Refazer a tua Carta da Alma com o perfil novo?\n\nVais ter uma carta nova. Os links, QR e chips que já partilhaste continuam a abrir a carta antiga, que deixa de ser a tua.')) return; try { localStorage.removeItem('ceu_soul_seal'); } catch (e) { } toast('✨ A tua carta nova está pronta'); openSoul(); };
   if ($('#soulNfc')) $('#soulNfc').onclick = () => soulWriteNfc(o);
   dlg.querySelectorAll('[data-soon]').forEach(b => b.onclick = () => toast(b.dataset.soon === 'carta' ? '🃏 Em breve vais poder encomendar a tua carta impressa a sério ✨' : '🔑 Em breve vais poder encomendar o teu porta-chaves da alma ✨', 4000));
   $('#soulVault').onclick = () => soulVault(); if ($('#soulCapGo')) $('#soulCapGo').onclick = () => soulVault();
@@ -5428,6 +5439,7 @@ function openSoul() {
 // ---------- Partilhar (frente + selo QR) ----------
 function svgImg(svg) { return new Promise(res => { const im = new Image(); im.onload = () => (im.decode ? im.decode().then(() => res(im), () => res(im)) : res(im)); im.onerror = () => res(null); im.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg); }); }
 async function shareSoul(o) {
+  soulSeal(o);
   await fontsReady(); const [c, ctx, W, H] = newCanvas(1080, 1350), E = SOUL_EL[o.el];
   bg(ctx, W, H, 'alma' + o.serial, [E.c[1], '#07050f']);
   const fr = await svgImg(soulSVG2(o)), bk = await svgImg(soulBackSVG(o)); if (!fr) { toast('Não deu para criar a imagem'); return; }
@@ -5478,7 +5490,7 @@ function soulMatch(other) {
   const L = soulLinks().filter(x => x.serial !== other.serial); L.unshift({ serial: other.serial, first: other.first, code: soulCode(other), l, pct, d: todayStr() }); store.set('ceu_soul_links', JSON.stringify(L.slice(0, 500)));
   const chk = (ok, txt) => `<li class="${ok ? 'ok' : ''}">${ok ? '✦' : '·'} ${txt}</li>`;
   dlg.innerHTML = `<div class="soulwrap"><button class="tclose" id="smX" aria-label="Fechar">✕</button><h2>${h}</h2>
-    <div class="soulpair lvl${l}"><div class="sp a">${soulSVG2(me)}</div><div class="sp b">${soulSVG2(other)}</div>${l === 3 ? '<div class="spglow"></div>' : ''}</div>
+    <div class="soulpair lvl${l}"><div class="sp a">${soulSVG2(me)}</div><div class="sp b">${soulSVG2(other)}</div>${l === 3 ? '<div class="spglow"></div><svg class="spbridge" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path pathLength="100" vector-effect="non-scaling-stroke" d="M33 30 Q50 6 67 30"/></svg><i class="spstar">✦</i>' : l === 2 ? '<svg class="spbridge half" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path pathLength="100" vector-effect="non-scaling-stroke" d="M33 30 Q50 6 67 30"/></svg>' : ''}</div>
     <p>${p}</p>
     <ul class="soulchk">${chk(other.s === w.s, `Sol: ${SIGNS[me.s].n} ↔ ${SIGNS[other.s].n}`)}${chk(other.m === w.m, `Lua: ${SIGNS[me.m].n} ↔ ${SIGNS[other.m].n}`)}${chk(other.n === w.n, `Números da alma: ${me.n} + ${other.n}${other.n + me.n === 10 ? ' = 10' : ''}`)}</ul>
     <p class="note">Compatibilidade dos signos: ${pct}%. A ligação ficou guardada na tua carta, em "As minhas ligações".</p>
@@ -5552,7 +5564,7 @@ function soulAlerts() { return SMEM.all().filter(x => x.open && x.open >= todayS
 // ---------- Gravar a carta num chip NFC (porta-chaves, carta impressa) ----------
 async function soulWriteNfc(o) {
   if (!('NDEFReader' in window)) { toast('Este telemóvel não grava chips NFC pelo navegador (só Android com Chrome)', 5000); return; }
-  if (!confirmBox('Encosta o chip NFC à parte de trás do telemóvel depois de carregares em OK. A tua carta fica gravada no chip: quem o encostar ao telemóvel abre a tua Carta da Alma.')) return;
+  if (!confirmBox('Encosta o chip NFC à parte de trás do telemóvel depois de carregares em OK. A tua carta fica gravada no chip: quem o encostar ao telemóvel abre a tua Carta da Alma.')) return; soulSeal(o);
   try { const nd = new NDEFReader(); toast('📶 Encosta o chip ao telemóvel…', 8000); await nd.write({ records: [{ recordType: 'url', data: soulLink(o) }] }); toast('✨ Carta gravada no chip!'); try { navigator.vibrate && navigator.vibrate([80, 40, 80]); } catch (e) { } }
   catch (e) { toast(e && e.name === 'NotAllowedError' ? 'Sem autorização para usar o NFC' : 'Não deu para gravar: tenta encostar melhor o chip', 5000); }
 }
@@ -5589,7 +5601,7 @@ async function soulPromoCanvases() {
 
 
 // ===== App de telemóvel =====
-const APP_VERSION = '14.11.2026 23:45';
+const APP_VERSION = '15.11.2026 00:10';
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const G = g => `${g}&#xFE0E;`;
