@@ -256,6 +256,7 @@ footer.ft{color:var(--mute);font-size:11.5px;text-align:center;margin:18px 0 6px
 .vaultnew{display:flex;flex-direction:column;gap:8px;margin:10px 0}.vaultnew textarea{width:100%;font:inherit;border-radius:14px;padding:10px;background:var(--card);color:var(--tx);border:1px solid var(--line)}.vmem{position:relative;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 40px 10px 12px;margin:8px 0}.vmem b{color:var(--gold);font-size:13px}.vmem p{margin:4px 0 0;white-space:normal}.vmem.lock{border-style:dashed;opacity:.85;padding-right:12px}.vmem.lock span{display:block;font-size:13px;opacity:.8}.vmem.cap{border-color:var(--gold)}.vdel{position:absolute;top:8px;right:8px;background:none;border:0;font-size:16px;opacity:.6}.capnow{width:100%;text-align:left;color:var(--tx);cursor:pointer}
 .colhit{border-radius:14px;padding:10px 12px;margin:10px 0;border:1px solid var(--line)}.colhit b{font-size:17px}.colhit p{margin:4px 0}.colhit.yes{background:color-mix(in srgb,#3fb68b 22%,var(--card));border-color:#3fb68b}.colhit.want{background:color-mix(in srgb,var(--gold) 18%,var(--card));border-color:var(--gold)}.colhit.no{background:var(--card)}
 @media (max-width:380px){.itabs button{padding-left:9px!important;padding-right:9px!important;font-size:13px!important}}
+.stmulti{display:grid;grid-template-columns:1fr 1fr;gap:8px}.stmulti img{width:100%;border-radius:10px;display:block}
 </style>
 </head>
 <body>
@@ -4555,7 +4556,7 @@ const QUANDO = {
   'ficam sem bateria': ['Pânico total', 'Nem dá por isso', 'Pede carregador a toda a gente', 'Liga à mãe antes que acabe', 'Tira a powerbank com estilo', 'Tem sempre carregador na mala', 'Não sabe o que fazer à vida', 'Aproveita para desaparecer', 'Ótimo, mais aventura', 'Carregou ontem à noite, claro', 'Aproveita para ler um livro', 'Nem sabe onde pôs o telemóvel']
 };
 const SKY_TIPS = { rx: ['Confirma voos, reservas e mensagens', 'Lê bem antes de assinar', 'Faz cópias de segurança', 'Bom para rever e terminar coisas antigas'], cheia: ['Liberta o que já não te serve', 'Emoções à flor da pele: respira', 'Noite ótima para fotografar a Lua', 'Agradece o que já conseguiste'], nova: ['Escreve 3 desejos para este mês', 'Começa um projeto novo', 'Organiza a casa e a cabeça', 'Planta uma ideia e cuida dela'], ecl: ['Mudanças inesperadas abrem portas', 'Evita decisões precipitadas', 'Observa o que termina e o que começa', 'Nunca olhes para o Sol sem proteção'], dir: ['Mensagens e planos voltam a fluir', 'Bom para assinar o que adiaste', 'Retoma projetos parados', 'Ainda vai devagar uns dias: paciência'], sol: ['Nova energia no ar', 'Bom momento para recomeçar', 'Celebra os aniversariantes do signo', 'Ajusta os teus planos ao novo ritmo'] };
-const POST_TYPES = [['sorte', '🍀 3 signos com mais sorte'], ['quando', '😂 Os signos quando…'], ['escolhe', '🃏 Escolhe 1, 2 ou 3'], ['revela', '✨ Resposta do 1, 2 ou 3'], ['par', '💞 Identifica o teu par'], ['ceu', '🌕 Alerta do céu']];
+const POST_TYPES = [['sorte', '🍀 3 signos com mais sorte'], ['quando', '😂 Os signos quando…'], ['escolhe', '🃏 Escolhe 1, 2 ou 3'], ['revela', '✨ Resposta do 1, 2 ou 3'], ['par', '💞 Identifica o teu par'], ['ceu', '🌕 Alerta do céu'], ['alma', '💫 Carta da Alma (4 cartões)']];
 const POST_PLAN = [['ceu', 'Domingo: o céu da semana'], ['sorte', 'Segunda: começa a semana com sorte'], ['quando', 'Terça: humor para comentar'], ['escolhe', 'Quarta: pergunta interativa'], ['revela', 'Quinta: a resposta de ontem'], ['par', 'Sexta: identifica o teu par'], ['quando', 'Sábado: humor de fim de semana']];
 // ---------- desenho dos posts ----------
 function postHead(ctx, W, kicker, title, y = 120) {
@@ -4563,6 +4564,7 @@ function postHead(ctx, W, kicker, title, y = 120) {
   ctx.fillStyle = '#fff'; const fs = fitFont(ctx, title, W - 140, 74, 44, s => `700 ${s}px "Cormorant Garamond"`); ctx.font = `700 ${fs}px "Cormorant Garamond"`; const L = linesOf(ctx, title, W - 140).slice(0, 2); L.forEach((l, i) => ctx.fillText(l, W / 2, y + 80 + i * fs * 1.05)); return y + 80 + (L.length - 1) * fs * 1.05 + 40;
 }
 async function drawPost(type, opt = {}) {
+  if (type === 'alma') { const cs = await soulPromoCanvases(); return { c: cs[0], cs, cap: `💫 Sabias que tens uma carta só tua no universo? Feita do teu nome e do momento em que nasceste, com um nº de série que mais ninguém tem.\n\n🛡️ No verso está o teu amuleto da alma: a tua fragilidade, a tua pedra, o teu metal, a tua planta e um selo feito com as letras do teu nome.\n\n👀 Algures existe a pessoa com a outra metade da tua constelação… 1 em cada 1300.\n\nCria a tua grátis em ceudehoje.com e partilha: «procuro a minha metade» 💞\n\n#CartaDaAlma #CéuDeHoje ${TAGS}` }; }
   await fontsReady(); const [c, ctx, W, H] = newCanvas(), t = todayStr(), seed = 'post' + type + t;
   const glyph = (i, x, y, s) => { ctx.font = `${s}px ${SYMF}`; ctx.fillStyle = elc(SIGNS[i]); ctx.fillText(SG(i), x, y); };
   if (type === 'sorte') {
@@ -4620,8 +4622,8 @@ function openStudio(type) {
   if (!$('#infoDlg').open) $('#infoDlg').showModal(); $('#infoDlg').scrollTop = 0;
   document.querySelectorAll('[data-pt]').forEach(b => b.onclick = () => openStudio(b.dataset.pt));
   if ($('#stTh')) $('#stTh').onchange = () => { ST.postTheme = $('#stTh').value; openStudio('quando'); };
-  drawPost(type, { theme: ST.postTheme }).then(r => { ST._post = r; $('#stPrev').innerHTML = `<img src="${stampOnce(r.c).toDataURL('image/jpeg', .85)}" alt="">`; $('#stCap').value = r.cap; });
-  $('#stSh').onclick = () => ST._post && shareCanvases([{ name: 'post-' + type, c: ST._post.c }], $('#stCap').value);
+  drawPost(type, { theme: ST.postTheme }).then(r => { ST._post = r; $('#stPrev').innerHTML = r.cs ? `<div class="stmulti">${r.cs.map(x => `<img src="${stampOnce(x).toDataURL('image/jpeg', .8)}" alt="">`).join('')}</div><p class="note">4 cartões: publica-os juntos, em carrossel.</p>` : `<img src="${stampOnce(r.c).toDataURL('image/jpeg', .85)}" alt="">`; $('#stCap').value = r.cap; });
+  $('#stSh').onclick = () => ST._post && shareCanvases(ST._post.cs ? ST._post.cs.map((c, i) => ({ name: `carta-da-alma-${i + 1}`, c })) : [{ name: 'post-' + type, c: ST._post.c }], $('#stCap').value);
   $('#stCp').onclick = () => copyAny($('#stCap').value);
 }
 
@@ -5538,8 +5540,38 @@ async function soulWriteNfc(o) {
   catch (e) { toast(e && e.name === 'NotAllowedError' ? 'Sem autorização para usar o NFC' : 'Não deu para gravar: tenta encostar melhor o chip', 5000); }
 }
 
+// ---------- Estúdio: carrossel de 4 cartões a explicar a Carta da Alma ----------
+async function soulPromoCanvases() {
+  await fontsReady();
+  const me = soulMe() || soulOf({ name: 'Júlio Melo', d: '1985-03-20', t: '14:30', c: '0' }), w = soulWant(me);
+  const twin = Object.assign({}, me, { s: w.s, m: w.m, n: w.n, serial: '7QK2M9XA', first: 'Alma gémea', ar: 3, asc: null, el: SIGNS[w.s].el, stone: SIGN_EXTRA[w.s].pedra, col: SOUL_COL[w.n] });
+  const other = soulOf({ name: 'Marta Silva', d: '1987-09-22', t: '08:10', c: '1' });
+  const [F, B, T, O] = await Promise.all([svgImg(soulSVG2(me)), svgImg(soulBackSVG(me)), svgImg(soulSVG2(twin)), svgImg(soulSVG2(other))]);
+  const page = (k, kick, t1, t2, sub) => {
+    const [c, ctx, W, H] = newCanvas(1080, 1350); bg(ctx, W, H, 'promo' + k + me.serial, ['#4a2a8a', '#07050f']); ctx.textAlign = 'center';
+    ctx.fillStyle = '#f2c76e88'; ctx.font = '700 24px Manrope'; ctx.textAlign = 'right'; ctx.fillText(k + '/4', W - 40, 54); ctx.textAlign = 'center';
+    ctx.fillStyle = '#f2c76e'; ctx.font = '700 26px Manrope'; try { ctx.letterSpacing = '8px'; } catch (e) { } ctx.fillText(kick, W / 2, 84); try { ctx.letterSpacing = '0px'; } catch (e) { }
+    ctx.fillStyle = '#f7e08a'; ctx.font = '700 76px "Cormorant Garamond"'; ctx.fillText(t1, W / 2, 178); ctx.fillText(t2, W / 2, 256);
+    ctx.fillStyle = '#ddd5ff'; ctx.font = '500 31px Manrope'; sub.forEach((l, i) => ctx.fillText(l, W / 2, 322 + i * 42));
+    return [c, ctx, W, H];
+  };
+  const card = (ctx, im, cx, top, w, rot) => { if (!im) return; const h = w * 5 / 3; ctx.save(); ctx.translate(cx, top + h / 2); ctx.rotate(rot); ctx.shadowColor = 'rgba(0,0,0,.65)'; ctx.shadowBlur = 50; ctx.shadowOffsetY = 24; ctx.drawImage(im, -w / 2, -h / 2, w, h); ctx.restore(); };
+  const pills = (ctx, W, y, rows) => { ctx.font = '600 26px Manrope'; rows.forEach((row, ri) => { const ws = row.map(t => ctx.measureText(t).width + 48), tot = ws.reduce((a, b) => a + b, 0) + (row.length - 1) * 12; let x = (W - tot) / 2; row.forEach((t, i) => { ctx.save(); ctx.fillStyle = 'rgba(255,255,255,.06)'; ctx.strokeStyle = 'rgba(242,199,110,.55)'; ctx.lineWidth = 1.5; rr(ctx, x, y + ri * 66 - 38, ws[i], 54, 27); ctx.fill(); ctx.stroke(); ctx.restore(); ctx.fillStyle = '#fff3cf'; ctx.textAlign = 'center'; ctx.fillText(t, x + ws[i] / 2, y + ri * 66 - 2); x += ws[i] + 12; }); }); };
+  const foot = (ctx, W, H) => { ctx.textAlign = 'center'; ctx.fillStyle = '#cfc6f2'; ctx.font = '500 22px Manrope'; ctx.fillText('Grátis · sem registo · ceudehoje.com', W / 2, H - 92); brandFoot(ctx, W, H, H - 44); };
+  const out = [];
+  { const [c, ctx, W, H] = page(1, 'CARTA DA ALMA', 'Tens uma carta', 'só tua no universo', ['Feita do teu nome e do momento em que nasceste.', 'Não existe outra igual.']); card(ctx, F, W / 2, 400, 400, -.05); pills(ctx, W, 1130, [['☉ Sol · ☾ Lua · ▲ Ascendente', '🃏 Arcano de nascimento'], ['🛡️ Proteções do teu signo', '✦ Nº de série único']]); foot(ctx, W, H); out.push(c); }
+  { const [c, ctx, W, H] = page(2, 'A TUA METADE', 'Algures existe', 'a tua alma gémea', ['A tua carta tem meia constelação.', 'A outra metade só existe em 1 de cada 1300 pessoas.']); card(ctx, F, 335, 420, 370, -.1); card(ctx, T, 745, 420, 370, .1); const g = ctx.createRadialGradient(540, 590, 10, 540, 590, 90); g.addColorStop(0, 'rgba(255,247,208,.9)'); g.addColorStop(1, 'rgba(242,199,110,0)'); ctx.fillStyle = g; ctx.fillRect(400, 450, 280, 280); pills(ctx, W, 1110, [['☉ Sóis opostos', '☾ Luas opostas', '✦ Números que somam 10']]); foot(ctx, W, H); out.push(c); }
+  { const [c, ctx, W, H] = page(3, 'AMULETO DA ALMA', 'Cada signo tem', 'as suas fragilidades', ['No verso da tua carta está o teu amuleto:', 'as proteções certas para o teu signo e coração.']); card(ctx, B, 300, 430, 380, -.07);
+    ctx.textAlign = 'left'; ctx.fillStyle = '#f2c76e'; ctx.font = '700 22px Manrope'; ctx.fillText('O TEU AMULETO', 545, 500); ctx.font = '600 30px Manrope'; ctx.fillStyle = '#fff3cf';
+    [['🛡️ A tua fragilidade', 'e a do teu coração'], ['💎 A tua pedra'], ['⚙️ O teu metal'], ['🌿 A tua planta'], ['📅 O teu dia'], ['✒️ Um selo feito', 'com as letras do teu nome']].reduce((y, l) => { ctx.fillStyle = '#fff3cf'; ctx.font = '600 30px Manrope'; ctx.fillText(l[0], 545, y); if (l[1]) { ctx.fillStyle = '#cfc6f2'; ctx.font = '500 26px Manrope'; ctx.fillText(l[1], 590, y + 36); return y + 86; } return y + 50; }, 556);
+    ctx.fillStyle = '#f7e08a'; ctx.font = 'italic 600 34px "Cormorant Garamond"'; ctx.fillText('«e o teu lema da alma»', 545, 1000); foot(ctx, W, H); out.push(c); }
+  { const [c, ctx, W, H] = page(4, 'LEITOR DO CÉU', 'Lê a alma', 'de quem gostas', ['O QR é a Lua cheia do verso da carta.', 'Aponta a câmara e descobre se as almas encaixam.']); card(ctx, B, 330, 420, 330, -.08); card(ctx, O, 750, 440, 330, .08);
+    ctx.textAlign = 'left'; ctx.fillStyle = '#fff3cf'; ctx.font = '600 30px Manrope'; ['1. Cria a tua carta em ceudehoje.com', '2. Partilha: «procuro a minha metade»', '3. Guarda memórias no 🔐 Cofre da alma', '4. Leva o teu amuleto contigo 🛡️'].forEach((l, i) => ctx.fillText(l, 150, 1030 + i * 44)); brandFoot(ctx, W, H, H - 44); out.push(c); }
+  return out;
+}
+
 // ===== App de telemóvel =====
-const APP_VERSION = '14.11.2026 12:30';
+const APP_VERSION = '14.11.2026 13:00';
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const G = g => `${g}&#xFE0E;`;
