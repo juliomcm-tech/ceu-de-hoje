@@ -234,7 +234,26 @@ footer.ft{color:var(--mute);font-size:11.5px;text-align:center;margin:18px 0 6px
 [data-theme=branco] .inst,[data-theme=pink] .inst,[data-theme=menta] .inst{background:var(--btn2);border-color:var(--line)}
 [data-theme=branco] .today,[data-theme=pink] .today,[data-theme=menta] .today{background:var(--dlg)}
 [data-theme=branco] .r1 .rk,[data-theme=pink] .r1 .rk,[data-theme=menta] .r1 .rk{background:var(--gold);color:#fff}
-.migb{background:linear-gradient(135deg,color-mix(in srgb,var(--gold) 22%,var(--card)),var(--card));border:1px solid var(--gold);border-radius:20px;padding:12px 14px;margin:0 0 14px}.migb h3{margin:0 0 4px;font:700 20px "Cormorant Garamond",serif}.migb p{margin:4px 0 10px;font-size:14px}.migb .note{margin:8px 0 0}</style>
+.migb{background:linear-gradient(135deg,color-mix(in srgb,var(--gold) 22%,var(--card)),var(--card));border:1px solid var(--gold);border-radius:20px;padding:12px 14px;margin:0 0 14px}.migb h3{margin:0 0 4px;font:700 20px "Cormorant Garamond",serif}.migb p{margin:4px 0 10px;font-size:14px}.migb .note{margin:8px 0 0}.souldlg{max-width:520px}.soulwrap{position:relative}.soulwrap h2{margin:4px 36px 6px 0}.soulwrap .tclose{position:absolute;top:0;right:0;width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:color-mix(in srgb,var(--card) 80%,transparent);color:var(--tx);font-size:18px}
+.soulhint{text-align:center;margin:6px 40px 10px;color:var(--gold);font:600 italic 18px "Cormorant Garamond",serif}
+.soulstage{perspective:1100px;display:flex;justify-content:center;padding:6px 0 14px}
+.soul3d{--rx:0deg;--ry:0deg;--sx:50%;--sy:50%;position:relative;width:min(72vw,300px);aspect-ratio:3/5;transform-style:preserve-3d;transform:rotateX(var(--rx)) rotateY(var(--ry));transition:transform .5s cubic-bezier(.2,.8,.2,1);cursor:pointer;touch-action:pan-y}
+.soul3d.flip{transform:rotateX(var(--rx)) rotateY(calc(var(--ry) + 180deg))}
+.soul3d.reveal{animation:soulrev 1.1s ease}@keyframes soulrev{0%{filter:brightness(1)}40%{filter:brightness(1.8) drop-shadow(0 0 30px #f2c76e)}100%{filter:brightness(1)}}
+.sface{position:absolute;inset:0;transform-style:preserve-3d;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:6%;filter:drop-shadow(0 24px 30px #000a)}.sback{transform:rotateY(180deg)}
+.sface>svg,.sl svg{width:100%;height:100%;display:block}.sl{position:absolute;inset:0}.sbk{transform:translateZ(-46px) scale(1.153)}.sfr{transform:translateZ(30px) scale(.9)}
+.ssheen{position:absolute;inset:0;border-radius:6%;transform:translateZ(31px);background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.22) 45%,rgba(255,230,160,.14) 50%,transparent 62%);background-size:250% 250%;background-position:var(--sx) var(--sy);mix-blend-mode:screen;pointer-events:none}.sback .ssheen{transform:none}
+.soulbtns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:6px 0}.soulbtns .btn{flex:1;min-width:140px}
+.soulwant{background:linear-gradient(135deg,color-mix(in srgb,var(--gold) 20%,var(--card)),var(--card));border:1px solid var(--gold);border-radius:18px;padding:10px 14px;margin:10px 0}.soulwant p{margin:4px 0}.soulwant>p:first-of-type{font:700 18px Manrope;color:var(--gold)}
+.soulh{font:700 22px "Cormorant Garamond",serif;color:var(--gold);margin:16px 0 4px}.soulsec{border-top:1px solid var(--line);padding:8px 0}.soulsec b{color:var(--gold)}.soulsec p{margin:3px 0 0}
+.soulpair{position:relative;display:flex;gap:10px;justify-content:center;margin:8px 0 12px}.soulpair .sp{width:46%;max-width:210px;filter:drop-shadow(0 14px 18px #000a)}.soulpair .sp svg{width:100%;height:auto;display:block}.soulpair .a{transform:rotate(-4deg)}.soulpair .b{transform:rotate(4deg)}.soulpair.one svg{width:60%;max-width:240px;display:block;margin:0 auto}
+.soulpair.lvl3 .a{animation:spA 1.4s ease forwards}.soulpair.lvl3 .b{animation:spB 1.4s ease forwards}@keyframes spA{to{transform:rotate(0) translateX(6%)}}@keyframes spB{to{transform:rotate(0) translateX(-6%)}}
+.spglow{position:absolute;left:50%;top:22%;width:44%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,#fff7d0cc,#f2c76e55 40%,transparent 70%);animation:spg 1.8s ease 1s both;pointer-events:none}@keyframes spg{0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}50%{opacity:1}100%{opacity:.75;transform:translate(-50%,-50%) scale(1)}}
+.soulchk{list-style:none;padding:0;margin:8px 0}.soulchk li{padding:5px 0;opacity:.7}.soulchk li.ok{opacity:1;color:var(--gold);font-weight:700}
+.soullist{display:flex;flex-direction:column;gap:8px;margin:10px 0}.soulli{display:grid;grid-template-columns:54px 1fr;grid-template-rows:auto auto;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px 12px;color:var(--tx)}.soulli .lv{grid-row:span 2;align-self:center;color:var(--gold);font-size:18px}.soulli i{font-size:13px;opacity:.75;font-style:normal}
+.soulbox{display:flex;gap:12px;align-items:center;background:linear-gradient(135deg,color-mix(in srgb,var(--gold) 18%,var(--card)),var(--card));border:1px solid var(--gold);border-radius:18px;padding:10px 12px;margin:0 0 12px;cursor:pointer;width:100%;color:var(--tx);text-align:left}.soulbox svg{width:58px;height:auto;flex:none;filter:drop-shadow(0 6px 8px #0008)}.soulbox b{display:block;color:var(--gold);font:700 19px "Cormorant Garamond",serif}.soulbox span{font-size:13px;opacity:.85}
+@media (prefers-reduced-motion:reduce){.soul3d,.soulpair .sp,.spglow{animation:none!important;transition:none!important}}
+</style>
 </head>
 <body>
 <div class="app">
@@ -350,6 +369,7 @@ footer.ft{color:var(--mute);font-size:11.5px;text-align:center;margin:18px 0 6px
 <textarea id="cap" readonly></textarea>
 <div id="lock" hidden><div class="lockbox"><div class="lockic">🌙</div><h2 id="lockHi">Olá!</h2><p>Escreve o teu PIN</p><input type="password" id="lockPin" inputmode="numeric" maxlength="6" autocomplete="off"><button class="btn main" id="lockGo">Entrar</button><button class="link" id="lockForgot">Esqueci-me do PIN</button></div></div>
 <dialog id="tarDlg"></dialog>
+<dialog id="soulDlg" class="souldlg"></dialog>
 <dialog id="infoDlg"><h2 id="infoTitle"></h2><div id="infoBody"></div><div class="dlgfoot"><button class="btn" data-close>Fechar</button></div></dialog>
 <dialog id="anoDlg"><h2 id="anoTitle"></h2><div id="anoBody"></div><div class="dlgfoot" id="anoFoot"></div></dialog>
 <dialog id="intDlg"><h2 id="intTitle"></h2><div id="intBody"></div><div class="dlgfoot"><button class="btn" id="intDel">🗑️</button><button class="btn main" id="intSave">Guardar</button><button class="btn" data-close>Fechar</button></div></dialog>
@@ -4771,9 +4791,9 @@ function bindTodayStrip() {
   document.querySelectorAll('.tsg [data-go]').forEach(b => b.onclick = () => { const g = b.dataset.go; if (g === 'tarot') openTarot(!tarOpened()); else if (g === 'sign') { const si = sunSignOf(P.get().d), el = document.querySelector(`.sc[data-i="${ST.rank.findIndex(r => r.si === si)}"]`); el && el.scrollIntoView({ behavior: 'smooth', block: 'center' }); } else { ST.type = g; render(); scrollTo(0, 0); } });
   if (isMyBday() && !store.get('ceu_conf_' + todayStr())) { store.set('ceu_conf_' + todayStr(), '1'); setTimeout(confetti, 400); }
 }
-function euChips() { return `<div class="euchips">${[['🃏', 'Carta', 'tarot'], ['📅', 'Semana', 'week'], ['🌙', 'Noite', 'night'], ['🎁', 'O meu ano', 'wrap'], ['⏳', 'Contagens', 'cd'], ['💭', 'Sonhos', 'dreams'], ['✂️', 'Rotinas', 'rout'], ['🌸', 'Ciclo', 'cyc'], ['🐾', 'Animais', 'pets'], ['🔢', 'Números', 'num'], ['🔮', 'Oráculo', 'oracle'], ['📣', 'Posts', 'posts'], ['✨', 'Ano astral', 'ya']].map(c => `<button data-jump="${c[2]}">${c[0]}<span>${c[1]}</span></button>`).join('')}</div>`; }
+function euChips() { return `<div class="euchips">${[['💫', 'Alma', 'soul'], ['🃏', 'Carta', 'tarot'], ['📅', 'Semana', 'week'], ['🌙', 'Noite', 'night'], ['🎁', 'O meu ano', 'wrap'], ['⏳', 'Contagens', 'cd'], ['💭', 'Sonhos', 'dreams'], ['✂️', 'Rotinas', 'rout'], ['🌸', 'Ciclo', 'cyc'], ['🐾', 'Animais', 'pets'], ['🔢', 'Números', 'num'], ['🔮', 'Oráculo', 'oracle'], ['📣', 'Posts', 'posts'], ['✨', 'Ano astral', 'ya']].map(c => `<button data-jump="${c[2]}">${c[0]}<span>${c[1]}</span></button>`).join('')}</div>`; }
 function bindEuChips() {
-  document.querySelectorAll('[data-jump]').forEach(b => b.onclick = () => { const k = b.dataset.jump; if (k === 'dreams') return openDreams(); if (k === 'night') return openNight(); if (k === 'week') return openWeekView(); if (k === 'wrap') return openWrapped(); if (k === 'posts') return openStudio(); if (k === 'ya') return openYearAstral();
+  document.querySelectorAll('[data-jump]').forEach(b => b.onclick = () => { const k = b.dataset.jump; if (k === 'soul') return openSoul(); if (k === 'dreams') return openDreams(); if (k === 'night') return openNight(); if (k === 'week') return openWeekView(); if (k === 'wrap') return openWrapped(); if (k === 'posts') return openStudio(); if (k === 'ya') return openYearAstral();
     const el = { tarot: '.box.tarot', rout: '#sec-rout', cd: '#sec-cd', cyc: '.box.cyc', pets: '#sec-pets', num: '.box.num', oracle: '.box.oracle' }[k]; const n = el && document.querySelector(el); n && n.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
   if ($('#cdNew')) $('#cdNew').onclick = () => cdForm(null); document.querySelectorAll('.cdr').forEach(r => r.onclick = () => cdForm(r.dataset.id));
   if ($('#t3Go')) $('#t3Go').onclick = openSpread; if ($('#cpGo')) $('#cpGo').onclick = coupleStart; if ($('#wkGo')) $('#wkGo').onclick = () => openTarot(!store.get('ceu_tarw_' + mondayOf(todayStr())), true);
@@ -5070,8 +5090,360 @@ function bindPushBox() {
   const o0 = PS.get(); if (o0.on && o0.err && navigator.onLine !== false) retry();
 }
 
+/*! qrcode-generator 1.5.2 · MIT License · (c) Kazuhiko Arase */
+var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],f={},c=function(t,r){o=function(t){for(var r=new Array(t),e=0;e<t;e+=1){r[e]=new Array(t);for(var n=0;n<t;n+=1)r[e][n]=null}return r}(i=4*e+17),l(0,0),l(i-7,0),l(0,i-7),s(),h(),d(t,r),e>=7&&v(t),null==a&&(a=p(e,n,u)),w(a,r)},l=function(t,r){for(var e=-1;e<=7;e+=1)if(!(t+e<=-1||i<=t+e))for(var n=-1;n<=7;n+=1)r+n<=-1||i<=r+n||(o[t+e][r+n]=0<=e&&e<=6&&(0==n||6==n)||0<=n&&n<=6&&(0==e||6==e)||2<=e&&e<=4&&2<=n&&n<=4)},h=function(){for(var t=8;t<i-8;t+=1)null==o[t][6]&&(o[t][6]=t%2==0);for(var r=8;r<i-8;r+=1)null==o[6][r]&&(o[6][r]=r%2==0)},s=function(){for(var t=B.getPatternPosition(e),r=0;r<t.length;r+=1)for(var n=0;n<t.length;n+=1){var i=t[r],a=t[n];if(null==o[i][a])for(var u=-2;u<=2;u+=1)for(var f=-2;f<=2;f+=1)o[i+u][a+f]=-2==u||2==u||-2==f||2==f||0==u&&0==f}},v=function(t){for(var r=B.getBCHTypeNumber(e),n=0;n<18;n+=1){var a=!t&&1==(r>>n&1);o[Math.floor(n/3)][n%3+i-8-3]=a}for(n=0;n<18;n+=1){a=!t&&1==(r>>n&1);o[n%3+i-8-3][Math.floor(n/3)]=a}},d=function(t,r){for(var e=n<<3|r,a=B.getBCHTypeInfo(e),u=0;u<15;u+=1){var f=!t&&1==(a>>u&1);u<6?o[u][8]=f:u<8?o[u+1][8]=f:o[i-15+u][8]=f}for(u=0;u<15;u+=1){f=!t&&1==(a>>u&1);u<8?o[8][i-u-1]=f:u<9?o[8][15-u-1+1]=f:o[8][15-u-1]=f}o[i-8][8]=!t},w=function(t,r){for(var e=-1,n=i-1,a=7,u=0,f=B.getMaskFunction(r),c=i-1;c>0;c-=2)for(6==c&&(c-=1);;){for(var g=0;g<2;g+=1)if(null==o[n][c-g]){var l=!1;u<t.length&&(l=1==(t[u]>>>a&1)),f(n,c-g)&&(l=!l),o[n][c-g]=l,-1==(a-=1)&&(u+=1,a=7)}if((n+=e)<0||i<=n){n-=e,e=-e;break}}},p=function(t,r,e){for(var n=A.getRSBlocks(t,r),o=b(),i=0;i<e.length;i+=1){var a=e[i];o.put(a.getMode(),4),o.put(a.getLength(),B.getLengthInBits(a.getMode(),t)),a.write(o)}var u=0;for(i=0;i<n.length;i+=1)u+=n[i].dataCount;if(o.getLengthInBits()>8*u)throw"code length overflow. ("+o.getLengthInBits()+">"+8*u+")";for(o.getLengthInBits()+4<=8*u&&o.put(0,4);o.getLengthInBits()%8!=0;)o.putBit(!1);for(;!(o.getLengthInBits()>=8*u||(o.put(236,8),o.getLengthInBits()>=8*u));)o.put(17,8);return function(t,r){for(var e=0,n=0,o=0,i=new Array(r.length),a=new Array(r.length),u=0;u<r.length;u+=1){var f=r[u].dataCount,c=r[u].totalCount-f;n=Math.max(n,f),o=Math.max(o,c),i[u]=new Array(f);for(var g=0;g<i[u].length;g+=1)i[u][g]=255&t.getBuffer()[g+e];e+=f;var l=B.getErrorCorrectPolynomial(c),h=k(i[u],l.getLength()-1).mod(l);for(a[u]=new Array(l.getLength()-1),g=0;g<a[u].length;g+=1){var s=g+h.getLength()-a[u].length;a[u][g]=s>=0?h.getAt(s):0}}var v=0;for(g=0;g<r.length;g+=1)v+=r[g].totalCount;var d=new Array(v),w=0;for(g=0;g<n;g+=1)for(u=0;u<r.length;u+=1)g<i[u].length&&(d[w]=i[u][g],w+=1);for(g=0;g<o;g+=1)for(u=0;u<r.length;u+=1)g<a[u].length&&(d[w]=a[u][g],w+=1);return d}(o,n)};f.addData=function(t,r){var e=null;switch(r=r||"Byte"){case"Numeric":e=M(t);break;case"Alphanumeric":e=x(t);break;case"Byte":e=m(t);break;case"Kanji":e=L(t);break;default:throw"mode:"+r}u.push(e),a=null},f.isDark=function(t,r){if(t<0||i<=t||r<0||i<=r)throw t+","+r;return o[t][r]},f.getModuleCount=function(){return i},f.make=function(){if(e<1){for(var t=1;t<40;t++){for(var r=A.getRSBlocks(t,n),o=b(),i=0;i<u.length;i++){var a=u[i];o.put(a.getMode(),4),o.put(a.getLength(),B.getLengthInBits(a.getMode(),t)),a.write(o)}var g=0;for(i=0;i<r.length;i++)g+=r[i].dataCount;if(o.getLengthInBits()<=8*g)break}e=t}c(!1,function(){for(var t=0,r=0,e=0;e<8;e+=1){c(!0,e);var n=B.getLostPoint(f);(0==e||t>n)&&(t=n,r=e)}return r}())},f.createTableTag=function(t,r){t=t||2;var e="";e+='<table style="',e+=" border-width: 0px; border-style: none;",e+=" border-collapse: collapse;",e+=" padding: 0px; margin: "+(r=void 0===r?4*t:r)+"px;",e+='">',e+="<tbody>";for(var n=0;n<f.getModuleCount();n+=1){e+="<tr>";for(var o=0;o<f.getModuleCount();o+=1)e+='<td style="',e+=" border-width: 0px; border-style: none;",e+=" border-collapse: collapse;",e+=" padding: 0px; margin: 0px;",e+=" width: "+t+"px;",e+=" height: "+t+"px;",e+=" background-color: ",e+=f.isDark(n,o)?"#000000":"#ffffff",e+=";",e+='"/>';e+="</tr>"}return e+="</tbody>",e+="</table>"},f.createSvgTag=function(t,r,e,n){var o={};"object"==typeof arguments[0]&&(t=(o=arguments[0]).cellSize,r=o.margin,e=o.alt,n=o.title),t=t||2,r=void 0===r?4*t:r,(e="string"==typeof e?{text:e}:e||{}).text=e.text||null,e.id=e.text?e.id||"qrcode-description":null,(n="string"==typeof n?{text:n}:n||{}).text=n.text||null,n.id=n.text?n.id||"qrcode-title":null;var i,a,u,c,g=f.getModuleCount()*t+2*r,l="";for(c="l"+t+",0 0,"+t+" -"+t+",0 0,-"+t+"z ",l+='<svg version="1.1" xmlns="http://www.w3.org/2000/svg"',l+=o.scalable?"":' width="'+g+'px" height="'+g+'px"',l+=' viewBox="0 0 '+g+" "+g+'" ',l+=' preserveAspectRatio="xMinYMin meet"',l+=n.text||e.text?' role="img" aria-labelledby="'+y([n.id,e.id].join(" ").trim())+'"':"",l+=">",l+=n.text?'<title id="'+y(n.id)+'">'+y(n.text)+"</title>":"",l+=e.text?'<description id="'+y(e.id)+'">'+y(e.text)+"</description>":"",l+='<rect width="100%" height="100%" fill="white" cx="0" cy="0"/>',l+='<path d="',a=0;a<f.getModuleCount();a+=1)for(u=a*t+r,i=0;i<f.getModuleCount();i+=1)f.isDark(a,i)&&(l+="M"+(i*t+r)+","+u+c);return l+='" stroke="transparent" fill="black"/>',l+="</svg>"},f.createDataURL=function(t,r){t=t||2,r=void 0===r?4*t:r;var e=f.getModuleCount()*t+2*r,n=r,o=e-r;return I(e,e,function(r,e){if(n<=r&&r<o&&n<=e&&e<o){var i=Math.floor((r-n)/t),a=Math.floor((e-n)/t);return f.isDark(a,i)?0:1}return 1})},f.createImgTag=function(t,r,e){t=t||2,r=void 0===r?4*t:r;var n=f.getModuleCount()*t+2*r,o="";return o+="<img",o+=' src="',o+=f.createDataURL(t,r),o+='"',o+=' width="',o+=n,o+='"',o+=' height="',o+=n,o+='"',e&&(o+=' alt="',o+=y(e),o+='"'),o+="/>"};var y=function(t){for(var r="",e=0;e<t.length;e+=1){var n=t.charAt(e);switch(n){case"<":r+="&lt;";break;case">":r+="&gt;";break;case"&":r+="&amp;";break;case'"':r+="&quot;";break;default:r+=n}}return r};return f.createASCII=function(t,r){if((t=t||1)<2)return function(t){t=void 0===t?2:t;var r,e,n,o,i,a=1*f.getModuleCount()+2*t,u=t,c=a-t,g={"██":"█","█ ":"▀"," █":"▄","  ":" "},l={"██":"▀","█ ":"▀"," █":" ","  ":" "},h="";for(r=0;r<a;r+=2){for(n=Math.floor((r-u)/1),o=Math.floor((r+1-u)/1),e=0;e<a;e+=1)i="█",u<=e&&e<c&&u<=r&&r<c&&f.isDark(n,Math.floor((e-u)/1))&&(i=" "),u<=e&&e<c&&u<=r+1&&r+1<c&&f.isDark(o,Math.floor((e-u)/1))?i+=" ":i+="█",h+=t<1&&r+1>=c?l[i]:g[i];h+="\n"}return a%2&&t>0?h.substring(0,h.length-a-1)+Array(a+1).join("▀"):h.substring(0,h.length-1)}(r);t-=1,r=void 0===r?2*t:r;var e,n,o,i,a=f.getModuleCount()*t+2*r,u=r,c=a-r,g=Array(t+1).join("██"),l=Array(t+1).join("  "),h="",s="";for(e=0;e<a;e+=1){for(o=Math.floor((e-u)/t),s="",n=0;n<a;n+=1)i=1,u<=n&&n<c&&u<=e&&e<c&&f.isDark(o,Math.floor((n-u)/t))&&(i=0),s+=i?g:l;for(o=0;o<t;o+=1)h+=s+"\n"}return h.substring(0,h.length-1)},f.renderTo2dContext=function(t,r){r=r||2;for(var e=f.getModuleCount(),n=0;n<e;n++)for(var o=0;o<e;o++)t.fillStyle=f.isDark(n,o)?"black":"white",t.fillRect(n*r,o*r,r,r)},f};t.stringToBytes=(t.stringToBytesFuncs={default:function(t){for(var r=[],e=0;e<t.length;e+=1){var n=t.charCodeAt(e);r.push(255&n)}return r}}).default,t.createStringToBytes=function(t,r){var e=function(){for(var e=S(t),n=function(){var t=e.read();if(-1==t)throw"eof";return t},o=0,i={};;){var a=e.read();if(-1==a)break;var u=n(),f=n()<<8|n();i[String.fromCharCode(a<<8|u)]=f,o+=1}if(o!=r)throw o+" != "+r;return i}(),n="?".charCodeAt(0);return function(t){for(var r=[],o=0;o<t.length;o+=1){var i=t.charCodeAt(o);if(i<128)r.push(i);else{var a=e[t.charAt(o)];"number"==typeof a?(255&a)==a?r.push(a):(r.push(a>>>8),r.push(255&a)):r.push(n)}}return r}};var r,e,n,o,i,a=1,u=2,f=4,c=8,g={L:1,M:0,Q:3,H:2},l=0,h=1,s=2,v=3,d=4,w=5,p=6,y=7,B=(r=[[],[6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42],[6,26,46],[6,28,50],[6,30,54],[6,32,58],[6,34,62],[6,26,46,66],[6,26,48,70],[6,26,50,74],[6,30,54,78],[6,30,56,82],[6,30,58,86],[6,34,62,90],[6,28,50,72,94],[6,26,50,74,98],[6,30,54,78,102],[6,28,54,80,106],[6,32,58,84,110],[6,30,58,86,114],[6,34,62,90,118],[6,26,50,74,98,122],[6,30,54,78,102,126],[6,26,52,78,104,130],[6,30,56,82,108,134],[6,34,60,86,112,138],[6,30,58,86,114,142],[6,34,62,90,118,146],[6,30,54,78,102,126,150],[6,24,50,76,102,128,154],[6,28,54,80,106,132,158],[6,32,58,84,110,136,162],[6,26,54,82,110,138,166],[6,30,58,86,114,142,170]],e=1335,n=7973,i=function(t){for(var r=0;0!=t;)r+=1,t>>>=1;return r},(o={}).getBCHTypeInfo=function(t){for(var r=t<<10;i(r)-i(e)>=0;)r^=e<<i(r)-i(e);return 21522^(t<<10|r)},o.getBCHTypeNumber=function(t){for(var r=t<<12;i(r)-i(n)>=0;)r^=n<<i(r)-i(n);return t<<12|r},o.getPatternPosition=function(t){return r[t-1]},o.getMaskFunction=function(t){switch(t){case l:return function(t,r){return(t+r)%2==0};case h:return function(t,r){return t%2==0};case s:return function(t,r){return r%3==0};case v:return function(t,r){return(t+r)%3==0};case d:return function(t,r){return(Math.floor(t/2)+Math.floor(r/3))%2==0};case w:return function(t,r){return t*r%2+t*r%3==0};case p:return function(t,r){return(t*r%2+t*r%3)%2==0};case y:return function(t,r){return(t*r%3+(t+r)%2)%2==0};default:throw"bad maskPattern:"+t}},o.getErrorCorrectPolynomial=function(t){for(var r=k([1],0),e=0;e<t;e+=1)r=r.multiply(k([1,C.gexp(e)],0));return r},o.getLengthInBits=function(t,r){if(1<=r&&r<10)switch(t){case a:return 10;case u:return 9;case f:case c:return 8;default:throw"mode:"+t}else if(r<27)switch(t){case a:return 12;case u:return 11;case f:return 16;case c:return 10;default:throw"mode:"+t}else{if(!(r<41))throw"type:"+r;switch(t){case a:return 14;case u:return 13;case f:return 16;case c:return 12;default:throw"mode:"+t}}},o.getLostPoint=function(t){for(var r=t.getModuleCount(),e=0,n=0;n<r;n+=1)for(var o=0;o<r;o+=1){for(var i=0,a=t.isDark(n,o),u=-1;u<=1;u+=1)if(!(n+u<0||r<=n+u))for(var f=-1;f<=1;f+=1)o+f<0||r<=o+f||0==u&&0==f||a==t.isDark(n+u,o+f)&&(i+=1);i>5&&(e+=3+i-5)}for(n=0;n<r-1;n+=1)for(o=0;o<r-1;o+=1){var c=0;t.isDark(n,o)&&(c+=1),t.isDark(n+1,o)&&(c+=1),t.isDark(n,o+1)&&(c+=1),t.isDark(n+1,o+1)&&(c+=1),0!=c&&4!=c||(e+=3)}for(n=0;n<r;n+=1)for(o=0;o<r-6;o+=1)t.isDark(n,o)&&!t.isDark(n,o+1)&&t.isDark(n,o+2)&&t.isDark(n,o+3)&&t.isDark(n,o+4)&&!t.isDark(n,o+5)&&t.isDark(n,o+6)&&(e+=40);for(o=0;o<r;o+=1)for(n=0;n<r-6;n+=1)t.isDark(n,o)&&!t.isDark(n+1,o)&&t.isDark(n+2,o)&&t.isDark(n+3,o)&&t.isDark(n+4,o)&&!t.isDark(n+5,o)&&t.isDark(n+6,o)&&(e+=40);var g=0;for(o=0;o<r;o+=1)for(n=0;n<r;n+=1)t.isDark(n,o)&&(g+=1);return e+=Math.abs(100*g/r/r-50)/5*10},o),C=function(){for(var t=new Array(256),r=new Array(256),e=0;e<8;e+=1)t[e]=1<<e;for(e=8;e<256;e+=1)t[e]=t[e-4]^t[e-5]^t[e-6]^t[e-8];for(e=0;e<255;e+=1)r[t[e]]=e;var n={glog:function(t){if(t<1)throw"glog("+t+")";return r[t]},gexp:function(r){for(;r<0;)r+=255;for(;r>=256;)r-=255;return t[r]}};return n}();function k(t,r){if(void 0===t.length)throw t.length+"/"+r;var e=function(){for(var e=0;e<t.length&&0==t[e];)e+=1;for(var n=new Array(t.length-e+r),o=0;o<t.length-e;o+=1)n[o]=t[o+e];return n}(),n={getAt:function(t){return e[t]},getLength:function(){return e.length},multiply:function(t){for(var r=new Array(n.getLength()+t.getLength()-1),e=0;e<n.getLength();e+=1)for(var o=0;o<t.getLength();o+=1)r[e+o]^=C.gexp(C.glog(n.getAt(e))+C.glog(t.getAt(o)));return k(r,0)},mod:function(t){if(n.getLength()-t.getLength()<0)return n;for(var r=C.glog(n.getAt(0))-C.glog(t.getAt(0)),e=new Array(n.getLength()),o=0;o<n.getLength();o+=1)e[o]=n.getAt(o);for(o=0;o<t.getLength();o+=1)e[o]^=C.gexp(C.glog(t.getAt(o))+r);return k(e,0).mod(t)}};return n}var A=function(){var t=[[1,26,19],[1,26,16],[1,26,13],[1,26,9],[1,44,34],[1,44,28],[1,44,22],[1,44,16],[1,70,55],[1,70,44],[2,35,17],[2,35,13],[1,100,80],[2,50,32],[2,50,24],[4,25,9],[1,134,108],[2,67,43],[2,33,15,2,34,16],[2,33,11,2,34,12],[2,86,68],[4,43,27],[4,43,19],[4,43,15],[2,98,78],[4,49,31],[2,32,14,4,33,15],[4,39,13,1,40,14],[2,121,97],[2,60,38,2,61,39],[4,40,18,2,41,19],[4,40,14,2,41,15],[2,146,116],[3,58,36,2,59,37],[4,36,16,4,37,17],[4,36,12,4,37,13],[2,86,68,2,87,69],[4,69,43,1,70,44],[6,43,19,2,44,20],[6,43,15,2,44,16],[4,101,81],[1,80,50,4,81,51],[4,50,22,4,51,23],[3,36,12,8,37,13],[2,116,92,2,117,93],[6,58,36,2,59,37],[4,46,20,6,47,21],[7,42,14,4,43,15],[4,133,107],[8,59,37,1,60,38],[8,44,20,4,45,21],[12,33,11,4,34,12],[3,145,115,1,146,116],[4,64,40,5,65,41],[11,36,16,5,37,17],[11,36,12,5,37,13],[5,109,87,1,110,88],[5,65,41,5,66,42],[5,54,24,7,55,25],[11,36,12,7,37,13],[5,122,98,1,123,99],[7,73,45,3,74,46],[15,43,19,2,44,20],[3,45,15,13,46,16],[1,135,107,5,136,108],[10,74,46,1,75,47],[1,50,22,15,51,23],[2,42,14,17,43,15],[5,150,120,1,151,121],[9,69,43,4,70,44],[17,50,22,1,51,23],[2,42,14,19,43,15],[3,141,113,4,142,114],[3,70,44,11,71,45],[17,47,21,4,48,22],[9,39,13,16,40,14],[3,135,107,5,136,108],[3,67,41,13,68,42],[15,54,24,5,55,25],[15,43,15,10,44,16],[4,144,116,4,145,117],[17,68,42],[17,50,22,6,51,23],[19,46,16,6,47,17],[2,139,111,7,140,112],[17,74,46],[7,54,24,16,55,25],[34,37,13],[4,151,121,5,152,122],[4,75,47,14,76,48],[11,54,24,14,55,25],[16,45,15,14,46,16],[6,147,117,4,148,118],[6,73,45,14,74,46],[11,54,24,16,55,25],[30,46,16,2,47,17],[8,132,106,4,133,107],[8,75,47,13,76,48],[7,54,24,22,55,25],[22,45,15,13,46,16],[10,142,114,2,143,115],[19,74,46,4,75,47],[28,50,22,6,51,23],[33,46,16,4,47,17],[8,152,122,4,153,123],[22,73,45,3,74,46],[8,53,23,26,54,24],[12,45,15,28,46,16],[3,147,117,10,148,118],[3,73,45,23,74,46],[4,54,24,31,55,25],[11,45,15,31,46,16],[7,146,116,7,147,117],[21,73,45,7,74,46],[1,53,23,37,54,24],[19,45,15,26,46,16],[5,145,115,10,146,116],[19,75,47,10,76,48],[15,54,24,25,55,25],[23,45,15,25,46,16],[13,145,115,3,146,116],[2,74,46,29,75,47],[42,54,24,1,55,25],[23,45,15,28,46,16],[17,145,115],[10,74,46,23,75,47],[10,54,24,35,55,25],[19,45,15,35,46,16],[17,145,115,1,146,116],[14,74,46,21,75,47],[29,54,24,19,55,25],[11,45,15,46,46,16],[13,145,115,6,146,116],[14,74,46,23,75,47],[44,54,24,7,55,25],[59,46,16,1,47,17],[12,151,121,7,152,122],[12,75,47,26,76,48],[39,54,24,14,55,25],[22,45,15,41,46,16],[6,151,121,14,152,122],[6,75,47,34,76,48],[46,54,24,10,55,25],[2,45,15,64,46,16],[17,152,122,4,153,123],[29,74,46,14,75,47],[49,54,24,10,55,25],[24,45,15,46,46,16],[4,152,122,18,153,123],[13,74,46,32,75,47],[48,54,24,14,55,25],[42,45,15,32,46,16],[20,147,117,4,148,118],[40,75,47,7,76,48],[43,54,24,22,55,25],[10,45,15,67,46,16],[19,148,118,6,149,119],[18,75,47,31,76,48],[34,54,24,34,55,25],[20,45,15,61,46,16]],r=function(t,r){var e={};return e.totalCount=t,e.dataCount=r,e},e={};return e.getRSBlocks=function(e,n){var o=function(r,e){switch(e){case g.L:return t[4*(r-1)+0];case g.M:return t[4*(r-1)+1];case g.Q:return t[4*(r-1)+2];case g.H:return t[4*(r-1)+3];default:return}}(e,n);if(void 0===o)throw"bad rs block @ typeNumber:"+e+"/errorCorrectionLevel:"+n;for(var i=o.length/3,a=[],u=0;u<i;u+=1)for(var f=o[3*u+0],c=o[3*u+1],l=o[3*u+2],h=0;h<f;h+=1)a.push(r(c,l));return a},e}(),b=function(){var t=[],r=0,e={getBuffer:function(){return t},getAt:function(r){var e=Math.floor(r/8);return 1==(t[e]>>>7-r%8&1)},put:function(t,r){for(var n=0;n<r;n+=1)e.putBit(1==(t>>>r-n-1&1))},getLengthInBits:function(){return r},putBit:function(e){var n=Math.floor(r/8);t.length<=n&&t.push(0),e&&(t[n]|=128>>>r%8),r+=1}};return e},M=function(t){var r=a,e=t,n={getMode:function(){return r},getLength:function(t){return e.length},write:function(t){for(var r=e,n=0;n+2<r.length;)t.put(o(r.substring(n,n+3)),10),n+=3;n<r.length&&(r.length-n==1?t.put(o(r.substring(n,n+1)),4):r.length-n==2&&t.put(o(r.substring(n,n+2)),7))}},o=function(t){for(var r=0,e=0;e<t.length;e+=1)r=10*r+i(t.charAt(e));return r},i=function(t){if("0"<=t&&t<="9")return t.charCodeAt(0)-"0".charCodeAt(0);throw"illegal char :"+t};return n},x=function(t){var r=u,e=t,n={getMode:function(){return r},getLength:function(t){return e.length},write:function(t){for(var r=e,n=0;n+1<r.length;)t.put(45*o(r.charAt(n))+o(r.charAt(n+1)),11),n+=2;n<r.length&&t.put(o(r.charAt(n)),6)}},o=function(t){if("0"<=t&&t<="9")return t.charCodeAt(0)-"0".charCodeAt(0);if("A"<=t&&t<="Z")return t.charCodeAt(0)-"A".charCodeAt(0)+10;switch(t){case" ":return 36;case"$":return 37;case"%":return 38;case"*":return 39;case"+":return 40;case"-":return 41;case".":return 42;case"/":return 43;case":":return 44;default:throw"illegal char :"+t}};return n},m=function(r){var e=f,n=t.stringToBytes(r),o={getMode:function(){return e},getLength:function(t){return n.length},write:function(t){for(var r=0;r<n.length;r+=1)t.put(n[r],8)}};return o},L=function(r){var e=c,n=t.stringToBytesFuncs.SJIS;if(!n)throw"sjis not supported.";!function(){var t=n("友");if(2!=t.length||38726!=(t[0]<<8|t[1]))throw"sjis not supported."}();var o=n(r),i={getMode:function(){return e},getLength:function(t){return~~(o.length/2)},write:function(t){for(var r=o,e=0;e+1<r.length;){var n=(255&r[e])<<8|255&r[e+1];if(33088<=n&&n<=40956)n-=33088;else{if(!(57408<=n&&n<=60351))throw"illegal char at "+(e+1)+"/"+n;n-=49472}n=192*(n>>>8&255)+(255&n),t.put(n,13),e+=2}if(e<r.length)throw"illegal char at "+(e+1)}};return i},D=function(){var t=[],r={writeByte:function(r){t.push(255&r)},writeShort:function(t){r.writeByte(t),r.writeByte(t>>>8)},writeBytes:function(t,e,n){e=e||0,n=n||t.length;for(var o=0;o<n;o+=1)r.writeByte(t[o+e])},writeString:function(t){for(var e=0;e<t.length;e+=1)r.writeByte(t.charCodeAt(e))},toByteArray:function(){return t},toString:function(){var r="";r+="[";for(var e=0;e<t.length;e+=1)e>0&&(r+=","),r+=t[e];return r+="]"}};return r},S=function(t){var r=t,e=0,n=0,o=0,i={read:function(){for(;o<8;){if(e>=r.length){if(0==o)return-1;throw"unexpected end of file./"+o}var t=r.charAt(e);if(e+=1,"="==t)return o=0,-1;t.match(/^\s$/)||(n=n<<6|a(t.charCodeAt(0)),o+=6)}var i=n>>>o-8&255;return o-=8,i}},a=function(t){if(65<=t&&t<=90)return t-65;if(97<=t&&t<=122)return t-97+26;if(48<=t&&t<=57)return t-48+52;if(43==t)return 62;if(47==t)return 63;throw"c:"+t};return i},I=function(t,r,e){for(var n=function(t,r){var e=t,n=r,o=new Array(t*r),i={setPixel:function(t,r,n){o[r*e+t]=n},write:function(t){t.writeString("GIF87a"),t.writeShort(e),t.writeShort(n),t.writeByte(128),t.writeByte(0),t.writeByte(0),t.writeByte(0),t.writeByte(0),t.writeByte(0),t.writeByte(255),t.writeByte(255),t.writeByte(255),t.writeString(","),t.writeShort(0),t.writeShort(0),t.writeShort(e),t.writeShort(n),t.writeByte(0);var r=a(2);t.writeByte(2);for(var o=0;r.length-o>255;)t.writeByte(255),t.writeBytes(r,o,255),o+=255;t.writeByte(r.length-o),t.writeBytes(r,o,r.length-o),t.writeByte(0),t.writeString(";")}},a=function(t){for(var r=1<<t,e=1+(1<<t),n=t+1,i=u(),a=0;a<r;a+=1)i.add(String.fromCharCode(a));i.add(String.fromCharCode(r)),i.add(String.fromCharCode(e));var f,c,g,l=D(),h=(f=l,c=0,g=0,{write:function(t,r){if(t>>>r!=0)throw"length over";for(;c+r>=8;)f.writeByte(255&(t<<c|g)),r-=8-c,t>>>=8-c,g=0,c=0;g|=t<<c,c+=r},flush:function(){c>0&&f.writeByte(g)}});h.write(r,n);var s=0,v=String.fromCharCode(o[s]);for(s+=1;s<o.length;){var d=String.fromCharCode(o[s]);s+=1,i.contains(v+d)?v+=d:(h.write(i.indexOf(v),n),i.size()<4095&&(i.size()==1<<n&&(n+=1),i.add(v+d)),v=d)}return h.write(i.indexOf(v),n),h.write(e,n),h.flush(),l.toByteArray()},u=function(){var t={},r=0,e={add:function(n){if(e.contains(n))throw"dup key:"+n;t[n]=r,r+=1},size:function(){return r},indexOf:function(r){return t[r]},contains:function(r){return void 0!==t[r]}};return e};return i}(t,r),o=0;o<r;o+=1)for(var i=0;i<t;i+=1)n.setPixel(i,o,e(i,o));var a=D();n.write(a);for(var u=function(){var t=0,r=0,e=0,n="",o={},i=function(t){n+=String.fromCharCode(a(63&t))},a=function(t){if(t<0);else{if(t<26)return 65+t;if(t<52)return t-26+97;if(t<62)return t-52+48;if(62==t)return 43;if(63==t)return 47}throw"n:"+t};return o.writeByte=function(n){for(t=t<<8|255&n,r+=8,e+=1;r>=6;)i(t>>>r-6),r-=6},o.flush=function(){if(r>0&&(i(t<<6-r),t=0,r=0),e%3!=0)for(var o=3-e%3,a=0;a<o;a+=1)n+="="},o.toString=function(){return n},o}(),f=a.toByteArray(),c=0;c<f.length;c+=1)u.writeByte(f[c]);return u.flush(),"data:image/gif;base64,"+u};return t}();qrcode.stringToBytesFuncs["UTF-8"]=function(t){return function(t){for(var r=[],e=0;e<t.length;e++){var n=t.charCodeAt(e);n<128?r.push(n):n<2048?r.push(192|n>>6,128|63&n):n<55296||n>=57344?r.push(224|n>>12,128|n>>6&63,128|63&n):(e++,n=65536+((1023&n)<<10|1023&t.charCodeAt(e)),r.push(240|n>>18,128|n>>12&63,128|n>>6&63,128|63&n))}return r}(t)},function(t){"function"==typeof define&&define.amd?define([],t):"object"==typeof exports&&(module.exports=t())}(function(){return qrcode});
+// ---------- CARTA DA ALMA: a impressão digital celeste de cada pessoa ----------
+// Tudo é calculado no telemóvel a partir do nome e do nascimento. Nada é enviado para servidor nenhum.
+const SOUL_COL = [null, ['Vermelho-rubi', '#ff5d73'], ['Laranja-âmbar', '#ffa24a'], ['Amarelo-sol', '#ffd75e'], ['Verde-esmeralda', '#4fd39a'], ['Azul-turquesa', '#4fd8e6'], ['Rosa-quartzo', '#ff9cc8'], ['Violeta', '#b48cff'], ['Dourado', '#ffd27a'], ['Prata-lunar', '#dfe6ff']];
+const SOUL_EL = {
+  fogo: { n: 'Fogo', e: '🔥', c: ['#2a0710', '#6e1a1c', '#ff8a3d'] },
+  terra: { n: 'Terra', e: '🌿', c: ['#07180f', '#20412a', '#a8d46b'] },
+  ar: { n: 'Ar', e: '🌬️', c: ['#0d1233', '#2b3a7c', '#b9d4ff'] },
+  agua: { n: 'Água', e: '🌊', c: ['#06172a', '#0f4a66', '#5fd0d6'] }
+};
+const SOUL_NUM_W = [null, 'pioneira', 'conciliadora', 'criativa', 'construtora', 'livre', 'protetora', 'sábia', 'poderosa', 'generosa'];
+const TXT = '︎'; // força os símbolos dos signos a aparecer como texto (não como emoji)
+
+const soulN9 = n => n === 11 ? 2 : n === 22 ? 4 : n === 33 ? 6 : n;
+function soulArcana(d) { const [y, m, dd] = d.split('-').map(Number); let n = y + m + dd; while (n > 22) n = String(n).split('').reduce((a, b) => a + +b, 0); return n === 22 ? 0 : n; }
+function soulSerial(str) {
+  let h1 = 2166136261, h2 = 5381; for (let i = 0; i < str.length; i++) { const c = str.charCodeAt(i); h1 = Math.imul(h1 ^ c, 16777619); h2 = (Math.imul(h2, 33) + c) | 0; }
+  const A = '0123456789ABCDEFGHJKMNPQRSTVWXYZ', enc = x => { x >>>= 0; let s = ''; for (let i = 0; i < 4; i++) { s += A[x & 31]; x >>>= 5; } return s; };
+  return enc(h1) + enc(h2);
+}
+function soulPrint(serial) { const r = seeded('fp' + serial), b = []; for (let i = 0; i < 48; i++) b.push(r() < .55 ? 1 : 0); b[0] = 1; return b; } // anel único: a impressão digital da carta
+// p = { name, d: 'AAAA-MM-DD', t: 'HH:MM' (opcional), c: índice da cidade }
+function soulOf(p) {
+  if (!p || !p.d) return null;
+  const ci = CITIES[+p.c || 0], [y, m, dd] = dParts(p.d), [hh, mi] = (p.t || '12:00').split(':').map(Number), ms = localToUtcMs(y, m, dd, hh, mi, ci[3]);
+  const nat = natalChart(ms, ci), s = Math.floor(nat.sun / 30) % 12, mo = Math.floor(nat.moon / 30) % 12, asc = p.t ? Math.floor(nat.asc / 30) % 12 : null;
+  const lp = lifePath(p.d), n = soulN9(lp), ar = soulArcana(p.d), first = (p.name || '').trim().split(/\s+/)[0] || 'Alma';
+  return { first, s, m: mo, asc, lp, n, ar, el: SIGNS[s].el, stone: SIGN_EXTRA[s].pedra, col: SOUL_COL[n], cn: chineseSign(p.d), serial: soulSerial(nrm(p.name || '') + '|' + p.d + '|' + (p.t || '') + '|' + (p.c || 0)) };
+}
+const soulKey = o => o.s * 108 + o.m * 9 + (o.n - 1);
+const soulWant = o => ({ s: (o.s + 6) % 12, m: (o.m + 6) % 12, n: 10 - o.n });
+function soulLevel(a, b) { const w = soulWant(a); return (b.s === w.s) + (b.m === w.m) + (b.n === w.n); }
+function soulShape(o) { // constelação partilhada por um par de almas complementares; cada uma tem metade
+  const ka = soulKey(o), kb = soulKey(soulWant(o)), r = seeded('alma' + Math.min(ka, kb) + '-' + Math.max(ka, kb));
+  const half = x0 => { const P = []; for (let i = 0; i < 4; i++) P.push([x0 + r() * .3, .16 + i * .21 + (r() - .5) * .12]); return P; };
+  const L = half(.1), R = half(.6); return { L, R, mine: ka < kb ? 'L' : 'R' };
+}
+const soulCode = o => o.s.toString(36) + o.m.toString(36) + o.n + o.ar.toString(36) + (o.asc == null ? 'x' : o.asc.toString(36)) + o.serial + '~' + encodeURIComponent(o.first);
+function soulParse(code) {
+  const m = String(code || '').match(/^([0-9ab])([0-9ab])([1-9])([0-9a-l])([0-9abx])([0-9A-Z]{8})~(.{1,80})$/); if (!m) return null;
+  let first; try { first = decodeURIComponent(m[7]); } catch (e) { first = 'Alma'; }
+  const s = parseInt(m[1], 36), n = +m[3];
+  return { s, m: parseInt(m[2], 36), n, ar: parseInt(m[4], 36), asc: m[5] === 'x' ? null : parseInt(m[5], 36), serial: m[6], first: first.replace(/[<>]/g, '').slice(0, 24) || 'Alma', el: SIGNS[s].el, stone: SIGN_EXTRA[s].pedra, col: SOUL_COL[n] };
+}
+
+function soulSVG(o, opt = {}) {
+  const E = SOUL_EL[o.el] || SOUL_EL.ar, [c0, c1, c2] = E.c, G = '#f2c76e', G2 = '#fff1c4', C = o.col ? o.col[1] : G, r = seeded('pó' + o.serial), W = 300, H = 500;
+  let stars = ''; for (let i = 0; i < 70; i++) { const x = 14 + r() * 272, y = 14 + r() * 472, a = (.25 + r() * .6).toFixed(2), rr = (.35 + r() * 1.1).toFixed(2); stars += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${rr}" fill="#fff" opacity="${a}"/>`; }
+  // constelação
+  const sh = soulShape(o), box = (p) => [64 + p[0] * 172, 58 + p[1] * 160], mineP = (sh.mine === 'L' ? sh.L : sh.R).map(box), otherP = (sh.mine === 'L' ? sh.R : sh.L).map(box);
+  const path = P => P.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
+  const join = sh.mine === 'L' ? [mineP[3], otherP[0]] : [otherP[3], mineP[0]];
+  const cons = `<path d="${path(otherP)}" fill="none" stroke="${G2}" stroke-width=".9" stroke-dasharray="2 4" opacity=".38"/>${otherP.map(p => `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.6" fill="none" stroke="${G2}" stroke-width=".8" opacity=".45"/>`).join('')}
+    <path d="M${join[0][0].toFixed(1)} ${join[0][1].toFixed(1)} L${join[1][0].toFixed(1)} ${join[1][1].toFixed(1)}" stroke="${C}" stroke-width="1" stroke-dasharray="1 3" opacity=".7"/>
+    <path d="${path(mineP)}" fill="none" stroke="${G}" stroke-width="1.6" filter="url(#sg)"/>${mineP.map((p, i) => `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${i % 2 ? 3.2 : 4.2}" fill="${G2}" filter="url(#sg)"/>`).join('')}`;
+  // medalhão: raios = número da alma, lua e ascendente à volta
+  const cx = 150, cy = 312; let rays = ''; for (let i = 0; i < o.n * 4 + 8; i++) { const a = i / (o.n * 4 + 8) * Math.PI * 2, r1 = 66, r2 = i % 4 ? 80 : 92; rays += `<line x1="${(cx + Math.cos(a) * r1).toFixed(1)}" y1="${(cy + Math.sin(a) * r1).toFixed(1)}" x2="${(cx + Math.cos(a) * r2).toFixed(1)}" y2="${(cy + Math.sin(a) * r2).toFixed(1)}" stroke="${C}" stroke-width="${i % 4 ? .8 : 1.6}" opacity="${i % 4 ? .5 : .9}"/>`; }
+  let ticks = ''; for (let i = 0; i < 12; i++) { const a = (i * 30 - 90) * Math.PI / 180; ticks += `<circle cx="${(cx + Math.cos(a) * 56).toFixed(1)}" cy="${(cy + Math.sin(a) * 56).toFixed(1)}" r="${i === o.s ? 3 : 1.3}" fill="${i === o.s ? G2 : G}"/>`; }
+  const at = (k, rad) => { const a = (k * 30 - 90) * Math.PI / 180; return [cx + Math.cos(a) * rad, cy + Math.sin(a) * rad]; };
+  const mp = at(o.m, 56), ap = o.asc != null ? at(o.asc, 56) : null;
+  const moon = `<g transform="translate(${mp[0].toFixed(1)} ${mp[1].toFixed(1)})"><circle r="9" fill="${c0}" stroke="${G}" stroke-width="1"/><path d="M2.5 -6 A6.5 6.5 0 1 0 2.5 6 A5 5 0 1 1 2.5 -6Z" fill="${G2}"/></g>`;
+  const ascM = ap ? `<g transform="translate(${ap[0].toFixed(1)} ${ap[1].toFixed(1)})"><circle r="7" fill="${c0}" stroke="${G}" stroke-width="1"/><path d="M0 -4 L3.5 2.5 L-3.5 2.5Z" fill="${G2}"/></g>` : '';
+  const t = (x, y, s, txt, f, extra = '') => `<text x="${x}" y="${y}" text-anchor="middle" font-family="Georgia,'Times New Roman',serif" font-size="${s}" fill="${f}" ${extra}>${txt}</text>`;
+  const AR = TAROT[o.ar] ? TAROT[o.ar][0] : '';
+  return svgClean(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">
+  <defs>
+    <radialGradient id="bg${o.serial}" cx="50%" cy="38%" r="75%"><stop offset="0" stop-color="${c1}"/><stop offset=".65" stop-color="${c0}"/><stop offset="1" stop-color="#05030c"/></radialGradient>
+    <radialGradient id="sky${o.serial}" cx="50%" cy="45%" r="60%"><stop offset="0" stop-color="${c1}" stop-opacity=".9"/><stop offset="1" stop-color="#05030c"/></radialGradient>
+    <radialGradient id="md${o.serial}" cx="50%" cy="40%" r="60%"><stop offset="0" stop-color="${C}" stop-opacity=".55"/><stop offset=".6" stop-color="${c1}"/><stop offset="1" stop-color="${c0}"/></radialGradient>
+    <linearGradient id="gd${o.serial}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff3c4"/><stop offset=".35" stop-color="${G}"/><stop offset=".7" stop-color="#b8892f"/><stop offset="1" stop-color="#fff0b8"/></linearGradient>
+    <filter id="sg" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="1.6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <rect width="${W}" height="${H}" rx="18" fill="url(#bg${o.serial})"/>${stars}
+  <rect x="7" y="7" width="286" height="486" rx="14" fill="none" stroke="url(#gd${o.serial})" stroke-width="3.5"/>
+  <rect x="15" y="15" width="270" height="470" rx="10" fill="none" stroke="${G}" stroke-width=".8" opacity=".7"/>
+  ${[[15, 15], [285, 15], [15, 485], [285, 485]].map(([x, y]) => `<path d="M${x} ${y} m-6 0 l6 -6 l6 6 l-6 6z" fill="url(#gd${o.serial})"/>`).join('')}
+  ${t(150, 37, 10.5, 'CARTA DA ALMA', G, 'letter-spacing="3.5" font-weight="700"')}
+  ${t(150, 50, 8, 'Nº ' + o.serial.slice(0, 4) + '·' + o.serial.slice(4), G2, 'letter-spacing="2" opacity=".75"')}
+  <circle cx="150" cy="138" r="88" fill="url(#sky${o.serial})" stroke="url(#gd${o.serial})" stroke-width="2"/>
+  <circle cx="150" cy="138" r="82" fill="none" stroke="${G}" stroke-width=".5" opacity=".5" stroke-dasharray="1 3"/>
+  ${cons}
+  ${rays}
+  <circle cx="${cx}" cy="${cy}" r="64" fill="url(#md${o.serial})" stroke="url(#gd${o.serial})" stroke-width="2.4"/>
+  <circle cx="${cx}" cy="${cy}" r="46" fill="none" stroke="${G}" stroke-width=".7" opacity=".6"/>
+  ${ticks}
+  ${t(cx, cy + 17, 46, SIGNS[o.s].g + TXT, G2, 'filter="url(#sg)"')}
+  ${moon}${ascM}
+  <path d="M40 404 L260 404 L270 420 L260 436 L40 436 L30 420Z" fill="${c0}" stroke="url(#gd${o.serial})" stroke-width="1.6"/>
+  ${opt.noText ? '' : t(150, 426, 17, esc(o.first.toUpperCase()), G2, 'letter-spacing="3" font-weight="700"')}
+  ${t(150, 456, 10, esc(AR) + ' · ' + esc(o.stone), G, 'letter-spacing="1"')}
+  ${t(150, 472, 9, 'Alma ' + SOUL_NUM_W[o.n] + ' · ' + E.n, G2, 'opacity=".8" letter-spacing="1"')}
+</svg>`);
+}
+
+// Versão 2: profundidade (portal em túnel, céu em poço, medalhão em relevo, fita com sombra)
+function soulSVG2(o, opt = {}) {
+  const E = SOUL_EL[o.el] || SOUL_EL.ar, [c0, c1, c2] = E.c, G = '#f2c76e', G2 = '#fff1c4', C = o.col ? o.col[1] : G, r = seeded('pó' + o.serial), W = 300, H = 500, id = o.serial;
+  const t = (x, y, s, txt, f, extra = '') => `<text x="${x}" y="${y}" text-anchor="middle" font-family="Georgia,'Times New Roman',serif" font-size="${s}" fill="${f}" ${extra}>${txt}</text>`;
+  // estrelas de fundo (longe = pequenas e ténues)
+  let stars = ''; for (let i = 0; i < 60; i++) { const x = 20 + r() * 260, y = 20 + r() * 460, a = (.2 + r() * .5).toFixed(2); stars += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(.3 + r() * .9).toFixed(2)}" fill="#fff" opacity="${a}"/>`; }
+  // túnel: molduras que recuam para dentro
+  let tunnel = ''; for (let k = 0; k < 6; k++) { const ins = 18 + k * 7, op = (.75 - k * .11).toFixed(2); tunnel += `<rect x="${ins}" y="${ins}" width="${W - 2 * ins}" height="${H - 2 * ins}" rx="${14 - k}" fill="none" stroke="${k ? G : `url(#gd${id})`}" stroke-width="${k ? .7 : 1.4}" opacity="${op}"/>`; }
+  // poço do céu
+  const sx = 150, sy = 150, SR = 92;
+  let well = ''; for (let k = 0; k < 7; k++) { const rr = SR - k * 6; well += `<circle cx="${sx}" cy="${sy}" r="${rr}" fill="none" stroke="${k ? c2 : `url(#gd${id})`}" stroke-width="${k ? .6 : 2.6}" opacity="${k ? (.5 - k * .06).toFixed(2) : 1}"/>`; }
+  let deep = ''; for (let i = 0; i < 45; i++) { const a = r() * 6.283, d = Math.pow(r(), .7) * (SR - 14); deep += `<circle cx="${(sx + Math.cos(a) * d).toFixed(1)}" cy="${(sy + Math.sin(a) * d).toFixed(1)}" r="${(.25 + (d / SR) * .9).toFixed(2)}" fill="#fff" opacity="${(.25 + (d / SR) * .6).toFixed(2)}"/>`; }
+  const fp = soulPrint(o.serial); let ring = ''; for (let i = 0; i < 48; i++) if (fp[i]) { const a0 = (i / 48) * Math.PI * 2 - Math.PI / 2, a1 = a0 + Math.PI * 2 / 48 * .72, R1 = SR + 10; ring += `<path d="M${(sx + Math.cos(a0) * R1).toFixed(1)} ${(sy + Math.sin(a0) * R1).toFixed(1)} A${R1} ${R1} 0 0 1 ${(sx + Math.cos(a1) * R1).toFixed(1)} ${(sy + Math.sin(a1) * R1).toFixed(1)}" stroke="${i % 6 ? G : C}" stroke-width="${i % 6 ? 1.6 : 2.4}" fill="none" stroke-linecap="round" opacity=".9"/>`; }
+  const nx = 35 + (fp.slice(0, 8).reduce((a, b, i) => a + b * (1 << i), 0) % 31), ny = 35 + (fp.slice(8, 16).reduce((a, b, i) => a + b * (1 << i), 0) % 31);
+  const sh = soulShape(o), box = p => [sx - 70 + p[0] * 140, sy - 66 + p[1] * 132], mineP = (sh.mine === 'L' ? sh.L : sh.R).map(box), otherP = (sh.mine === 'L' ? sh.R : sh.L).map(box);
+  const path = P => P.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' '), join = sh.mine === 'L' ? [mineP[3], otherP[0]] : [otherP[3], mineP[0]];
+  const cons = `<path d="${path(otherP)}" fill="none" stroke="${G2}" stroke-width=".9" stroke-dasharray="2 4" opacity=".4"/>${otherP.map(p => `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.4" fill="none" stroke="${G2}" stroke-width=".8" opacity=".5"/>`).join('')}
+    <path d="M${join[0][0].toFixed(1)} ${join[0][1].toFixed(1)} L${join[1][0].toFixed(1)} ${join[1][1].toFixed(1)}" stroke="${C}" stroke-width="1" stroke-dasharray="1 3" opacity=".8"/>
+    <path d="${path(mineP)}" fill="none" stroke="${G}" stroke-width="1.7" filter="url(#gl${id})"/>${mineP.map((p, i) => `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${i % 2 ? 3 : 4}" fill="${G2}" filter="url(#gl${id})"/>`).join('')}`;
+  // medalhão em relevo
+  const cx = 150, cy = 330;
+  let rays = ''; for (let i = 0; i < o.n * 4 + 8; i++) { const a = i / (o.n * 4 + 8) * Math.PI * 2, r1 = 64, r2 = i % 4 ? 74 : 84; rays += `<line x1="${(cx + Math.cos(a) * r1).toFixed(1)}" y1="${(cy + Math.sin(a) * r1).toFixed(1)}" x2="${(cx + Math.cos(a) * r2).toFixed(1)}" y2="${(cy + Math.sin(a) * r2).toFixed(1)}" stroke="${C}" stroke-width="${i % 4 ? .8 : 1.7}" stroke-linecap="round" opacity="${i % 4 ? .45 : .95}"/>`; }
+  let ticks = ''; for (let i = 0; i < 12; i++) { const a = (i * 30 - 90) * Math.PI / 180; ticks += `<circle cx="${(cx + Math.cos(a) * 50).toFixed(1)}" cy="${(cy + Math.sin(a) * 50).toFixed(1)}" r="${i === o.s ? 2.6 : 1.1}" fill="${i === o.s ? G2 : G}"/>`; }
+  const at = (k, rad) => { const a = (k * 30 - 90) * Math.PI / 180; return [cx + Math.cos(a) * rad, cy + Math.sin(a) * rad]; };
+  const gem = (p, inner) => `<g transform="translate(${p[0].toFixed(1)} ${p[1].toFixed(1)})" filter="url(#ds${id})"><circle r="10" fill="url(#bv${id})"/><circle r="7.6" fill="${c0}"/>${inner}</g>`;
+  const moon = gem(at(o.m, 60), `<path d="M2.2 -5.2 A5.6 5.6 0 1 0 2.2 5.2 A4.3 4.3 0 1 1 2.2 -5.2Z" fill="${G2}"/>`);
+  const ascM = o.asc != null ? gem(at(o.asc, 60), `<path d="M0 -3.8 L3.4 2.6 L-3.4 2.6Z" fill="${G2}"/>`) : '';
+  const AR = TAROT[o.ar] ? TAROT[o.ar][0] : '';
+  const DEFS = `  <defs>
+    <radialGradient id="bg${id}" cx="50%" cy="45%" r="70%"><stop offset="0" stop-color="${c1}"/><stop offset=".6" stop-color="${c0}"/><stop offset="1" stop-color="#030208"/></radialGradient>
+    <radialGradient id="vg${id}" cx="50%" cy="50%" r="72%"><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".75"/></radialGradient>
+    <radialGradient id="wl${id}" cx="${nx}%" cy="${ny}%" r="55%"><stop offset="0" stop-color="${c2}" stop-opacity=".35"/><stop offset=".35" stop-color="${c1}" stop-opacity=".9"/><stop offset=".8" stop-color="#030208"/><stop offset="1" stop-color="#000"/></radialGradient>
+    <radialGradient id="rim${id}" cx="50%" cy="50%" r="50%"><stop offset=".78" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".85"/></radialGradient>
+    <linearGradient id="gd${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff6cf"/><stop offset=".3" stop-color="${G}"/><stop offset=".62" stop-color="#9c7124"/><stop offset=".85" stop-color="#f4d58a"/><stop offset="1" stop-color="#7d5a1c"/></linearGradient>
+    <linearGradient id="bv${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff6cf"/><stop offset=".45" stop-color="${G}"/><stop offset="1" stop-color="#5e4210"/></linearGradient>
+    <radialGradient id="cf${id}" cx="40%" cy="32%" r="75%"><stop offset="0" stop-color="${C}" stop-opacity=".9"/><stop offset=".45" stop-color="${c1}"/><stop offset="1" stop-color="${c0}"/></radialGradient>
+    <linearGradient id="sh${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".42" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".16"/><stop offset=".58" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+    <filter id="gl${id}" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="1.8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <filter id="ds${id}" x="-50%" y="-50%" width="200%" height="200%"><feDropShadow dx="1.5" dy="3" stdDeviation="2.4" flood-color="#000" flood-opacity=".7"/></filter>
+    <filter id="dd${id}" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#000" flood-opacity=".75"/></filter>
+    <clipPath id="wc${id}"><circle cx="${sx}" cy="${sy}" r="${SR - 2}"/></clipPath>
+    <mask id="mh${id}"><rect width="${W}" height="${H}" fill="#fff"/><circle cx="${sx}" cy="${sy}" r="${SR}" fill="#000"/></mask>
+  </defs>`;
+  const BG = `<rect width="${W}" height="${H}" rx="18" fill="url(#bg${id})"/>${stars}
+  ${tunnel}
+  <rect width="${W}" height="${H}" rx="18" fill="url(#vg${id})"/>`;
+  const FRAME = `<rect x="5" y="5" width="290" height="490" rx="15" fill="none" stroke="url(#gd${id})" stroke-width="5"/>
+  <rect x="5" y="5" width="290" height="490" rx="15" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width=".8"/>
+  ${[[18, 18], [282, 18], [18, 482], [282, 482]].map(([x, y]) => `<g filter="url(#ds${id})"><path d="M${x} ${y - 8} L${x + 8} ${y} L${x} ${y + 8} L${x - 8} ${y}Z" fill="url(#bv${id})"/><circle cx="${x}" cy="${y}" r="2" fill="${C}"/></g>`).join('')}
+  ${t(150, 40, 10.5, 'CARTA DA ALMA', G, 'letter-spacing="3.5" font-weight="700"')}`;
+  const BEZEL = `<g filter="url(#dd${id})"><circle cx="${sx}" cy="${sy}" r="${SR + 2}" fill="none" stroke="url(#bv${id})" stroke-width="5"/></g>
+  ${ring}
+  <path d="M${sx - SR + 6} ${sy - 10} A${SR - 6} ${SR - 6} 0 0 1 ${sx + SR - 6} ${sy - 10}" fill="none" stroke="#fff" stroke-opacity=".12" stroke-width="3"/>`;
+  const WELL = `<circle cx="${sx}" cy="${sy}" r="${SR}" fill="url(#wl${id})"/>
+  <g clip-path="url(#wc${id})">${deep}${well}${cons}</g>
+  <circle cx="${sx}" cy="${sy}" r="${SR}" fill="url(#rim${id})"/>`;
+  const FRONT = `${rays}
+  <g filter="url(#dd${id})"><circle cx="${cx}" cy="${cy}" r="62" fill="url(#bv${id})"/></g>
+  <circle cx="${cx}" cy="${cy}" r="56" fill="url(#cf${id})"/>
+  <circle cx="${cx}" cy="${cy}" r="56" fill="url(#rim${id})" opacity=".6"/>
+  <circle cx="${cx}" cy="${cy}" r="42" fill="none" stroke="${G}" stroke-width=".7" opacity=".6"/>
+  ${ticks}
+  ${t(cx + 1.2, cy + 18.5, 46, SIGNS[o.s].g + TXT, '#000', 'opacity=".55"')}
+  ${t(cx, cy + 17, 46, SIGNS[o.s].g + TXT, G2, 'filter="url(#gl' + id + ')"')}
+  ${moon}${ascM}`;
+  const RIBBON = `<g filter="url(#dd${id})"><path d="M22 420 L36 404 L36 436Z" fill="#6b4c16"/><path d="M278 420 L264 404 L264 436Z" fill="#6b4c16"/><path d="M36 400 L264 400 L276 420 L264 440 L36 440 L24 420Z" fill="url(#bv${id})"/></g>
+  <path d="M40 404 L260 404 L270 420 L260 436 L40 436 L30 420Z" fill="${c0}"/>
+  ${opt.noText ? '' : t(150, 427, 17, esc(o.first.toUpperCase()), G2, 'letter-spacing="3" font-weight="700"')}
+  ${t(150, 461, 10, esc(AR) + ' · ' + esc(o.stone), G, 'letter-spacing="1"')}
+  ${t(150, 476, 8.5, 'Alma ' + SOUL_NUM_W[o.n] + ' · ' + E.n + ' · Nº ' + o.serial.slice(0, 4) + '·' + o.serial.slice(4), G2, 'opacity=".75" letter-spacing="1"')}`;
+  const SHEEN = `<rect width="${W}" height="${H}" rx="18" fill="url(#sh${id})" class="soulsheen"/>`;
+  const wrapS = inner => svgClean(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">${DEFS}${inner}</svg>`);
+  // camadas para o efeito 3D na app: fundo do poço (atrás), cartão com buraco, medalhão (à frente)
+  if (opt.layer === 'back') return wrapS(`<circle cx="${sx}" cy="${sy}" r="${SR + 3}" fill="#030208"/>${WELL}`);
+  if (opt.layer === 'base') return wrapS(`<g mask="url(#mh${id})">${BG}</g>${FRAME}${BEZEL}${RIBBON}`);
+  if (opt.layer === 'front') return wrapS(FRONT);
+  return wrapS(`${BG}${FRAME}${WELL}${BEZEL}${FRONT}${RIBBON}${SHEEN}`);
+}
+
+// ---------- Verso com o nosso QR (selo celeste) ----------
+function soulQR(text, x, y, size, ink, paper) { // QR desenhado à nossa maneira: pontos redondos e olhos com estrela
+  const q = qrcode(0, 'M'); q.addData(text); q.make(); const n = q.getModuleCount(), Z = 3, m = size / (n + Z * 2); let out = `<rect x="${x}" y="${y}" width="${size}" height="${size}" rx="${m * 1.6}" fill="${paper}"/>`;
+  const eye = (r, c) => r < 7 && c < 7 || r < 7 && c >= n - 7 || r >= n - 7 && c < 7;
+  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (q.isDark(r, c) && !eye(r, c)) out += `<circle cx="${(x + (c + Z + .5) * m).toFixed(2)}" cy="${(y + (r + Z + .5) * m).toFixed(2)}" r="${(m * .5).toFixed(2)}" fill="${ink}"/>`;
+  for (const [r, c] of [[0, 0], [0, n - 7], [n - 7, 0]]) { const X = x + (c + Z) * m, Y = y + (r + Z) * m; out += `<rect x="${X + m * .5}" y="${Y + m * .5}" width="${m * 6}" height="${m * 6}" rx="${m * .5}" fill="none" stroke="${ink}" stroke-width="${m}"/><rect x="${X + m * 2}" y="${Y + m * 2}" width="${m * 3}" height="${m * 3}" rx="${m * .5}" fill="${ink}"/>`; }
+  return out;
+}
+const soulLink = o => 'https://ceudehoje.com/#alma=' + soulCode(o);
+function soulBackSVG(o) {
+  const E = SOUL_EL[o.el] || SOUL_EL.ar, [c0, c1, c2] = E.c, G = '#f2c76e', G2 = '#fff1c4', C = o.col ? o.col[1] : G, id = 'b' + o.serial, W = 300, H = 500, r = seeded('vs' + o.serial), fp = soulPrint(o.serial);
+  const t = (x, y, sz, txt, f, extra = '') => `<text x="${x}" y="${y}" text-anchor="middle" font-family="Georgia,'Times New Roman',serif" font-size="${sz}" fill="${f}" ${extra}>${txt}</text>`;
+  let stars = ''; for (let i = 0; i < 80; i++) stars += `<circle cx="${(16 + r() * 268).toFixed(1)}" cy="${(16 + r() * 468).toFixed(1)}" r="${(.3 + r() * 1).toFixed(2)}" fill="#fff" opacity="${(.2 + r() * .55).toFixed(2)}"/>`;
+  let ring = ''; const cx = 150, cy = 238, R = 112; for (let i = 0; i < 48; i++) if (fp[i]) { const a0 = (i / 48) * Math.PI * 2 - Math.PI / 2, a1 = a0 + Math.PI * 2 / 48 * .72; ring += `<path d="M${(cx + Math.cos(a0) * R).toFixed(1)} ${(cy + Math.sin(a0) * R).toFixed(1)} A${R} ${R} 0 0 1 ${(cx + Math.cos(a1) * R).toFixed(1)} ${(cy + Math.sin(a1) * R).toFixed(1)}" stroke="${i % 6 ? G : C}" stroke-width="${i % 6 ? 2 : 3}" fill="none" stroke-linecap="round"/>`; }
+  let rays = ''; for (let i = 0; i < 24; i++) { const a = i / 24 * Math.PI * 2; rays += `<line x1="${(cx + Math.cos(a) * 120).toFixed(1)}" y1="${(cy + Math.sin(a) * 120).toFixed(1)}" x2="${(cx + Math.cos(a) * (i % 2 ? 132 : 142)).toFixed(1)}" y2="${(cy + Math.sin(a) * (i % 2 ? 132 : 142)).toFixed(1)}" stroke="${G}" stroke-width="${i % 2 ? .7 : 1.4}" opacity=".7"/>`; }
+  return svgClean(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">
+  <defs><radialGradient id="g${id}" cx="50%" cy="45%" r="70%"><stop offset="0" stop-color="${c1}"/><stop offset=".6" stop-color="${c0}"/><stop offset="1" stop-color="#030208"/></radialGradient>
+  <linearGradient id="gd${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff6cf"/><stop offset=".3" stop-color="${G}"/><stop offset=".62" stop-color="#9c7124"/><stop offset=".85" stop-color="#f4d58a"/><stop offset="1" stop-color="#7d5a1c"/></linearGradient>
+  <filter id="d${id}" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#000" flood-opacity=".7"/></filter></defs>
+  <rect width="${W}" height="${H}" rx="18" fill="url(#g${id})"/>${stars}
+  <rect x="5" y="5" width="290" height="490" rx="15" fill="none" stroke="url(#gd${id})" stroke-width="5"/>
+  <rect x="16" y="16" width="268" height="468" rx="10" fill="none" stroke="${G}" stroke-width=".7" opacity=".6"/>
+  ${t(150, 46, 11, 'LÊ A MINHA ALMA', G, 'letter-spacing="3.5" font-weight="700"')}
+  ${rays}${ring}
+  <g filter="url(#d${id})"><rect x="${cx - 86}" y="${cy - 86}" width="172" height="172" rx="16" fill="url(#gd${id})"/></g>
+  ${soulQR(soulLink(o), cx - 80, cy - 80, 160, '#120a2e', '#fff7e2')}
+  ${t(150, 400, 13, esc(o.first.toUpperCase()) + ' · ' + SIGNS[o.s].g + TXT, G2, 'letter-spacing="2.5" font-weight="700"')}
+  ${t(150, 420, 9, 'Nº ' + o.serial.slice(0, 4) + '·' + o.serial.slice(4), G, 'letter-spacing="2" opacity=".8"')}
+  ${t(150, 458, 10, 'ceudehoje.com', G2, 'letter-spacing="2" opacity=".85"')}
+</svg>`);
+}
+
+// ---------- Leitura da alma ----------
+const SOUL_SUN = ['Coragem que abre caminho: és de quem começa, arrisca e puxa os outros.', 'Calma que dura: és porto seguro, sabes esperar e fazes as coisas crescer.', 'Mente que voa: curiosidade sem fim, palavra fácil e mil interesses.', 'Coração que protege: cuidas, lembras-te de tudo e fazes de qualquer sítio um lar.', 'Luz que aquece: generosidade, presença e vontade de fazer os outros brilhar.', 'Mãos que cuidam do pormenor: és útil, atento(a) e tornas tudo melhor.', 'Alma que harmoniza: procuras beleza, justiça e o meio-termo certo.', 'Profundidade que transforma: sentes tudo a fundo e renasces das cinzas.', 'Fogo que procura sentido: liberdade, aventura e fé no que vem.', 'Montanha que se sobe: ambição tranquila, responsabilidade e palavra dada.', 'Mente que inventa: original, livre e com olhos postos no futuro.', 'Mar que sente tudo: intuição, compaixão e uma imaginação sem margens.'];
+const SOUL_MOON = { fogo: 'sentes depressa e com intensidade: precisas de entusiasmo e de quem acompanhe o teu ritmo', terra: 'sentes com os pés no chão: precisas de segurança, rotinas e gestos concretos de carinho', ar: 'sentes através das palavras: precisas de conversa, leveza e espaço para respirar', agua: 'sentes como uma maré: precisas de intimidade, ternura e de quem perceba o que não dizes' };
+const SOUL_ASC = { fogo: 'chegas com energia e os outros veem-te como alguém decidido', terra: 'transmites confiança e calma logo à primeira vista', ar: 'pareces simpático(a) e fácil de abordar, uma companhia leve', agua: 'parecem-te reservado(a) ao início, mas inspiras confiança e mistério' };
+function soulReading(o) {
+  const sec = (ic, h, p) => `<div class="soulsec"><b>${ic} ${h}</b><p>${p}</p></div>`, I = NUM_INFO[o.n] || {}, A = TAROT[o.ar] || ['', '', ''];
+  return sec(SIGNS[o.s].g + TXT, `Sol em ${SIGNS[o.s].n}: a tua essência`, SOUL_SUN[o.s])
+    + sec('☾', `Lua em ${SIGNS[o.m].n}: o teu coração`, cap1(SOUL_MOON[SIGNS[o.m].el]) + '.')
+    + (o.asc != null ? sec('▲', `Ascendente em ${SIGNS[o.asc].n}: como te veem`, cap1(SOUL_ASC[SIGNS[o.asc].el]) + '.') : '')
+    + sec('✦', `Alma ${SOUL_NUM_W[o.n]} (número ${o.lp || o.n})`, (I.e || '') + (I.f ? ` Forças: ${I.f}.` : ''))
+    + sec('🃏', `Arcano de nascimento: ${A[0]}`, `A carta que te acompanha desde que nasceste fala de ${A[2]}.`)
+    + sec('💎', `Pedra: ${o.stone} · cor da alma: ${o.col ? o.col[0] : ''}`, `${SOUL_EL[o.el].e} Elemento ${SOUL_EL[o.el].n}. Leva a tua pedra ou a tua cor contigo nos dias importantes.`);
+}
+function soulWantTxt(o) { const w = soulWant(o); return `☉ ${SIGNS[w.s].n} · ☾ ${SIGNS[w.m].n} · nº ${w.n}`; }
+
+// ---------- Carta 3D (camadas) ----------
+function soul3dHtml(o, back) {
+  return `<div class="soul3d${back ? ' flip' : ''}" id="soul3d"><div class="sface sfront"><div class="sl sbk">${soulSVG2(o, { layer: 'back' })}</div><div class="sl">${soulSVG2(o, { layer: 'base' })}</div><div class="sl sfr">${soulSVG2(o, { layer: 'front' })}</div><div class="ssheen"></div></div><div class="sface sback">${soulBackSVG(o)}<div class="ssheen"></div></div></div>`;
+}
+let _soulTilt = null;
+function bindSoulTilt() {
+  const el = $('#soul3d'); if (!el) return; let rx = 0, ry = 0;
+  const apply = () => { el.style.setProperty('--rx', rx.toFixed(2) + 'deg'); el.style.setProperty('--ry', ry.toFixed(2) + 'deg'); el.style.setProperty('--sx', (50 + ry * 2.4).toFixed(1) + '%'); el.style.setProperty('--sy', (50 - rx * 2.4).toFixed(1) + '%'); };
+  el.onpointermove = e => { const b = el.getBoundingClientRect(); ry = ((e.clientX - b.left) / b.width - .5) * 30; rx = -((e.clientY - b.top) / b.height - .5) * 24; apply(); };
+  el.onpointerleave = () => { rx = 0; ry = 0; apply(); };
+  if (_soulTilt) window.removeEventListener('deviceorientation', _soulTilt);
+  _soulTilt = e => { if (e.gamma == null) return; ry = Math.max(-18, Math.min(18, e.gamma * .6)); rx = Math.max(-14, Math.min(14, (e.beta - 45) * -.4)); apply(); };
+  window.addEventListener('deviceorientation', _soulTilt);
+}
+async function soulMotionOk() { try { if (window.DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission === 'function') await DeviceOrientationEvent.requestPermission(); } catch (e) { } }
+
+// ---------- Abrir a minha carta ----------
+function soulMe() { const p = P.get(); return p && p.d ? soulOf(p) : null; }
+function openSoul() {
+  const dlg = $('#soulDlg'), o = soulMe();
+  if (!o) { dlg.innerHTML = `<div class="soulwrap"><h2>💫 A tua Carta da Alma</h2><p>Para criar a tua carta única preciso do teu nome e da tua data de nascimento (e, se souberes, da hora).</p><div class="dlgfoot"><button class="btn" id="soulX">Fechar</button><button class="btn main" id="soulPf">Preencher o meu perfil</button></div></div>`; dlg.showModal(); $('#soulX').onclick = () => dlg.close(); $('#soulPf').onclick = () => { dlg.close(); ST.tab = 'eu'; render(); }; return; }
+  const first = !store.get('ceu_soul_seen');
+  dlg.innerHTML = `<div class="soulwrap"><button class="tclose" id="soulX" aria-label="Fechar">✕</button>
+    <p class="soulhint" id="soulHint">${first ? 'A tua alma tem uma carta só tua. Toca para a revelar ✨' : 'Inclina o telemóvel ou passa o dedo pela carta'}</p>
+    <div class="soulstage">${soul3dHtml(o, first)}</div>
+    <div class="soulbtns"><button class="btn" id="soulFlip">↻ Ver o verso</button><button class="btn main" id="soulSh">📤 Partilhar</button></div>
+    <div class="soulinfo" id="soulInfo"${first ? ' hidden' : ''}>
+      <div class="soulwant"><b>💞 A tua metade perfeita</b><p>${soulWantTxt(o)}</p><p class="note">Só cerca de 1 em cada 1300 pessoas tem estas três ligações contigo. Partilha a tua carta: quem a ler descobre se é a tua metade.</p></div>
+      <div class="soulbtns"><button class="btn" id="soulRead">🔭 Ler a carta de alguém</button><button class="btn" id="soulLinks">💫 As minhas ligações (${soulLinks().length})</button></div>
+      <h3 class="soulh">A leitura da tua alma</h3>${soulReading(o)}
+      <p class="note">Nº ${o.serial.slice(0, 4)}·${o.serial.slice(4)} · a tua carta é calculada a partir do teu nome e nascimento e é só tua. Inspirada na tradição astrológica, para te divertires e refletires.</p>
+    </div></div>`;
+  dlg.showModal(); bindSoulTilt();
+  $('#soulX').onclick = () => dlg.close();
+  const card = $('#soul3d');
+  card.onclick = async () => { if (first && !store.get('ceu_soul_seen')) { await soulMotionOk(); store.set('ceu_soul_seen', todayStr()); card.classList.add('reveal'); card.classList.remove('flip'); $('#soulHint').textContent = 'Esta é a tua alma. Inclina o telemóvel ✨'; try { confetti(); } catch (e) { } setTimeout(() => { $('#soulInfo').hidden = false; }, 900); } };
+  $('#soulFlip').onclick = async () => { await soulMotionOk(); card.classList.toggle('flip'); $('#soulFlip').textContent = card.classList.contains('flip') ? '↻ Ver a frente' : '↻ Ver o verso'; };
+  $('#soulSh').onclick = () => shareSoul(o);
+  $('#soulRead').onclick = () => soulReader();
+  $('#soulLinks').onclick = () => soulLinksView();
+}
+
+// ---------- Partilhar (frente + selo QR) ----------
+function svgImg(svg) { return new Promise(res => { const im = new Image(); im.onload = () => (im.decode ? im.decode().then(() => res(im), () => res(im)) : res(im)); im.onerror = () => res(null); im.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg); }); }
+async function shareSoul(o) {
+  await fontsReady(); const [c, ctx, W, H] = newCanvas(1080, 1350), E = SOUL_EL[o.el];
+  bg(ctx, W, H, 'alma' + o.serial, [E.c[1], '#07050f']);
+  const fr = await svgImg(soulSVG2(o)), bk = await svgImg(soulBackSVG(o)); if (!fr) { toast('Não deu para criar a imagem'); return; }
+  ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.6)'; ctx.shadowBlur = 50; ctx.shadowOffsetY = 20; ctx.drawImage(fr, 90, 150, 560, 933); ctx.restore();
+  if (bk) { ctx.save(); ctx.translate(820, 640); ctx.rotate(.06); ctx.shadowColor = 'rgba(0,0,0,.6)'; ctx.shadowBlur = 40; ctx.drawImage(bk, -170, -283, 340, 567); ctx.restore(); }
+  ctx.textAlign = 'center'; ctx.fillStyle = '#f2c76e'; ctx.font = '700 46px Cinzel'; ctx.fillText('A MINHA CARTA DA ALMA', W / 2, 100);
+  ctx.fillStyle = '#fff'; ctx.font = 'italic 600 46px "Cormorant Garamond"'; ctx.fillText('Procuro a minha metade:', W / 2, 1150);
+  ctx.fillStyle = '#f7e08a'; ctx.font = '700 40px Manrope'; ctx.fillText(soulWantTxt(o), W / 2, 1206);
+  ctx.fillStyle = '#d9d0ff'; ctx.font = '500 28px Manrope'; ctx.fillText('Lê o QR e descobre se és tu 💞', W / 2, 1252);
+  brandFoot(ctx, W, H, H - 40);
+  shareCanvases([{ c, name: 'carta-da-alma' }], `💫 A minha Carta da Alma é única. Procuro a minha metade: ${soulWantTxt(o)}. Lê o QR ou abre ${soulLink(o)} e descobre se és tu! #CéuDeHoje #CartaDaAlma`);
+}
+
+// ---------- Leitor do Céu ----------
+const soulLinks = () => { try { return JSON.parse(store.get('ceu_soul_links') || '[]'); } catch (e) { return []; } };
+function soulLvlTxt(l) { return l === 3 ? ['✨ Almas gémeas', 'As vossas constelações encaixam na perfeição: Sol, Lua e número complementares. Acontece a cerca de 1 em cada 1300 pessoas.'] : l === 2 ? ['🌗 Constelação quase completa', 'Duas das três ligações da alma: uma ligação rara e forte.'] : l === 1 ? ['🌙 Um fio de luz', 'Uma ligação da alma em comum: há algo que vos une.'] : ['⭐ Céus diferentes', 'As vossas constelações não se tocam, e isso também é bonito: aprendem muito um com o outro.']; }
+function scanQR() {
+  if (!('BarcodeDetector' in window) || !navigator.mediaDevices) return Promise.resolve(null);
+  return (async () => {
+    let det; try { det = new BarcodeDetector({ formats: ['qr_code'] }); } catch (e) { return null; }
+    let stream; try { stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }); } catch (e) { toast('Sem acesso à câmara'); return null; }
+    const dl = $('#scanDlg'), h2 = dl.querySelector('h2'), pp = dl.querySelector('p'), o2 = h2.textContent, op = pp.textContent; h2.textContent = '🔭 Leitor do Céu'; pp.textContent = 'Aponta a câmara ao QR do verso da Carta da Alma.';
+    const v = $('#scanVid'); v.srcObject = stream; await v.play(); dl.showModal();
+    return new Promise(res => {
+      let done = false; const stop = val => { if (done) return; done = true; stream.getTracks().forEach(t => t.stop()); h2.textContent = o2; pp.textContent = op; if (dl.open) dl.close(); res(val); };
+      $('#scanCancel').onclick = () => stop(null); dl.onclose = () => stop(null);
+      const loop = async () => { if (done) return; try { const c = await det.detect(v); const hit = c.find(x => /#alma=/.test(x.rawValue)); if (hit) return stop(hit.rawValue); } catch (e) { } requestAnimationFrame(loop); }; loop();
+    });
+  })();
+}
+function soulReader() {
+  const dlg = $('#soulDlg');
+  dlg.innerHTML = `<div class="soulwrap"><h2>🔭 Leitor do Céu</h2><p>Lê a Carta da Alma de alguém e descobre se as vossas constelações encaixam.</p>
+    ${'BarcodeDetector' in window ? '<button class="btn main" id="srCam" style="width:100%">📷 Ler o QR com a câmara</button>' : '<p class="note">📷 Aponta a câmara normal do telemóvel ao QR da carta: abre logo aqui.</p>'}
+    <label style="display:block;margin-top:12px">Ou cola o link da carta<input type="text" id="srTxt" placeholder="https://ceudehoje.com/#alma=…"></label>
+    <div class="dlgfoot"><button class="btn" id="srBack">Voltar</button><button class="btn main" id="srGo">Ler a carta</button></div></div>`;
+  if (!dlg.open) dlg.showModal();
+  $('#srBack').onclick = openSoul;
+  const go = v => { const m = String(v || '').match(/alma=([^\s&]+)/) || [null, String(v || '').trim()]; const other = soulParse(decodeURIComponent(m[1] || '').replace(/\s/g, '') .replace(/%7E/gi, '~')) || soulParse(m[1]); if (!other) { toast('Esse link não é de uma Carta da Alma'); return; } soulMatch(other); };
+  $('#srGo').onclick = () => go($('#srTxt').value);
+  if ($('#srCam')) $('#srCam').onclick = async () => { const v = await scanQR(); if (v) go(v); else if (!dlg.open) dlg.showModal(); };
+}
+function soulMatch(other) {
+  const dlg = $('#soulDlg'), me = soulMe();
+  if (!me) { dlg.innerHTML = `<div class="soulwrap"><h2>💫 A carta de ${esc(other.first)}</h2><div class="soulpair one">${soulSVG2(other)}</div><p>Para veres se as vossas almas encaixam, cria primeiro a tua carta: só precisas do teu nome e data de nascimento.</p>${soulReading(Object.assign({ lp: other.n }, other))}<div class="dlgfoot"><button class="btn" id="smX">Fechar</button><button class="btn main" id="smPf">Criar a minha carta</button></div></div>`; if (!dlg.open) dlg.showModal(); $('#smX').onclick = () => dlg.close(); $('#smPf').onclick = () => { dlg.close(); ST.tab = 'eu'; render(); }; return; }
+  if (other.serial === me.serial) { toast('Essa é a tua própria carta 😄'); return openSoul(); }
+  const l = soulLevel(me, other), [h, p] = soulLvlTxt(l), pct = bond(me.s, other.s).pct, w = soulWant(me);
+  const L = soulLinks().filter(x => x.serial !== other.serial); L.unshift({ serial: other.serial, first: other.first, code: soulCode(other), l, pct, d: todayStr() }); store.set('ceu_soul_links', JSON.stringify(L.slice(0, 100)));
+  const chk = (ok, txt) => `<li class="${ok ? 'ok' : ''}">${ok ? '✦' : '·'} ${txt}</li>`;
+  dlg.innerHTML = `<div class="soulwrap"><button class="tclose" id="smX" aria-label="Fechar">✕</button><h2>${h}</h2>
+    <div class="soulpair lvl${l}"><div class="sp a">${soulSVG2(me)}</div><div class="sp b">${soulSVG2(other)}</div>${l === 3 ? '<div class="spglow"></div>' : ''}</div>
+    <p>${p}</p>
+    <ul class="soulchk">${chk(other.s === w.s, `Sol: ${SIGNS[me.s].n} ↔ ${SIGNS[other.s].n}`)}${chk(other.m === w.m, `Lua: ${SIGNS[me.m].n} ↔ ${SIGNS[other.m].n}`)}${chk(other.n === w.n, `Números da alma: ${me.n} + ${other.n}${other.n + me.n === 10 ? ' = 10' : ''}`)}</ul>
+    <p class="note">Compatibilidade dos signos: ${pct}%. A ligação ficou guardada na tua carta, em "As minhas ligações".</p>
+    <h3 class="soulh">A alma de ${esc(other.first)}</h3>${soulReading(Object.assign({ lp: other.n }, other))}
+    <div class="dlgfoot"><button class="btn" id="smBack">A minha carta</button><button class="btn main" id="smSh">📤 Partilhar</button></div></div>`;
+  if (!dlg.open) dlg.showModal();
+  if (l === 3) try { confetti(); } catch (e) { }
+  $('#smX').onclick = () => dlg.close(); $('#smBack').onclick = openSoul; $('#smSh').onclick = () => shareSoulMatch(me, other, l, pct);
+}
+async function shareSoulMatch(me, other, l, pct) {
+  await fontsReady(); const [c, ctx, W, H] = newCanvas(1080, 1350); bg(ctx, W, H, 'par' + me.serial + other.serial, ['#4a2a8a', '#07050f']);
+  const a = await svgImg(soulSVG2(me)), b = await svgImg(soulSVG2(other)), [h] = soulLvlTxt(l);
+  ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.6)'; ctx.shadowBlur = 40; ctx.translate(320, 640); ctx.rotate(-.07); ctx.drawImage(a, -200, -333, 400, 667); ctx.restore();
+  ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.6)'; ctx.shadowBlur = 40; ctx.translate(760, 640); ctx.rotate(.07); ctx.drawImage(b, -200, -333, 400, 667); ctx.restore();
+  ctx.textAlign = 'center'; ctx.fillStyle = '#f2c76e'; ctx.font = '700 44px Cinzel'; ctx.fillText('LEITOR DO CÉU', W / 2, 110);
+  ctx.fillStyle = '#fff'; ctx.font = 'italic 700 64px "Cormorant Garamond"'; ctx.fillText(h.replace(/^\S+\s/, ''), W / 2, 1100);
+  ctx.fillStyle = '#d9d0ff'; ctx.font = '600 34px Manrope'; ctx.fillText(`${me.first} + ${other.first} · ${l} de 3 ligações da alma · ${pct}%`, W / 2, 1160);
+  brandFoot(ctx, W, H, H - 40);
+  shareCanvases([{ c, name: 'leitor-do-ceu' }], `🔭 O Leitor do Céu leu as nossas Cartas da Alma: ${h} (${l} de 3 ligações). Descobre a tua em ceudehoje.com #CartaDaAlma`);
+}
+function soulLinksView() {
+  const dlg = $('#soulDlg'), L = soulLinks();
+  dlg.innerHTML = `<div class="soulwrap"><h2>💫 As minhas ligações</h2><p class="note">Cada carta que lês fica gravada na tua alma.</p>
+    ${L.length ? `<div class="soullist">${L.map((x, i) => `<button class="soulli" data-i="${i}"><span class="lv lv${x.l}">${'✦'.repeat(x.l) || '·'}</span><b>${esc(x.first)}</b><i>${soulLvlTxt(x.l)[0].replace(/^\S+\s/, '')} · ${x.pct}% · ${x.d.split('-').reverse().join('/')}</i></button>`).join('')}</div>` : '<p>Ainda não leste nenhuma carta. Pede a alguém o link ou o QR da Carta da Alma.</p>'}
+    <div class="dlgfoot"><button class="btn" id="slBack">A minha carta</button><button class="btn main" id="slRead">🔭 Ler uma carta</button></div></div>`;
+  $('#slBack').onclick = openSoul; $('#slRead').onclick = soulReader;
+  dlg.querySelectorAll('.soulli').forEach(b => b.onclick = () => { const o = soulParse(L[+b.dataset.i].code); if (o) soulMatch(o); });
+}
+function checkSoulLink() { const m = location.hash.match(/^#alma=(.+)$/); if (!m) return false; try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { } let code = m[1]; try { code = decodeURIComponent(code); } catch (e) { } const o = soulParse(code); if (o) setTimeout(() => soulMatch(o), 300); return true; }
+function soulBoxHtml() {
+  const o = soulMe();
+  return `<button class="soulbox" id="soulBoxGo">${o ? soulSVG2(o) : ''}<div><b>💫 ${o ? 'A tua Carta da Alma' : 'Cria a tua Carta da Alma'}</b><span>${o ? 'Única no mundo. Descobre quem tem a metade da tua constelação.' : 'Uma carta só tua, feita do teu nome e do teu nascimento.'}</span></div></button>`;
+}
+document.addEventListener('click', e => { if (e.target.closest && e.target.closest('#soulBoxGo')) openSoul(); });
+
 // ===== App de telemóvel =====
-const APP_VERSION = '14.11.2026 10:00';
+const APP_VERSION = '14.11.2026 11:00';
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const G = g => `${g}&#xFE0E;`;
@@ -5101,7 +5473,7 @@ function vPares() {
   const PR = pairsDay(ST.date, ST.modern);
   const me = P.get(), mySi = me && me.d ? sunSignOf(me.d) : 0, sOpt = sel => SIGNS.map((s, i) => `<option value="${i}"${i === sel ? ' selected' : ''}>${s.n}</option>`).join('');
   const pa = ST.pkA ?? mySi, pb = ST.pkB ?? 4, sb = (side, i) => `<button class="spk" data-side="${side}" style="--c:${elc(SIGNS[i])}"><span>${G(SIGNS[i].g)}</span><b>${SIGNS[i].n}</b><i>▾</i></button>`;
-  let h = `<div class="pickbox"><div class="pick2">${sb('A', pa)}<em>💞</em>${sb('B', pb)}</div><div class="pick2 names"><input type="text" id="nmA" maxlength="40" placeholder="Nome (opcional)" value="${esc(ST.nmA ?? (me && me.name ? me.name.split(' ')[0] : ''))}"><em>🔤</em><input type="text" id="nmB" maxlength="40" placeholder="Nome (opcional)" value="${esc(ST.nmB || '')}"></div><button class="btn main" id="pkGo">💞 Ver compatibilidade</button><p class="note">Escolhe os signos e, se quiseres, escreve os nomes: vês a ligação pelos dois.</p></div><h2 class="vt">💞 Quem combina hoje</h2>`;
+  let h = soulBoxHtml() + `<div class="pickbox"><div class="pick2">${sb('A', pa)}<em>💞</em>${sb('B', pb)}</div><div class="pick2 names"><input type="text" id="nmA" maxlength="40" placeholder="Nome (opcional)" value="${esc(ST.nmA ?? (me && me.name ? me.name.split(' ')[0] : ''))}"><em>🔤</em><input type="text" id="nmB" maxlength="40" placeholder="Nome (opcional)" value="${esc(ST.nmB || '')}"></div><button class="btn main" id="pkGo">💞 Ver compatibilidade</button><p class="note">Escolhe os signos e, se quiseres, escreve os nomes: vês a ligação pelos dois.</p></div><h2 class="vt">💞 Quem combina hoje</h2>`;
   PR.top.forEach((p, i) => h += `<div class="pair r${i + 1}" data-a="${p.a}" data-b="${p.b}"><div class="pg"><span style="color:${elc(SIGNS[p.a])}">${G(SIGNS[p.a].g)}</span><b>${p.score}%</b><span style="color:${elc(SIGNS[p.b])}">${G(SIGNS[p.b].g)}</span></div><div class="pn">${SIGNS[p.a].n} + ${SIGNS[p.b].n}</div><small>${cap1(PAIR_TXT[p.k])}</small><span class="open">Ver tudo ›</span></div>`);
   h += `<div class="warn">Paciência hoje: ${G(SIGNS[PR.worst.a].g)} ${SIGNS[PR.worst.a].n} + ${G(SIGNS[PR.worst.b].g)} ${SIGNS[PR.worst.b].n} (${PR.worst.score}%)</div>`;
   h += `<h2 class="vt">O par ideal de cada signo</h2><div class="list">`;
@@ -5713,14 +6085,14 @@ async function init() {
   if (hasPin()) await lockScreen();
   ST.date = todayStr();
   if (/aniversarios/.test(location.search + location.hash)) { ST.type = 'anos'; ST.anosView = 'agenda'; }
-  const qs = location.search; if (/carta/.test(qs)) setTimeout(() => openTarot(!tarOpened()), 600); if (/[?&]semana($|&)/.test(qs)) setTimeout(() => openTarot(!store.get('ceu_tarw_' + mondayOf(todayStr())), true), 600); if (/asemana/.test(qs)) setTimeout(openWeekView, 600); if (/semana-lua/.test(qs)) { ST.type = 'eu'; ST.euView = 'me'; setTimeout(() => { const n = document.querySelector('#sec-rout'); n && n.scrollIntoView({ block: 'start' }); }, 700); } if (/posts/.test(qs)) setTimeout(() => openStudio(), 600); if (/noite/.test(qs)) setTimeout(openNight, 600); if (/wrapped/.test(qs)) setTimeout(() => openWrapped(), 600); if (/ciclo|resumo|livro|patudos/.test(qs)) { ST.type = 'eu'; ST.euView = 'me'; setTimeout(() => { if (/ciclo/.test(qs)) (CY.get().preg ? openPreg() : openCycle()); else if (/resumo/.test(qs)) openMonth(); else if (/livro/.test(qs)) openAno(); }, 700); }
+  const qs = location.search; if (/[?&]alma($|&)/.test(qs)) setTimeout(openSoul, 600); if (/carta/.test(qs)) setTimeout(() => openTarot(!tarOpened()), 600); if (/[?&]semana($|&)/.test(qs)) setTimeout(() => openTarot(!store.get('ceu_tarw_' + mondayOf(todayStr())), true), 600); if (/asemana/.test(qs)) setTimeout(openWeekView, 600); if (/semana-lua/.test(qs)) { ST.type = 'eu'; ST.euView = 'me'; setTimeout(() => { const n = document.querySelector('#sec-rout'); n && n.scrollIntoView({ block: 'start' }); }, 700); } if (/posts/.test(qs)) setTimeout(() => openStudio(), 600); if (/noite/.test(qs)) setTimeout(openNight, 600); if (/wrapped/.test(qs)) setTimeout(() => openWrapped(), 600); if (/ciclo|resumo|livro|patudos/.test(qs)) { ST.type = 'eu'; ST.euView = 'me'; setTimeout(() => { if (/ciclo/.test(qs)) (CY.get().preg ? openPreg() : openCycle()); else if (/resumo/.test(qs)) openMonth(); else if (/livro/.test(qs)) openAno(); }, 700); }
   document.addEventListener('visibilitychange', () => { if (document.visibilityState !== 'visible') return; const t = todayStr(); if (ST._day && ST._day !== t) { if (ST.date === ST._day) ST.date = t; ST._day = t; render(); setTimeout(() => showTodayDlg(false), 400); } });
   ST._day = todayStr(); setTimeout(() => pushSync(false), 4000); try { if (navigator.storage && navigator.storage.persist && hasPersonalData()) navigator.storage.persist(); } catch (e) { }
   render();
-  if (/^#mig=/.test(location.hash)) setTimeout(checkMigLink, 300); else if (/#add=/.test(location.hash)) setTimeout(checkAddLink, 400); else if (/#casal=/.test(location.hash)) checkCoupleLink(); else if (!isOldHost()) setTimeout(() => { if (!showTodayDlg(false)) maybeTour(); }, 600);
+  if (/^#mig=/.test(location.hash)) setTimeout(checkMigLink, 300); else if (/#add=/.test(location.hash)) setTimeout(checkAddLink, 400); else if (/#casal=/.test(location.hash)) checkCoupleLink(); else if (/^#alma=/.test(location.hash)) checkSoulLink(); else if (!isOldHost()) setTimeout(() => { if (!showTodayDlg(false)) maybeTour(); }, 600);
   setTimeout(() => { try { if (alertState() === 'granted' && navigator.serviceWorker && navigator.serviceWorker.controller) navigator.serviceWorker.controller.postMessage('check-bdays'); } catch (e) { } }, 1500);
   try { await Promise.race([Promise.all(['700 40px Cinzel', 'italic 600 40px "Cormorant Garamond"', '500 20px Manrope', '600 20px Manrope', '700 20px Manrope', '800 20px Manrope'].map(f => document.fonts.load(f)).concat([document.fonts.load('40px "Noto Sans Symbols"', '♈♉♊♋♌♍♎♏♐♑♒♓☉☽☿♀♂♃♄'), document.fonts.load('40px "Noto Sans Symbols 2"', '♅♆♇★✂✓✕')])), new Promise(r => setTimeout(r, 3000))]); } catch (e) { }
-  if (/github\.io$/.test(location.hostname) && 'serviceWorker' in navigator) {
+  if (/github\.io$|(^|\.)ceudehoje\.com$|\.pages\.dev$|^localhost$/.test(location.hostname) && 'serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(r => { r.update(); setInterval(() => r.update(), 30 * 60 * 1000); }).catch(() => { });
     let reloaded = false; const hadCtl = !!navigator.serviceWorker.controller; navigator.serviceWorker.addEventListener('controllerchange', () => { if (reloaded || !hadCtl) return; const busy = () => !!document.querySelector('dialog[open]') || /INPUT|TEXTAREA/.test((document.activeElement || {}).tagName || ''); const go = () => { if (!reloaded) { reloaded = true; location.reload(); } }; if (!busy()) go(); else { toast('✨ Há uma versão nova: atualiza quando acabares (ou fecha e abre a app).', 6000); const iv = setInterval(() => { if (!busy() && document.visibilityState === 'hidden') { clearInterval(iv); go(); } }, 4000); } });
   }
