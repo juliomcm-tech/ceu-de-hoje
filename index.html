@@ -253,6 +253,7 @@ footer.ft{color:var(--mute);font-size:11.5px;text-align:center;margin:18px 0 6px
 .soullist{display:flex;flex-direction:column;gap:8px;margin:10px 0}.soulli{display:grid;grid-template-columns:54px 1fr;grid-template-rows:auto auto;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px 12px;color:var(--tx)}.soulli .lv{grid-row:span 2;align-self:center;color:var(--gold);font-size:18px}.soulli i{font-size:13px;opacity:.75;font-style:normal}
 .soulbox{display:flex;gap:12px;align-items:center;background:linear-gradient(135deg,color-mix(in srgb,var(--gold) 18%,var(--card)),var(--card));border:1px solid var(--gold);border-radius:18px;padding:10px 12px;margin:0 0 12px;cursor:pointer;width:100%;color:var(--tx);text-align:left}.soulbox svg{width:58px;height:auto;flex:none;filter:drop-shadow(0 6px 8px #0008)}.soulbox b{display:block;color:var(--gold);font:700 19px "Cormorant Garamond",serif}.soulbox span{font-size:13px;opacity:.85}
 @media (prefers-reduced-motion:reduce){.soul3d,.soulpair .sp,.spglow{animation:none!important;transition:none!important}}
+.vaultnew{display:flex;flex-direction:column;gap:8px;margin:10px 0}.vaultnew textarea{width:100%;font:inherit;border-radius:14px;padding:10px;background:var(--card);color:var(--tx);border:1px solid var(--line)}.vmem{position:relative;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 40px 10px 12px;margin:8px 0}.vmem b{color:var(--gold);font-size:13px}.vmem p{margin:4px 0 0;white-space:normal}.vmem.lock{border-style:dashed;opacity:.85;padding-right:12px}.vmem.lock span{display:block;font-size:13px;opacity:.8}.vmem.cap{border-color:var(--gold)}.vdel{position:absolute;top:8px;right:8px;background:none;border:0;font-size:16px;opacity:.6}.capnow{width:100%;text-align:left;color:var(--tx);cursor:pointer}
 </style>
 </head>
 <body>
@@ -3980,6 +3981,7 @@ function alertEvents() {
   try { pregAlerts().forEach(a => add(a.d, a.t, a.b, a.tag, a.url)); } catch (e) { }
   try { tarotAlerts().forEach(a => ev.push(a)); } catch (e) { }
   try { cdAlerts().forEach(a => ev.push(a)); } catch (e) { }
+  try { soulAlerts().forEach(a => ev.push(a)); } catch (e) { }
   try { [...giftAlerts(), ...nightAlerts(), ...wrapAlerts(), ...weekAlerts(), ...routineAlerts()].forEach(a => ev.push(a)); } catch (e) { }
   try { const o = CY.get(); if (o.on && !o.preg) { const st = cycleStats(o); if (st.last) { if (o.alerts.period) { add(dayStr(noonJd(st.next) - 2), '🩸 O período deve chegar daqui a 2 dias', 'Leva o que precisas na mala 💗', 'cy-p2-' + st.next, './?ciclo'); add(st.next, '🩸 O período pode chegar hoje', 'Cuida bem de ti hoje 💗', 'cy-p0-' + st.next, './?ciclo'); } if (o.alerts.fertile) add(st.fert[0], '🌸 Começa hoje a tua janela fértil', `Até ${niceDate(st.fert[1]).replace(/^[^,]+, /, '')} (estimativa)`, 'cy-f-' + st.fert[0], './?ciclo'); if (o.ttc && o.alerts.fertile) add(st.peak[0], '🔥 Começam hoje os teus dias de pico', `${cyRange(st.peak[0], st.peak[1])}. Regista os sinais na app para afinar.`, 'cy-pk-' + st.peak[0], './?ciclo'); } } } catch (e) { }
   try { P.list('ceu_pets').forEach(a => ['vac', 'des'].forEach(k => { const n = careNext(a, k); if (!n) return; const lbl = `${CARE_T[k][1]} ${spOf(a)[0] === 'gata' ? 'da' : 'do'} ${a.name}`; add(dayStr(noonJd(n) - 1), `${CARE_T[k][0]} Amanhã: ${lbl}`, 'Já marcaste o veterinário?', `pet-${a.name}-${k}-${n}-1`, './?patudos'); add(n, `${CARE_T[k][0]} Hoje: ${lbl}`, 'Depois de tratar, carrega em ✅ Feito na app.', `pet-${a.name}-${k}-${n}-0`, './?patudos'); }));
@@ -5239,7 +5241,7 @@ function soulSVG2(o, opt = {}) {
   ${ring}
   <path d="M${sx - SR + 6} ${sy - 10} A${SR - 6} ${SR - 6} 0 0 1 ${sx + SR - 6} ${sy - 10}" fill="none" stroke="#fff" stroke-opacity=".12" stroke-width="3"/>`;
   const WELL = `<circle cx="${sx}" cy="${sy}" r="${SR}" fill="url(#wl${id})"/>
-  <g clip-path="url(#wc${id})">${deep}${well}${cons}</g>
+  <g clip-path="url(#wc${id})">${deep}${well}${soulMemStars(o, opt.mem || 0)}${cons}</g>
   <circle cx="${sx}" cy="${sy}" r="${SR}" fill="url(#rim${id})"/>`;
   const FRONT = `${rays}
   <g filter="url(#dd${id})"><circle cx="${cx}" cy="${cy}" r="62" fill="url(#bv${id})"/></g>
@@ -5309,11 +5311,13 @@ function soulReading(o) {
     + sec('🃏', `Arcano de nascimento: ${A[0]}`, `A carta que te acompanha desde que nasceste fala de ${A[2]}.`)
     + sec('💎', `Pedra: ${o.stone} · cor da alma: ${o.col ? o.col[0] : ''}`, `${SOUL_EL[o.el].e} Elemento ${SOUL_EL[o.el].n}. Leva a tua pedra ou a tua cor contigo nos dias importantes.`);
 }
+function soulCapToday() { const n = SMEM.all().filter(x => x.open && x.open <= todayStr() && x.open >= dayStr(noonJd(todayStr()) - 7)).length; return n ? `<button class="soulwant capnow" id="soulCapGo"><b>💌 ${n === 1 ? 'Abriu uma cápsula do tempo' : `Abriram ${n} cápsulas do tempo`}</b><p>A tua alma guardou uma memória para ti. Toca para a ler.</p></button>` : ''; }
 function soulWantTxt(o) { const w = soulWant(o); return `☉ ${SIGNS[w.s].n} · ☾ ${SIGNS[w.m].n} · nº ${w.n}`; }
 
 // ---------- Carta 3D (camadas) ----------
 function soul3dHtml(o, back) {
-  return `<div class="soul3d${back ? ' flip' : ''}" id="soul3d"><div class="sface sfront"><div class="sl sbk">${soulSVG2(o, { layer: 'back' })}</div><div class="sl">${soulSVG2(o, { layer: 'base' })}</div><div class="sl sfr">${soulSVG2(o, { layer: 'front' })}</div><div class="ssheen"></div></div><div class="sface sback">${soulBackSVG(o)}<div class="ssheen"></div></div></div>`;
+  const mem = SMEM.all().filter(memOpen).length;
+  return `<div class="soul3d${back ? ' flip' : ''}" id="soul3d"><div class="sface sfront"><div class="sl sbk">${soulSVG2(o, { layer: 'back', mem })}</div><div class="sl">${soulSVG2(o, { layer: 'base' })}</div><div class="sl sfr">${soulSVG2(o, { layer: 'front' })}</div><div class="ssheen"></div></div><div class="sface sback">${soulBackSVG(o)}<div class="ssheen"></div></div></div>`;
 }
 let _soulTilt = null;
 function bindSoulTilt() {
@@ -5339,7 +5343,7 @@ function openSoul() {
     <div class="soulbtns"><button class="btn" id="soulFlip">↻ Ver o verso</button><button class="btn main" id="soulSh">📤 Partilhar</button></div>
     <div class="soulinfo" id="soulInfo"${first ? ' hidden' : ''}>
       <div class="soulwant"><b>💞 A tua metade perfeita</b><p>${soulWantTxt(o)}</p><p class="note">Só cerca de 1 em cada 1300 pessoas tem estas três ligações contigo. Partilha a tua carta: quem a ler descobre se é a tua metade.</p></div>
-      <div class="soulbtns"><button class="btn" id="soulRead">🔭 Ler a carta de alguém</button><button class="btn" id="soulLinks">💫 As minhas ligações (${soulLinks().length})</button></div>
+      ${soulCapToday()}<div class="soulbtns"><button class="btn" id="soulVault">🔐 Cofre da alma (${SMEM.all().length})</button><button class="btn" id="soulRead">🔭 Ler a carta de alguém</button><button class="btn" id="soulLinks">💫 As minhas ligações (${soulLinks().length})</button></div>
       <h3 class="soulh">A leitura da tua alma</h3>${soulReading(o)}
       <p class="note">Nº ${o.serial.slice(0, 4)}·${o.serial.slice(4)} · a tua carta é calculada a partir do teu nome e nascimento e é só tua. Inspirada na tradição astrológica, para te divertires e refletires.</p>
     </div></div>`;
@@ -5349,6 +5353,7 @@ function openSoul() {
   card.onclick = async () => { if (first && !store.get('ceu_soul_seen')) { await soulMotionOk(); store.set('ceu_soul_seen', todayStr()); card.classList.add('reveal'); card.classList.remove('flip'); $('#soulHint').textContent = 'Esta é a tua alma. Inclina o telemóvel ✨'; try { confetti(); } catch (e) { } setTimeout(() => { $('#soulInfo').hidden = false; }, 900); } };
   $('#soulFlip').onclick = async () => { await soulMotionOk(); card.classList.toggle('flip'); $('#soulFlip').textContent = card.classList.contains('flip') ? '↻ Ver a frente' : '↻ Ver o verso'; };
   $('#soulSh').onclick = () => shareSoul(o);
+  $('#soulVault').onclick = () => soulVault(); if ($('#soulCapGo')) $('#soulCapGo').onclick = () => soulVault();
   $('#soulRead').onclick = () => soulReader();
   $('#soulLinks').onclick = () => soulLinksView();
 }
@@ -5403,7 +5408,7 @@ function soulMatch(other) {
   if (!me) { dlg.innerHTML = `<div class="soulwrap"><h2>💫 A carta de ${esc(other.first)}</h2><div class="soulpair one">${soulSVG2(other)}</div><p>Para veres se as vossas almas encaixam, cria primeiro a tua carta: só precisas do teu nome e data de nascimento.</p>${soulReading(Object.assign({ lp: other.n }, other))}<div class="dlgfoot"><button class="btn" id="smX">Fechar</button><button class="btn main" id="smPf">Criar a minha carta</button></div></div>`; if (!dlg.open) dlg.showModal(); $('#smX').onclick = () => dlg.close(); $('#smPf').onclick = () => { dlg.close(); ST.tab = 'eu'; render(); }; return; }
   if (other.serial === me.serial) { toast('Essa é a tua própria carta 😄'); return openSoul(); }
   const l = soulLevel(me, other), [h, p] = soulLvlTxt(l), pct = bond(me.s, other.s).pct, w = soulWant(me);
-  const L = soulLinks().filter(x => x.serial !== other.serial); L.unshift({ serial: other.serial, first: other.first, code: soulCode(other), l, pct, d: todayStr() }); store.set('ceu_soul_links', JSON.stringify(L.slice(0, 100)));
+  const L = soulLinks().filter(x => x.serial !== other.serial); L.unshift({ serial: other.serial, first: other.first, code: soulCode(other), l, pct, d: todayStr() }); store.set('ceu_soul_links', JSON.stringify(L.slice(0, 500)));
   const chk = (ok, txt) => `<li class="${ok ? 'ok' : ''}">${ok ? '✦' : '·'} ${txt}</li>`;
   dlg.innerHTML = `<div class="soulwrap"><button class="tclose" id="smX" aria-label="Fechar">✕</button><h2>${h}</h2>
     <div class="soulpair lvl${l}"><div class="sp a">${soulSVG2(me)}</div><div class="sp b">${soulSVG2(other)}</div>${l === 3 ? '<div class="spglow"></div>' : ''}</div>
@@ -5441,6 +5446,41 @@ function soulBoxHtml() {
   return `<button class="soulbox" id="soulBoxGo">${o ? soulSVG2(o) : ''}<div><b>💫 ${o ? 'A tua Carta da Alma' : 'Cria a tua Carta da Alma'}</b><span>${o ? 'Única no mundo. Descobre quem tem a metade da tua constelação.' : 'Uma carta só tua, feita do teu nome e do teu nascimento.'}</span></div></button>`;
 }
 document.addEventListener('click', e => { if (e.target.closest && e.target.closest('#soulBoxGo')) openSoul(); });
+
+// ---------- Cofre da alma: memórias e cápsulas do tempo (guardadas só neste telemóvel) ----------
+const SMEM = { all: () => { try { return JSON.parse(store.get('ceu_soul_mem') || '[]'); } catch (e) { return []; } }, save: L => store.set('ceu_soul_mem', JSON.stringify(L.slice(-500))) };
+const memOpen = x => !x.open || x.open <= todayStr();
+function soulMemStars(o, n) { // cada memória acende uma estrela no céu da carta
+  if (!n) return ''; const r = seeded('mem' + o.serial), C = o.col ? o.col[1] : '#f2c76e'; let s = '';
+  for (let i = 0; i < Math.min(n, 24); i++) { const a = r() * 6.283, d = 18 + r() * 62, x = 150 + Math.cos(a) * d, y = 150 + Math.sin(a) * d; s += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="5" fill="${C}" opacity=".22"/><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="1.7" fill="#fff"/>`; }
+  return s;
+}
+function soulVault(focus) {
+  const dlg = $('#soulDlg'), L = SMEM.all().sort((a, b) => (b.d || '').localeCompare(a.d || '')), t = todayStr(), next = new Date(); next.setFullYear(next.getFullYear() + 1); const nx = next.toISOString().slice(0, 10);
+  const locked = L.filter(x => !memOpen(x)), opened = L.filter(memOpen);
+  const fmt = d => d.split('-').reverse().join('/'), days = d => Math.max(0, Math.round(noonJd(d) - noonJd(t)));
+  dlg.innerHTML = `<div class="soulwrap"><button class="tclose" id="svX" aria-label="Fechar">✕</button><h2>🔐 Cofre da alma</h2>
+    <p class="note">Grava memórias na tua carta: cada uma acende uma estrela no teu céu. Ficam só neste telemóvel (e na cópia de segurança).</p>
+    <div class="vaultnew"><textarea id="svTxt" maxlength="600" rows="3" placeholder="Uma memória que a tua alma não pode esquecer…"></textarea>
+      <label class="chk"><input type="checkbox" id="svCap"> ⏳ Cápsula do tempo: só abre numa data</label>
+      <label id="svDw" hidden>Abre a<input type="date" id="svDate" min="${dayStr(noonJd(t) + 1)}" value="${nx}"></label>
+      <button class="btn main" id="svSave" style="width:100%">✨ Gravar na minha alma</button></div>
+    ${locked.length ? `<h3 class="soulh">⏳ Cápsulas por abrir</h3>${locked.map(x => `<div class="vmem lock"><b>🔒 Abre a ${fmt(x.open)}</b><span>${days(x.open) === 1 ? 'Falta 1 dia' : `Faltam ${days(x.open)} dias`} · gravada a ${fmt(x.d)}</span></div>`).join('')}` : ''}
+    ${opened.length ? `<h3 class="soulh">✨ Memórias gravadas (${opened.length})</h3>${opened.map(x => `<div class="vmem${x.open ? ' cap' : ''}"><b>${x.open ? '💌 Cápsula aberta · ' : ''}${fmt(x.d)}</b><p>${esc(x.t).replace(/\n/g, '<br>')}</p><button class="vdel" data-id="${x.id}" aria-label="Apagar">🗑️</button></div>`).join('')}` : '<p class="note">Ainda não gravaste nenhuma memória.</p>'}
+    <div class="dlgfoot"><button class="btn" id="svBack">A minha carta</button></div></div>`;
+  if (!dlg.open) dlg.showModal();
+  $('#svX').onclick = () => dlg.close(); $('#svBack').onclick = openSoul;
+  $('#svCap').onchange = e => { $('#svDw').hidden = !e.target.checked; };
+  $('#svSave').onclick = () => {
+    const txt = $('#svTxt').value.trim(); if (!txt) { toast('Escreve a memória primeiro'); return; }
+    const cap = $('#svCap').checked, od = $('#svDate').value; if (cap && (!od || od <= t)) { toast('Escolhe uma data futura'); return; }
+    const M = SMEM.all(); M.push({ id: 'm' + Date.now().toString(36), d: t, t: txt, open: cap ? od : '' }); SMEM.save(M);
+    toast(cap ? `⏳ Cápsula fechada até ${fmt(od)}` : '✨ Memória gravada na tua alma'); soulVault();
+  };
+  dlg.querySelectorAll('.vdel').forEach(b => b.onclick = () => { if (!confirmBox('Apagar esta memória da tua alma?')) return; SMEM.save(SMEM.all().filter(x => x.id !== b.dataset.id)); soulVault(); });
+  if (focus) setTimeout(() => $('#svTxt').focus(), 200);
+}
+function soulAlerts() { return SMEM.all().filter(x => x.open && x.open >= todayStr()).map(x => ({ d: x.open, t: '💫 A tua alma tem uma memória para ti', b: 'Uma cápsula do tempo abriu hoje. Vem lê-la ✨', tag: 'cap-' + x.id, url: './?alma', h: 9 })); }
 
 // ===== App de telemóvel =====
 const APP_VERSION = '14.11.2026 11:00';
