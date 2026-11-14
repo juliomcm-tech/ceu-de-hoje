@@ -5361,7 +5361,7 @@ function openSoul() {
   dlg.innerHTML = `<div class="soulwrap"><button class="tclose" id="soulX" aria-label="Fechar">✕</button>
     <p class="soulhint" id="soulHint">${first ? 'A tua alma tem uma carta só tua. Toca para a revelar ✨' : 'Inclina o telemóvel ou passa o dedo pela carta'}</p>
     <div class="soulstage">${soul3dHtml(o, first)}</div>
-    <div class="soulbtns"><button class="btn" id="soulFlip">↻ Ver o verso</button><button class="btn main" id="soulSh">📤 Partilhar</button></div>
+    <div class="soulbtns"><button class="btn" id="soulFlip">↻ Ver o verso</button><button class="btn main" id="soulSh">📤 Partilhar</button>${'NDEFReader' in window ? '<button class="btn" id="soulNfc">📶 Gravar num chip NFC</button>' : ''}</div>
     <div class="soulinfo" id="soulInfo"${first ? ' hidden' : ''}>
       <div class="soulwant"><b>💞 A tua metade perfeita</b><p>${soulWantTxt(o)}</p><p class="note">Só cerca de 1 em cada 1300 pessoas tem estas três ligações contigo. Partilha a tua carta: quem a ler descobre se é a tua metade.</p></div>
       ${soulCapToday()}<div class="soulbtns"><button class="btn" id="soulVault">🔐 Cofre da alma (${SMEM.all().length})</button><button class="btn" id="soulRead">🔭 Ler a carta de alguém</button><button class="btn" id="soulLinks">💫 As minhas ligações (${soulLinks().length})</button></div>
@@ -5374,6 +5374,7 @@ function openSoul() {
   card.onclick = async () => { if (first && !store.get('ceu_soul_seen')) { await soulMotionOk(); store.set('ceu_soul_seen', todayStr()); card.classList.add('reveal'); card.classList.remove('flip'); $('#soulHint').textContent = 'Esta é a tua alma. Inclina o telemóvel ✨'; try { confetti(); } catch (e) { } setTimeout(() => { $('#soulInfo').hidden = false; }, 900); } };
   $('#soulFlip').onclick = async () => { await soulMotionOk(); card.classList.toggle('flip'); $('#soulFlip').textContent = card.classList.contains('flip') ? '↻ Ver a frente' : '↻ Ver o verso'; };
   $('#soulSh').onclick = () => shareSoul(o);
+  if ($('#soulNfc')) $('#soulNfc').onclick = () => soulWriteNfc(o);
   $('#soulVault').onclick = () => soulVault(); if ($('#soulCapGo')) $('#soulCapGo').onclick = () => soulVault();
   $('#soulRead').onclick = () => soulReader();
   $('#soulLinks').onclick = () => soulLinksView();
@@ -5503,8 +5504,16 @@ function soulVault(focus) {
 }
 function soulAlerts() { return SMEM.all().filter(x => x.open && x.open >= todayStr()).map(x => ({ d: x.open, t: '💫 A tua alma tem uma memória para ti', b: 'Uma cápsula do tempo abriu hoje. Vem lê-la ✨', tag: 'cap-' + x.id, url: './?alma', h: 9 })); }
 
+// ---------- Gravar a carta num chip NFC (porta-chaves, carta impressa) ----------
+async function soulWriteNfc(o) {
+  if (!('NDEFReader' in window)) { toast('Este telemóvel não grava chips NFC pelo navegador (só Android com Chrome)', 5000); return; }
+  if (!confirmBox('Encosta o chip NFC à parte de trás do telemóvel depois de carregares em OK. A tua carta fica gravada no chip: quem o encostar ao telemóvel abre a tua Carta da Alma.')) return;
+  try { const nd = new NDEFReader(); toast('📶 Encosta o chip ao telemóvel…', 8000); await nd.write({ records: [{ recordType: 'url', data: soulLink(o) }] }); toast('✨ Carta gravada no chip!'); try { navigator.vibrate && navigator.vibrate([80, 40, 80]); } catch (e) { } }
+  catch (e) { toast(e && e.name === 'NotAllowedError' ? 'Sem autorização para usar o NFC' : 'Não deu para gravar: tenta encostar melhor o chip', 5000); }
+}
+
 // ===== App de telemóvel =====
-const APP_VERSION = '14.11.2026 11:45';
+const APP_VERSION = '14.11.2026 12:00';
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const G = g => `${g}&#xFE0E;`;
