@@ -5289,40 +5289,65 @@ function soulSVG2(o, opt = {}) {
 
 // ---------- Verso com o nosso QR (selo celeste) ----------
 function soulQR(text, x, y, size, ink, paper) { // QR desenhado à nossa maneira: pontos redondos e olhos com estrela
-  const q = qrcode(0, 'M'); q.addData(text); q.make(); const n = q.getModuleCount(), Z = 3, m = size / (n + Z * 2); let out = `<rect x="${x}" y="${y}" width="${size}" height="${size}" rx="${m * 1.6}" fill="${paper}"/>`;
+  const q = qrcode(0, 'M'); q.addData(text); q.make(); const n = q.getModuleCount(), Z = 3, m = size / (n + Z * 2); let out = paper === 'none' ? '' : `<rect x="${x}" y="${y}" width="${size}" height="${size}" rx="${m * 1.6}" fill="${paper}"/>`;
   const eye = (r, c) => r < 7 && c < 7 || r < 7 && c >= n - 7 || r >= n - 7 && c < 7;
   for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (q.isDark(r, c) && !eye(r, c)) out += `<circle cx="${(x + (c + Z + .5) * m).toFixed(2)}" cy="${(y + (r + Z + .5) * m).toFixed(2)}" r="${(m * .5).toFixed(2)}" fill="${ink}"/>`;
   for (const [r, c] of [[0, 0], [0, n - 7], [n - 7, 0]]) { const X = x + (c + Z) * m, Y = y + (r + Z) * m; out += `<rect x="${X + m * .5}" y="${Y + m * .5}" width="${m * 6}" height="${m * 6}" rx="${m * .5}" fill="none" stroke="${ink}" stroke-width="${m}"/><rect x="${X + m * 2}" y="${Y + m * 2}" width="${m * 3}" height="${m * 3}" rx="${m * .5}" fill="${ink}"/>`; }
   return out;
 }
 const soulLink = o => 'https://ceudehoje.com/#alma=' + soulCode(o);
+// Fragilidades e proteções simbólicas (tradição astrológica)
+const SOUL_WEAK = ['impaciência e impulsividade', 'teimosia e apego', 'dispersão e ansiedade', 'mágoas guardadas', 'orgulho ferido', 'autocrítica e preocupação', 'indecisão, agradar a todos', 'ciúme e desconfiança', 'promessas a mais, fugir', 'dureza contigo, cansaço', 'distância das emoções', 'absorver a dor dos outros'];
+const SOUL_HEART = { fogo: 'explodes e depois arrependes-te', terra: 'fechas-te e guardas tudo', ar: 'pensas demais no que sentes', agua: 'afogas-te nas emoções' };
+const SOUL_AFF = ['Respiro antes de agir: a minha força é escolher o momento.', 'Solto o que já não me serve e confio no que vem.', 'Uma coisa de cada vez: a minha mente encontra o centro.', 'Perdoo, solto e guardo só o que me faz bem.', 'Brilho por dentro, mesmo quando ninguém está a ver.', 'Sou suficiente tal como sou hoje.', 'A minha escolha também conta.', 'Confio, e deixo a luz entrar.', 'Fico, e descubro a aventura de estar presente.', 'Mereço descansar e celebrar o caminho.', 'Deixo-me sentir e deixo que cuidem de mim.', 'Cuido de mim antes de cuidar do mundo.'];
+const SOUL_DAY = { mars: 'terça-feira', venus: 'sexta-feira', mercury: 'quarta-feira', moon: 'segunda-feira', sun: 'domingo', jupiter: 'quinta-feira', saturn: 'sábado' };
+const soulMetal = s => SIGN_EXTRA[s].metal.replace(/\s*\(.*\)/, '');
+function soulSigil(o, cx, cy, R, col) { // selo de proteção: as letras do nome ligam 9 pontos num círculo (sigilo numerológico)
+  const L = nrm(o.first).replace(/[^a-z]/g, '').split('').map(c => ((c.charCodeAt(0) - 97) % 9)), pts = [...Array(9)].map((_, i) => { const a = (i / 9) * Math.PI * 2 - Math.PI / 2; return [cx + Math.cos(a) * R, cy + Math.sin(a) * R]; });
+  const seq = L.filter((v, i) => i === 0 || v !== L[i - 1]); if (seq.length < 2) seq.push((seq[0] + o.n) % 9);
+  const d = seq.map((v, i) => (i ? 'L' : 'M') + pts[v][0].toFixed(1) + ' ' + pts[v][1].toFixed(1)).join(' '), a = pts[seq[0]], z = pts[seq[seq.length - 1]];
+  return `<circle cx="${cx}" cy="${cy}" r="${R + 5}" fill="none" stroke="${col}" stroke-width=".8" opacity=".7"/>${pts.map(p => `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r=".9" fill="${col}" opacity=".6"/>`).join('')}<path d="${d}" fill="none" stroke="${col}" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${a[0].toFixed(1)}" cy="${a[1].toFixed(1)}" r="2.2" fill="${col}"/><path d="M${(z[0] - 2.5).toFixed(1)} ${(z[1] - 2.5).toFixed(1)} L${(z[0] + 2.5).toFixed(1)} ${(z[1] + 2.5).toFixed(1)} M${(z[0] + 2.5).toFixed(1)} ${(z[1] - 2.5).toFixed(1)} L${(z[0] - 2.5).toFixed(1)} ${(z[1] + 2.5).toFixed(1)}" stroke="${col}" stroke-width="1.3"/>`;
+}
+// Verso: «Amuleto da alma». O QR é a Lua cheia da carta (pontos = crateras) e lê-se com qualquer câmara.
 function soulBackSVG(o) {
   const E = SOUL_EL[o.el] || SOUL_EL.ar, [c0, c1, c2] = E.c, G = '#f2c76e', G2 = '#fff1c4', C = o.col ? o.col[1] : G, id = 'b' + o.serial, W = 300, H = 500, r = seeded('vs' + o.serial), fp = soulPrint(o.serial);
   const t = (x, y, sz, txt, f, extra = '') => `<text x="${x}" y="${y}" text-anchor="middle" font-family="Georgia,'Times New Roman',serif" font-size="${sz}" fill="${f}" ${extra}>${txt}</text>`;
   let stars = ''; for (let i = 0; i < 80; i++) stars += `<circle cx="${(16 + r() * 268).toFixed(1)}" cy="${(16 + r() * 468).toFixed(1)}" r="${(.3 + r() * 1).toFixed(2)}" fill="#fff" opacity="${(.2 + r() * .55).toFixed(2)}"/>`;
-  let ring = ''; const cx = 150, cy = 238, R = 112; for (let i = 0; i < 48; i++) if (fp[i]) { const a0 = (i / 48) * Math.PI * 2 - Math.PI / 2, a1 = a0 + Math.PI * 2 / 48 * .72; ring += `<path d="M${(cx + Math.cos(a0) * R).toFixed(1)} ${(cy + Math.sin(a0) * R).toFixed(1)} A${R} ${R} 0 0 1 ${(cx + Math.cos(a1) * R).toFixed(1)} ${(cy + Math.sin(a1) * R).toFixed(1)}" stroke="${i % 6 ? G : C}" stroke-width="${i % 6 ? 2 : 3}" fill="none" stroke-linecap="round"/>`; }
-  let rays = ''; for (let i = 0; i < 24; i++) { const a = i / 24 * Math.PI * 2; rays += `<line x1="${(cx + Math.cos(a) * 120).toFixed(1)}" y1="${(cy + Math.sin(a) * 120).toFixed(1)}" x2="${(cx + Math.cos(a) * (i % 2 ? 132 : 142)).toFixed(1)}" y2="${(cy + Math.sin(a) * (i % 2 ? 132 : 142)).toFixed(1)}" stroke="${G}" stroke-width="${i % 2 ? .7 : 1.4}" opacity=".7"/>`; }
+  const cx = 150, cy = 146, MR = 80, QS = 106; let ring = '';
+  for (let i = 0; i < 48; i++) if (fp[i]) { const R = MR + 10, a0 = (i / 48) * Math.PI * 2 - Math.PI / 2, a1 = a0 + Math.PI * 2 / 48 * .72; ring += `<path d="M${(cx + Math.cos(a0) * R).toFixed(1)} ${(cy + Math.sin(a0) * R).toFixed(1)} A${R} ${R} 0 0 1 ${(cx + Math.cos(a1) * R).toFixed(1)} ${(cy + Math.sin(a1) * R).toFixed(1)}" stroke="${i % 6 ? G : C}" stroke-width="${i % 6 ? 1.8 : 2.8}" fill="none" stroke-linecap="round"/>`; }
+  let rays = ''; for (let i = 0; i < 36; i++) { const a = i / 36 * Math.PI * 2, r1 = MR + 16, r2 = MR + (i % 3 ? 22 : 30); rays += `<line x1="${(cx + Math.cos(a) * r1).toFixed(1)}" y1="${(cy + Math.sin(a) * r1).toFixed(1)}" x2="${(cx + Math.cos(a) * r2).toFixed(1)}" y2="${(cy + Math.sin(a) * r2).toFixed(1)}" stroke="${G}" stroke-width="${i % 3 ? .6 : 1.2}" opacity=".6"/>`; }
+  const W2 = SIGNS[o.m].el, row = (y, k, v) => `<text x="58" y="${y}" font-family="Georgia,serif" font-size="7.5" fill="${G}" letter-spacing="1.5">${k}</text><text x="242" y="${y}" text-anchor="end" font-family="Georgia,serif" font-size="10" fill="${G2}">${esc(v)}</text>`;
   return svgClean(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">
-  <defs><radialGradient id="g${id}" cx="50%" cy="45%" r="70%"><stop offset="0" stop-color="${c1}"/><stop offset=".6" stop-color="${c0}"/><stop offset="1" stop-color="#030208"/></radialGradient>
+  <defs><radialGradient id="g${id}" cx="50%" cy="35%" r="75%"><stop offset="0" stop-color="${c1}"/><stop offset=".6" stop-color="${c0}"/><stop offset="1" stop-color="#030208"/></radialGradient>
+  <radialGradient id="mn${id}" cx="42%" cy="38%" r="62%"><stop offset="0" stop-color="#fffaf0"/><stop offset=".72" stop-color="#fff3d6"/><stop offset="1" stop-color="#e8cf98"/></radialGradient>
+  <radialGradient id="mg${id}" cx="50%" cy="50%" r="50%"><stop offset=".7" stop-color="${G2}" stop-opacity=".35"/><stop offset="1" stop-color="${G2}" stop-opacity="0"/></radialGradient>
   <linearGradient id="gd${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff6cf"/><stop offset=".3" stop-color="${G}"/><stop offset=".62" stop-color="#9c7124"/><stop offset=".85" stop-color="#f4d58a"/><stop offset="1" stop-color="#7d5a1c"/></linearGradient>
-  <filter id="d${id}" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#000" flood-opacity=".7"/></filter></defs>
+  <filter id="d${id}" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000" flood-opacity=".6"/></filter></defs>
   <rect width="${W}" height="${H}" rx="18" fill="url(#g${id})"/>${stars}
   <rect x="5" y="5" width="290" height="490" rx="15" fill="none" stroke="url(#gd${id})" stroke-width="5"/>
   <rect x="16" y="16" width="268" height="468" rx="10" fill="none" stroke="${G}" stroke-width=".7" opacity=".6"/>
-  ${t(150, 46, 11, 'LÊ A MINHA ALMA', G, 'letter-spacing="3.5" font-weight="700"')}
+  ${t(150, 38, 9.5, 'LÊ A MINHA ALMA', G, 'letter-spacing="3.5" font-weight="700"')}
   ${rays}${ring}
-  <g filter="url(#d${id})"><rect x="${cx - 86}" y="${cy - 86}" width="172" height="172" rx="16" fill="url(#gd${id})"/></g>
-  ${soulQR(soulLink(o), cx - 80, cy - 80, 160, '#120a2e', '#fff7e2')}
-  ${t(150, 400, 13, esc(o.first.toUpperCase()) + ' · ' + SIGNS[o.s].g + TXT, G2, 'letter-spacing="2.5" font-weight="700"')}
-  ${t(150, 420, 9, 'Nº ' + o.serial.slice(0, 4) + '·' + o.serial.slice(4), G, 'letter-spacing="2" opacity=".8"')}
-  ${t(150, 458, 10, 'ceudehoje.com', G2, 'letter-spacing="2" opacity=".85"')}
+  <circle cx="${cx}" cy="${cy}" r="${MR + 8}" fill="url(#mg${id})"/>
+  <g filter="url(#d${id})"><circle cx="${cx}" cy="${cy}" r="${MR}" fill="url(#mn${id})" stroke="url(#gd${id})" stroke-width="2"/></g>
+  ${[[0, 67, 6], [90, 66, 4.5], [180, 68, 5.5], [270, 66, 4], [45, 74, 3], [225, 74, 3.5], [135, 74, 2.5], [315, 74, 3]].map(([ang, d, rr]) => { const a = ang * Math.PI / 180; return `<circle cx="${(cx + Math.cos(a) * d).toFixed(1)}" cy="${(cy + Math.sin(a) * d).toFixed(1)}" r="${rr}" fill="#d9bd82" opacity=".45"/>`; }).join('')}
+  ${soulQR(soulLink(o), cx - QS / 2, cy - QS / 2, QS, '#1a1240', 'none')}
+  ${t(150, 262, 9.5, 'AMULETO DA ALMA', G, 'letter-spacing="3.5" font-weight="700"')}
+  ${soulSigil(o, 150, 296, 18, G2)}
+  ${t(150, 336, 8, 'FRAGILIDADE', G, 'letter-spacing="2" opacity=".85"')}
+  ${t(150, 350, 10.5, esc(cap1(SOUL_WEAK[o.s])), G2)}
+  ${t(150, 364, 9, 'coração: ' + esc(SOUL_HEART[W2]), G2, 'opacity=".8" font-style="italic"')}
+  <line x1="58" y1="374" x2="242" y2="374" stroke="${G}" stroke-width=".5" opacity=".5"/>
+  ${row(388, 'PEDRA', o.stone)}${row(402, 'METAL', soulMetal(o.s))}${row(416, 'PLANTA', SIGN_EXTRA[o.s].planta)}${row(430, 'DIA', cap1(SOUL_DAY[SIGNS[o.s].ruler] || ''))}
+  ${t(150, 450, 9, '«' + esc(SOUL_AFF[o.s]) + '»', G2, 'font-style="italic"')}
+  ${t(150, 472, 8, esc(o.first.toUpperCase()) + ' · Nº ' + o.serial.slice(0, 4) + '·' + o.serial.slice(4) + ' · ceudehoje.com', G, 'letter-spacing="1.2" opacity=".85"')}
 </svg>`);
 }
 
 // ---------- Leitura da alma ----------
-const SOUL_SUN = ['Coragem que abre caminho: és de quem começa, arrisca e puxa os outros.', 'Calma que dura: és porto seguro, sabes esperar e fazes as coisas crescer.', 'Mente que voa: curiosidade sem fim, palavra fácil e mil interesses.', 'Coração que protege: cuidas, lembras-te de tudo e fazes de qualquer sítio um lar.', 'Luz que aquece: generosidade, presença e vontade de fazer os outros brilhar.', 'Mãos que cuidam do pormenor: és útil, atento(a) e tornas tudo melhor.', 'Alma que harmoniza: procuras beleza, justiça e o meio-termo certo.', 'Profundidade que transforma: sentes tudo a fundo e renasces das cinzas.', 'Fogo que procura sentido: liberdade, aventura e fé no que vem.', 'Montanha que se sobe: ambição tranquila, responsabilidade e palavra dada.', 'Mente que inventa: original, livre e com olhos postos no futuro.', 'Mar que sente tudo: intuição, compaixão e uma imaginação sem margens.'];
+const SOUL_SUN = ['Coragem que abre caminho: és de quem começa, arrisca e puxa os outros.', 'Calma que dura: és porto seguro, sabes esperar e fazes as coisas crescer.', 'Mente que voa: curiosidade sem fim, palavra fácil e mil interesses.', 'Coração que protege: cuidas, lembras-te de tudo e fazes de qualquer sítio um lar.', 'Luz que aquece: generosidade, presença e vontade de fazer os outros brilhar.', 'Mãos que cuidam do pormenor: tens olho para o que os outros não veem e tornas tudo melhor.', 'Alma que harmoniza: procuras beleza, justiça e o meio-termo certo.', 'Profundidade que transforma: sentes tudo a fundo e renasces das cinzas.', 'Fogo que procura sentido: liberdade, aventura e fé no que vem.', 'Montanha que se sobe: ambição tranquila, responsabilidade e palavra dada.', 'Mente que inventa: original, livre e com olhos postos no futuro.', 'Mar que sente tudo: intuição, compaixão e uma imaginação sem margens.'];
 const SOUL_MOON = { fogo: 'sentes depressa e com intensidade: precisas de entusiasmo e de quem acompanhe o teu ritmo', terra: 'sentes com os pés no chão: precisas de segurança, rotinas e gestos concretos de carinho', ar: 'sentes através das palavras: precisas de conversa, leveza e espaço para respirar', agua: 'sentes como uma maré: precisas de intimidade, ternura e de quem perceba o que não dizes' };
-const SOUL_ASC = { fogo: 'chegas com energia e os outros veem-te como alguém decidido', terra: 'transmites confiança e calma logo à primeira vista', ar: 'pareces simpático(a) e fácil de abordar, uma companhia leve', agua: 'parecem-te reservado(a) ao início, mas inspiras confiança e mistério' };
+const SOUL_ASC = { fogo: 'chegas com energia e os outros veem-te como alguém decidido', terra: 'transmites confiança e calma logo à primeira vista', ar: 'passas simpatia e leveza: é fácil chegar até ti', agua: 'ao início guardas-te um pouco, mas inspiras confiança e mistério' };
 function soulReading(o) {
   const sec = (ic, h, p) => `<div class="soulsec"><b>${ic} ${h}</b><p>${p}</p></div>`, I = NUM_INFO[o.n] || {}, A = TAROT[o.ar] || ['', '', ''];
   return sec(SIGNS[o.s].g + TXT, `Sol em ${SIGNS[o.s].n}: a tua essência`, SOUL_SUN[o.s])
@@ -5330,6 +5355,7 @@ function soulReading(o) {
     + (o.asc != null ? sec('▲', `Ascendente em ${SIGNS[o.asc].n}: como te veem`, cap1(SOUL_ASC[SIGNS[o.asc].el]) + '.') : '')
     + sec('✦', `Alma ${SOUL_NUM_W[o.n]} (número ${o.lp || o.n})`, (I.e || '') + (I.f ? ` Forças: ${I.f}.` : ''))
     + sec('🃏', `Arcano de nascimento: ${A[0]}`, `A carta que te acompanha desde que nasceste fala de ${A[2]}.`)
+    + sec('🛡️', 'O teu amuleto da alma', `A tua fragilidade: <b>${SOUL_WEAK[o.s]}</b>; no coração, ${SOUL_HEART[SIGNS[o.m].el]}. A tradição junta-te a <b>${o.stone}</b>, o <b>${soulMetal(o.s).toLowerCase()}</b>, a planta <b>${SIGN_EXTRA[o.s].planta.toLowerCase()}</b> e a ${SOUL_DAY[SIGNS[o.s].ruler] || ''}. O teu lema: «${SOUL_AFF[o.s]}» <span class="note">São símbolos e lembretes, não poderes mágicos 😉</span>`)
     + sec('💎', `Pedra: ${o.stone} · cor da alma: ${o.col ? o.col[0] : ''}`, `${SOUL_EL[o.el].e} Elemento ${SOUL_EL[o.el].n}. Leva a tua pedra ou a tua cor contigo nos dias importantes.`);
 }
 function soulCapToday() { const n = SMEM.all().filter(x => x.open && x.open <= todayStr() && x.open >= dayStr(noonJd(todayStr()) - 7)).length; return n ? `<button class="soulwant capnow" id="soulCapGo"><b>💌 ${n === 1 ? 'Abriu uma cápsula do tempo' : `Abriram ${n} cápsulas do tempo`}</b><p>A tua alma guardou uma memória para ti. Toca para a ler.</p></button>` : ''; }
@@ -5386,8 +5412,8 @@ async function shareSoul(o) {
   await fontsReady(); const [c, ctx, W, H] = newCanvas(1080, 1350), E = SOUL_EL[o.el];
   bg(ctx, W, H, 'alma' + o.serial, [E.c[1], '#07050f']);
   const fr = await svgImg(soulSVG2(o)), bk = await svgImg(soulBackSVG(o)); if (!fr) { toast('Não deu para criar a imagem'); return; }
-  ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.6)'; ctx.shadowBlur = 50; ctx.shadowOffsetY = 20; ctx.drawImage(fr, 90, 150, 560, 933); ctx.restore();
-  if (bk) { ctx.save(); ctx.translate(820, 640); ctx.rotate(.06); ctx.shadowColor = 'rgba(0,0,0,.6)'; ctx.shadowBlur = 40; ctx.drawImage(bk, -170, -283, 340, 567); ctx.restore(); }
+  ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.6)'; ctx.shadowBlur = 50; ctx.shadowOffsetY = 20; ctx.drawImage(fr, 50, 160, 520, 867); ctx.restore();
+  if (bk) { ctx.save(); ctx.translate(815, 600); ctx.rotate(.04); ctx.shadowColor = 'rgba(0,0,0,.6)'; ctx.shadowBlur = 40; ctx.drawImage(bk, -215, -358, 430, 717); ctx.restore(); }
   ctx.textAlign = 'center'; ctx.fillStyle = '#f2c76e'; ctx.font = '700 46px Cinzel'; ctx.fillText('A MINHA CARTA DA ALMA', W / 2, 100);
   ctx.fillStyle = '#fff'; ctx.font = 'italic 600 46px "Cormorant Garamond"'; ctx.fillText('Procuro a minha metade:', W / 2, 1150);
   ctx.fillStyle = '#f7e08a'; ctx.font = '700 40px Manrope'; ctx.fillText(soulWantTxt(o), W / 2, 1206);
@@ -5513,7 +5539,7 @@ async function soulWriteNfc(o) {
 }
 
 // ===== App de telemóvel =====
-const APP_VERSION = '14.11.2026 12:00';
+const APP_VERSION = '14.11.2026 12:30';
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const G = g => `${g}&#xFE0E;`;
