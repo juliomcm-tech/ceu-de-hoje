@@ -1,5 +1,5 @@
 // ===== App de telemóvel =====
-const APP_VERSION = '14.11.2026 23:05';
+const APP_VERSION = '14.11.2026 23:45';
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const G = g => `${g}&#xFE0E;`;

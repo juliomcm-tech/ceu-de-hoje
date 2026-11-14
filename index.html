@@ -5147,9 +5147,10 @@ function soulOf(p) {
   if (!p || !p.d) return null;
   const ci = CITIES[+p.c || 0], [y, m, dd] = dParts(p.d), [hh, mi] = (p.t || '12:00').split(':').map(Number), ms = localToUtcMs(y, m, dd, hh, mi, ci[3]);
   const nat = natalChart(ms, ci), s = Math.floor(nat.sun / 30) % 12, mo = Math.floor(nat.moon / 30) % 12, asc = p.t ? Math.floor(nat.asc / 30) % 12 : null;
-  const lp = lifePath(p.d), n = soulN9(lp), ar = soulArcana(p.d), first = (p.name || '').trim().split(/\s+/)[0] || 'Alma';
+  const lp = lifePath(p.d), n = soulN9(lp), ar = soulArcana(p.d), first = [...((p.name || '').trim().split(/\s+/)[0] || 'Alma')].slice(0, 16).join('');
   return { first, s, m: mo, asc, lp, n, ar, el: SIGNS[s].el, stone: SIGN_EXTRA[s].pedra, col: SOUL_COL[n], cn: chineseSign(p.d), serial: soulSerial(nrm(p.name || '') + '|' + p.d + '|' + (p.t || '') + '|' + (p.c || 0)) };
 }
+const soulNameSz = (nm, base = 17) => { const n = [...nm].length; return n <= 13 ? base : +(base * 13 / n).toFixed(1); }; // nomes compridos encolhem e cabem na faixa
 const soulKey = o => o.s * 108 + o.m * 9 + (o.n - 1);
 const soulWant = o => ({ s: (o.s + 6) % 12, m: (o.m + 6) % 12, n: 10 - o.n });
 function soulLevel(a, b) { const w = soulWant(a); return (b.s === w.s) + (b.m === w.m) + (b.n === w.n); }
@@ -5163,7 +5164,7 @@ function soulParse(code) {
   const m = String(code || '').match(/^([0-9ab])([0-9ab])([1-9])([0-9a-l])([0-9abx])([0-9A-Z]{8})~(.{1,80})$/); if (!m) return null;
   let first; try { first = decodeURIComponent(m[7]); } catch (e) { first = 'Alma'; }
   const s = parseInt(m[1], 36), n = +m[3];
-  return { s, m: parseInt(m[2], 36), n, ar: parseInt(m[4], 36), asc: m[5] === 'x' ? null : parseInt(m[5], 36), serial: m[6], first: first.replace(/[<>]/g, '').slice(0, 24) || 'Alma', el: SIGNS[s].el, stone: SIGN_EXTRA[s].pedra, col: SOUL_COL[n] };
+  return { s, m: parseInt(m[2], 36), n, ar: parseInt(m[4], 36), asc: m[5] === 'x' ? null : parseInt(m[5], 36), serial: m[6], first: [...first.replace(/[<>]/g, '')].slice(0, 16).join('') || 'Alma', el: SIGNS[s].el, stone: SIGN_EXTRA[s].pedra, col: SOUL_COL[n] };
 }
 
 function soulSVG(o, opt = {}) {
@@ -5209,7 +5210,7 @@ function soulSVG(o, opt = {}) {
   ${t(cx, cy + 17, 46, SIGNS[o.s].g + TXT, G2, 'filter="url(#sg)"')}
   ${moon}${ascM}
   <path d="M40 404 L260 404 L270 420 L260 436 L40 436 L30 420Z" fill="${c0}" stroke="url(#gd${o.serial})" stroke-width="1.6"/>
-  ${opt.noText ? '' : t(150, 426, 17, esc(o.first.toUpperCase()), G2, 'letter-spacing="3" font-weight="700"')}
+  ${opt.noText ? '' : t(150, 426, soulNameSz(o.first), esc(o.first.toUpperCase()), G2, 'letter-spacing="3" font-weight="700"')}
   ${t(150, 456, 10, esc(AR) + ' · ' + esc(o.stone), G, 'letter-spacing="1"')}
   ${t(150, 472, 9, 'Alma ' + SOUL_NUM_W[o.n] + ' · ' + E.n, G2, 'opacity=".8" letter-spacing="1"')}
 </svg>`);
@@ -5282,7 +5283,7 @@ function soulSVG2(o, opt = {}) {
   ${moon}${ascM}`;
   const RIBBON = `<g filter="url(#dd${id})"><path d="M22 420 L36 404 L36 436Z" fill="#6b4c16"/><path d="M278 420 L264 404 L264 436Z" fill="#6b4c16"/><path d="M36 400 L264 400 L276 420 L264 440 L36 440 L24 420Z" fill="url(#bv${id})"/></g>
   <path d="M40 404 L260 404 L270 420 L260 436 L40 436 L30 420Z" fill="${c0}"/>
-  ${opt.noText ? '' : t(150, 427, 17, esc(o.first.toUpperCase()), G2, 'letter-spacing="3" font-weight="700"')}
+  ${opt.noText ? '' : t(150, 427, soulNameSz(o.first), esc(o.first.toUpperCase()), G2, 'letter-spacing="3" font-weight="700"')}
   ${t(150, 461, 10, esc(AR) + ' · ' + esc(o.stone), G, 'letter-spacing="1"')}
   ${t(150, 476, 8.5, 'Alma ' + SOUL_NUM_W[o.n] + ' · ' + E.n + ' · Nº ' + o.serial.slice(0, 4) + '·' + o.serial.slice(4), G2, 'opacity=".75" letter-spacing="1"')}`;
   const SHEEN = `<rect width="${W}" height="${H}" rx="18" fill="url(#sh${id})" class="soulsheen"/>`;
@@ -5386,6 +5387,14 @@ function bindSoulTilt() {
 async function soulMotionOk() { try { if (window.DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission === 'function') await DeviceOrientationEvent.requestPermission(); } catch (e) { } }
 
 // ---------- Abrir a minha carta ----------
+function soulMoonDoubt() { // sem hora de nascimento, a Lua pode ter mudado de signo nesse dia
+  const p = P.get(); if (!p || !p.d || p.t) return ''; const a = soulOf(Object.assign({}, p, { t: '00:00' })), z = soulOf(Object.assign({}, p, { t: '23:59' }));
+  return a.m === z.m ? '' : `<div class="soulwant"><b>🌙 A tua Lua está indecisa</b><p>No dia em que nasceste a Lua passou de ${SIGNS[a.m].n} para ${SIGNS[z.m].n}. Sem a hora de nascimento, usei o meio-dia.</p><p class="note">Se souberes a hora, junta-a no teu perfil: a carta fica certa (e muda, por isso faz isto antes de a partilhar ou imprimir).</p></div>`;
+}
+async function soulSendLink(o, msg = '💫 Esta é a minha Carta da Alma. Abre e descobre se és a minha metade:') {
+  const url = soulLink(o), txt = `${msg} ${url}`; try { if (navigator.share) { await navigator.share({ title: 'A minha Carta da Alma', text: msg, url }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+  try { await navigator.clipboard.writeText(txt); } catch (e) { if (!copySync(txt)) { toast('Não deu para copiar'); return; } } toast('Link copiado 📋');
+}
 function soulMe() { const p = P.get(); return p && p.d ? soulOf(p) : null; }
 function openSoul() {
   const dlg = $('#soulDlg'), o = soulMe();
@@ -5396,6 +5405,7 @@ function openSoul() {
     <div class="soulstage">${soul3dHtml(o, first)}</div>
     <div class="soulbtns"><button class="btn" id="soulFlip">↻ Ver o verso</button><button class="btn main" id="soulSh">📤 Partilhar</button><button class="btn" id="soulLk">🔗 Enviar o link</button>${'NDEFReader' in window ? '<button class="btn" id="soulNfc">📶 Gravar num chip NFC</button>' : ''}${SOUL_SHOP ? '<button class="btn soon" data-soon="porta-chaves">🔑 Encomendar porta-chaves <small>brevemente</small></button><button class="btn soon" data-soon="carta">🃏 Encomendar a carta <small>brevemente</small></button>' : ''}</div>
     <div class="soulinfo" id="soulInfo"${first ? ' hidden' : ''}>
+      ${soulMoonDoubt()}
       <div class="soulwant"><b>💞 A tua metade perfeita</b><p>${soulWantTxt(o)}</p><p class="note">Só cerca de 1 em cada 1300 pessoas tem estas três ligações contigo. Partilha a tua carta: quem a ler descobre se é a tua metade.</p></div>
       ${soulCapToday()}<div class="soulbtns"><button class="btn" id="soulVault">🔐 Cofre da alma (${SMEM.all().length})</button><button class="btn" id="soulRead">🔭 Ler a carta de alguém</button><button class="btn" id="soulLinks">💫 As minhas ligações (${soulLinks().length})</button></div>
       <h3 class="soulh">A leitura da tua alma</h3>${soulReading(o)}
@@ -5407,7 +5417,7 @@ function openSoul() {
   card.onclick = async () => { if (first && !store.get('ceu_soul_seen')) { await soulMotionOk(); store.set('ceu_soul_seen', todayStr()); card.classList.add('reveal'); card.classList.remove('flip'); $('#soulHint').textContent = 'Esta é a tua alma. Inclina o telemóvel ✨'; try { confetti(); } catch (e) { } setTimeout(() => { $('#soulInfo').hidden = false; }, 900); } };
   $('#soulFlip').onclick = async () => { await soulMotionOk(); card.classList.toggle('flip'); $('#soulFlip').textContent = card.classList.contains('flip') ? '↻ Ver a frente' : '↻ Ver o verso'; };
   $('#soulSh').onclick = () => shareSoul(o);
-  $('#soulLk').onclick = async () => { const url = soulLink(o), msg = '💫 Esta é a minha Carta da Alma. Abre e descobre se és a minha metade:', txt = `${msg} ${url}`; try { if (navigator.share) { await navigator.share({ title: 'A minha Carta da Alma', text: msg, url }); return; } } catch (e) { if (e && e.name === 'AbortError') return; } copyAny(txt); toast('Link copiado 📋'); };
+  $('#soulLk').onclick = () => soulSendLink(o);
   if ($('#soulNfc')) $('#soulNfc').onclick = () => soulWriteNfc(o);
   dlg.querySelectorAll('[data-soon]').forEach(b => b.onclick = () => toast(b.dataset.soon === 'carta' ? '🃏 Em breve vais poder encomendar a tua carta impressa a sério ✨' : '🔑 Em breve vais poder encomendar o teu porta-chaves da alma ✨', 4000));
   $('#soulVault').onclick = () => soulVault(); if ($('#soulCapGo')) $('#soulCapGo').onclick = () => soulVault();
@@ -5473,10 +5483,10 @@ function soulMatch(other) {
     <ul class="soulchk">${chk(other.s === w.s, `Sol: ${SIGNS[me.s].n} ↔ ${SIGNS[other.s].n}`)}${chk(other.m === w.m, `Lua: ${SIGNS[me.m].n} ↔ ${SIGNS[other.m].n}`)}${chk(other.n === w.n, `Números da alma: ${me.n} + ${other.n}${other.n + me.n === 10 ? ' = 10' : ''}`)}</ul>
     <p class="note">Compatibilidade dos signos: ${pct}%. A ligação ficou guardada na tua carta, em "As minhas ligações".</p>
     <h3 class="soulh">A alma de ${esc(other.first)}</h3>${soulReading(Object.assign({ lp: other.n }, other))}
-    <div class="dlgfoot"><button class="btn" id="smBack">A minha carta</button><button class="btn main" id="smSh">📤 Partilhar</button></div></div>`;
+    <button class="btn" id="smRet" style="width:100%;margin-top:6px">💌 Enviar a minha carta a ${esc(other.first)}</button><div class="dlgfoot"><button class="btn" id="smBack">A minha carta</button><button class="btn main" id="smSh">📤 Partilhar</button></div></div>`;
   if (!dlg.open) dlg.showModal();
   if (l === 3) try { confetti(); } catch (e) { }
-  $('#smX').onclick = () => dlg.close(); $('#smBack').onclick = openSoul; $('#smSh').onclick = () => shareSoulMatch(me, other, l, pct);
+  $('#smX').onclick = () => dlg.close(); $('#smBack').onclick = openSoul; $('#smSh').onclick = () => shareSoulMatch(me, other, l, pct); $('#smRet').onclick = () => soulSendLink(me, `💫 Li a tua Carta da Alma: ${l} de 3 ligações entre nós! Agora lê a minha e vê do teu lado:`);
 }
 async function shareSoulMatch(me, other, l, pct) {
   await fontsReady(); const [c, ctx, W, H] = newCanvas(1080, 1350); bg(ctx, W, H, 'par' + me.serial + other.serial, ['#4a2a8a', '#07050f']);
@@ -5579,7 +5589,7 @@ async function soulPromoCanvases() {
 
 
 // ===== App de telemóvel =====
-const APP_VERSION = '14.11.2026 23:05';
+const APP_VERSION = '14.11.2026 23:45';
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const G = g => `${g}&#xFE0E;`;
