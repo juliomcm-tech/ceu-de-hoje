@@ -5391,7 +5391,7 @@ function openSoul() {
   dlg.innerHTML = `<div class="soulwrap"><button class="tclose" id="soulX" aria-label="Fechar">✕</button>
     <p class="soulhint" id="soulHint">${first ? 'A tua alma tem uma carta só tua. Toca para a revelar ✨' : 'Inclina o telemóvel ou passa o dedo pela carta'}</p>
     <div class="soulstage">${soul3dHtml(o, first)}</div>
-    <div class="soulbtns"><button class="btn" id="soulFlip">↻ Ver o verso</button><button class="btn main" id="soulSh">📤 Partilhar</button>${'NDEFReader' in window ? '<button class="btn" id="soulNfc">📶 Gravar num chip NFC</button>' : ''}</div>
+    <div class="soulbtns"><button class="btn" id="soulFlip">↻ Ver o verso</button><button class="btn main" id="soulSh">📤 Partilhar</button>${'NDEFReader' in window ? '<button class="btn" id="soulNfc">📶 Gravar num chip NFC</button>' : ''}<button class="btn" id="soulPrint">🖨️ Imprimir para porta-chaves</button></div>
     <div class="soulinfo" id="soulInfo"${first ? ' hidden' : ''}>
       <div class="soulwant"><b>💞 A tua metade perfeita</b><p>${soulWantTxt(o)}</p><p class="note">Só cerca de 1 em cada 1300 pessoas tem estas três ligações contigo. Partilha a tua carta: quem a ler descobre se é a tua metade.</p></div>
       ${soulCapToday()}<div class="soulbtns"><button class="btn" id="soulVault">🔐 Cofre da alma (${SMEM.all().length})</button><button class="btn" id="soulRead">🔭 Ler a carta de alguém</button><button class="btn" id="soulLinks">💫 As minhas ligações (${soulLinks().length})</button></div>
@@ -5405,6 +5405,7 @@ function openSoul() {
   $('#soulFlip').onclick = async () => { await soulMotionOk(); card.classList.toggle('flip'); $('#soulFlip').textContent = card.classList.contains('flip') ? '↻ Ver a frente' : '↻ Ver o verso'; };
   $('#soulSh').onclick = () => shareSoul(o);
   if ($('#soulNfc')) $('#soulNfc').onclick = () => soulWriteNfc(o);
+  $('#soulPrint').onclick = async e => { const b = e.currentTarget; b.disabled = true; b.textContent = 'A preparar…'; try { await soulPrintSheet(o); } finally { b.disabled = false; b.textContent = '🖨️ Imprimir para porta-chaves'; } };
   $('#soulVault').onclick = () => soulVault(); if ($('#soulCapGo')) $('#soulCapGo').onclick = () => soulVault();
   $('#soulRead').onclick = () => soulReader();
   $('#soulLinks').onclick = () => soulLinksView();
@@ -5572,8 +5573,35 @@ async function soulPromoCanvases() {
   return out;
 }
 
+// ---------- Folha para imprimir em tamanho porta-chaves (37 x 61 mm, 300 dpi) ----------
+function soulMiniBackSVG(o) { // verso simples para porta-chaves: a Lua-QR em grande (lê-se bem mesmo pequeno)
+  const E = SOUL_EL[o.el] || SOUL_EL.ar, [c0, c1] = E.c, G = '#f2c76e', G2 = '#fff1c4', id = 'mb' + o.serial, fp = soulPrint(o.serial), cx = 150, cy = 236, MR = 128, QS = 178;
+  let ring = ''; for (let i = 0; i < 48; i++) if (fp[i]) { const R = MR + 9, a0 = (i / 48) * Math.PI * 2 - Math.PI / 2, a1 = a0 + Math.PI * 2 / 48 * .72; ring += `<path d="M${(cx + Math.cos(a0) * R).toFixed(1)} ${(cy + Math.sin(a0) * R).toFixed(1)} A${R} ${R} 0 0 1 ${(cx + Math.cos(a1) * R).toFixed(1)} ${(cy + Math.sin(a1) * R).toFixed(1)}" stroke="${G}" stroke-width="3" fill="none" stroke-linecap="round"/>`; }
+  const t = (y, sz, txt, f, ex = '') => `<text x="150" y="${y}" text-anchor="middle" font-family="Georgia,serif" font-size="${sz}" fill="${f}" ${ex}>${txt}</text>`;
+  return svgClean(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 500" width="300" height="500"><defs><radialGradient id="g${id}" cx="50%" cy="40%" r="75%"><stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c0}"/></radialGradient><radialGradient id="m${id}" cx="42%" cy="38%" r="62%"><stop offset="0" stop-color="#fffaf0"/><stop offset=".75" stop-color="#fff3d6"/><stop offset="1" stop-color="#e8cf98"/></radialGradient></defs>
+  <rect width="300" height="500" fill="url(#g${id})"/><rect x="8" y="8" width="284" height="484" rx="14" fill="none" stroke="${G}" stroke-width="4"/>
+  ${t(52, 17, 'LÊ A MINHA ALMA', G, 'letter-spacing="4" font-weight="700"')}${ring}
+  <circle cx="${cx}" cy="${cy}" r="${MR}" fill="url(#m${id})"/>${soulQR(soulLink(o), cx - QS / 2, cy - QS / 2, QS, '#1a1240', 'none')}
+  ${t(420, 24, esc(o.first.toUpperCase()) + ' ' + SIGNS[o.s].g + TXT, G2, 'letter-spacing="3" font-weight="700"')}${t(456, 15, 'ceudehoje.com', G, 'letter-spacing="2"')}</svg>`);
+}
+async function soulPrintSheet(o) {
+  const mm = 300 / 25.4, W = Math.round(210 * mm), H = Math.round(297 * mm), cw = Math.round(37 * mm), ch = Math.round(61 * mm), c = document.createElement('canvas'); c.width = W; c.height = H; const ctx = c.getContext('2d');
+  ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H);
+  const [F, B] = await Promise.all([svgImg(soulSVG2(o)), svgImg(soulMiniBackSVG(o))]); if (!F || !B) { toast('Não deu para criar a folha'); return; }
+  const gap = Math.round(8 * mm), x0 = Math.round((W - (cw * 4 + gap * 3)) / 2), y0 = Math.round(40 * mm);
+  ctx.fillStyle = '#222'; ctx.font = `600 ${Math.round(5 * mm)}px Manrope, sans-serif`; ctx.textAlign = 'center'; ctx.fillText(`Carta da Alma de ${o.first} · Nº ${o.serial.slice(0, 4)}·${o.serial.slice(4)}`, W / 2, Math.round(20 * mm));
+  ctx.font = `500 ${Math.round(3.6 * mm)}px Manrope, sans-serif`; ctx.fillText('Tamanho real 37 x 61 mm (porta-chaves). Imprime a 100%, sem ajustar à página, em papel autocolante.', W / 2, Math.round(28 * mm));
+  const mark = (x, y) => { ctx.strokeStyle = '#888'; ctx.lineWidth = 2; const L = Math.round(4 * mm); [[x, y], [x + cw, y], [x, y + ch], [x + cw, y + ch]].forEach(([px, py], k) => { const sx = k % 2 ? 1 : -1, sy = k > 1 ? 1 : -1; ctx.beginPath(); ctx.moveTo(px + sx * 2, py); ctx.lineTo(px + sx * L, py); ctx.moveTo(px, py + sy * 2); ctx.lineTo(px, py + sy * L); ctx.stroke(); }); };
+  [[F, 'Frente'], [B, 'Verso'], [F, 'Frente'], [B, 'Verso']].forEach(([im, lb], i) => { const x = x0 + i * (cw + gap); ctx.drawImage(im, x, y0, cw, ch); mark(x, y0); ctx.fillStyle = '#555'; ctx.font = `500 ${Math.round(3.2 * mm)}px Manrope, sans-serif`; ctx.fillText(lb, x + cw / 2, y0 + ch + Math.round(7 * mm)); });
+  const y1 = y0 + ch + Math.round(22 * mm); ctx.textAlign = 'left'; ctx.fillStyle = '#333'; ctx.font = `500 ${Math.round(3.6 * mm)}px Manrope, sans-serif`;
+  ['Como montar o porta-chaves:', '1. Imprime o modelo 3D com a cavidade do chip; pausa a impressão a 3,2 mm, mete o chip NFC e continua.', '2. Recorta a frente e cola no encaixe de cima; cola o verso (com o QR) atrás.', '3. Na app, Carta da Alma → «📶 Gravar num chip NFC» (Android com Chrome).', '4. Testa: encosta o porta-chaves ao telemóvel e lê o QR com a câmara.'].forEach((l, i) => ctx.fillText(l, Math.round(18 * mm), y1 + i * Math.round(7 * mm)));
+  const blob = await new Promise(r => c.toBlob(r, 'image/png')), f = new File([blob], `carta-da-alma-${nrm(o.first)}-porta-chaves.png`, { type: 'image/png' });
+  try { if (navigator.canShare && navigator.canShare({ files: [f] })) { await navigator.share({ files: [f] }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+  saveBlob(blob, f.name);
+}
+
 // ===== App de telemóvel =====
-const APP_VERSION = '14.11.2026 13:30';
+const APP_VERSION = '14.11.2026 13:45';
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const G = g => `${g}&#xFE0E;`;
