@@ -1,3 +1,4 @@
+const SOUL_SHOP = false; // encomendas (porta-chaves / carta): ligar quando houver fluxo de encomenda
 // ---------- CARTA DA ALMA: a impressão digital celeste de cada pessoa ----------
 // Tudo é calculado no telemóvel a partir do nome e do nascimento. Nada é enviado para servidor nenhum.
 const SOUL_COL = [null, ['Vermelho-rubi', '#ff5d73'], ['Laranja-âmbar', '#ffa24a'], ['Amarelo-sol', '#ffd75e'], ['Verde-esmeralda', '#4fd39a'], ['Azul-turquesa', '#4fd8e6'], ['Rosa-quartzo', '#ff9cc8'], ['Violeta', '#b48cff'], ['Dourado', '#ffd27a'], ['Prata-lunar', '#dfe6ff']];
@@ -270,7 +271,7 @@ function openSoul() {
   dlg.innerHTML = `<div class="soulwrap"><button class="tclose" id="soulX" aria-label="Fechar">✕</button>
     <p class="soulhint" id="soulHint">${first ? 'A tua alma tem uma carta só tua. Toca para a revelar ✨' : 'Inclina o telemóvel ou passa o dedo pela carta'}</p>
     <div class="soulstage">${soul3dHtml(o, first)}</div>
-    <div class="soulbtns"><button class="btn" id="soulFlip">↻ Ver o verso</button><button class="btn main" id="soulSh">📤 Partilhar</button><button class="btn" id="soulLk">🔗 Enviar o link</button>${'NDEFReader' in window ? '<button class="btn" id="soulNfc">📶 Gravar num chip NFC</button>' : ''}<button class="btn soon" data-soon="porta-chaves">🔑 Encomendar porta-chaves <small>brevemente</small></button><button class="btn soon" data-soon="carta">🃏 Encomendar a carta <small>brevemente</small></button></div>
+    <div class="soulbtns"><button class="btn" id="soulFlip">↻ Ver o verso</button><button class="btn main" id="soulSh">📤 Partilhar</button><button class="btn" id="soulLk">🔗 Enviar o link</button>${'NDEFReader' in window ? '<button class="btn" id="soulNfc">📶 Gravar num chip NFC</button>' : ''}${SOUL_SHOP ? '<button class="btn soon" data-soon="porta-chaves">🔑 Encomendar porta-chaves <small>brevemente</small></button><button class="btn soon" data-soon="carta">🃏 Encomendar a carta <small>brevemente</small></button>' : ''}</div>
     <div class="soulinfo" id="soulInfo"${first ? ' hidden' : ''}>
       <div class="soulwant"><b>💞 A tua metade perfeita</b><p>${soulWantTxt(o)}</p><p class="note">Só cerca de 1 em cada 1300 pessoas tem estas três ligações contigo. Partilha a tua carta: quem a ler descobre se é a tua metade.</p></div>
       ${soulCapToday()}<div class="soulbtns"><button class="btn" id="soulVault">🔐 Cofre da alma (${SMEM.all().length})</button><button class="btn" id="soulRead">🔭 Ler a carta de alguém</button><button class="btn" id="soulLinks">💫 As minhas ligações (${soulLinks().length})</button></div>
