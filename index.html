@@ -1437,7 +1437,7 @@ function buildPost(type = ST.type) {
   if (type === 'anos') return { cs: [{ name: 'parabens', c: drawBirthday() }], cap: capBirthday() };
   if (type === 'horas') return { cs: [{ name: 'horas-planetarias', c: drawHours() }], cap: capHours() };
 }
-function render() {
+function renderLegacy() { // antigo, substituído por render() em ui.js
   if (!TYPE_MODES[ST.type].includes(ST.mode)) ST.mode = TYPE_MODES[ST.type][0];
   document.querySelectorAll('#types button').forEach(b => b.classList.toggle('on', b.dataset.t === ST.type));
   document.querySelectorAll('#modes button').forEach(b => { b.hidden = !TYPE_MODES[ST.type].includes(b.dataset.m); b.classList.toggle('on', b.dataset.m === ST.mode); });
@@ -1572,7 +1572,7 @@ function calcMine() {
 }
 
 // ---------- Init ----------
-async function init() {
+async function initLegacy() { // antigo, substituído por init() em ui.js
   $('#brand').value = ST.brand; $('#fmt').value = ST.fmt; $('#modern').checked = ST.modern; $('#skyOn').checked = ST.sky; $('#coverOn').checked = ST.cover;
   const opts = CITIES.map((c, i) => `<option value="${i}">${c[0]}</option>`).join(''); $('#bCity').innerHTML = opts; $('#cityHours').innerHTML = opts; $('#cityHours').value = ST.city;
   $('#brand').oninput = e => { ST.brand = e.target.value.trim(); store.set('ceu_brand', ST.brand); clearTimeout(init.t); init.t = setTimeout(render, 400); };
