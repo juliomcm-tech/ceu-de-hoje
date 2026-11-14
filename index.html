@@ -2410,7 +2410,7 @@ function tvTodayBox(ds) { const T = tvToday(ds); return `<div class="box"><h3>�
 function epInfo(x) { if (x.kind === 'filme') return ''; const n = (x.eplog || []).length, td = (x.eplog || []).filter(d => d === todayStr()).length; return `${x.season ? `T${x.season}` : ''}${x.ep ? ` · E${x.ep}` : ''}${n ? ` · ${n} episódio${n > 1 ? 's' : ''} registado${n > 1 ? 's' : ''}` : ''}${td >= 3 ? ` · 🍿 maratona: ${td} hoje!` : ''}`; }
 
 // ===== Coleções: "Já tenho isto?" =====
-function colCard(x) { return `<div class="iit" data-cid="${x.id}">${x.cover ? `<img src="${esc(x.cover)}" alt="" loading="lazy">` : '<span class="ph0">🧱</span>'}<div><b>${esc(x.title)}</b><small>${esc(x.by || '')}${x.ref ? ' · nº ' + esc(x.ref) : ''} · ${INT.colecoes.verb[x.status]}</small></div></div>`; }
+function colCard(x) { return `<div class="iit" data-cid="${x.id}">${x.cover ? `<img src="${esc(x.cover)}" alt="" loading="lazy">` : '<span class="ph0">🧱</span>'}<div><b>${esc(x.title)}</b><small>${esc(x.by || '')}${x.ref ? ' · nº ' + esc(x.ref) : ''} · ${INT.colecoes.verb[x.status]}</small>${x.status === 2 || x.status === 3 ? `<small>📍 ${esc(placeTxt(x, 'colecoes'))}</small>` : ''}</div></div>`; }
 function bindCollections() {
   const res = $('#colRes'); if (!res) return;
   const bindRes = () => res.querySelectorAll('[data-cid]').forEach(el => el.onclick = () => openItem('colecoes', el.dataset.cid, false));
@@ -2428,9 +2428,11 @@ function bindCollections() {
 }
 
 // ===== Estante virtual =====
+let SHT = 'livros'; // que estante está em uso: livros ou coleções (cada uma tem a sua)
+const shKey = () => SHT === 'colecoes' ? 'ceu_colshelf' : 'ceu_shelf';
 const SHELF = {
-  get() { let o; try { o = Object.assign({ e: 1, p: 4, names: [], look: 'capas', wood: 'madeira', cfg: [] }, JSON.parse(store.get('ceu_shelf') || '{}')); } catch (e) { o = { e: 1, p: 4, names: [], look: 'capas', wood: 'madeira', cfg: [] }; } o.cfg = o.cfg || []; return o; },
-  set(o) { store.set('ceu_shelf', JSON.stringify(o)); }
+  get() { let o; try { o = Object.assign({ e: 1, p: 4, names: [], look: 'capas', wood: 'madeira', cfg: [] }, JSON.parse(store.get(shKey()) || '{}')); } catch (e) { o = { e: 1, p: 4, names: [], look: 'capas', wood: 'madeira', cfg: [] }; } o.cfg = o.cfg || []; return o; },
+  set(o) { store.set(shKey(), JSON.stringify(o)); }
 };
 const shP = (S, e) => (S.cfg[e] && S.cfg[e].p) || S.p, shW = (S, e) => (S.cfg[e] && S.cfg[e].w) || 'l';
 const SORTS = [['manual', 'A minha ordem'], ['az', 'Título A–Z'], ['autor', 'Autor A–Z'], ['rate', 'Avaliação'], ['recent', 'Mais recentes']];
@@ -2444,12 +2446,12 @@ function sortBooks(L, s) {
   return A;
 }
 function normShelf() { // garante que todos os livros têm lugar e numeração seguida
-  const S = SHELF.get(), L = intList('livros'); let changed = false;
+  const S = SHELF.get(), L = intList(SHT); let changed = false;
   const cap = S.look === 'capas' ? 5 : 10, count = (e, p) => L.filter(x => x.pos && x.pos.e === e && x.pos.p === p && !x._new).length;
   L.forEach(x => { if (x.pos && (x.pos.e >= S.e || x.pos.p >= shP(S, x.pos.e))) { const ne = Math.min(S.e - 1, x.pos.e); x.pos = { e: ne, p: Math.min(shP(S, ne) - 1, x.pos.p), i: 1e6 + x.pos.i }; changed = true; } });
   L.filter(x => !x.pos).sort((a, b) => (a.ts || 0) - (b.ts || 0)).forEach(x => { let spot = null; for (let e = 0; e < S.e && !spot; e++) for (let p = 0; p < shP(S, e) && !spot; p++) if (count(e, p) < cap * ({ s: .6, m: .8, l: 1 }[shW(S, e)])) spot = { e, p }; spot = spot || { e: S.e - 1, p: shP(S, S.e - 1) - 1 }; x.pos = { ...spot, i: 1e6 + count(spot.e, spot.p) }; changed = true; });
   for (let e = 0; e < S.e; e++) for (let p = 0; p < shP(S, e); p++) L.filter(x => x.pos.e === e && x.pos.p === p).sort((a, b) => a.pos.i - b.pos.i).forEach((x, i) => { if (x.pos.i !== i) { x.pos.i = i; changed = true; } });
-  if (changed) intSave('livros', L); return L;
+  if (changed) intSave(SHT, L); return L;
 }
 function bookEl(x, look) {
   const st = x.lent ? '<i class="bdg l">🤝</i>' : x.status === 1 ? '<i class="bdg">a ler</i>' : x.status === 0 ? '<i class="bdg w">quero</i>' : '', ln = x.lent ? ' lent' : '';
@@ -2460,11 +2462,11 @@ function bookEl(x, look) {
 }
 function vShelf() {
   const S = SHELF.get(), sort = ST.shelfSort || 'manual', look = S.look;
-  let L = sort === 'manual' ? normShelf() : intList('livros');
+  let L = sort === 'manual' ? normShelf() : intList(SHT);
   let h = `<div class="shtools"><select id="shSort">${SORTS.map(([k, n]) => `<option value="${k}"${k === sort ? ' selected' : ''}>${n}</option>`).join('')}</select><div class="seg3"><button data-look="capas"${look === 'capas' ? ' class="on"' : ''}>Capas</button><button data-look="lombadas"${look === 'lombadas' ? ' class="on"' : ''}>Lombadas</button></div></div>
     <div class="woods">${[['madeira', 'Madeira'], ['branca', 'Branca'], ['preta', 'Preta']].map(([k, n]) => `<button data-wood="${k}" class="wd-${k}${S.wood === k ? ' on' : ''}">${n}</button>`).join('')}</div>`;
-  if (sort === 'manual') h += `<div class="shcfg"><span>Estantes</span><button class="ib" data-c="e-">−</button><b>${S.e}</b><button class="ib" data-c="e+">＋</button></div><p class="hint">Carrega sem soltar num livro e arrasta-o para onde quiseres, até para o meio ou para a ponta da prateleira. Toca no nome da estante para mudar a largura e as prateleiras.</p>`;
-  if (!L.length) return h + '<p class="hint">Ainda não há livros na estante.</p>';
+  if (sort === 'manual') h += `<div class="shcfg"><span>Estantes</span><button class="ib" data-c="e-">−</button><b>${S.e}</b><button class="ib" data-c="e+">＋</button></div><p class="hint">Carrega sem soltar num ${SHT === 'colecoes' ? 'artigo' : 'livro'} e arrasta-o para onde quiseres, até para o meio ou para a ponta da prateleira. Toca no nome da estante para mudar a largura e as prateleiras.</p>`;
+  if (!L.length) return h + `<p class="hint">Ainda não há ${SHT === 'colecoes' ? 'artigos' : 'livros'} na estante.</p>`;
   if (sort === 'manual') {
     for (let e = 0; e < S.e; e++) {
       h += `<div class="estante wood-${S.wood} w-${shW(S, e)}"><div class="eh" data-est="${e}">${esc(S.names[e] || 'Estante ' + (e + 1))} <span>✏️</span></div>`;
@@ -2509,10 +2511,10 @@ function bookDown(ev, el, manual) {
     const row = DRAG.ph.parentElement, kids = [...row.children].filter(c => c !== DRAG.el && !c.classList.contains('ghost')), gap = DRAG.gap || 0;
     const idx = kids.indexOf(DRAG.ph), e2 = +row.dataset.e, p2 = +row.dataset.p, id = DRAG.el.dataset.id;
     DRAG.g.remove(); DRAG.ph.remove(); DRAG.el.classList.remove('lift'); DRAG = null;
-    const L = intList('livros'), me = L.find(x => x.id === id), from = { ...me.pos };
+    const L = intList(SHT), me = L.find(x => x.id === id), from = { ...me.pos };
     L.filter(x => x.id !== id && x.pos && x.pos.e === from.e && x.pos.p === from.p && x.pos.i > from.i).forEach(x => x.pos.i--);
     L.filter(x => x.id !== id && x.pos && x.pos.e === e2 && x.pos.p === p2 && x.pos.i >= idx).forEach(x => x.pos.i++);
-    me.pos = { e: e2, p: p2, i: idx, g: gap }; intSave('livros', L); render(); toast('Arrumado 📚');
+    me.pos = { e: e2, p: p2, i: idx, g: gap }; intSave(SHT, L); render(); toast(SHT === 'colecoes' ? 'Arrumado 🧱' : 'Arrumado 📚');
   };
   const block = e => { if (DRAG) e.preventDefault(); };
   window.addEventListener('pointermove', onMove, { passive: false }); window.addEventListener('pointerup', onUp); window.addEventListener('pointercancel', onUp);
@@ -2639,7 +2641,7 @@ async function scanBarcode() {
   });
 }
 
-function pullOut(el) { el.classList.add('pull'); setTimeout(() => { el.classList.remove('pull'); openItem('livros', el.dataset.id, false); }, 260); }
+function pullOut(el) { el.classList.add('pull'); setTimeout(() => { el.classList.remove('pull'); openItem(SHT, el.dataset.id, false); }, 260); }
 
 function editEstante(e) {
   const S = SHELF.get();
@@ -2695,9 +2697,9 @@ async function frameCamera(opts = {}) {
 }
 
 // ---------- Procurar nos meus livros (título, autor ou código de barras) ----------
-function placeTxt(x) {
-  const S = SHELF.get(); if (!x.pos) return 'ainda sem lugar na estante';
-  const row = intList('livros').filter(z => z.pos && z.pos.e === x.pos.e && z.pos.p === x.pos.p).sort((a, b) => a.pos.i - b.pos.i), i = row.findIndex(z => z.id === x.id), n = row.length, np = shP(S, x.pos.e);
+function placeTxt(x, which) {
+  if (which) SHT = which; const S = SHELF.get(); if (!x.pos) return 'ainda sem lugar na estante';
+  const row = intList(SHT).filter(z => z.pos && z.pos.e === x.pos.e && z.pos.p === x.pos.p).sort((a, b) => a.pos.i - b.pos.i), i = row.findIndex(z => z.id === x.id), n = row.length, np = shP(S, x.pos.e);
   const est = S.e > 1 || S.names[x.pos.e] ? `${S.names[x.pos.e] ? '«' + S.names[x.pos.e] + '»' : 'Estante ' + (x.pos.e + 1)} → ` : '';
   const shelf = x.pos.p === 0 ? 'prateleira de cima' : x.pos.p === np - 1 ? 'prateleira de baixo' : `${x.pos.p + 1}.ª prateleira a contar de cima`;
   const t = s => '«' + (s.length > 28 ? s.slice(0, 26) + '…' : s) + '»', L = row[i - 1], Rr = row[i + 1];
@@ -2712,7 +2714,7 @@ function libSearchHtml() { return `<div class="libsearch"><input type="search" i
 function libShow(q, fromScan) {
   const box = $('#libRes'); if (!box) return; ST.libQ = q; if (!q.trim()) { box.innerHTML = ''; return; }
   const R = libFind(q), C = INT.livros;
-  box.innerHTML = R.length ? `<div class="box libr"><h3>📚 ${R.length === 1 ? 'Tens este livro' : `Encontrei ${R.length} livros`}</h3>${R.map(x => { const dur = durTxt(dtJoin(x.sd, x.st), dtJoin(x.ed, x.et)); return `<div class="sug" data-lid="${x.id}">${x.cover ? `<img src="${esc(x.cover)}" alt="">` : '<span class="ph0">📕</span>'}<div><b>${esc(x.title)}</b><small>${esc(x.by || '')}${x.by ? ' · ' : ''}${C.verb[x.status]}${x.status === 2 && x.ed ? ' em ' + niceDate(x.ed).replace(/^[^,]+, /, '') + ' de ' + x.ed.slice(0, 4) : ''}${dur && x.status === 2 ? ' · ' + dur : ''}</small><small>📍 ${placeTxt(x)}${x.lent ? ` · 🤝 com ${esc(x.lent.to)}` : ''}</small></div></div>`; }).join('')}</div>`
+  box.innerHTML = R.length ? `<div class="box libr"><h3>📚 ${R.length === 1 ? 'Tens este livro' : `Encontrei ${R.length} livros`}</h3>${R.map(x => { const dur = durTxt(dtJoin(x.sd, x.st), dtJoin(x.ed, x.et)); return `<div class="sug" data-lid="${x.id}">${x.cover ? `<img src="${esc(x.cover)}" alt="">` : '<span class="ph0">📕</span>'}<div><b>${esc(x.title)}</b><small>${esc(x.by || '')}${x.by ? ' · ' : ''}${C.verb[x.status]}${x.status === 2 && x.ed ? ' em ' + niceDate(x.ed).replace(/^[^,]+, /, '') + ' de ' + x.ed.slice(0, 4) : ''}${dur && x.status === 2 ? ' · ' + dur : ''}</small><small>📍 ${placeTxt(x, 'livros')}${x.lent ? ` · 🤝 com ${esc(x.lent.to)}` : ''}</small></div></div>`; }).join('')}</div>`
     : `<div class="box libr"><p>${fromScan ? '🆕 Ainda não tens este livro.' : 'Não encontrei nenhum livro teu com isso.'}</p>${fromScan ? `<button class="btn main" id="libAdd" style="width:100%">＋ Juntar este livro</button>` : ''}</div>`;
   box.querySelectorAll('[data-lid]').forEach(el => el.onclick = () => openItem('livros', el.dataset.lid, false));
   if ($('#libAdd')) $('#libAdd').onclick = async () => { const code = q.replace(/\D/g, ''); toast('A procurar o livro…'); let b = null; try { b = await isbnLookup(code); } catch (e) { } openItem('livros', null, true, b ? { ...b, isbn: code, status: 0 } : { isbn: code, status: 0, notFound: 1 }); };
@@ -5571,7 +5573,7 @@ async function soulPromoCanvases() {
 }
 
 // ===== App de telemóvel =====
-const APP_VERSION = '14.11.2026 13:00';
+const APP_VERSION = '14.11.2026 13:30';
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const G = g => `${g}&#xFE0E;`;
@@ -5902,8 +5904,10 @@ function vInteresses() {
   if (t === 'viagens' && ST.tripView === 'sonhos') return h + vDreams();
   if (t === 'livros' && ST.bookView !== 'stats') h += libSearchHtml();
   if (t === 'series') h += tvTodayBox(ST.date);
+  if (t === 'colecoes') h += `<div class="seg2 vw"><button data-cv="lista"${ST.colView === 'estante' ? '' : ' class="on"'}>📋 Lista</button><button data-cv="estante"${ST.colView === 'estante' ? ' class="on"' : ''}>🗄️ Estantes</button></div>`;
   h += `<div id="intOnline"></div><div class="addrow"><button class="btn main" id="intAdd">＋ Adicionar ${C.one}</button>${t === 'livros' ? '<button class="btn" id="intScan" title="Ler código de barras">📷</button>' : ''}</div>`;
-  if (t === 'livros' && ST.bookView === 'estante') return h + vShelf();
+  if (t === 'livros' && ST.bookView === 'estante') { SHT = 'livros'; return h + vShelf(); }
+  if (t === 'colecoes' && ST.colView === 'estante') { SHT = 'colecoes'; return h + vShelf(); }
   if (t === 'livros' && ST.bookView === 'stats') return h + vBookStats();
   for (const st of [1, 3, 0, 2, 4].filter(n => n < C.verb.length)) {
     const g0 = L.filter(x => x.status === st && !(t === 'viagens' && x.realized)).sort((a, b) => (b.ed || b.sd || '').localeCompare(a.ed || a.sd || ''));
@@ -5925,7 +5929,8 @@ function bindInteresses() {
   document.querySelectorAll('[data-tv]').forEach(b => b.onclick = () => { ST.tripView = b.dataset.tv; render(); });
   bindGoal(); bindLibSearch(); bindDreams(); if ($('#ppShare')) $('#ppShare').onclick = async () => { toast('A preparar o passaporte…'); const P2 = passportStamps(); await shareCanvases([{ name: 'passaporte', c: await drawPassport() }], `🛂 O meu passaporte: ${P2.S.map(s => flagOf(s.iso)).join(' ')}\n${P2.S.length} países · ${P2.euPct}% da Europa\n\nFeito com Céu de Hoje ✨ ${APP_URL}`); };
   if ($('#intScan')) $('#intScan').onclick = async () => { try { const code = await scanBarcode(); if (!code) return; toast('A procurar o livro…'); const b = await isbnLookup(code); if (!b) { toast('Não está nas bases abertas — preenche ou fotografa a capa 📷', 4000); openItem('livros', null, true, { isbn: code, status: 2, notFound: 1 }); return; } openItem('livros', null, true, { ...b, isbn: code, status: 2 }); } catch (e) { toast('Sem câmara ou sem internet'); } };
-  if (t === 'livros' && ST.bookView === 'estante') bindShelf();
+  if ((t === 'livros' && ST.bookView === 'estante') || (t === 'colecoes' && ST.colView === 'estante')) { SHT = t; bindShelf(); }
+  document.querySelectorAll('[data-cv]').forEach(b => b.onclick = () => { ST.colView = b.dataset.cv; render(); });
   if (t === 'livros' && ST.bookView === 'stats') bindReadShare(ST.statYear || todayStr().slice(0, 4));
   if (t === 'livros' && ST.bookView === 'stats') { $('#syPrev').onclick = () => { ST.statYear = +(ST.statYear || todayStr().slice(0, 4)) - 1; render(); }; $('#syNext').onclick = () => { ST.statYear = +(ST.statYear || todayStr().slice(0, 4)) + 1; render(); }; }
   document.querySelectorAll('.iit').forEach(el => el.onclick = () => openItem(t, el.dataset.id, false));
@@ -5959,7 +5964,7 @@ function openItem(t, id, edit, preset) {
     $('#intBody').innerHTML = `<div class="ihero${cc ? ' flg' : ''}"${cc ? ` style="--fl:${flagBg(cc)}"` : ''}>${x.cover ? `<img src="${esc(x.cover)}" alt="">` : `<span class="ph1${cc ? ' fl' : ''}">${cc ? flagOf(cc[1]) : C.ic}</span>`}<h3>${esc(x.title)}</h3><p>${esc(x.by || '')}${x.place ? ' · ' + esc(x.place) : ''}${x.genre ? ' · ' + x.genre : ''}</p><span class="stars big">${'★'.repeat(x.rating || 0)}<i>${'☆'.repeat(5 - (x.rating || 0))}</i></span><span class="chip" style="--c:var(--gold)">${x.realized ? '✨ Sonho realizado' : C.verb[x.status]}</span><div class="itacts"><button class="btn ghost" id="itShare">📤 Imagem</button><button class="btn ghost" id="itReel">🎬 Reel</button></div>${t === 'livros' && x.isbn ? `<a class="wooklnk" href="${wookLink(x.isbn)}" target="_blank" rel="noopener">🔎 Ver na Wook</a>` : ''}</div>
       ${x.sd ? `<div class="box"><p>▶️ Início: <b>${niceDate(x.sd)}${x.st ? ' às ' + x.st : ''}</b></p>${x.ed ? `<p>🏁 Fim: <b>${niceDate(x.ed)}${x.et ? ' às ' + x.et : ''}</b></p>` : ''}${dur ? `<p>⏱ ${C.done} em <b>${dur}</b>.</p>` : ''}</div>` : ''}${astroBox(t, x)}
       ${t === 'livros' && (x.status === 1 || x.status === 3) ? `<div class="box"><h3>📖 A tua leitura</h3>${progH(x)}<div class="drow"><input type="number" id="logPg" inputmode="numeric" placeholder="Página onde vais" value="${x.page || ''}"><button class="btn main" id="logGo">Li hoje</button></div></div>` : ''}
-      ${t === 'series' && x.kind !== 'filme' && (x.status === 1 || x.status === 3) ? `<div class="box"><h3>📺 Onde vais</h3><p>${epInfo(x) || 'Ainda sem episódios registados.'}</p><button class="btn main" id="epPlus" style="width:100%">＋1 episódio visto</button></div>` : ''}${t === 'livros' ? quotesBox(x) + lendBox(x) : ''}${x.comment ? `<div class="box"><h3>💬 O teu comentário</h3><p>${esc(x.comment).replace(/\n/g, '<br>')}</p></div>` : ''}${x.next ? `<div class="box"><p>📺 Próximo episódio: <b>${x.next}</b></p></div>` : ''}`;
+      ${t === 'series' && x.kind !== 'filme' && (x.status === 1 || x.status === 3) ? `<div class="box"><h3>📺 Onde vais</h3><p>${epInfo(x) || 'Ainda sem episódios registados.'}</p><button class="btn main" id="epPlus" style="width:100%">＋1 episódio visto</button></div>` : ''}${t === 'livros' ? quotesBox(x) + lendBox(x) : ''}${t === 'colecoes' ? `<div class="box"><h3>🧱 Detalhes</h3>${x.ref ? `<p>Nº / referência: <b>${esc(x.ref)}</b></p>` : ''}${+x.pcs ? `<p>Peças: <b>${(+x.pcs).toLocaleString('pt-PT')}</b></p>` : ''}${x.price ? `<p>Preço pago: <b>${esc(x.price)} €</b></p>` : ''}${x.isbn ? `<p>Código de barras: <b>${esc(x.isbn)}</b></p>` : ''}<p>📍 Onde está: <b>${esc(placeTxt(x, 'colecoes'))}</b></p></div>` : ''}${x.comment ? `<div class="box"><h3>💬 O teu comentário</h3><p>${esc(x.comment).replace(/\n/g, '<br>')}</p></div>` : ''}${x.next ? `<div class="box"><p>📺 Próximo episódio: <b>${x.next}</b></p></div>` : ''}`;
     $('#intSave').textContent = '✏️ Editar'; $('#intSave').onclick = () => openItem(t, id, true); $('#intDel').hidden = true;
     $('#itShare').onclick = () => shareItem(t, x); $('#itReel').onclick = () => makeItemReel(t, x, $('#itReel'));
     if ($('#epPlus')) $('#epPlus').onclick = () => { const all = intList(t), o = all.find(z => z.id === id); o.ep = (+o.ep || 0) + 1; o.eplog = (o.eplog || []).concat(todayStr()); o.status = 1; intSave(t, all); const td = o.eplog.filter(d => d === todayStr()).length; toast(td >= 3 ? `🍿 Maratona! ${td} episódios hoje` : `Episódio ${o.ep} ✓`); openItem(t, id, false); render(); }; if (t === 'livros') { bindQuotes(t, id); bindLend(t, id); }
@@ -5981,7 +5986,7 @@ function openItem(t, id, edit, preset) {
     <div class="two"><label>Início<input type="date" id="iSD" value="${x.sd || ''}"></label><label>Hora<input type="time" id="iST" value="${x.st || ''}"></label></div>
     <div class="two"><label>Fim<input type="date" id="iED" value="${x.ed || ''}"></label><label>Hora<input type="time" id="iET" value="${x.et || ''}"></label></div>
     <label>Comentário<textarea id="iC" rows="3" maxlength="1000">${esc(x.comment || '')}</textarea></label>
-    ${t === 'livros' ? (() => { const S = SHELF.get(), pe = x.pos ? x.pos.e : +(store.get('ceu_lastshelf') || '0').split(',')[0] || 0, pp = x.pos ? x.pos.p : +(store.get('ceu_lastshelf') || '0,0').split(',')[1] || 0; return `<label>Lugar na estante</label><div class="two"><select id="iPE">${[...Array(S.e)].map((_, i) => `<option value="${i}"${i === pe ? ' selected' : ''}>${esc(S.names[i] || 'Estante ' + (i + 1))}</option>`).join('')}</select><select id="iPP">${[...Array(S.p)].map((_, i) => `<option value="${i}"${i === pp ? ' selected' : ''}>Prateleira ${i + 1}</option>`).join('')}</select></div>`; })() : ''}</div>`;
+    ${t === 'livros' || t === 'colecoes' ? (() => { SHT = t; const lk = t === 'colecoes' ? 'ceu_lastcolshelf' : 'ceu_lastshelf', S = SHELF.get(), pe = x.pos ? x.pos.e : +(store.get(lk) || '0').split(',')[0] || 0, pp = x.pos ? x.pos.p : +(store.get(lk) || '0,0').split(',')[1] || 0; return `<label>Lugar na estante</label><div class="two"><select id="iPE">${[...Array(S.e)].map((_, i) => `<option value="${i}"${i === pe ? ' selected' : ''}>${esc(S.names[i] || 'Estante ' + (i + 1))}</option>`).join('')}</select><select id="iPP">${[...Array(S.p)].map((_, i) => `<option value="${i}"${i === pp ? ' selected' : ''}>Prateleira ${i + 1}</option>`).join('')}</select></div>`; })() : ''}</div>`;
   let rating = x.rating || 0, cover = x.cover || '', tvm = x.tvmaze || null;
   const setCv = c => { cover = c || ''; if ($('#cvPrev')) { $('#cvPrev').innerHTML = cover ? `<img src="${esc(cover)}" alt="">` : '<span>📕</span>'; $('#cvDel').hidden = !cover; } };
   if ($('#cvCam')) $('#cvCam').onclick = async () => { const f = await frameCamera({ tip: 'Encaixa a capa do livro dentro da moldura' }); if (!f || typeof f === 'string') return; try { const dt = new DataTransfer(); dt.items.add(f); $('#cvFile').files = dt.files; } catch (e) { $('#cvFile').__f = f; } $('#cvFile').dispatchEvent(new Event('change')); };
@@ -6007,7 +6012,7 @@ function openItem(t, id, edit, preset) {
   $('#intSave').textContent = 'Guardar'; $('#intDel').hidden = !id;
   $('#intSave').onclick = () => {
     const ti = $('#iT').value.trim(); if (!ti) { toast('Escreve o título'); return; }
-    const npos = t === 'livros' && $('#iPE') ? (() => { const e = +$('#iPE').value, p = +$('#iPP').value; store.set('ceu_lastshelf', e + ',' + p); return x.pos && x.pos.e === e && x.pos.p === p ? x.pos : { e, p, i: 1e6 }; })() : x.pos;
+    const npos = (t === 'livros' || t === 'colecoes') && $('#iPE') ? (() => { const e = +$('#iPE').value, p = +$('#iPP').value; store.set(t === 'colecoes' ? 'ceu_lastcolshelf' : 'ceu_lastshelf', e + ',' + p); return x.pos && x.pos.e === e && x.pos.p === p ? x.pos : { e, p, i: 1e6 }; })() : x.pos;
     const o = { pages: $('#iPg') ? $('#iPg').value : x.pages || '', page: $('#iCp') ? $('#iCp').value : x.page || '', lastRead: x.lastRead || '', log: x.log || [], pos: npos, isbn: $('#iIsbn') ? $('#iIsbn').value.replace(/[^\dXx]/g, '') : x.isbn || '', id: id || 'i' + Date.now().toString(36), title: ti, by: $('#iB').value.trim(), place: $('#iP') ? $('#iP').value.trim() : '', genre: $('#iG').value, status: +$('#iS').value, rating, sd: $('#iSD').value, st: $('#iST').value, ed: $('#iED').value, et: $('#iET').value, comment: $('#iC').value.trim(), cover, tvmaze: tvm, next: x.next || '', quotes: x.quotes || [], lent: x.lent, lentLog: x.lentLog, realized: x.realized, ts0: x.ts0 || x.ts || Date.now(), ...(t === 'colecoes' ? { ref: $('#iRef') ? $('#iRef').value.trim() : '', pcs: $('#iPcs') ? $('#iPcs').value : '', price: $('#iPr') ? $('#iPr').value.trim() : '' } : {}), ...(t === 'series' ? { kind, season: $('#iSe') ? $('#iSe').value : x.season || '', ep: $('#iEp') ? $('#iEp').value : x.ep || '', eplog: x.eplog || [] } : {}), ts: Date.now() };
     const all = intList(t), jx = id ? all.findIndex(z => z.id === id) : -1; if (jx >= 0) all[jx] = o; else all.push(o); intSave(t, all); $('#intDlg').close(); if (t === 'viagens' && o.status >= 1) dreamCheck(o); toast(o.status === 2 && o.ed ? `${C.done} em ${durTxt(dtJoin(o.sd, o.st), dtJoin(o.ed, o.et)) || '—'} 🎉` : 'Guardado'); render();
   };
