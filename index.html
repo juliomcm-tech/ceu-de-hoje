@@ -1520,19 +1520,11 @@ function reelFrame(ctx, base, t) {
   if (t > 12.3) { ctx.save(); ctx.globalAlpha = Math.min(1, (t - 12.3) / 0.5); footer(ctx, W, H, S, 'Tudo sobre o teu signo no post  ·  Segue ' + brand()); ctx.restore(); }
 }
 async function makeReel() {
-  const mime = reelMime(), btn = $('#reel');
-  if (!mime || !HTMLCanvasElement.prototype.captureStream) { toast('Este navegador não grava vídeo — experimenta no Chrome'); return; }
-  computeTop(); btn.disabled = true;
+  const btn = $('#reel'); computeTop();
   const base = document.createElement('canvas'); base.width = 1080; base.height = 1920; const bctx = base.getContext('2d');
   bg(bctx, 1080, 1920, ST.date + ST.mode + 'reel', ['#7a5cff', '#2a1d6a']); wheel(bctx, 540, 300, 360, .08);
-  const c = document.createElement('canvas'); c.width = 1080; c.height = 1920; const ctx = c.getContext('2d'); reelFrame(ctx, base, 0);
-  const stream = c.captureStream(30), rec = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 8e6 }), chunks = [];
-  rec.ondataavailable = e => e.data.size && chunks.push(e.data);
-  const done = new Promise(r => rec.onstop = r);
-  rec.start(250); const DUR = 15, t0 = performance.now();
-  await new Promise(res => { const step = () => { const t = (performance.now() - t0) / 1000; reelFrame(ctx, base, Math.min(t, DUR)); stampMark(ctx, 1080, 1920); btn.textContent = `🎬 A gravar… ${Math.max(0, Math.ceil(DUR - t))}s`; if (t < DUR) requestAnimationFrame(step); else res(); }; requestAnimationFrame(step); });
-  rec.stop(); await done; btn.disabled = false; btn.textContent = '🎬 Criar Reel';
-  const ext = mime.includes('mp4') ? 'mp4' : 'webm', blob = new Blob(chunks, { type: mime.split(';')[0] });
+  const r = await recordAnim((ctx, t) => reelFrame(ctx, base, t), 15, 1080, 1920, btn, '🎬 A criar…'); if (!r) return;
+  const ext = r.ext, blob = r.blob;
   const v = $('#reelVid'); v.src = URL.createObjectURL(blob); $('#reelDlg').showModal();
   $('#reelShare').onclick = async () => { const f = new File([blob], `reel-${ST.date}.${ext}`, { type: blob.type }); if (!(await shareFiles([f], ST.cap))) { await saveBlob(f, f.name); toast('Vídeo guardado e legenda copiada'); } };
   $('#reelInfo').textContent = ext === 'webm' ? 'Formato WebM: o Facebook aceita. No iPhone, guarda primeiro e publica a partir do computador se não abrir.' : 'Formato MP4: pronto para os Reels.';
@@ -1771,7 +1763,32 @@ function drawBday(Bd, fmt) { const [c, ctx, W, H, S] = mk(fmt); drawBdayFrame(ct
 function capBday(Bd) {
   return [`🎉 FELIZ ANIVERSÁRIO, ${Bd.name.toUpperCase()}!`, `${Bd.dedication} ${Bd.sign.g}`, '', Bd.force, Bd.wish, Bd.year, Bd.cat === 'pet' ? '' : `🔢 ${Bd.num}.`, '', Bd.from ? `Com carinho, ${Bd.from} ❤️` : '', `✨ Feito com ${brand()}`].filter((x, i, a) => x !== '' || a[i - 1] !== '').join('\n');
 }
+// Vídeo: primeiro MP4 verdadeiro (WebCodecs, fotograma a fotograma: fluido mesmo em telemóveis lentos e com duração certa);
+// se o navegador não suportar, cai para a gravação em tempo real (MediaRecorder).
+function loadMuxer() { if (window.Mp4Muxer) return Promise.resolve(true); return new Promise(r => { const s = document.createElement('script'); s.src = 'mp4-muxer.min.js'; s.onload = () => r(!!window.Mp4Muxer); s.onerror = () => r(false); document.head.appendChild(s); }); }
+async function encodeMp4(drawFn, dur, W, H, btn, label) {
+  if (!('VideoEncoder' in window) || !('VideoFrame' in window)) return null;
+  const fps = 30; let cfg = null;
+  for (const codec of ['avc1.640028', 'avc1.4D0028', 'avc1.42E028']) { const c = { codec, width: W, height: H, bitrate: 8e6, framerate: fps }; try { if ((await VideoEncoder.isConfigSupported(c)).supported) { cfg = c; break; } } catch (e) { } }
+  if (!cfg || !(await loadMuxer())) return null;
+  const { Muxer, ArrayBufferTarget } = Mp4Muxer, target = new ArrayBufferTarget(), muxer = new Muxer({ target, video: { codec: 'avc', width: W, height: H, frameRate: fps }, fastStart: 'in-memory' });
+  let err = null; const enc = new VideoEncoder({ output: (ch, meta) => muxer.addVideoChunk(ch, meta), error: e => err = e }); enc.configure(cfg);
+  const c = document.createElement('canvas'); c.width = W; c.height = H; const ctx = c.getContext('2d'), N = Math.round(dur * fps), old = btn ? btn.textContent : '';
+  if (btn) btn.disabled = true;
+  try {
+    for (let n = 0; n <= N; n++) {
+      if (err) throw err;
+      drawFn(ctx, Math.min(n / fps, dur)); stampMark(ctx, W, H);
+      const vf = new VideoFrame(c, { timestamp: Math.round(n * 1e6 / fps), duration: Math.round(1e6 / fps) }); enc.encode(vf, { keyFrame: n % 60 === 0 }); vf.close();
+      while (enc.encodeQueueSize > 6) await new Promise(r => setTimeout(r, 4));
+      if (n % 6 === 0) { if (btn) btn.textContent = `${label} ${Math.round(n / N * 100)}%`; await new Promise(r => setTimeout(r, 0)); }
+    }
+    await enc.flush(); if (err) throw err; muxer.finalize();
+  } finally { try { enc.close(); } catch (e) { } if (btn) { btn.disabled = false; btn.textContent = old; } }
+  return { blob: new Blob([target.buffer], { type: 'video/mp4' }), ext: 'mp4' };
+}
 async function recordAnim(drawFn, dur, W, H, btn, label) {
+  try { const v = await encodeMp4(drawFn, dur, W, H, btn, label); if (v && v.blob.size > 1000) return v; } catch (e) { console.warn('mp4', e); }
   const mime = reelMime(); if (!mime || !HTMLCanvasElement.prototype.captureStream) { toast('Este navegador não grava vídeo — usa o Chrome'); return null; }
   const c = document.createElement('canvas'); c.width = W; c.height = H; const ctx = c.getContext('2d'); drawFn(ctx, 0);
   const rec = new MediaRecorder(c.captureStream(30), { mimeType: mime, videoBitsPerSecond: 8e6 }), chunks = []; rec.ondataavailable = e => e.data.size && chunks.push(e.data);
@@ -5028,10 +5045,10 @@ async function pushSync(force) {
   try { const reg = await navigator.serviceWorker.ready; let sub = await reg.pushManager.getSubscription();
     if (!sub) { const { key } = await (await fetch(url + '/vapid')).json(); sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: u8(key) }); force = true; }
     const off = new Date().getTimezoneOffset(), sig = [sub.endpoint, off, o.m, o.n, o.mOn, o.nOn].join('|');
-    if (!force && o.sig === sig && Date.now() - (o.at || 0) < 7 * 864e5) return true;
+    if (!force && o.sig === sig && Date.now() - (o.at || 0) < 7 * 864e5) { if (o.err) { o.err = ''; PS.set(o); } return true; }
     o.id = o.id || (crypto.randomUUID ? crypto.randomUUID() : 'u' + Date.now() + Math.random().toString(36).slice(2));
     const r = await fetch(url + '/sub', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id: o.id, endpoint: sub.endpoint, off, m: o.m || '08:00', n: o.n || '21:30', on: { m: o.mOn !== false, n: !!o.nOn } }) });
-    if (!r.ok) throw new Error('servidor ' + r.status); o.sig = sig; o.at = Date.now(); PS.set(o); return true;
+    if (!r.ok) throw new Error('servidor ' + r.status); o.sig = sig; o.at = Date.now(); o.err = ''; PS.set(o); return true;
   } catch (e) { o.err = String(e.message || e).slice(0, 80); PS.set(o); return false; }
 }
 async function pushOff() { const o = PS.get(), url = pushUrl(); o.on = false; PS.set(o); try { if (url && o.id) await fetch(url + '/unsub', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id: o.id }) }); const reg = await navigator.serviceWorker.ready, s = await reg.pushManager.getSubscription(); s && s.unsubscribe(); } catch (e) { } }
@@ -5042,16 +5059,19 @@ function pushBox() {
     <label class="chk"><input type="checkbox" id="psOn"${o.on ? ' checked' : ''}> Ligar os avisos à hora certa</label>
     <div class="two"><label>☀️ Manhã<input type="time" id="psM" value="${o.m || '08:00'}"></label><label class="chk"><input type="checkbox" id="psMOn"${o.mOn === false ? '' : ' checked'}> carta e dia</label></div>
     <div class="two"><label>🌙 Noite<input type="time" id="psN" value="${o.n || '21:30'}"></label><label class="chk"><input type="checkbox" id="psNOn"${o.nOn ? ' checked' : ''}> ritual da noite</label></div>
-    <p class="note" id="psSt">${o.on ? (o.err ? '⚠️ ' + esc(o.err) : '✅ Ligado') : ''}</p>`}</div>`;
+    <p class="note" id="psSt">${o.on ? (o.err ? '⚠️ Não deu para ligar ao servidor dos avisos (sem rede?). <button class="btn" id="psRetry" style="padding:6px 12px;font-size:13px;margin-top:6px">🔄 Tentar de novo</button>' : '✅ Ligado') : ''}</p>`}</div>`;
 }
 function bindPushBox() {
   if (!$('#psOn')) return; const save = async () => { const o = PS.get(); Object.assign(o, { m: $('#psM').value || '08:00', n: $('#psN').value || '21:30', mOn: $('#psMOn').checked, nOn: $('#psNOn').checked }); PS.set(o); if (o.on) { $('#psSt').textContent = 'A ligar…'; const ok = await pushSync(true); $('#psSt').textContent = ok ? '✅ Ligado' : '⚠️ ' + (PS.get().err || 'Não deu'); } };
   $('#psOn').onchange = async e => { if (e.target.checked) { if (Notification.permission !== 'granted') { const p = await Notification.requestPermission(); if (p !== 'granted') { e.target.checked = false; toast('Sem autorização para avisos'); return; } } const o = PS.get(); o.on = true; PS.set(o); save(); } else { await pushOff(); $('#psSt').textContent = 'Desligado'; } };
   ['#psM', '#psN', '#psMOn', '#psNOn'].forEach(id => $(id).onchange = save);
+  const retry = async () => { const st = $('#psSt'); if (st) st.textContent = 'A ligar…'; const ok = await pushSync(true); if (st) { st.innerHTML = ok ? '✅ Ligado' : '⚠️ Ainda sem ligação. Verifica a internet e tenta mais tarde. <button class="btn" id="psRetry" style="padding:6px 12px;font-size:13px;margin-top:6px">🔄 Tentar de novo</button>'; const b = $('#psRetry'); if (b) b.onclick = retry; } };
+  if ($('#psRetry')) $('#psRetry').onclick = retry;
+  const o0 = PS.get(); if (o0.on && o0.err && navigator.onLine !== false) retry();
 }
 
 // ===== App de telemóvel =====
-const APP_VERSION = '13.11.2026 22:50';
+const APP_VERSION = '14.11.2026 10:00';
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const G = g => `${g}&#xFE0E;`;
