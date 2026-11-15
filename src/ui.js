@@ -1,5 +1,5 @@
 // ===== App de telemóvel =====
-const APP_VERSION = '16.11.2026 00:10';
+const APP_VERSION = '16.11.2026 01:00';
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const G = g => `${g}&#xFE0E;`;
@@ -23,7 +23,7 @@ function vTop() {
       <div class="ar4">${AREAS4(rd).map(([l, k, t]) => `<div><span>${l}</span>${starsH(rd.stars[k])}<p>${esc(firstSentence(t))}</p></div>`).join('')}</div>
       <div class="ex">${ex}</div><span class="more">Abrir ›</span></article>`;
   });
-  return migBox() + todayStrip() + (ST.date === todayStr() ? bdayBanner() : '') + h;
+  return migBox() + todayStrip() + (ST.date === todayStr() ? bdayBanner() : '') + soulBoxHtml() + h;
 }
 function vPares() {
   const PR = pairsDay(ST.date, ST.modern);
@@ -656,7 +656,7 @@ async function init() {
   document.addEventListener('visibilitychange', () => { if (document.visibilityState !== 'visible') return; const t = todayStr(); if (ST._day && ST._day !== t) { if (ST.date === ST._day) ST.date = t; ST._day = t; render(); setTimeout(() => showTodayDlg(false), 400); } });
   ST._day = todayStr(); setTimeout(() => pushSync(false), 4000); try { if (navigator.storage && navigator.storage.persist && hasPersonalData()) navigator.storage.persist(); } catch (e) { }
   render();
-  if (/^#mig=/.test(location.hash)) setTimeout(checkMigLink, 300); else if (/#add=/.test(location.hash)) setTimeout(checkAddLink, 400); else if (/#casal=/.test(location.hash)) checkCoupleLink(); else if (/^#alma=/.test(location.hash)) checkSoulLink(); else if (!isOldHost()) setTimeout(() => { if (!showTodayDlg(false)) maybeTour(); }, 600);
+  if (/^#mig=/.test(location.hash)) setTimeout(checkMigLink, 300); else if (/#add=/.test(location.hash)) setTimeout(checkAddLink, 400); else if (/#casal=/.test(location.hash)) checkCoupleLink(); else if (/^#alma=/.test(location.hash)) checkSoulLink(); else if (!isOldHost()) setTimeout(() => { if (!soulWelcome() && !showTodayDlg(false)) maybeTour(); }, 600);
   setTimeout(() => { try { if (alertState() === 'granted' && navigator.serviceWorker && navigator.serviceWorker.controller) navigator.serviceWorker.controller.postMessage('check-bdays'); } catch (e) { } }, 1500);
   try { await Promise.race([Promise.all(['700 40px Cinzel', 'italic 600 40px "Cormorant Garamond"', '500 20px Manrope', '600 20px Manrope', '700 20px Manrope', '800 20px Manrope'].map(f => document.fonts.load(f)).concat([document.fonts.load('40px "Noto Sans Symbols"', '♈♉♊♋♌♍♎♏♐♑♒♓☉☽☿♀♂♃♄'), document.fonts.load('40px "Noto Sans Symbols 2"', '♅♆♇★✂✓✕')])), new Promise(r => setTimeout(r, 3000))]); } catch (e) { }
   if (/github\.io$|(^|\.)ceudehoje\.com$|\.pages\.dev$|^localhost$/.test(location.hostname) && 'serviceWorker' in navigator) {

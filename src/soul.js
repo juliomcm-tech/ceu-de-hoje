@@ -297,7 +297,7 @@ function openSoul() {
     <div class="soulinfo" id="soulInfo"${first ? ' hidden' : ''}>
       ${soulSealBox(o) || soulMoonDoubt()}
       <div class="soulwant"><b>💞 A tua metade perfeita</b><p>${soulWantTxt(o)}</p><p class="note">Só cerca de 1 em cada 1300 pessoas tem estas três ligações contigo. Partilha a tua carta: quem a ler descobre se é a tua metade.</p></div>
-      ${soulCapToday()}<div class="soulbtns"><button class="btn" id="soulVault">🔐 Cofre da alma (${SMEM.all().length})</button><button class="btn" id="soulRead">🔭 Ler a carta de alguém</button><button class="btn" id="soulLinks">💫 As minhas ligações (${soulLinks().length})</button></div>
+      ${soulCapToday()}<div class="soulbtns"><button class="btn" id="soulVault">🔐 Cofre da alma (${SMEM.all().length})</button><button class="btn" id="soulRead">🔭 Ler a carta de alguém</button><button class="btn" id="soulLinks">💫 As minhas ligações (${soulLinks().length})</button><button class="btn" id="soulFam">👨‍👩‍👧 Alma da família</button></div>
       <h3 class="soulh">A leitura da tua alma</h3>${soulReading(o)}
       <p class="note">Nº ${o.serial.slice(0, 4)}·${o.serial.slice(4)} · a tua carta é calculada a partir do teu nome e nascimento e é só tua. Inspirada na tradição astrológica, para te divertires e refletires.</p>
     </div></div>`;
@@ -313,7 +313,7 @@ function openSoul() {
   dlg.querySelectorAll('[data-soon]').forEach(b => b.onclick = () => toast(b.dataset.soon === 'carta' ? '🃏 Em breve vais poder encomendar a tua carta impressa a sério ✨' : '🔑 Em breve vais poder encomendar o teu porta-chaves da alma ✨', 4000));
   $('#soulVault').onclick = () => soulVault(); if ($('#soulCapGo')) $('#soulCapGo').onclick = () => soulVault();
   $('#soulRead').onclick = () => soulReader();
-  $('#soulLinks').onclick = () => soulLinksView();
+  $('#soulLinks').onclick = () => soulLinksView(); $('#soulFam').onclick = familySoulView;
 }
 
 // ---------- Partilhar (frente + selo QR) ----------
@@ -384,7 +384,7 @@ function soulReader(petMe) {
 function soulMatch(other, opt = {}) {
   const dlg = $('#soulDlg'), me = opt.me || soulMe(), petMode = !!opt.me;
   const sosB = opt.sos && other.pet ? `<div class="soulsos"><b>🆘 Encontraste ${esc(other.first)}?</b><p>O humano deixou este contacto:</p><p class="big">${esc(opt.sos)}</p>${/\d{6,}/.test(opt.sos.replace(/\s/g, '')) ? `<a class="btn main" href="tel:${opt.sos.replace(/[^\d+]/g, '')}">📞 Ligar agora</a>` : ''}<p class="note">Obrigado por ajudares ${esc(other.first)} a voltar a casa 💛</p></div>` : '';
-  if (!me) { dlg.innerHTML = `<div class="soulwrap"><h2>${other.pet ? '🐾' : '💫'} A carta de ${esc(other.first)}</h2>${sosB}<div class="soulpair one">${soulSVG2(other)}</div><p>Para veres se as vossas almas encaixam, cria primeiro a tua carta: só precisas do teu nome e data de nascimento.</p>${other.pet ? soulPetReading(other) : soulReading(Object.assign({ lp: other.n }, other))}<div class="dlgfoot"><button class="btn" id="smX">Fechar</button><button class="btn main" id="smPf">Criar a minha carta</button></div></div>`; if (!dlg.open) dlg.showModal(); dlg.scrollTop = 0; $('#smX').onclick = () => dlg.close(); $('#smPf').onclick = () => { dlg.close(); ST.tab = 'eu'; render(); }; return; }
+  if (!me) { dlg.innerHTML = `<div class="soulwrap"><h2>${other.pet ? '🐾' : '💫'} A carta de ${esc(other.first)}</h2>${sosB}<div class="soulpair one">${soulSVG2(other)}</div><p>Para veres se as vossas almas encaixam, cria primeiro a tua carta: só precisas do teu nome e data de nascimento.</p>${other.pet ? soulPetReading(other) : soulReading(Object.assign({ lp: other.n }, other))}<div class="dlgfoot"><button class="btn" id="smX">Fechar</button><button class="btn main" id="smPf">Criar a minha carta</button></div></div>`; if (!dlg.open) dlg.showModal(); dlg.scrollTop = 0; $('#smX').onclick = () => dlg.close(); $('#smPf').onclick = () => soulWelcome(true, () => soulMatch(other, opt)); return; }
   if (other.serial === me.serial) { toast(petMode ? `Essa é a carta de ${me.first} 😄` : 'Essa é a tua própria carta 😄'); return petMode ? dlg.close() : openSoul(); }
   const l = soulLevel(me, other), [h, p] = soulPairTxt(l, me, other), pct = bond(me.s, other.s).pct, w = soulWant(me);
   if (!petMode) { const L = soulLinks().filter(x => x.serial !== other.serial); L.unshift({ serial: other.serial, first: other.first, code: soulCode(other), l, pct, d: todayStr() }); store.set('ceu_soul_links', JSON.stringify(L.slice(0, 500))); }
@@ -424,7 +424,7 @@ function soulBoxHtml() {
   const o = soulMe();
   return `<button class="soulbox" id="soulBoxGo">${o ? soulSVG2(o) : ''}<div><b>💫 ${o ? 'A tua Carta da Alma' : 'Cria a tua Carta da Alma'}</b><span>${o ? 'Única no mundo. Descobre quem tem a metade da tua constelação.' : 'Uma carta só tua, feita do teu nome e do teu nascimento.'}</span></div></button>`;
 }
-document.addEventListener('click', e => { if (e.target.closest && e.target.closest('#soulBoxGo')) openSoul(); });
+document.addEventListener('click', e => { if (e.target.closest && e.target.closest('#soulBoxGo')) { if (soulMe()) openSoul(); else soulWelcome(true); } });
 
 // ---------- Cofre da alma: memórias e cápsulas do tempo (guardadas só neste telemóvel) ----------
 const SMEM = { all: () => { try { return JSON.parse(store.get('ceu_soul_mem') || '[]'); } catch (e) { return []; } }, save: L => store.set('ceu_soul_mem', JSON.stringify(L.slice(-500))) };
@@ -525,4 +525,64 @@ function bindPetSoul(a, i) {
   if ($('#psMe')) $('#psMe').onclick = () => soulMatch(o);
   $('#psRead').onclick = () => soulReader(o);
   $('#psSosOk').onclick = () => { const l = P.list('ceu_pets'); if (!l[i]) return; l[i].sos = $('#psSos').value.trim().replace(/[<>]/g, '').slice(0, 40); P.setList('ceu_pets', l); toast(l[i].sos ? '🆘 Contacto guardado: já vai no link, no QR e no chip' : 'Contacto removido'); openPet(i, false, false); };
+}
+
+// ---------- Primeira visita: nome + data → a tua carta, logo ----------
+function soulWelcome(force, after) {
+  if (!force && (P.get() || store.get('ceu_welcome'))) return false;
+  const dlg = $('#soulDlg'), ci = +(ST.city || 0), demo = ['9b5axQK4M2P7A~Sofia', '617gxZX7Q4K1A~Inês', '0b99xMMYRA17J~Tiago'].map(soulParse).filter(Boolean);
+  dlg.innerHTML = `<div class="soulwrap wlc"><div class="wlcards">${demo.map((o, k) => `<div class="wc wc${k}">${soulSVG2(o)}</div>`).join('')}</div>
+    <h2>✨ A tua alma tem uma carta. Só tua.</h2><p>Diz-me o teu nome e quando nasceste: em segundos revelo a tua <b>Carta da Alma</b>, única no mundo, e quem tem a outra metade da tua constelação.</p>
+    <div class="form"><label>O teu nome<input type="text" id="wName" maxlength="24" placeholder="Como te chamas?" autocomplete="given-name"></label><label>Data de nascimento<input type="date" id="wDate" max="${todayStr()}"></label>
+    <div class="two"><label>Hora (se souberes)<input type="time" id="wTime"></label><label>Onde nasceste<select id="wCity">${CITIES.map((c, i) => `<option value="${i}"${i === ci ? ' selected' : ''}>${c[0]}</option>`).join('')}</select></label></div></div>
+    <button class="btn main" id="wGo" style="width:100%;padding:14px;font-size:16px">✨ Revelar a minha carta</button>
+    <p class="note" style="text-align:center">Sem registo e sem contas: fica só neste telemóvel.</p>${force ? '' : '<button class="btn ghost" id="wSkip" style="width:100%">Agora não, só quero espreitar</button>'}</div>`;
+  if (!dlg.open) dlg.showModal(); dlg.scrollTop = 0;
+  $('#wGo').onclick = () => {
+    const name = $('#wName').value.trim(), d = $('#wDate').value; if (!name) { toast('Como te chamas?'); $('#wName').focus(); return; } if (!d) { toast('Falta a data de nascimento'); return; }
+    const old = P.get() || {}; P.set(Object.assign({}, old, { name, d, t: $('#wTime').value, c: $('#wCity').value })); store.set('ceu_welcome', '1'); render();
+    if (after) after(); else openSoul();
+  };
+  if ($('#wSkip')) $('#wSkip').onclick = () => { store.set('ceu_welcome', '1'); dlg.close(); };
+  return true;
+}
+
+// ---------- Alma da família: quem encaixa com quem lá em casa ----------
+const FAM_RELS = REL_GROUPS.filter(g => g[0] === 'Família' || g[0] === 'Amor').flatMap(g => g[1]);
+function familySouls() {
+  const me = soulMe(), M = [];
+  if (me) M.push({ nm: me.first, ic: '⭐', rl: 'Eu', o: me });
+  P.list('ceu_bdays').filter(x => x.d && FAM_RELS.includes(x.rel)).forEach(x => { const o = soulOf({ name: x.name, d: x.d, t: x.t, c: x.c || 0 }); if (o) M.push({ nm: o.first, ic: ['marido', 'mulher', 'namorado', 'namorada'].includes(x.rel) ? '💞' : '🏡', rl: (RELS.find(r => r[0] === x.rel) || [])[2] || '', o }); });
+  P.list('ceu_pets').filter(a => a.d).forEach(a => { const o = petSoulOf(a); if (o) M.push({ nm: o.first, ic: (SPECIES.find(s => s[0] === a.sp) || [0, '🐾'])[1], rl: (SPECIES.find(s => s[0] === a.sp) || [0, 0, 'Patudo'])[2], o }); });
+  const pairs = []; for (let i = 0; i < M.length; i++) for (let j = i + 1; j < M.length; j++) { const a = M[i].o, b = M[j].o, l = Math.max(soulLevel(a, b), soulLevel(b, a)); pairs.push({ i, j, l, pct: bond(a.s, b.s).pct }); }
+  pairs.sort((x, y) => y.l - x.l || y.pct - x.pct);
+  const tot = M.map((_, k) => pairs.filter(p => p.i === k || p.j === k).reduce((s, p) => s + p.l, 0)), star = M.length > 1 ? tot.indexOf(Math.max(...tot)) : -1;
+  return { M, pairs, star };
+}
+function familySoulView() {
+  const dlg = $('#soulDlg'), F = familySouls(), { M, pairs, star } = F;
+  const lbl = p => { const a = M[p.i].o, b = M[p.j].o; return p.l === 3 ? soulPairTxt(3, a, b)[0] : soulLvlTxt(p.l)[0]; };
+  dlg.innerHTML = `<div class="soulwrap"><button class="tclose" id="fsX" aria-label="Fechar">✕</button><h2>👨‍👩‍👧 A alma da família</h2>
+    ${M.length < 2 ? `<p>Para veres quem encaixa com quem, junta a família nos <b>🎂 Anos</b> (com a relação: mãe, filho, marido…) e os patudos em <b>🐾 Animais</b>.</p><div class="dlgfoot"><button class="btn main" id="fsBack">Voltar</button></div>` : `
+    <p class="note">${M.length} almas lá em casa · as ligações contam Sol, Lua e número complementares.</p>
+    <div class="famgrid">${M.map((m, k) => `<div class="fm${k === star ? ' star' : ''}">${soulSVG2(m.o)}<b>${m.ic} ${esc(m.nm)}</b><i>${k === star ? '✨ estrela da família' : esc(m.rl || '')}</i></div>`).join('')}</div>
+    <h3 class="soulh">As ligações mais fortes</h3><div class="soullist">${pairs.slice(0, 10).map(p => `<button class="soulli" data-i="${p.i}" data-j="${p.j}"><span class="lv lv${p.l}">${'✦'.repeat(p.l) || '·'}</span><b>${esc(M[p.i].nm)} + ${esc(M[p.j].nm)}</b><i>${lbl(p).replace(/^\S+\s/, '')} · ${p.pct}%</i></button>`).join('')}</div>
+    ${star >= 0 ? `<p class="note">A estrela da família é quem tem mais ligações com todos: ${esc(M[star].nm)} ✨</p>` : ''}
+    <div class="dlgfoot"><button class="btn" id="fsBack">A minha carta</button><button class="btn main" id="fsSh">📤 Partilhar</button></div>`}</div>`;
+  if (!dlg.open) dlg.showModal(); dlg.scrollTop = 0;
+  $('#fsBack').onclick = () => soulMe() ? openSoul() : dlg.close(); if ($('#fsX')) $('#fsX').onclick = () => dlg.close();
+  dlg.querySelectorAll('.soulli[data-j]').forEach(b => b.onclick = () => { const a = M[+b.dataset.i].o, c = M[+b.dataset.j].o; soulMatch(c, { me: a }); });
+  if ($('#fsSh')) $('#fsSh').onclick = () => shareFamilySoul(F);
+}
+async function shareFamilySoul({ M, pairs, star }) {
+  await fontsReady(); const [c, ctx, W, H] = newCanvas(1080, 1350); bg(ctx, W, H, 'familia' + M.map(m => m.o.serial).join(''), ['#4a2a8a', '#07050f']);
+  ctx.textAlign = 'center'; ctx.fillStyle = '#f2c76e'; ctx.font = '700 46px Cinzel'; ctx.fillText('A ALMA DA FAMÍLIA', W / 2, 100);
+  const show = M.slice(0, 6), n = show.length, cw = Math.min(250, (W - 120) / Math.min(n, 3) - 20), ch = cw * 5 / 3, rows = Math.ceil(n / 3);
+  for (let k = 0; k < n; k++) { const r = Math.floor(k / 3), inRow = Math.min(3, n - r * 3), col = k - r * 3, x = W / 2 + (col - (inRow - 1) / 2) * (cw + 30), y = 150 + r * (ch + 70);
+    const im = await svgImg(soulSVG2(show[k].o)); ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.6)'; ctx.shadowBlur = 30; if (im) ctx.drawImage(im, x - cw / 2, y, cw, ch); ctx.restore();
+    ctx.fillStyle = k === star ? '#f7e08a' : '#fff'; ctx.font = '700 30px Manrope'; ctx.fillText(show[k].nm + (k === star ? ' ✨' : ''), x, y + ch + 40); }
+  let y = 150 + rows * (ch + 70) + 30; ctx.fillStyle = '#d9d0ff'; ctx.font = '600 32px Manrope';
+  pairs.filter(p => p.i < 6 && p.j < 6).slice(0, Math.max(1, Math.floor((H - 120 - y) / 50))).forEach(p => { ctx.fillText(`${'✦'.repeat(p.l) || '·'}  ${M[p.i].nm} + ${M[p.j].nm} · ${p.l} de 3`, W / 2, y); y += 50; });
+  brandFoot(ctx, W, H, H - 40);
+  shareCanvases([{ c, name: 'alma-da-familia' }], `👨‍👩‍👧 A alma da nossa família no Céu de Hoje: ${star >= 0 ? M[star].nm + ' é a estrela da família ✨ ' : ''}Descobre a tua em ceudehoje.com #CartaDaAlma`);
 }
