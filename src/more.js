@@ -683,21 +683,32 @@ async function drawLost(a, o) {
   ctx.fillStyle = '#ffd400'; ctx.fillRect(0, 0, W, H); ctx.fillStyle = '#111'; ctx.fillRect(0, 0, W, 220);
   ctx.textAlign = 'center'; ctx.fillStyle = '#ffd400'; ctx.font = '800 130px Manrope'; ctx.fillText('PROCURA-SE', W / 2, 165);
   let y = 260; const im = o.photo ? await loadImg(o.photo) : null;
-  if (im) { const w = 760, h = Math.min(620, w * im.height / im.width); ctx.fillStyle = '#fff'; ctx.fillRect(W / 2 - w / 2 - 12, y - 12, w + 24, h + 24); const sh = Math.min(im.height, im.width * h / w); ctx.drawImage(im, 0, (im.height - sh) / 2, im.width, sh, W / 2 - w / 2, y, w, h); y += h + 90; }
-  else { ctx.font = `300px ${EMOJI_F}`; ctx.fillText(sp[1], W / 2, y + 300); y += 420; }
+  const nl = o.med ? 1 : 2, txtH = 90 + 130 + (o.zone ? nl * 50 + 10 : 0) + (o.note ? nl * 46 + 10 : 0), room = (o.med ? H - 450 : H - 225) - 260 - txtH; // a foto encolhe para o texto nunca tocar nas faixas de baixo
+  if (im) { const w = 760, h = Math.max(220, Math.min(620, room, w * im.height / im.width)); ctx.fillStyle = '#fff'; ctx.fillRect(W / 2 - w / 2 - 12, y - 12, w + 24, h + 24); const sh = Math.min(im.height, im.width * h / w); ctx.drawImage(im, 0, (im.height - sh) / 2, im.width, sh, W / 2 - w / 2, y, w, h); y += h + 90; }
+  else { const es = Math.max(150, Math.min(300, room - 80)); ctx.font = `${es}px ${EMOJI_F}`; ctx.fillText(sp[1], W / 2, y + es); y += es + 120; }
   ctx.fillStyle = '#111'; ctx.font = '800 96px Manrope'; ctx.fillText(a.name.toUpperCase(), W / 2, y); y += 66;
   ctx.font = '600 40px Manrope'; ctx.fillText([sp[2], a.breed].filter(Boolean).join(' · '), W / 2, y); y += 64;
-  if (o.zone) { ctx.font = '600 38px Manrope'; y = wrap(ctx, `Visto pela última vez: ${o.zone}`, W / 2, y, W - 140, 50, 2, 'center') + 10; }
-  if (o.note) { ctx.font = 'italic 500 34px Manrope'; ctx.textAlign = 'center'; y = wrap(ctx, o.note, W / 2, y, W - 160, 46, 2, 'center') + 10; }
+  if (o.zone) { ctx.font = '600 38px Manrope'; y = wrap(ctx, `Visto pela última vez: ${o.zone}`, W / 2, y, W - 140, 50, o.med ? 1 : 2, 'center') + 10; }
+  if (o.note) { ctx.font = 'italic 500 34px Manrope'; ctx.textAlign = 'center'; y = wrap(ctx, o.note, W / 2, y, W - 160, 46, o.med ? 1 : 2, 'center') + 10; }
+  if (o.med && typeof petSoulOf === 'function') { // medalha / Carta da Alma: QR com o contacto + carta
+    const po = petSoulOf(Object.assign({}, a, { sos: o.phone })), y0 = H - 440;
+    const card = po ? await svgImg(soulSVG2(po)) : null, qr = po ? await svgImg(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="400" height="400">${soulQR(soulLink(po), 0, 0, 200, '#111', '#fff')}</svg>`) : null;
+    ctx.fillStyle = '#111'; ctx.fillRect(60, y0, W - 120, 210);
+    if (card) ctx.drawImage(card, 84, y0 + 14, 109, 182);
+    if (qr) { ctx.fillStyle = '#fff'; ctx.fillRect(W - 270, y0 + 10, 190, 190); ctx.drawImage(qr, W - 265, y0 + 15, 180, 180); }
+    ctx.textAlign = 'left'; ctx.fillStyle = '#ffd400'; ctx.font = '800 38px Manrope'; ctx.fillText('LÊ-ME COM O TELEMÓVEL', 220, y0 + 62);
+    ctx.fillStyle = '#fff'; ctx.font = '600 28px Manrope'; ctx.fillText('Aponta a câmara ao QR ou, se me', 220, y0 + 108); ctx.fillText('encontrares, encosta o telemóvel', 220, y0 + 144); ctx.fillText('à minha medalha (NFC) 🐾', 220, y0 + 180);
+  }
   ctx.textAlign = 'center'; ctx.fillStyle = '#c00'; ctx.fillRect(60, H - 210, W - 120, 150); ctx.fillStyle = '#fff'; ctx.font = '800 66px Manrope'; ctx.fillText(`📞 ${o.phone || ''}`, W / 2, H - 112);
   return c;
 }
 function lostForm(i) {
   const a = P.list('ceu_pets')[i], ph = petCare(a).filter(x => x.photo).slice(-1)[0];
-  $('#petMore').innerHTML = `<div class="box lostf"><h3>🆘 Cartaz de animal perdido</h3><p class="note">Fica pronto em segundos para o WhatsApp, Facebook e para imprimir. Esperemos que nunca precises 🙏</p><div class="form"><label class="btn ghost" style="text-align:center;cursor:pointer">📷 ${ph ? 'Trocar a foto' : 'Escolher foto'}<input type="file" id="lPh" accept="image/*" hidden></label><div id="lPhP">${ph ? `<img src="${ph.photo}" alt="" style="width:100%;border-radius:10px">` : ''}</div><label>O teu telemóvel<input type="tel" id="lTel" value="${esc(store.get('ceu_lostphone') || '')}" placeholder="9xx xxx xxx"></label><label>Onde foi visto pela última vez<input type="text" id="lZone" maxlength="70" placeholder="Ex.: Parque da Cidade, Porto"></label><label>Nota<input type="text" id="lNote" maxlength="90" placeholder="Ex.: Tem coleira azul, é meigo"></label><button class="btn main" id="lGo">Criar cartaz</button></div></div>`;
+  $('#petMore').innerHTML = `<div class="box lostf"><h3>🆘 Cartaz de animal perdido</h3><p class="note">Fica pronto em segundos para o WhatsApp, Facebook e para imprimir. Esperemos que nunca precises 🙏</p><div class="form"><label class="btn ghost" style="text-align:center;cursor:pointer">📷 ${ph ? 'Trocar a foto' : 'Escolher foto'}<input type="file" id="lPh" accept="image/*" hidden></label><div id="lPhP">${ph ? `<img src="${ph.photo}" alt="" style="width:100%;border-radius:10px">` : ''}</div><label>O teu telemóvel<input type="tel" id="lTel" value="${esc(store.get('ceu_lostphone') || '')}" placeholder="9xx xxx xxx"></label><label>Onde foi visto pela última vez<input type="text" id="lZone" maxlength="70" placeholder="Ex.: Parque da Cidade, Porto"></label><label>Nota<input type="text" id="lNote" maxlength="90" placeholder="Ex.: Tem coleira azul, é meigo"></label><label class="chk"><input type="checkbox" id="lMed"> 🏷️ Juntar a Carta da Alma de ${esc(a.name)} (QR e medalha NFC)</label><p class="note" id="lMedN" hidden>O cartaz leva a carta e um QR: quem o ler vê o teu contacto. Se ${esc(a.name)} tiver a medalha (ou um autocolante NFC gravado na aba 💫 Alma), também se lê só a encostar o telemóvel.</p><button class="btn main" id="lGo">Criar cartaz</button></div></div>`;
   let photo = ph ? ph.photo : '';
+  $('#lMed').onchange = e => $('#lMedN').hidden = !e.target.checked;
   $('#lPh').onchange = async e => { const f = e.target.files[0]; if (!f) return; const u = URL.createObjectURL(f), im = await loadImg(u); URL.revokeObjectURL(u); if (!im) return; const s = Math.min(1, 1000 / Math.max(im.width, im.height)), c = document.createElement('canvas'); c.width = im.width * s; c.height = im.height * s; c.getContext('2d').drawImage(im, 0, 0, c.width, c.height); photo = c.toDataURL('image/jpeg', .85); $('#lPhP').innerHTML = `<img src="${photo}" alt="" style="width:100%;border-radius:10px">`; };
-  $('#lGo').onclick = async () => { const tel = $('#lTel').value.trim(); if (!tel) { toast('Põe o teu contacto'); return; } store.set('ceu_lostphone', tel); const o = { photo, phone: tel, zone: $('#lZone').value.trim(), note: $('#lNote').value.trim() }; await shareCanvases([{ name: 'procura-se-' + a.name.toLowerCase(), c: await drawLost(a, o) }], `🆘 PROCURA-SE: ${a.name} (${[spOf(a)[2], a.breed].filter(Boolean).join(', ')})${o.zone ? '\nVisto pela última vez: ' + o.zone : ''}${o.note ? '\n' + o.note : ''}\n📞 ${tel}\nPartilhem, por favor 🙏`); };
+  $('#lGo').onclick = async () => { const tel = $('#lTel').value.trim(); if (!tel) { toast('Põe o teu contacto'); return; } store.set('ceu_lostphone', tel); const o = { photo, phone: tel, zone: $('#lZone').value.trim(), note: $('#lNote').value.trim(), med: $('#lMed').checked }; await shareCanvases([{ name: 'procura-se-' + a.name.toLowerCase(), c: await drawLost(a, o) }], `🆘 PROCURA-SE: ${a.name} (${[spOf(a)[2], a.breed].filter(Boolean).join(', ')})${o.zone ? '\nVisto pela última vez: ' + o.zone : ''}${o.note ? '\n' + o.note : ''}\n📞 ${tel}\nPartilhem, por favor 🙏`); };
   $('#petMore').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 async function vetPdf(i) {
