@@ -1,5 +1,5 @@
 // ===== App de telemóvel =====
-const APP_VERSION = '15.11.2026 11:10';
+const APP_VERSION = '15.11.2026 23:40';
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const G = g => `${g}&#xFE0E;`;
@@ -251,8 +251,10 @@ function openPet(i, isNew, edit) {
     const tab = ST.petTab || 'hoje', wh = walkHours(todayStr()), ad = a.adopt ? ageOn(a.adopt) : 0, add = a.adopt ? daysToBirthday(a.adopt) : null;
     const top = h.slice(0, h.indexOf('<div class="vd'));
     const hoje = h.slice(h.indexOf('<div class="vd')).replace(/<\/div>`?;?$/, '') + (wh.length ? `<div class="box walk"><h3>${s[0] === 'cao' ? '🦮 Melhores horas para passear' : '🌤️ Melhores horas para brincar'}</h3>${wh.map(w => `<p><b>${w.t}</b> · ${w.why}</p>`).join('')}<p class="note">Pelas horas planetárias de ${CITIES[ST.city || 0][0]}.</p></div>` : '');
-    h = top + `<div class="seg2 ptabs"><button data-pt="hoje"${tab === 'hoje' ? ' class="on"' : ''}>☀️ Hoje</button><button data-pt="cad"${tab === 'cad' ? ' class="on"' : ''}>📋 Caderneta</button><button data-pt="mais"${tab === 'mais' ? ' class="on"' : ''}>💞 Mais</button></div>`;
+    const pb = (k, ic, lb) => `<button data-pt="${k}"${tab === k ? ' class="on"' : ''}><span>${ic}</span>${lb}</button>`;
+    h = top + `<div class="seg2 ptabs ptabs4">${pb('hoje', '☀️', 'Hoje')}${pb('alma', '💫', 'Alma')}${pb('cad', '📋', 'Caderneta')}${pb('mais', '💞', 'Mais')}</div>`;
     if (tab === 'hoje') h += hoje;
+    if (tab === 'alma') h += petSoulBox(a);
     if (tab === 'cad') h += careBox(a, i) + `<button class="btn" id="aVet" style="width:100%">📄 Ficha para o veterinário (PDF)</button>`;
     if (tab === 'mais') h += ownerPetBox(a) + `<div class="box adopt"><h3>🏡 Dia de adoção</h3>${a.adopt ? `<p>Chegou a casa a <b>${niceDate(a.adopt)}</b>${ad > 0 ? ` · ${ad} ano${ad > 1 ? 's' : ''} de família` : ''}.</p><p>${add === 0 ? '🎉 <b>É hoje!</b>' : `Faltam ${add} dias para festejar.`}</p><button class="btn" id="aAdopt" style="width:100%">🎉 Cartaz do dia de adoção</button>` : '<p class="note">Foi adotado(a)? Põe a data em ✏️ Editar e festejamos também esse dia.</p>'}</div>` + `<div class="box prof"><h3>🧬 Perfil ${a.breed ? '· ' + esc(a.breed) : ''}</h3>${breedProfile(a).map(l => `<p>${esc(l)}</p>`).join('')}<p>No horóscopo chinês é ${cn.e} ${cn.n} (${cn.el}).</p></div>
       ` + `<div class="tools"><button class="btn main" id="aPoster">🎉 Criar cartaz de parabéns</button><button class="btn" id="aCard">🃏 Abrir o cartão do dia</button><button class="btn" id="aLost">🆘 Cartaz de perdido</button><button class="btn" id="aEdit">✏️ Editar</button><button class="btn" id="aDel">🗑️ Apagar</button></div>` + '<div id="petMore"></div>';
@@ -267,7 +269,7 @@ function openPet(i, isNew, edit) {
   const save = () => { const n = $('#aName').value.trim(), d = $('#aDate').value; if (!n || !d) { toast('Nome e data do animal'); return; } const l = P.list('ceu_pets'), sp = $('#aSp').value, mix = BREEDS[sp] && $('#aMix').checked ? [$('#aMix1').value, $('#aMix2').value] : null; if (mix && mix[0] === mix[1]) { toast('Escolhe duas raças diferentes'); return; } const br = mix ? `${mix[0].replace(/ \(.*\)/, '')} × ${mix[1].replace(/ \(.*\)/, '')}` : BREEDS[sp] && $('#aBreed').value !== '__outra' ? $('#aBreed').value : $('#aBreedTxt').value.trim(), o = { name: n, sp, breed: br, mix, d, t: $('#aTime').value, adopt: $('#aAdoptD').value || '' }; if (isNew) l.push(o); else l[i] = { ...l[i], ...o }; P.setList('ceu_pets', l); $('#petDlg').close(); toast('Guardado 🐾'); render(); };
   $('#petSave').onclick = save;
   document.querySelectorAll('[data-pt]').forEach(b => b.onclick = () => { ST.petTab = b.dataset.pt; openPet(i, false, false); });
-  if ($('.care')) bindCare(i); bindOwnerPet(a);
+  if ($('.care')) bindCare(i); bindOwnerPet(a); bindPetSoul(a, i);
   if ($('#aVet')) $('#aVet').onclick = () => vetPdf(i);
   if ($('#aLost')) $('#aLost').onclick = () => lostForm(i);
   if ($('#aAdopt')) $('#aAdopt').onclick = async () => { toast('A preparar…'); await shareCanvases([{ name: 'adocao-' + a.name.toLowerCase(), c: await drawAdopt(a) }], `🏡 Faz ${ageOn(a.adopt)} ano${ageOn(a.adopt) > 1 ? 's' : ''} que ${a.name} chegou a casa! 🐾\n\nFeito com Céu de Hoje ✨ ${APP_URL}`); };
