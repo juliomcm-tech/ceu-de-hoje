@@ -25,7 +25,7 @@ function soulOf(p) {
   const ci = CITIES[+p.c || 0], [y, m, dd] = dParts(p.d), [hh, mi] = (p.t || '12:00').split(':').map(Number), ms = localToUtcMs(y, m, dd, hh, mi, ci[3]);
   const nat = natalChart(ms, ci), s = Math.floor(nat.sun / 30) % 12, mo = Math.floor(nat.moon / 30) % 12, asc = p.t ? Math.floor(nat.asc / 30) % 12 : null;
   const lp = lifePath(p.d), n = soulN9(lp), ar = soulArcana(p.d), first = [...((p.name || '').trim().split(/\s+/)[0] || 'Alma').replace(/~/g, '')].slice(0, 16).join(''), sp = SPECIES.find(x => x[0] === p.sp) ? p.sp : '';
-  return { first, s, m: mo, asc, lp, n, ar, el: SIGNS[s].el, stone: SIGN_EXTRA[s].pedra, col: SOUL_COL[n], cn: chineseSign(p.d), serial: soulSerial(nrm(p.name || '') + '|' + p.d + '|' + (p.t || '') + '|' + (p.c || 0) + (sp ? '|' + sp : '')), pet: sp || null, sos: sp && p.sos ? String(p.sos).slice(0, 40) : '' };
+  return { first, s, m: mo, asc, lp, n, ar, el: SIGNS[s].el, stone: SIGN_EXTRA[s].pedra, col: SOUL_COL[n], cn: chineseSign(p.d), serial: soulSerial(nrm(sp ? String(p.name || '').trim().replace(/\s+/g, ' ') : p.name || '') + '|' + p.d + '|' + (p.t || '') + '|' + (p.c || 0) + (sp ? '|' + sp : '')), pet: sp || null, sos: sp && p.sos ? String(p.sos).slice(0, 40) : '' };
 }
 const soulNameSz = (nm, base = 17) => { const n = [...nm].length; return n <= 13 ? base : +(base * 13 / n).toFixed(1); }; // nomes compridos encolhem e cabem na faixa
 const soulKey = o => o.s * 108 + o.m * 9 + (o.n - 1);
