@@ -295,7 +295,7 @@ function openSoul() {
     <div class="soulstage">${soul3dHtml(o, first)}</div>
     <div class="soulbtns"><button class="btn" id="soulFlip">↻ Ver o verso</button><button class="btn main" id="soulSh">📤 Partilhar</button><button class="btn" id="soulLk">🔗 Enviar o link</button>${'NDEFReader' in window ? '<button class="btn" id="soulNfc">📶 Gravar num chip NFC</button>' : ''}${SOUL_SHOP ? '<button class="btn soon" data-soon="porta-chaves">🔑 Encomendar porta-chaves <small>brevemente</small></button><button class="btn soon" data-soon="carta">🃏 Encomendar a carta <small>brevemente</small></button>' : ''}</div>
     <div class="soulinfo" id="soulInfo"${first ? ' hidden' : ''}>
-      ${soulSealBox(o) || soulMoonDoubt()}
+      ${soulTodayHtml(o)}${soulSealBox(o) || soulMoonDoubt()}
       <div class="soulwant"><b>💞 A tua metade perfeita</b><p>${soulWantTxt(o)}</p><p class="note">Só cerca de 1 em cada 1300 pessoas tem estas três ligações contigo. Partilha a tua carta: quem a ler descobre se é a tua metade.</p></div>
       ${soulCapToday()}<div class="soulbtns"><button class="btn" id="soulVault">🔐 Cofre da alma (${SMEM.all().length})</button><button class="btn" id="soulRead">🔭 Ler a carta de alguém</button><button class="btn" id="soulLinks">💫 As minhas ligações (${soulLinks().length})</button><button class="btn" id="soulFam">👨‍👩‍👧 Alma da família</button></div>
       <h3 class="soulh">A leitura da tua alma</h3>${soulReading(o)}
@@ -387,7 +387,7 @@ function soulMatch(other, opt = {}) {
   if (!me) { dlg.innerHTML = `<div class="soulwrap"><h2>${other.pet ? '🐾' : '💫'} A carta de ${esc(other.first)}</h2>${sosB}<div class="soulpair one">${soulSVG2(other)}</div><p>Para veres se as vossas almas encaixam, cria primeiro a tua carta: só precisas do teu nome e data de nascimento.</p>${other.pet ? soulPetReading(other) : soulReading(Object.assign({ lp: other.n }, other))}<div class="dlgfoot"><button class="btn" id="smX">Fechar</button><button class="btn main" id="smPf">Criar a minha carta</button></div></div>`; if (!dlg.open) dlg.showModal(); dlg.scrollTop = 0; $('#smX').onclick = () => dlg.close(); $('#smPf').onclick = () => soulWelcome(true, () => soulMatch(other, opt)); return; }
   if (other.serial === me.serial) { toast(petMode ? `Essa é a carta de ${me.first} 😄` : 'Essa é a tua própria carta 😄'); return petMode ? dlg.close() : openSoul(); }
   const l = soulLevel(me, other), [h, p] = soulPairTxt(l, me, other), pct = bond(me.s, other.s).pct, w = soulWant(me);
-  if (!petMode) { const L = soulLinks().filter(x => x.serial !== other.serial); L.unshift({ serial: other.serial, first: other.first, code: soulCode(other), l, pct, d: todayStr() }); store.set('ceu_soul_links', JSON.stringify(L.slice(0, 500))); }
+  if (!petMode) { const L = soulLinks().filter(x => x.serial !== other.serial); L.unshift({ serial: other.serial, first: other.first, code: soulCode(other), l, pct, d: todayStr() }); store.set('ceu_soul_links', JSON.stringify(L.slice(0, 500))); soulMilestone(); }
   const chk = (ok, txt) => `<li class="${ok ? 'ok' : ''}">${ok ? '✦' : '·'} ${txt}</li>`;
   dlg.innerHTML = `<div class="soulwrap"><button class="tclose" id="smX" aria-label="Fechar">✕</button>${sosB}<h2>${h}</h2>
     <div class="soulpair lvl${l}"><div class="sp a">${soulSVG2(me)}</div><div class="sp b">${soulSVG2(other)}</div>${l === 3 ? '<div class="spglow"></div><svg class="spbridge" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path pathLength="100" vector-effect="non-scaling-stroke" d="M33 30 Q50 6 67 30"/></svg><i class="spstar">✦</i>' : l === 2 ? '<svg class="spbridge half" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path pathLength="100" vector-effect="non-scaling-stroke" d="M33 30 Q50 6 67 30"/></svg>' : ''}</div>
@@ -422,7 +422,9 @@ function soulLinksView() {
 function checkSoulLink() { const m = location.hash.match(/^#alma=(.+)$/); if (!m) return false; try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { } const sos = soulSosOf(m[1]); let code = m[1].split('&')[0]; try { code = decodeURIComponent(code); } catch (e) { } const o = soulParse(code); if (o) setTimeout(() => soulMatch(o, { sos }), 300); return true; }
 function soulBoxHtml() {
   const o = soulMe();
-  return `<button class="soulbox" id="soulBoxGo">${o ? soulSVG2(o) : ''}<div><b>💫 ${o ? 'A tua Carta da Alma' : 'Cria a tua Carta da Alma'}</b><span>${o ? 'Única no mundo. Descobre quem tem a metade da tua constelação.' : 'Uma carta só tua, feita do teu nome e do teu nascimento.'}</span></div></button>`;
+  if (!o) return `<button class="soulbox" id="soulBoxGo"><div><b>💫 Cria a tua Carta da Alma</b><span>Uma carta só tua, feita do teu nome e do teu nascimento.</span></div></button>`;
+  const m = soulDayMsg(o), st = soulStars(), ppl = soulTodayPeople().slice(0, 2);
+  return `<button class="soulbox today" id="soulBoxGo">${soulSVG2(o)}<div><b>💫 A tua alma hoje</b><span>${esc(m.txt)}</span><em>${st.n ? `✦ ${st.n} ${st.n === 1 ? 'estrela' : 'estrelas'}` : '✦ acende a 1.ª estrela'}${ppl.map(x => ` · ${x.ic} ${esc(x.nm)}`).join('')}</em></div></button>`;
 }
 document.addEventListener('click', e => { if (e.target.closest && e.target.closest('#soulBoxGo')) { if (soulMe()) openSoul(); else soulWelcome(true); } });
 
@@ -585,4 +587,57 @@ async function shareFamilySoul({ M, pairs, star }) {
   pairs.filter(p => p.i < 6 && p.j < 6).slice(0, Math.max(1, Math.floor((H - 120 - y) / 50))).forEach(p => { ctx.fillText(`${'✦'.repeat(p.l) || '·'}  ${M[p.i].nm} + ${M[p.j].nm} · ${p.l} de 3`, W / 2, y); y += 50; });
   brandFoot(ctx, W, H, H - 40);
   shareCanvases([{ c, name: 'alma-da-familia' }], `👨‍👩‍👧 A alma da nossa família no Céu de Hoje: ${star >= 0 ? M[star].nm + ' é a estrela da família ✨ ' : ''}Descobre a tua em ceudehoje.com #CartaDaAlma`);
+}
+
+// ---------- A alma hoje: mensagem do dia · coleção de ligações · o dia de vocês ----------
+const moonSignOn = d => Math.floor((((moonLon(noonJd(d)) % 360) + 360) % 360) / 30);
+const SOUL_DAY_MSG = {
+  sun: ['A Lua passa pelo teu Sol: o dia tem a tua cara. Faz uma coisa só por ti.', 'Hoje brilhas mais do que pensas: a Lua está no teu signo. Mostra-te.', 'Lua no teu Sol: bom dia para começares o que andas a adiar.'],
+  moon: ['A Lua volta à tua Lua: o coração fala alto. Ouve-o sem pressa.', 'Dia de sentir: a Lua está em casa no teu coração. Liga a quem te faz bem.', 'A tua Lua está acesa: dá-te colo e deixa que te deem.'],
+  half: ['A Lua passa pela tua metade: bom dia para dizeres o que sentes.', 'Hoje o céu aproxima-te de quem te completa. Repara em quem aparece.', 'A tua metade está iluminada: um gesto pequeno vale muito hoje.'],
+  fogo: ['Lua em fogo: há energia para agir. Escolhe uma coisa e vai.', 'Céu de fogo: coragem para dizer sim (ou não) sem rodeios.', 'Dia quente no céu: mexe o corpo e o resto acompanha.'],
+  terra: ['Lua em terra: dia de pôr ordem e cuidar do corpo.', 'Céu de terra: devagar se vai longe. Termina o que começaste.', 'Dia de chão firme: uma refeição calma e uma tarefa feita já te ganham o dia.'],
+  ar: ['Lua em ar: conversas, ideias e novidades. Diz o que pensas.', 'Céu de ar: uma mensagem pode mudar o teu dia. Escreve-a.', 'Dia leve no céu: aprende uma coisa nova, nem que seja pequena.'],
+  agua: ['Lua em água: tudo se sente mais. Sê gentil contigo.', 'Céu de água: confia no que sentes antes de pensares.', 'Dia de marés: protege a tua energia e escolhe bem as companhias.']
+};
+const SOUL_PDAY = ['', 'começos', 'parcerias', 'alegria', 'trabalho', 'mudança', 'família', 'silêncio', 'conquista', 'fechar ciclos'];
+const PET_DAY = { fogo: ['dia de brincadeira: um passeio mais longo sabe-lhe bem', 'muita energia hoje: deixa-o correr e gastar', 'quer ação: dez minutos de jogo valem ouro'], terra: ['dia de rotina e mimo: comida certa e sesta ao teu lado', 'quer calma e o cantinho de sempre', 'dia de escova e festinhas sem pressa'], ar: ['dia curioso: um brinquedo novo ou outro caminho no passeio', 'anda distraído: conversa com ele e brinquem juntos', 'dia de novidades: deixa-o cheirar e explorar'], agua: ['dia sensível: precisa de colo e da tua voz calma', 'hoje sente tudo: fica um bocadinho mais perto dele', 'dia de mimo: a tua presença acalma-o'] };
+const PAIR_DAY = { junta: ['a Lua junta-vos: bom dia para um programa a dois', 'o céu aproxima-vos: digam o que sentem', 'dia de sintonia: aproveitem um momento só vossos'], fogo: ['dia de fazerem algo juntos, sem planos', 'energia a dois: riam-se de alguma coisa', 'um desafio ou um jogo aproxima-vos'], terra: ['dia de paciência e de pequenos cuidados', 'um gesto prático diz "gosto de ti"', 'uma refeição juntos, sem ecrãs, sabe bem'], ar: ['dia de conversa: pergunta como foi o dia', 'uma mensagem a meio do dia sabe bem', 'partilhem uma ideia ou um plano novo'], agua: ['dia sensível: um abraço diz mais do que palavras', 'ouçam-se sem pressa de responder', 'um elogio sincero muda o dia'] };
+const soulRot = (L, key, d) => { let h = 0; for (const c of key) h = (h * 31 + c.charCodeAt(0)) >>> 0; return L[(h + Math.floor(noonJd(d))) % L.length]; }; // muda todos os dias, nunca repete dois dias seguidos
+function soulDayMsg(o, d = todayStr()) {
+  const tm = moonSignOn(d), w = soulWant(o), pick = a => soulRot(a, 'dia' + o.serial, d);
+  const k = tm === o.s ? 'sun' : tm === o.m ? 'moon' : tm === w.s || tm === w.m ? 'half' : SIGNS[tm].el;
+  const ds = d.replace(/\D/g, '').split('').reduce((a, b) => a + +b, 0), pd = ((o.n + ds - 1) % 9) + 1;
+  return { txt: pick(SOUL_DAY_MSG[k] || SOUL_DAY_MSG.ar), k, tm, pd };
+}
+function soulPairDay(a, b, d = todayStr()) { // a = eu, b = pessoa ou patudo
+  const tm = moonSignOn(d), pick = L => soulRot(L, 'par' + a.serial + b.serial, d), el = SIGNS[tm].el;
+  if (b.pet) return pick(PET_DAY[el]);
+  const wa = soulWant(a), wb = soulWant(b); if ([wa.s, wa.m].includes(tm) && [b.s, b.m].includes(tm) || [wb.s, wb.m].includes(tm) && [a.s, a.m].includes(tm)) return pick(PAIR_DAY.junta);
+  return pick(PAIR_DAY[el]);
+}
+function soulTodayPeople() { const F = familySouls(), me = soulMe(); if (!me) return []; return F.M.filter(m => m.o.serial !== me.serial).map(m => ({ nm: m.nm, ic: m.ic, txt: soulPairDay(me, m.o) })); }
+const SOUL_MS = [[1, 'Primeira estrela'], [3, 'Pequena constelação'], [5, 'Cinco almas'], [10, 'Dez estrelas'], [25, 'Céu cheio'], [50, 'Galáxia'], [100, 'Universo inteiro']];
+function soulStars() { const L = soulLinks(), n = L.length, best = L.reduce((m, x) => Math.max(m, x.l), 0), next = SOUL_MS.find(m => m[0] > n), got = SOUL_MS.filter(m => m[0] <= n); return { n, best, next, got, l3: L.filter(x => x.l === 3).length }; }
+function soulStarsSVG(n, cap = 40) { // a tua constelação de ligações: cada carta lida acende uma estrela
+  const N = Math.max(Math.min(n, cap), 1), next = Math.min(cap, (SOUL_MS.find(m => m[0] > n) || [n + 5])[0]); let s = '', P = [];
+  for (let i = 0; i < next; i++) { const a = i * 2.4, rr = 8 + Math.sqrt(i) * 13; P.push([100 + Math.cos(a) * rr * 1.5, 60 + Math.sin(a) * rr * .8]); }
+  for (let i = 1; i < Math.min(n, cap); i++) s += `<line x1="${P[i - 1][0].toFixed(1)}" y1="${P[i - 1][1].toFixed(1)}" x2="${P[i][0].toFixed(1)}" y2="${P[i][1].toFixed(1)}" stroke="#f2c76e" stroke-width=".6" opacity=".45"/>`;
+  P.forEach((p, i) => { s += i < n ? `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${i === n - 1 ? 3.2 : 2.3}" fill="#fff1c4"/>` : `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2" fill="none" stroke="#f2c76e" stroke-width=".6" stroke-dasharray="1 1.5" opacity=".6"/>`; });
+  const xs = P.map(p => p[0]), ys = P.map(p => p[1]), x0 = Math.min(...xs) - 12, y0 = Math.min(...ys) - 10, w = Math.max(Math.max(...xs) - x0 + 12, 60), h = Math.max(Math.max(...ys) - y0 + 10, 34);
+  return `<svg viewBox="${x0.toFixed(0)} ${y0.toFixed(0)} ${w.toFixed(0)} ${h.toFixed(0)}" class="soulstars" aria-hidden="true" style="max-height:110px">${s}</svg>`;
+}
+function soulMilestone(prevN) { // marcos novos depois de ler uma carta
+  const st = soulStars(), seen = (store.get('ceu_soul_ms') || '').split(',').filter(Boolean), add = [];
+  st.got.forEach(m => { if (!seen.includes('n' + m[0])) add.push(['n' + m[0], `⭐ ${m[1]}! ${m[0]} ${m[0] === 1 ? 'estrela acesa' : 'estrelas acesas'}`]); });
+  if (st.best >= 2 && !seen.includes('l2')) add.push(['l2', '🌗 Primeira constelação quase completa!']);
+  if (st.l3 && !seen.includes('l3')) add.push(['l3', '✨ Encontraste uma alma gémea!']);
+  if (!add.length) return; store.set('ceu_soul_ms', seen.concat(add.map(a => a[0])).join(','));
+  setTimeout(() => toast(add[add.length - 1][1], 4500), 1200);
+}
+function soulTodayHtml(o) { // a secção "Hoje" dentro da carta
+  const m = soulDayMsg(o), st = soulStars(), ppl = soulTodayPeople();
+  return `<div class="soulwant soultoday"><b>☀️ A tua alma hoje</b><p class="stmsg">${esc(m.txt)}</p><p class="note">Lua em ${SIGNS[m.tm].n} · dia pessoal ${m.pd}: ${SOUL_PDAY[m.pd]}</p>
+    ${ppl.length ? `<div class="stppl"><b>💞 O dia de vocês</b>${ppl.slice(0, 8).map(x => `<p><span>${x.ic}</span> <b>${esc(x.nm)}</b>: ${esc(x.txt)}</p>`).join('')}</div>` : ''}
+    <div class="stcol"><b>✦ A tua constelação de ligações</b>${soulStarsSVG(st.n)}<p>${st.n ? `<b>${st.n}</b> ${st.n === 1 ? 'estrela acesa' : 'estrelas acesas'}${st.l3 ? ` · ${st.l3} alma${st.l3 > 1 ? 's' : ''} gémea${st.l3 > 1 ? 's' : ''} ✨` : ''}` : 'Ainda nenhuma estrela: cada carta que lês acende uma.'}${st.next ? ` · faltam ${st.next[0] - st.n} para «${st.next[1]}»` : ''}</p></div></div>`;
 }

@@ -174,7 +174,7 @@ async function tarotReel(i, btn) {
 function tarotAlerts() { // aviso diário com a app fechada (a partir das 8h)
   if (store.get('ceu_tar_alert') === '0') return [];
   const M = ['🃏 A tua carta de hoje está à tua espera', '✨ Há uma carta virada para baixo só para ti', '🔮 Que carta te calha hoje?', '🌙 A tua carta do dia já chegou', '🃏 Toca para revelar a tua carta de hoje'], B = ['Respira, pensa no teu dia e toca para a revelar.', 'Uma mensagem do Tarot para o teu dia.', 'Abre-a antes de começares o dia ✨'];
-  const out = [], t0 = noonJd(todayStr()); for (let k = 0; k < 60; k++) { const d = dayStr(t0 + k); out.push({ d, t: M[k % M.length], b: B[k % B.length], tag: 'tar-' + d, url: './?carta', h: 7 }); }
+  const out = [], t0 = noonJd(todayStr()); for (let k = 0; k < 60; k++) { const d = dayStr(t0 + k); let b = B[k % B.length]; try { const so = typeof soulMe === 'function' && soulMe(); if (so) b = '💫 ' + soulDayMsg(so, d).txt; } catch (e) { } out.push({ d, t: M[k % M.length], b, tag: 'tar-' + d, url: './?carta', h: 7 }); }
   for (let k = 0; k < 60; k++) { const d = dayStr(t0 + k); if (wdOf(d) === 1) out.push({ d, t: '🗓️ A tua carta da semana chegou', b: 'Uma carta para te acompanhar até domingo ✨', tag: 'tarw-' + d, url: './?semana', h: 9 }); }
   return out;
 }
