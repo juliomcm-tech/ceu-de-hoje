@@ -387,7 +387,7 @@ function soulMatch(other, opt = {}) {
   if (!me) { dlg.innerHTML = `<div class="soulwrap"><h2>${other.pet ? '🐾' : '💫'} A carta de ${esc(other.first)}</h2>${sosB}<div class="soulpair one">${soulSVG2(other)}</div><p>Para veres se as vossas almas encaixam, cria primeiro a tua carta: só precisas do teu nome e data de nascimento.</p>${other.pet ? soulPetReading(other) : soulReading(Object.assign({ lp: other.n }, other))}<div class="dlgfoot"><button class="btn" id="smX">Fechar</button><button class="btn main" id="smPf">Criar a minha carta</button></div></div>`; if (!dlg.open) dlg.showModal(); dlg.scrollTop = 0; $('#smX').onclick = () => dlg.close(); $('#smPf').onclick = () => soulWelcome(true, () => soulMatch(other, opt)); return; }
   if (other.serial === me.serial) { toast(petMode ? `Essa é a carta de ${me.first} 😄` : 'Essa é a tua própria carta 😄'); return petMode ? dlg.close() : openSoul(); }
   const l = soulLevel(me, other), [h, p] = soulPairTxt(l, me, other), pct = bond(me.s, other.s).pct, w = soulWant(me);
-  if (!petMode) { const L = soulLinks().filter(x => x.serial !== other.serial); L.unshift({ serial: other.serial, first: other.first, code: soulCode(other), l, pct, d: todayStr() }); store.set('ceu_soul_links', JSON.stringify(L.slice(0, 500))); soulMilestone(); }
+  if (!petMode) { const prev = soulLinks().find(x => x.serial === other.serial), L = soulLinks().filter(x => x.serial !== other.serial); L.unshift({ serial: other.serial, first: other.first, code: soulCode(other), l, pct, d: todayStr(), near: !!(prev && prev.near) }); store.set('ceu_soul_links', JSON.stringify(L.slice(0, 5000))); soulMilestone(); }
   const chk = (ok, txt) => `<li class="${ok ? 'ok' : ''}">${ok ? '✦' : '·'} ${txt}</li>`;
   dlg.innerHTML = `<div class="soulwrap"><button class="tclose" id="smX" aria-label="Fechar">✕</button>${sosB}<h2>${h}</h2>
     <div class="soulpair lvl${l}"><div class="sp a">${soulSVG2(me)}</div><div class="sp b">${soulSVG2(other)}</div>${l === 3 ? '<div class="spglow"></div><svg class="spbridge" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path pathLength="100" vector-effect="non-scaling-stroke" d="M33 30 Q50 6 67 30"/></svg><i class="spstar">✦</i>' : l === 2 ? '<svg class="spbridge half" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path pathLength="100" vector-effect="non-scaling-stroke" d="M33 30 Q50 6 67 30"/></svg>' : ''}</div>
@@ -414,10 +414,11 @@ async function shareSoulMatch(me, other, l, pct) {
 function soulLinksView() {
   const dlg = $('#soulDlg'), L = soulLinks();
   dlg.innerHTML = `<div class="soulwrap"><h2>💫 As minhas ligações</h2><p class="note">Cada carta que lês fica gravada na tua alma.</p>
-    ${L.length ? `<div class="soullist">${L.map((x, i) => `<button class="soulli" data-i="${i}"><span class="lv lv${x.l}">${'✦'.repeat(x.l) || '·'}</span><b>${esc(x.first)}</b><i>${soulLvlTxt(x.l)[0].replace(/^\S+\s/, '')} · ${x.pct}% · ${x.d.split('-').reverse().join('/')}</i></button>`).join('')}</div>` : '<p>Ainda não leste nenhuma carta. Pede a alguém o link ou o QR da Carta da Alma.</p>'}
+    ${L.length ? `<p class="note">Toca na ☆ para guardares alguém <b>perto</b>: fica no topo e no centro da tua constelação.</p><div class="soullist">${L.map((x, i) => [x, i]).sort((a, b) => (b[0].near ? 1 : 0) - (a[0].near ? 1 : 0)).map(([x, i]) => `<div class="soulrow"><button class="soulli" data-i="${i}"><span class="lv lv${x.l}">${'✦'.repeat(x.l) || '·'}</span><b>${esc(x.first)}</b><i>${soulLvlTxt(x.l)[0].replace(/^\S+\s/, '')} · ${x.pct}% · ${x.d.split('-').reverse().join('/')}</i></button><button class="slnear${x.near ? ' on' : ''}" data-n="${i}" aria-label="Guardar perto">${x.near ? '★' : '☆'}</button></div>`).join('')}</div>` : '<p>Ainda não leste nenhuma carta. Pede a alguém o link ou o QR da Carta da Alma.</p>'}
     <div class="dlgfoot"><button class="btn" id="slBack">A minha carta</button><button class="btn main" id="slRead">🔭 Ler uma carta</button></div></div>`;
   $('#slBack').onclick = openSoul; $('#slRead').onclick = soulReader;
   dlg.querySelectorAll('.soulli').forEach(b => b.onclick = () => { const o = soulParse(L[+b.dataset.i].code); if (o) soulMatch(o); });
+  dlg.querySelectorAll('.slnear').forEach(b => b.onclick = () => { const A = soulLinks(), x = A[+b.dataset.n]; if (!x) return; x.near = !x.near; store.set('ceu_soul_links', JSON.stringify(A)); toast(x.near ? `★ ${x.first} fica perto de ti` : `${x.first} voltou ao teu céu`); soulLinksView(); });
 }
 function checkSoulLink() { const m = location.hash.match(/^#alma=(.+)$/); if (!m) return false; try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { } const sos = soulSosOf(m[1]); let code = m[1].split('&')[0]; try { code = decodeURIComponent(code); } catch (e) { } const o = soulParse(code); if (o) setTimeout(() => soulMatch(o, { sos }), 300); return true; }
 function soulBoxHtml() {
@@ -617,15 +618,20 @@ function soulPairDay(a, b, d = todayStr()) { // a = eu, b = pessoa ou patudo
   return pick(PAIR_DAY[el]);
 }
 function soulTodayPeople() { const F = familySouls(), me = soulMe(); if (!me) return []; return F.M.filter(m => m.o.serial !== me.serial).map(m => ({ nm: m.nm, ic: m.ic, txt: soulPairDay(me, m.o) })); }
-const SOUL_MS = [[1, 'Primeira estrela'], [3, 'Pequena constelação'], [5, 'Cinco almas'], [10, 'Dez estrelas'], [25, 'Céu cheio'], [50, 'Galáxia'], [100, 'Universo inteiro']];
+const SOUL_MS = [[1, 'Primeira estrela'], [3, 'Pequena constelação'], [5, 'Cinco almas'], [10, 'Dez estrelas'], [25, 'Céu cheio'], [50, 'Galáxia'], [100, 'Via Láctea'], [250, 'Constelação de constelações'], [500, 'Universo inteiro'], [1000, 'Alma do cosmos']];
 function soulStars() { const L = soulLinks(), n = L.length, best = L.reduce((m, x) => Math.max(m, x.l), 0), next = SOUL_MS.find(m => m[0] > n), got = SOUL_MS.filter(m => m[0] <= n); return { n, best, next, got, l3: L.filter(x => x.l === 3).length }; }
-function soulStarsSVG(n, cap = 40) { // a tua constelação de ligações: cada carta lida acende uma estrela
-  const N = Math.max(Math.min(n, cap), 1), next = Math.min(cap, (SOUL_MS.find(m => m[0] > n) || [n + 5])[0]); let s = '', P = [];
-  for (let i = 0; i < next; i++) { const a = i * 2.4, rr = 8 + Math.sqrt(i) * 13; P.push([100 + Math.cos(a) * rr * 1.5, 60 + Math.sin(a) * rr * .8]); }
-  for (let i = 1; i < Math.min(n, cap); i++) s += `<line x1="${P[i - 1][0].toFixed(1)}" y1="${P[i - 1][1].toFixed(1)}" x2="${P[i][0].toFixed(1)}" y2="${P[i][1].toFixed(1)}" stroke="#f2c76e" stroke-width=".6" opacity=".45"/>`;
-  P.forEach((p, i) => { s += i < n ? `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${i === n - 1 ? 3.2 : 2.3}" fill="#fff1c4"/>` : `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2" fill="none" stroke="#f2c76e" stroke-width=".6" stroke-dasharray="1 1.5" opacity=".6"/>`; });
+function soulStarsSVG(n, cap = 40) { // a tua constelação: cada carta lida acende uma estrela; almas gémeas a dourado, quem guardaste perto mais junto ao centro
+  const L = soulLinks(), top = x => x.near || x.l === 3, shown = L.filter(top).concat(L.filter(x => !top(x))).slice(0, cap).reverse(), k = shown.length; // almas gémeas e quem está perto nunca saem do desenho
+  const nextM = (SOUL_MS.find(m => m[0] > n) || [n + 5])[0], ghosts = Math.max(0, Math.min(cap, nextM) - k), T = Math.max(k + ghosts, 1); let s = '', P = [];
+  for (let i = 0; i < T; i++) { const a = i * 2.4, rr = 8 + Math.sqrt(i) * 13; P.push([100 + Math.cos(a) * rr * 1.5, 60 + Math.sin(a) * rr * .8]); }
+  const ord = shown.map((x, i) => [x, i]).sort((a, b) => ((b[0].near || b[0].l === 3) - (a[0].near || a[0].l === 3)) || (a[1] - b[1])); // os "perto" ficam nas posições centrais
+  const pos = new Array(k); ord.forEach(([x, i], r) => pos[i] = P[r]);
+  for (let r = 1; r < k; r++) { let j0 = 0, dm = 1e9; for (let j = 0; j < r; j++) { const dd = (P[r][0] - P[j][0]) ** 2 + (P[r][1] - P[j][1]) ** 2; if (dd < dm) { dm = dd; j0 = j; } } s += `<line x1="${P[j0][0].toFixed(1)}" y1="${P[j0][1].toFixed(1)}" x2="${P[r][0].toFixed(1)}" y2="${P[r][1].toFixed(1)}" stroke="#f2c76e" stroke-width=".6" opacity=".45"/>`; } // cada estrela liga-se à vizinha mais próxima: uma constelação limpa
+  shown.forEach((x, i) => { const p = pos[i], c = `cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}"`; s += x.l === 3 ? `<circle ${c} r="7" fill="#f2c76e" opacity=".25"/><circle ${c} r="4.2" fill="#f7d77a"/>` : x.near ? `<circle ${c} r="5" fill="#fff" opacity=".18"/><circle ${c} r="3.2" fill="#fff"/>` : `<circle ${c} r="${x.l === 2 ? 2.9 : 2.2}" fill="#fff1c4" opacity="${x.l ? 1 : .75}"/>`; });
+  for (let g = 0; g < ghosts; g++) { const p = P[k + g]; s += `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2" fill="none" stroke="#f2c76e" stroke-width=".6" stroke-dasharray="1 1.5" opacity=".6"/>`; }
   const xs = P.map(p => p[0]), ys = P.map(p => p[1]), x0 = Math.min(...xs) - 12, y0 = Math.min(...ys) - 10, w = Math.max(Math.max(...xs) - x0 + 12, 60), h = Math.max(Math.max(...ys) - y0 + 10, 34);
-  return `<svg viewBox="${x0.toFixed(0)} ${y0.toFixed(0)} ${w.toFixed(0)} ${h.toFixed(0)}" class="soulstars" aria-hidden="true" style="max-height:110px">${s}</svg>`;
+  if (n > cap) s += `<text x="${(x0 + w - 4).toFixed(0)}" y="${(y0 + h - 4).toFixed(0)}" text-anchor="end" font-size="9" fill="#f2c76e" font-family="Manrope,sans-serif">+${n - cap}</text>`;
+  return `<svg viewBox="${x0.toFixed(0)} ${y0.toFixed(0)} ${w.toFixed(0)} ${h.toFixed(0)}" class="soulstars" aria-hidden="true" style="max-height:120px">${s}</svg>`;
 }
 function soulMilestone(prevN) { // marcos novos depois de ler uma carta
   const st = soulStars(), seen = (store.get('ceu_soul_ms') || '').split(',').filter(Boolean), add = [];
