@@ -162,6 +162,7 @@ function alertEvents() {
   try { tarotAlerts().forEach(a => ev.push(a)); } catch (e) { }
   try { cdAlerts().forEach(a => ev.push(a)); } catch (e) { }
   try { soulAlerts().forEach(a => ev.push(a)); } catch (e) { }
+  try { bkAlerts().forEach(a => ev.push(a)); } catch (e) { }
   try { [...giftAlerts(), ...nightAlerts(), ...wrapAlerts(), ...weekAlerts(), ...routineAlerts()].forEach(a => ev.push(a)); } catch (e) { }
   try { const o = CY.get(); if (o.on && !o.preg) { const st = cycleStats(o); if (st.last) { if (o.alerts.period) { add(dayStr(noonJd(st.next) - 2), '🩸 O período deve chegar daqui a 2 dias', 'Leva o que precisas na mala 💗', 'cy-p2-' + st.next, './?ciclo'); add(st.next, '🩸 O período pode chegar hoje', 'Cuida bem de ti hoje 💗', 'cy-p0-' + st.next, './?ciclo'); } if (o.alerts.fertile) add(st.fert[0], '🌸 Começa hoje a tua janela fértil', `Até ${niceDate(st.fert[1]).replace(/^[^,]+, /, '')} (estimativa)`, 'cy-f-' + st.fert[0], './?ciclo'); if (o.ttc && o.alerts.fertile) add(st.peak[0], '🔥 Começam hoje os teus dias de pico', `${cyRange(st.peak[0], st.peak[1])}. Regista os sinais na app para afinar.`, 'cy-pk-' + st.peak[0], './?ciclo'); } } } catch (e) { }
   try { P.list('ceu_pets').forEach(a => ['vac', 'des'].forEach(k => { const n = careNext(a, k); if (!n) return; const lbl = `${CARE_T[k][1]} ${spOf(a)[0] === 'gata' ? 'da' : 'do'} ${a.name}`; add(dayStr(noonJd(n) - 1), `${CARE_T[k][0]} Amanhã: ${lbl}`, 'Já marcaste o veterinário?', `pet-${a.name}-${k}-${n}-1`, './?patudos'); add(n, `${CARE_T[k][0]} Hoje: ${lbl}`, 'Depois de tratar, carrega em ✅ Feito na app.', `pet-${a.name}-${k}-${n}-0`, './?patudos'); }));
@@ -170,7 +171,7 @@ function alertEvents() {
   const [y, m] = today.split('-').map(Number), nm = new Date(y, m, 1), nd = `${nm.getFullYear()}-${String(nm.getMonth() + 1).padStart(2, '0')}-01`;
   add(nd, `📊 O teu ${MESES[m - 1]} está pronto`, 'Livros, séries, momentos e humor do mês, num só resumo.', 'month-' + nd, './?resumo');
   if (m >= 11) add(`${y}-12-01`, `📖 O teu livro de ${y} já pode ser escrito`, '10 perguntas e a app junta o teu ano todo.', 'ybook-' + y, './?livro');
-  return ev.filter(e => e.d >= today && e.d <= lim);
+  return ev.filter(e => e.d >= today && (e.d <= lim || e.tag.startsWith('bk-'))); // a cópia pode estar marcada para daqui a meses
 }
 
 // ---------- O meu mês (resumo) ----------

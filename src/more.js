@@ -70,14 +70,21 @@ async function checkMigLink() {
   await restoreObj(j, here ? 'Já tens dados nesta morada. Substituir pelos que trouxeste da morada antiga?' : `Bem-vindo à nova casa! 🏠 Trazer os teus dados da morada antiga (${Object.keys(j.data).length} itens${j.photos ? ' e fotos' : ''})?`);
   return true;
 }
-function bkDue() { if (!hasPersonalData()) return false; const last = store.get('ceu_lastbk'), sn = store.get('ceu_bksnooze'); if (sn && sn > todayStr()) return false; return !last || (noonJd(todayStr()) - noonJd(last)) >= 30; }
+const BK_EVERY = [['7', 'Todas as semanas'], ['30', 'Todos os meses'], ['90', 'De 3 em 3 meses'], ['180', 'De 6 em 6 meses'], ['0', 'Nunca']];
+const bkEvery = () => { const v = store.get('ceu_bkevery'); return v === null || v === undefined || v === '' ? 30 : +v; };
+function bkDue() { const ev = bkEvery(); if (!ev || !hasPersonalData()) return false; const last = store.get('ceu_lastbk'), sn = store.get('ceu_bksnooze'); if (sn && sn > todayStr()) return false; return !last || (noonJd(todayStr()) - noonJd(last)) >= ev; }
+function bkAlerts() { // lembrete com a app fechada, no ritmo que a pessoa escolheu
+  const ev = bkEvery(); if (!ev || !hasPersonalData()) return []; const t0 = noonJd(todayStr()), last = store.get('ceu_lastbk'); let d = last ? Math.max(noonJd(last) + ev, t0) : t0 + 1; const out = [];
+  while (d <= t0 + 200 && out.length < 6) { const ds = dayStr(d); out.push({ d: ds, t: '💾 Hora de guardar a cópia dos teus dados', b: 'Leva 10 segundos: ⚙ → Cópia de segurança → Guardar cópia. Assim nada se perde.', tag: 'bk-' + ds, url: './?copia', h: 11 }); d += ev; }
+  return out;
+}
 function bkCard() {
   if (!bkDue()) return '';
   const last = store.get('ceu_lastbk');
-  return `<div class="box bkc"><h3>💾 Faz uma cópia dos teus dados</h3><p>${last ? `A última foi a ${niceDate(last)}.` : 'Ainda não fizeste nenhuma.'} Tudo fica só neste telemóvel: se ele se perder, a cópia salva os teus livros, diário, aniversários e viagens.</p><div class="drow"><button class="btn main" id="bkNow">Guardar cópia</button><button class="btn" id="bkLater">Mais tarde</button></div></div>`;
+  return `<div class="box bkc"><h3>💾 Faz uma cópia dos teus dados</h3><p>${last ? `A última foi a ${niceDate(last)}.` : 'Ainda não fizeste nenhuma.'} Tudo fica só neste telemóvel: se ele se perder, a cópia salva a tua Carta da Alma e ligações, os patudos, o diário, os aniversários e os livros.</p><div class="drow"><button class="btn main" id="bkNow">Guardar cópia</button><button class="btn" id="bkLater">Mais tarde</button></div></div>`;
 }
-function menuBackupHtml() { const last = store.get('ceu_lastbk'); return `<p style="margin:0 0 8px">${last ? `Última cópia: <b>${niceDate(last)}</b>.` : 'Ainda não fizeste nenhuma cópia.'}</p><div class="drow"><button class="btn main" id="mBk">💾 Guardar cópia</button><label class="btn" style="text-align:center">📥 Repor<input type="file" id="mRs" accept="application/json,.json" hidden></label></div><p class="note">Guarda o ficheiro no WhatsApp (envia para ti), no email ou no Drive. Num telemóvel novo, abre a app e carrega em «Repor». O PIN não vai na cópia.</p>`; }
-function bindBackupMenu() { const b = $('#bkMenu'); if (!b) return; b.innerHTML = menuBackupHtml(); $('#mBk').onclick = async () => { await doBackup(); b.innerHTML = menuBackupHtml(); bindBackupMenu(); }; $('#mRs').onchange = e => e.target.files[0] && doRestore(e.target.files[0]); }
+function menuBackupHtml() { const last = store.get('ceu_lastbk'), ev = String(bkEvery()); return `<p style="margin:0 0 8px">${last ? `Última cópia: <b>${niceDate(last)}</b>.` : 'Ainda não fizeste nenhuma cópia.'}</p><label>⏰ Lembrar-me de fazer cópia<select id="mBkEv">${BK_EVERY.map(o => `<option value="${o[0]}"${o[0] === ev ? ' selected' : ''}>${o[1]}</option>`).join('')}</select></label><div class="drow"><button class="btn main" id="mBk">💾 Guardar cópia</button><label class="btn" style="text-align:center">📥 Repor<input type="file" id="mRs" accept="application/json,.json" hidden></label></div><p class="note">Guarda o ficheiro no WhatsApp (envia para ti), no email ou no Drive. Num telemóvel novo, abre a app e carrega em «Repor». O PIN não vai na cópia.</p>`; }
+function bindBackupMenu() { const b = $('#bkMenu'); if (!b) return; b.innerHTML = menuBackupHtml(); $('#mBk').onclick = async () => { await doBackup(); b.innerHTML = menuBackupHtml(); bindBackupMenu(); }; $('#mRs').onchange = e => e.target.files[0] && doRestore(e.target.files[0]); $('#mBkEv').onchange = e => { store.set('ceu_bkevery', e.target.value); store.del ? store.del('ceu_bksnooze') : localStorage.removeItem('ceu_bksnooze'); try { syncAlertData(); } catch (x) { } toast(e.target.value === '0' ? 'Sem lembretes de cópia' : `⏰ Vou lembrar-te: ${BK_EVERY.find(o => o[0] === e.target.value)[1].toLowerCase()}`); }; }
 
 // ---------- Canvas: utilitários ----------
 function loadImg(src) { return new Promise(res => { if (!src) return res(null); const im = new Image(); if (!/^data:/.test(src)) im.crossOrigin = 'anonymous'; im.onload = () => res(im); im.onerror = () => res(null); im.src = src; setTimeout(() => res(null), 8000); }); }

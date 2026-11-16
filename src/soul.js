@@ -427,6 +427,12 @@ function soulBoxHtml() {
   const m = soulDayMsg(o), st = soulStars(), ppl = soulTodayPeople().slice(0, 2);
   return `<button class="soulbox today" id="soulBoxGo">${soulSVG2(o)}<div><b>💫 A tua alma hoje</b><span>${esc(m.txt)}</span><em>${st.n ? `✦ ${st.n} ${st.n === 1 ? 'estrela' : 'estrelas'}` : '✦ acende a 1.ª estrela'}${ppl.map(x => ` · ${x.ic} ${esc(x.nm)}`).join('')}</em></div></button>`;
 }
+document.addEventListener('click', e => { // toque numa estrela: quem é
+  const g = e.target.closest && e.target.closest('.sst'); if (!g) return; const x = soulLinks().find(y => y.serial === g.dataset.s), w = $('#sstWho'); if (!x || !w) return;
+  document.querySelectorAll('.sst.on').forEach(z => z.classList.remove('on')); g.classList.add('on');
+  w.hidden = false; w.innerHTML = `<span class="lv lv${x.l}">${'✦'.repeat(x.l) || '·'}</span><div><b>${x.near ? '★ ' : ''}${esc(x.first)}</b><i>${x.l === 3 ? 'Alma gémea' : soulLvlTxt(x.l)[0].replace(/^\S+\s/, '')} · lida a ${x.d.split('-').reverse().join('/')}</i></div><button class="btn" id="sstOpen">Ver</button>`;
+  $('#sstOpen').onclick = () => { const o = soulParse(x.code); if (o) soulMatch(o); };
+});
 document.addEventListener('click', e => { if (e.target.closest && e.target.closest('#soulBoxGo')) { if (soulMe()) openSoul(); else soulWelcome(true); } });
 
 // ---------- Cofre da alma: memórias e cápsulas do tempo (guardadas só neste telemóvel) ----------
@@ -627,7 +633,7 @@ function soulStarsSVG(n, cap = 40) { // a tua constelação: cada carta lida ace
   const ord = shown.map((x, i) => [x, i]).sort((a, b) => ((b[0].near || b[0].l === 3) - (a[0].near || a[0].l === 3)) || (a[1] - b[1])); // os "perto" ficam nas posições centrais
   const pos = new Array(k); ord.forEach(([x, i], r) => pos[i] = P[r]);
   for (let r = 1; r < k; r++) { let j0 = 0, dm = 1e9; for (let j = 0; j < r; j++) { const dd = (P[r][0] - P[j][0]) ** 2 + (P[r][1] - P[j][1]) ** 2; if (dd < dm) { dm = dd; j0 = j; } } s += `<line x1="${P[j0][0].toFixed(1)}" y1="${P[j0][1].toFixed(1)}" x2="${P[r][0].toFixed(1)}" y2="${P[r][1].toFixed(1)}" stroke="#f2c76e" stroke-width=".6" opacity=".45"/>`; } // cada estrela liga-se à vizinha mais próxima: uma constelação limpa
-  shown.forEach((x, i) => { const p = pos[i], c = `cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}"`; s += x.l === 3 ? `<circle ${c} r="7" fill="#f2c76e" opacity=".25"/><circle ${c} r="4.2" fill="#f7d77a"/>` : x.near ? `<circle ${c} r="5" fill="#fff" opacity=".18"/><circle ${c} r="3.2" fill="#fff"/>` : `<circle ${c} r="${x.l === 2 ? 2.9 : 2.2}" fill="#fff1c4" opacity="${x.l ? 1 : .75}"/>`; });
+  shown.forEach((x, i) => { const p = pos[i], c = `cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}"`; s += `<g class="sst" data-s="${esc(x.serial)}">` + (x.l === 3 ? `<circle ${c} r="7" fill="#f2c76e" opacity=".25"/><circle ${c} r="4.2" fill="#f7d77a"/>` : x.near ? `<circle ${c} r="5" fill="#fff" opacity=".18"/><circle ${c} r="3.2" fill="#fff"/>` : `<circle ${c} r="${x.l === 2 ? 2.9 : 2.2}" fill="#fff1c4" opacity="${x.l ? 1 : .75}"/>`) + `<circle ${c} r="9" fill="transparent"/><title>${esc(x.first)}</title></g>`; });
   for (let g = 0; g < ghosts; g++) { const p = P[k + g]; s += `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2" fill="none" stroke="#f2c76e" stroke-width=".6" stroke-dasharray="1 1.5" opacity=".6"/>`; }
   const xs = P.map(p => p[0]), ys = P.map(p => p[1]), x0 = Math.min(...xs) - 12, y0 = Math.min(...ys) - 10, w = Math.max(Math.max(...xs) - x0 + 12, 60), h = Math.max(Math.max(...ys) - y0 + 10, 34);
   if (n > cap) s += `<text x="${(x0 + w - 4).toFixed(0)}" y="${(y0 + h - 4).toFixed(0)}" text-anchor="end" font-size="9" fill="#f2c76e" font-family="Manrope,sans-serif">+${n - cap}</text>`;
@@ -645,5 +651,5 @@ function soulTodayHtml(o) { // a secção "Hoje" dentro da carta
   const m = soulDayMsg(o), st = soulStars(), ppl = soulTodayPeople();
   return `<div class="soulwant soultoday"><b>☀️ A tua alma hoje</b><p class="stmsg">${esc(m.txt)}</p><p class="note">Lua em ${SIGNS[m.tm].n} · dia pessoal ${m.pd}: ${SOUL_PDAY[m.pd]}</p>
     ${ppl.length ? `<div class="stppl"><b>💞 O dia de vocês</b>${ppl.slice(0, 8).map(x => `<p><span>${x.ic}</span> <b>${esc(x.nm)}</b>: ${esc(x.txt)}</p>`).join('')}</div>` : ''}
-    <div class="stcol"><b>✦ A tua constelação de ligações</b>${soulStarsSVG(st.n)}<p>${st.n ? `<b>${st.n}</b> ${st.n === 1 ? 'estrela acesa' : 'estrelas acesas'}${st.l3 ? ` · ${st.l3} alma${st.l3 > 1 ? 's' : ''} gémea${st.l3 > 1 ? 's' : ''} ✨` : ''}` : 'Ainda nenhuma estrela: cada carta que lês acende uma.'}${st.next ? ` · faltam ${st.next[0] - st.n} para «${st.next[1]}»` : ''}</p></div></div>`;
+    <div class="stcol"><b>✦ A tua constelação de ligações</b>${soulStarsSVG(st.n)}<div class="sstwho" id="sstWho" hidden></div><p>${st.n ? `<b>${st.n}</b> ${st.n === 1 ? 'estrela acesa' : 'estrelas acesas'}${st.l3 ? ` · ${st.l3} alma${st.l3 > 1 ? 's' : ''} gémea${st.l3 > 1 ? 's' : ''} ✨` : ''}` : 'Ainda nenhuma estrela: cada carta que lês acende uma.'}${st.next ? ` · faltam ${st.next[0] - st.n} para «${st.next[1]}»` : ''}</p></div></div>`;
 }
