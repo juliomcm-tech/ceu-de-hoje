@@ -288,7 +288,7 @@ function soulSealBox(o) {
 }
 function openSoul() {
   const dlg = $('#soulDlg'), o = soulMe();
-  if (!o) { dlg.innerHTML = `<div class="soulwrap"><h2>💫 A tua Carta da Alma</h2><p>Para criar a tua carta única preciso do teu nome e da tua data de nascimento (e, se souberes, da hora).</p><div class="dlgfoot"><button class="btn" id="soulX">Fechar</button><button class="btn main" id="soulPf">Preencher o meu perfil</button></div></div>`; dlg.showModal(); $('#soulX').onclick = () => dlg.close(); $('#soulPf').onclick = () => { dlg.close(); ST.tab = 'eu'; render(); }; return; }
+  if (!o) { soulWelcome(true); return; }
   const first = !store.get('ceu_soul_seen');
   dlg.innerHTML = `<div class="soulwrap"><button class="tclose" id="soulX" aria-label="Fechar">✕</button>
     <p class="soulhint" id="soulHint">${first ? 'A tua alma tem uma carta só tua. Toca para a revelar ✨' : 'Inclina o telemóvel ou passa o dedo pela carta'}</p>
