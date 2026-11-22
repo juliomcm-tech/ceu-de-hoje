@@ -659,15 +659,24 @@ function soulStarsSVG(n, cap = 40) { // a tua constelação: cada carta lida ace
   return `<svg viewBox="${x0.toFixed(0)} ${y0.toFixed(0)} ${w.toFixed(0)} ${h.toFixed(0)}" class="soulstars" aria-hidden="true">${s}</svg>`;
 }
 const STAR_TONES = { // os 4 tons da app, para a imagem da constelação
-  astral: { nm: 'Astral', bg: ['#2b1f66', '#06061a'], ink: '#eeedff', mute: '#b9b9e6', acc: '#f2c76e', star: '#fff1c4', dust: '#ffffff' },
-  branco: { nm: 'Branco', bg: ['#ffffff', '#ececf6'], ink: '#1d1d2b', mute: '#6a6a85', acc: '#c99a2e', star: '#2c2c44', dust: '#c99a2e' },
-  menta: { nm: 'Menta', bg: ['#f4fdf9', '#c9efdd'], ink: '#12332a', mute: '#4f7a6c', acc: '#2bb58a', star: '#13795b', dust: '#2bb58a' },
-  pink: { nm: 'Pink', bg: ['#fff6f9', '#ffd3e3'], ink: '#3a1029', mute: '#8f5a75', acc: '#ff5a8a', star: '#c2185b', dust: '#ff5a8a' }
+  astral: { nm: 'Astral', bg: ['#2b1f66', '#06061a'], ink: '#eeedff', mute: '#b9b9e6', acc: '#f2c76e', star: '#fff1c4', dust: '#ffffff', neb: ['#7b5cff', '#ff6fb5', '#3fb8ff'], spk: ['#ffffff', '#f2c76e'] },
+  branco: { nm: 'Branco', bg: ['#ffffff', '#ececf6'], ink: '#1d1d2b', mute: '#6a6a85', acc: '#c99a2e', star: '#2c2c44', dust: '#5a5a7a', neb: ['#c9b8ff', '#ffd9a0', '#a8d8ff'], spk: ['#c99a2e', '#8a7cd6'] },
+  menta: { nm: 'Menta', bg: ['#f4fdf9', '#c9efdd'], ink: '#12332a', mute: '#4f7a6c', acc: '#2bb58a', star: '#13795b', dust: '#13795b', neb: ['#7fe6c1', '#a8e6ff', '#d4f7a8'], spk: ['#2bb58a', '#13795b'] },
+  pink: { nm: 'Pink', bg: ['#fff6f9', '#ffd3e3'], ink: '#3a1029', mute: '#8f5a75', acc: '#ff5a8a', star: '#c2185b', dust: '#c2185b', neb: ['#ff8fb1', '#d7a8ff', '#ffc2a8'], spk: ['#ff5a8a', '#c2185b'] }
 };
+function soulSky(ctx, W, H, T, rnd) { // céu em todos os tons: nebulosas, via láctea, poeira de estrelas e brilhos
+  const dark = T.bg[1] === '#06061a';
+  T.neb.forEach((col, k) => { const x = W * (.15 + rnd() * .7), y = H * (.15 + k * .28 + rnd() * .1), r = 260 + rnd() * 260, g = ctx.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, col + (dark ? '40' : '55')); g.addColorStop(1, col + '00'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H); });
+  const band = (t, off) => [t * W, H * .82 - t * H * .62 + off]; // via láctea na diagonal
+  ctx.fillStyle = T.dust; for (let i = 0; i < 420; i++) { const [x, y] = band(rnd(), (rnd() + rnd() + rnd() - 1.5) * 150); ctx.globalAlpha = (dark ? .1 : .18) + rnd() * (dark ? .35 : .4); ctx.beginPath(); ctx.arc(x, y, .5 + rnd() * 1.3, 0, 7); ctx.fill(); }
+  for (let i = 0; i < 230; i++) { ctx.globalAlpha = (dark ? .12 : .25) + rnd() * .45; ctx.beginPath(); ctx.arc(rnd() * W, rnd() * H, .6 + rnd() * (rnd() < .1 ? 2.6 : 1.5), 0, 7); ctx.fill(); }
+  for (let i = 0; i < 22; i++) { const x = rnd() * W, y = rnd() * H, r = 5 + rnd() * 11; ctx.globalAlpha = .45 + rnd() * .45; ctx.fillStyle = T.spk[i % 2]; ctx.beginPath(); ctx.moveTo(x, y - r); ctx.quadraticCurveTo(x, y, x + r, y); ctx.quadraticCurveTo(x, y, x, y + r); ctx.quadraticCurveTo(x, y, x - r, y); ctx.quadraticCurveTo(x, y, x, y - r); ctx.fill(); ctx.globalAlpha *= .35; ctx.beginPath(); ctx.arc(x, y, r * .55, 0, 7); ctx.fill(); }
+  ctx.globalAlpha = 1;
+}
 async function soulStarsCanvas(tone) {
   await fontsReady(); const T = STAR_TONES[tone] || STAR_TONES.astral, me = soulMe(), Y = soulStarLayout(40, 1.15, 1.25), [c, ctx, W, H] = newCanvas(1080, 1350); ctx.__noTheme = true;
   const gr = ctx.createRadialGradient(W / 2, 520, 60, W / 2, 620, 1000); gr.addColorStop(0, T.bg[0]); gr.addColorStop(1, T.bg[1]); ctx.fillStyle = gr; ctx.fillRect(0, 0, W, H);
-  const rnd = seeded('cst' + (me ? me.serial : '')); ctx.fillStyle = T.dust; for (let i = 0; i < 140; i++) { ctx.globalAlpha = .08 + rnd() * .3; ctx.beginPath(); ctx.arc(rnd() * W, rnd() * H, .6 + rnd() * 1.8, 0, 7); ctx.fill(); } ctx.globalAlpha = 1;
+  soulSky(ctx, W, H, T, seeded('cst' + (me ? me.serial : '')));
   ctx.textAlign = 'center'; ctx.fillStyle = T.acc; ctx.font = '700 40px Cinzel'; ctx.fillText('A MINHA CONSTELAÇÃO', W / 2, 110);
   ctx.fillStyle = T.ink; ctx.font = 'italic 700 60px "Cormorant Garamond"'; ctx.fillText(me ? `O céu de ${me.first}` : 'O meu céu', W / 2, 185);
   // da grelha do desenho para a imagem
