@@ -6,7 +6,7 @@
 // Ligações necessárias (Settings → Bindings): KV namespace com o nome de variável  PUSH
 // Agendamento (Settings → Triggers → Cron):  */15 * * * *
 
-const APP = 'https://juliomcm-tech.github.io/ceu-de-hoje/';
+const APP = 'https://ceudehoje.com/';
 const FAN = 40; // toques por execução (limite do plano grátis: 50 pedidos externos)
 const H = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'GET,POST,OPTIONS', 'Access-Control-Allow-Headers': 'content-type' };
 const json = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { ...H, 'content-type': 'application/json' } });

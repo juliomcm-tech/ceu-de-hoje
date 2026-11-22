@@ -200,8 +200,8 @@ function wookLink(q) { return `https://www.google.com/search?q=${encodeURICompon
 function photoToCover(file) {
   return new Promise((res, rej) => { const fr = new FileReader(); fr.onerror = rej; fr.onload = () => { const im = new Image(); im.onerror = rej; im.onload = () => { const w = 280, h = Math.round(im.height * w / im.width), c = document.createElement('canvas'); c.width = w; c.height = Math.min(h, 460); c.getContext('2d').drawImage(im, 0, 0, w, h); res(c.toDataURL('image/jpeg', .78)); }; im.src = fr.result; }; fr.readAsDataURL(file); });
 }
-async function scanBarcode() {
-  if (!('BarcodeDetector' in window) || !navigator.mediaDevices) { const v = window.prompt ? prompt('Escreve o ISBN (13 números, atrás do livro):') : null; return v; }
+async function scanBarcode(ctx) {
+  if (!('BarcodeDetector' in window) || !navigator.mediaDevices) { const v = window.prompt ? prompt(ctx === 'col' ? 'Escreve o número do código de barras (está na caixa ou na etiqueta):' : 'Escreve o ISBN (13 números, atrás do livro):') : null; return v; }
   const det = new BarcodeDetector({ formats: ['ean_13', 'ean_8', 'upc_a'] });
   const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
   const v = $('#scanVid'); v.srcObject = stream; await v.play(); $('#scanDlg').showModal();

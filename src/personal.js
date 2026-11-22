@@ -224,7 +224,7 @@ async function recordAnim(drawFn, dur, W, H, btn, label) {
 
 // ---------- INSTALAR ----------
 let BIP = null;
-window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); BIP = e; document.querySelectorAll('.installBtn').forEach(b => b.hidden = false); });
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); BIP = e; document.querySelectorAll('.installBtn').forEach(b => b.hidden = isStandalone()); });
 const isStandalone = () => (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone;
 const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent);
 async function doInstall() { if (BIP) { BIP.prompt(); const r = await BIP.userChoice.catch(() => null); BIP = null; if (r && r.outcome === 'accepted') toast('App instalada 🎉'); } else $('#installDlg').showModal(); }
@@ -239,6 +239,7 @@ function humanAge(a) {
   const h = yrs <= 1 ? yrs * 15 : yrs <= 2 ? 15 + (yrs - 1) * 9 : 24 + (yrs - 2) * (s === 'cao' ? 5 : 4);
   return Math.round(h);
 }
+const cnDo = n => (['Cabra', 'Serpente'].includes(n) ? 'da ' : 'do ') + n; // «ano da Cabra», «ano do Dragão»
 const CN_ANIMALS = ['Rato', 'Boi', 'Tigre', 'Coelho', 'Dragão', 'Serpente', 'Cavalo', 'Cabra', 'Macaco', 'Galo', 'Cão', 'Porco'];
 const CN_EMO = ['🐀', '🐂', '🐅', '🐇', '🐉', '🐍', '🐎', '🐐', '🐒', '🐓', '🐕', '🐖'];
 const CN_EL = ['Metal', 'Metal', 'Água', 'Água', 'Madeira', 'Madeira', 'Fogo', 'Fogo', 'Terra', 'Terra'];

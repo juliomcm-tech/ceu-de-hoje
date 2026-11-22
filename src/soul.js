@@ -416,11 +416,11 @@ async function shareSoulMatch(me, other, l, pct) {
 }
 function soulLinksView() {
   soulSyncLevels(); const dlg = $('#soulDlg'), L = soulLinks();
-  dlg.innerHTML = `<div class="soulwrap"><h2>💫 As minhas ligações</h2><p class="note">Cada carta que lês fica gravada na tua alma: pessoas e patudos 🐾.</p>
+  dlg.innerHTML = `<div class="soulwrap"><button class="tclose" id="slX" aria-label="Fechar">✕</button><h2>💫 As minhas ligações</h2><p class="note">Cada carta que lês fica gravada na tua alma: pessoas e patudos 🐾.</p>
     ${L.length ? `<p class="note">Toca na ☆ para guardares alguém <b>perto</b> (fica no centro da constelação). 🗑 tira alguém do teu céu. Toca no símbolo à esquerda para dizer quem é: ❤️ amor, 🏡 família, 🤝 amigo.</p><div class="soullist">${L.map((x, i) => [x, i]).sort((a, b) => (b[0].near ? 1 : 0) - (a[0].near ? 1 : 0)).map(([x, i]) => { const kd = linkKind(x); return `<div class="soulrow"><button class="slkind" data-k="${i}" aria-label="Quem é ${esc(x.first)}">${kd !== 'outra' ? kindIc(kd) : '✦'}</button><button class="soulli" data-i="${i}"><span class="lv lv${x.l}">${'✦'.repeat(x.l) || '·'}</span><b>${esc(x.first)}</b><i>${soulLvlTxt(x.l)[0].replace(/^\S+\s/, '')} · ${x.pct}% · ${x.d.split('-').reverse().join('/')}</i></button><button class="slnear${x.near ? ' on' : ''}" data-n="${i}" aria-label="Guardar perto">${x.near ? '★' : '☆'}</button><button class="sldel" data-d="${i}" aria-label="Tirar ${esc(x.first)}">🗑</button></div>`; }).join('')}</div>
     <div class="sttwo"><button class="btn" id="slShare">📤 Partilhar constelação</button><button class="btn" id="slTat">🖋️ Criar tatuagem</button></div>` : '<p>Ainda não leste nenhuma carta. Pede a alguém o link ou o QR da Carta da Alma (também de patudos 🐾).</p>'}
     <div class="dlgfoot"><button class="btn" id="slBack">A minha carta</button><button class="btn main" id="slRead">🔭 Ler uma carta</button></div></div>`;
-  $('#slBack').onclick = openSoul; $('#slRead').onclick = soulReader; if ($('#slShare')) { $('#slShare').onclick = soulStarsShare; $('#slTat').onclick = soulTattooView; }
+  $('#slX').onclick = () => dlg.close(); $('#slBack').onclick = openSoul; $('#slRead').onclick = soulReader; if ($('#slShare')) { $('#slShare').onclick = soulStarsShare; $('#slTat').onclick = soulTattooView; }
   dlg.querySelectorAll('.soulli').forEach(b => b.onclick = () => { const o = soulParse(L[+b.dataset.i].code); if (o) soulMatch(o); });
   dlg.querySelectorAll('.slnear').forEach(b => b.onclick = () => { const A = soulLinks(), x = A[+b.dataset.n]; if (!x) return; x.near = !x.near; store.set('ceu_soul_links', JSON.stringify(A)); toast(x.near ? `★ ${x.first} fica perto de ti` : `${x.first} voltou ao teu céu`); soulLinksView(); });
   dlg.querySelectorAll('.slkind').forEach(b => b.onclick = () => { // escolher quem é: aparece no mapa e na tatuagem com o seu símbolo
@@ -436,7 +436,7 @@ function soulLinksView() {
     row.querySelector('[data-yes]').onclick = () => { store.set('ceu_soul_links', JSON.stringify(soulLinks().filter(z => z.serial !== x.serial))); toast(`${x.first} saiu do teu céu. Há sempre novas estrelas ✦`); soulLinksView(); };
   });
 }
-window.addEventListener('hashchange', () => { if (/^#alma=/.test(location.hash)) checkSoulLink(); }); // link aberto com a app já aberta (ex.: medalha de um patudo perdido)
+window.addEventListener('hashchange', () => { const h = location.hash; if (/^#alma=/.test(h)) checkSoulLink(); else if (/#add=/.test(h)) checkAddLink(); else if (/#casal=/.test(h)) checkCoupleLink(); }); // link aberto com a app já aberta (ex.: medalha de um patudo perdido)
 function checkSoulLink() { const m = location.hash.match(/^#alma=(.+)$/); if (!m) return false; try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { } const sos = soulSosOf(m[1]); let code = m[1].split('&')[0]; try { code = decodeURIComponent(code); } catch (e) { } const o = soulParse(code); if (o) setTimeout(() => soulMatch(o, { sos, fromLink: !isStandalone() }), 300); return true; }
 function soulBoxHtml() {
   const o = soulMe();

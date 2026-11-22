@@ -93,7 +93,7 @@ function myPatterns() {
 }
 function factPool() { return [...myPatterns(), ...lifeFacts().map(f => [...f, 'l']), ...BAU.map(f => [...f, 'b'])]; }
 function factToday() { // um teu padrão novo tem prioridade; depois alterna entre ti e o baú
-  const P0 = myPatterns(), seen = JSON.parse(store.get('ceu_factseen') || '[]'), fresh = P0.find(p => !seen.includes(p[1]));
+  const P0 = myPatterns(), seen = P.list('ceu_factseen'), fresh = P0.find(p => !seen.includes(p[1]));
   if (fresh) return [...fresh];
   const L = lifeFacts(), n = Math.round(noonJd(todayStr())), pool = n % 3 === 0 && L.length ? L.map(f => [...f, 'l']) : BAU.map(f => [...f, 'b']);
   return pool[Math.floor(seeded('fact' + todayStr())() * pool.length)];
@@ -105,7 +105,7 @@ function factBox() {
 }
 function bindFact() {
   if (!$('#fNext')) return;
-  if (ST.fact && ST.fact[3] === 'p') { const s = JSON.parse(store.get('ceu_factseen') || '[]'); if (!s.includes(ST.fact[1])) { s.push(ST.fact[1]); store.set('ceu_factseen', JSON.stringify(s.slice(-60))); } }
+  if (ST.fact && ST.fact[3] === 'p') { const s = P.list('ceu_factseen'); if (!s.includes(ST.fact[1])) { s.push(ST.fact[1]); store.set('ceu_factseen', JSON.stringify(s.slice(-60))); } }
   $('#fNext').onclick = () => { const pool = factPool(); let f; do f = pool[Math.floor(Math.random() * pool.length)]; while (pool.length > 1 && ST.fact && f[1] === ST.fact[1]); ST.fact = f; const box = $('#fNext').closest('.fact'); box.outerHTML = factBox(); bindFact(); };
   $('#fShare').onclick = async () => { const c = await drawFact(ST.fact); shareCanvases([{ name: 'sabias-que', c }], `🧠 Sabias que… ${ST.fact[1]}?\n\n${ST.fact[2]}\n\n✨ Céu de Hoje ${APP_URL}`); };
   $('#fAll').onclick = openBau;
@@ -159,7 +159,7 @@ function pregInfo(o) {
 function pregBox(o) {
   const I = pregInfo(o), pct = Math.max(2, Math.min(100, (I.w * 7 + I.d) / 280 * 100)), nm = o.preg.name ? esc(o.preg.name) : 'o bebé';
   return `<div class="box cyc preg" style="--pc:#e98bc4"><h3>🤰 A minha gravidez</h3><div class="pgtop"><b>${I.w}<small>semanas${I.d ? ` e ${I.d} dia${I.d > 1 ? 's' : ''}` : ''}</small></b><div><p>${I.size ? `Esta semana, ${nm} tem o tamanho de <b>${I.size}</b>.` : 'Os primeiros dias de uma grande aventura 💗'}</p><small>${I.tri}.º trimestre</small></div></div><div class="drprog"><i style="width:${pct}%"></i></div>
-    <div class="cyinfo"><div><span>📅 Data provável</span><b>${niceDate(I.due).replace(/^[^,]+, /, '')}</b><small>${I.left > 0 ? `faltam ${I.left} dias` : 'já pode ser a qualquer momento'}</small></div><div><span>✨ Signo do bebé</span><b>${SIGNS[I.sign].g} ${SIGNS[I.sign].n}</b><small>${I.sgs.length > 1 ? 'ou ' + I.sgs.filter(s => s !== I.sign).map(s => SIGNS[s].n).join(' / ') : ''}</small></div></div>
+    <div class="cyinfo"><div><span>📅 Data provável</span><b>${niceDate(I.due).replace(/^[^,]+, /, '')}</b><small>${I.left > 0 ? (I.left === 1 ? 'falta 1 dia' : `faltam ${I.left} dias`) : 'já pode ser a qualquer momento'}</small></div><div><span>✨ Signo do bebé</span><b>${SIGNS[I.sign].g} ${SIGNS[I.sign].n}</b><small>${I.sgs.length > 1 ? 'ou ' + I.sgs.filter(s => s !== I.sign).map(s => SIGNS[s].n).join(' / ') : ''}</small></div></div>
     ${I.step ? `<p class="due">${I.step}</p>` : ''}<div class="drow"><button class="btn main" id="pgMom">📸 Momento</button><button class="btn" id="pgMore">⋯ Mais</button></div></div>`;
 }
 function openPreg() {

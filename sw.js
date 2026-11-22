@@ -1,6 +1,6 @@
 // Céu de Hoje — funciona sem rede e avisa dos aniversários
-const CACHE = 'ceu-v104';
-const CORE = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './badge-96.png', './mp4-muxer.min.js'];
+const CACHE = 'ceu-v105';
+const CORE = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './badge-96.png', './mp4-muxer.min.js', './privacidade.html'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE && k !== 'ceu-data').map(k => caches.delete(k)))).then(() => self.clients.claim())); });
 self.addEventListener('fetch', e => {
@@ -11,6 +11,10 @@ self.addEventListener('fetch', e => {
   const isApp = /\/(index\.html)?$/.test(url.pathname);
   if (isApp && (req.mode === 'navigate' || url.pathname.endsWith('index.html'))) {
     e.respondWith(fetch(req, { cache: 'no-store' }).then(r => { if (r.ok && !r.redirected) { const cp = r.clone(); caches.open(CACHE).then(c => c.put('./index.html', cp)); } return r; }).catch(() => caches.match('./index.html')));
+    return;
+  }
+  if (req.mode === 'navigate' && url.origin === self.location.origin) { // outras páginas (ex.: política de privacidade): rede primeiro, cópia guardada sem rede
+    e.respondWith(fetch(req).then(r => { if (r.ok) { const cp = r.clone(); caches.open(CACHE).then(c => c.put(req, cp)); } return r; }).catch(() => caches.match(req).then(h => h || caches.match('./index.html'))));
     return;
   }
   const cacheable = url.origin === self.location.origin || /fonts\.(googleapis|gstatic)\.com$|cdn\.jsdelivr\.net$/.test(url.hostname);
@@ -58,6 +62,6 @@ self.addEventListener('notificationclick', e => {
 self.addEventListener('push', e => e.waitUntil((async () => {
   const h = new Date().getHours(), night = h >= 15; let n = 0; shownB = 0;
   try { n += await checkEvents(); } catch (x) { }
-  if (!night) { try { await checkBirthdays(); n += shownB; } catch (x) { } }
+  try { await checkBirthdays(); n += shownB; } catch (x) { } // sempre: se o toque da manhã se perder, o da noite ainda avisa (não repete)
   if (!n) await self.registration.showNotification(night ? '🌙 Boa noite' : '✨ Bom dia', { body: night ? 'O teu ritual da noite: respira, agradece e vê a Lua de hoje.' : 'A tua carta de hoje e o céu do teu dia estão à tua espera.', icon: 'icon-192.png', badge: 'badge-96.png', tag: 'push-' + (night ? 'n' : 'm'), data: { url: night ? './?noite' : './?carta' } });
 })()));

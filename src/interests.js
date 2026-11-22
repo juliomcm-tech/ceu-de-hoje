@@ -13,7 +13,7 @@ function durTxt(a, b) {
   if (!a || !b) return '';
   const ms = new Date(b).getTime() - new Date(a).getTime(); if (!(ms > 0)) return '';
   const h = ms / 36e5, d = Math.round(h / 24);
-  if (h < 24) return `${Math.max(1, Math.round(h))} hora${Math.round(h) === 1 ? '' : 's'}`;
+  if (h < 24) { const hh = Math.max(1, Math.round(h)); return `${hh} hora${hh === 1 ? '' : 's'}`; }
   if (d < 14) return `${d} dia${d === 1 ? '' : 's'}`;
   const w = Math.floor(d / 7), rd = d % 7; if (d < 60) return `${w} semana${w > 1 ? 's' : ''}${rd ? ` e ${rd} dia${rd > 1 ? 's' : ''}` : ''} (${d} dias)`;
   return `${Math.round(d / 30)} meses (${d} dias)`;
@@ -216,7 +216,7 @@ function bindCollections() {
   const showQ = () => { const q = $('#colQ').value; ST.colQ = q; const R = find(q).slice(0, 30); res.innerHTML = q.trim() ? (R.length ? `<p class="hint" style="text-align:left">Encontrei ${R.length}:</p><div class="ilist">${R.map(colCard).join('')}</div>` : '<p class="hint">Não tens nada com esse nome.</p>') : ''; bindRes(); };
   $('#colQ').oninput = showQ; if (ST.colQ) showQ();
   $('#colScan').onclick = async () => {
-    let code; try { code = await scanBarcode(); } catch (e) { toast('Sem acesso à câmara'); return; } if (!code) return; code = String(code).replace(/\D/g, '');
+    let code; try { code = await scanBarcode("col"); } catch (e) { toast('Sem acesso à câmara'); return; } if (!code) return; code = String(code).replace(/\D/g, '');
     const R = intList('colecoes').filter(x => (x.isbn || '').replace(/\D/g, '') === code), own = R.filter(x => x.status === 2 || x.status === 3);
     if (own.length) { res.innerHTML = `<div class="colhit yes"><b>✅ Já tens isto!</b><p>Não compres repetido 😉</p></div><div class="ilist">${own.map(colCard).join('')}</div>`; try { navigator.vibrate && navigator.vibrate([60, 40, 60]); } catch (e) { } }
     else if (R.length) res.innerHTML = `<div class="colhit want"><b>💛 Está na tua lista de desejos</b><p>Ainda não o tens: é desta?</p></div><div class="ilist">${R.map(colCard).join('')}</div>`;

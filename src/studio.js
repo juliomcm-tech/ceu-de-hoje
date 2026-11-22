@@ -118,7 +118,7 @@ function coupleSend() {
 }
 function checkCoupleLink() {
   const m = location.hash.match(/casal=([A-Za-z0-9+/_-]+)/); if (!m) return; let o; try { o = b64d(m[1].replace(/-/g, '+').replace(/_/g, '/')); } catch (e) { return; }
-  history.replaceState(null, '', location.pathname + location.search); if (o.i == null || !TAROT[o.i]) return; setTimeout(() => openCouple(o), 700);
+  history.replaceState(null, '', location.pathname + location.search); if (!o || !Number.isInteger(o.i) || !TAROT[o.i] || (o.j != null && !(Number.isInteger(o.j) && TAROT[o.j]))) return; o.n = String(o.n || '').slice(0, 30); o.m = String(o.m || '').slice(0, 30); setTimeout(() => openCouple(o), 700);
 }
 function openCouple(o) {
   const me = P.get() || {}, mine = o.j != null ? o.j : dailyCard(me.name ? me : { name: 'par' + o.n }).i, back = o.j != null, dlg = $('#tarDlg'), myN = (me.name || '').split(' ')[0] || 'Tu';
@@ -242,7 +242,7 @@ async function shareCd(x) {
   ctx.font = `150px ${EMOJI_F}`; ctx.fillText(x.e || '⏳', W / 2, 300); ctx.fillStyle = '#fff'; ctx.font = '700 64px "Cormorant Garamond"'; wrap(ctx, x.t, W / 2, 420, W - 160, 70, 2, 'center');
   ctx.fillStyle = '#f7e08a'; ctx.font = '700 280px Cinzel'; ctx.fillText(n === 0 ? 'HOJE' : String(n), W / 2, 800); ctx.fillStyle = '#fff'; ctx.font = '600 52px Manrope'; ctx.fillText(n === 0 ? 'é o grande dia!' : n === 1 ? 'dia… é amanhã!' : 'dias', W / 2, 890);
   ctx.fillStyle = '#d6e4ff'; ctx.font = '500 34px Manrope'; ctx.fillText(`${cap1(niceDate(x.d))} · Lua em ${SIGNS[skyFor(x.d).moon.sign].n}`, W / 2, 1000); brandFoot(ctx, W, H);
-  shareCanvases([{ name: 'contagem', c }], `${x.e} ${x.t}: ${n === 0 ? 'é HOJE!' : `faltam ${n} dias!`}\n\n✨ Céu de Hoje ${APP_URL}`);
+  shareCanvases([{ name: 'contagem', c }], `${x.e} ${x.t}: ${n === 0 ? 'é HOJE!' : n === 1 ? 'é já amanhã!' : `faltam ${n} dias!`}\n\n✨ Céu de Hoje ${APP_URL}`);
 }
 function cdAlerts() { return CD.all().flatMap(x => [{ d: dayStr(noonJd(x.d) - 1), t: `${x.e} É amanhã: ${x.t}!`, b: 'Está quase ✨', tag: 'cd1-' + x.id + x.d, url: './' }, { d: x.d, t: `${x.e} É hoje: ${x.t}!`, b: 'Aproveita cada momento 💛', tag: 'cd0-' + x.id + x.d, url: './' }]); }
 

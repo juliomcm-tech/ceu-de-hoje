@@ -1,7 +1,7 @@
 // ===== Mais: cópia de segurança, partilhar itens, citações, passaporte, meta, empréstimos, O meu ano =====
 
 // ---------- Cópia de segurança ----------
-const BK_SKIP = /^ceu_(pin|news|sug_|lastbk|bksnooze|seen_|ep_|monseen_|tar_\d|tar3_|tarw_|conf_|tour)/;
+const BK_SKIP = /^ceu_(pin|news|sug_|lastbk|bksnooze|seen_|ep_|monseen_|tar_\d|tar3_|tarw_|conf_|tour|bddone_|soul_lvk)/;
 function hasPersonalData() { return ['ceu_moments', 'ceu_books', 'ceu_bdays', 'ceu_diario', 'ceu_trips', 'ceu_shows', 'ceu_pets'].some(k => { try { const v = JSON.parse(localStorage.getItem(k) || '[]'); return Array.isArray(v) && v.length; } catch (e) { return false; } }); }
 function backupData() { const o = {}; try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && k.startsWith('ceu_') && !BK_SKIP.test(k)) o[k] = localStorage.getItem(k); } } catch (e) { } return { app: 'ceu-de-hoje', v: 2, at: new Date().toISOString(), data: o }; }
 async function doBackup() {

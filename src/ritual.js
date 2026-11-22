@@ -24,7 +24,7 @@ function openBdMsg(k, style = 'carinhosa', n = 0) {
   $('#msgNx').onclick = () => openBdMsg(k, style, n + 1); $('#msgCp').onclick = () => copyAny($('#msgT').value);
   $('#msgT').oninput = () => $('#msgWa').href = `https://wa.me/${num}?text=${encodeURIComponent($('#msgT').value)}`;
 }
-function giftBox(x) { const si = x.t ? sunSignAt(x.d, x.t) : sunSignOf(x.d), dd = daysToBirthday(x.d); return `<div class="box gifts"><h3>🎁 Ideias de prenda para ${esc(x.name.split(' ')[0])}${dd <= 14 ? ` <small>(faltam ${dd} dias)</small>` : ''}</h3>${GIFTS[si].map(g => `<p>${g}</p>`).join('')}<p class="note">Pelo signo de ${SIGNS[si].n}. A melhor prenda continua a ser lembrares-te 💛</p></div>`; }
+function giftBox(x) { const si = x.t ? sunSignAt(x.d, x.t) : sunSignOf(x.d), dd = daysToBirthday(x.d); return `<div class="box gifts"><h3>🎁 Ideias de prenda para ${esc(x.name.split(' ')[0])}${dd === 0 ? ' <small>(é hoje!)</small>' : dd === 1 ? ' <small>(é amanhã)</small>' : dd <= 14 ? ` <small>(faltam ${dd} dias)</small>` : ''}</h3>${GIFTS[si].map(g => `<p>${g}</p>`).join('')}<p class="note">Pelo signo de ${SIGNS[si].n}. A melhor prenda continua a ser lembrares-te 💛</p></div>`; }
 function giftAlerts() { const t0 = noonJd(todayStr()); return P.list('ceu_bdays').filter(x => x.d).map(x => { const nb = nextBirthday(x.d), d = dayStr(noonJd(nb) - 7); return { d, t: `🎁 Faltam 7 dias para os anos de ${x.name.split(' ')[0]}`, b: `Ideias de prenda pelo signo de ${SIGNS[sunSignOf(x.d)].n} na app.`, tag: 'gift-' + x.name + nb, url: './?aniversarios' }; }).filter(e => noonJd(e.d) >= t0); }
 
 // ---------- Ritual da noite ----------

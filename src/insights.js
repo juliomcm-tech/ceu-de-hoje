@@ -38,7 +38,7 @@ function cnYearFor(mine, yr) { const rel = mine === yr ? 'ben' : (mine + 6) % 12
 function openChinese() {
   const p = P.get(); if (!p || !p.d) return; const me = chineseSign(p.d), t = todayStr(), cur = chineseSign(t), y = +t.slice(0, 4), nxtDate = chineseNewYear(y + 1), nxt = chineseSign(nxtDate), a = cnYearFor(me.i, cur.i), b = cnYearFor(me.i, nxt.i);
   $('#infoTitle').textContent = `${me.e} O teu signo chinês`;
-  $('#infoBody').innerHTML = `<div class="numhero" style="--nc:#c0392b"><b style="font-size:60px">${me.e}</b><span>${me.n} de ${me.el}</span></div><div class="box"><h3>${cur.e} Agora: ano do ${cur.n} (${cur.el})</h3><p>${a.txt}</p></div><div class="box"><h3>${nxt.e} A partir de ${niceDate(nxtDate).replace(/^[^,]+, /, '')}: ano do ${nxt.n} (${nxt.el})</h3><p>${b.txt}</p></div><p class="note">Os teus aliados: ${CN_TRI.find(g => g.includes(me.i)).filter(i => i !== me.i).map(i => CN_ANIMALS[i]).join(' e ')} · amigo secreto: ${CN_ANIMALS[CN_FRIEND[me.i]]} · oposto: ${CN_ANIMALS[(me.i + 6) % 12]}. Tradição e entretenimento.</p>`;
+  $('#infoBody').innerHTML = `<div class="numhero" style="--nc:#c0392b"><b style="font-size:60px">${me.e}</b><span>${me.n} de ${me.el}</span></div><div class="box"><h3>${cur.e} Agora: ano ${cnDo(cur.n)} (${cur.el})</h3><p>${a.txt}</p></div><div class="box"><h3>${nxt.e} A partir de ${niceDate(nxtDate).replace(/^[^,]+, /, '')}: ano ${cnDo(nxt.n)} (${nxt.el})</h3><p>${b.txt}</p></div><p class="note">Os teus aliados: ${CN_TRI.find(g => g.includes(me.i)).filter(i => i !== me.i).map(i => CN_ANIMALS[i]).join(' e ')} · amigo secreto: ${CN_ANIMALS[CN_FRIEND[me.i]]} · oposto: ${CN_ANIMALS[(me.i + 6) % 12]}. Tradição e entretenimento.</p>`;
   $('#infoDlg').scrollTop = 0; if (!$('#infoDlg').open) $('#infoDlg').showModal();
 }
 

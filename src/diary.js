@@ -104,7 +104,7 @@ function lockScreen() {
     const go = async () => { if (await checkPin(inp.value)) { el.hidden = true; res(true); } else { inp.value = ''; el.querySelector('.lockbox').classList.add('shake'); setTimeout(() => el.querySelector('.lockbox').classList.remove('shake'), 400); toast('PIN errado'); } };
     $('#lockGo').onclick = go; inp.onkeydown = e => { if (e.key === 'Enter') go(); };
     inp.oninput = () => { if (inp.value.length >= 4 && inp.value.length === (+store.get('ceu_pinlen') || 4)) go(); };
-    $('#lockForgot').onclick = () => { if (confirmBox('Esqueceste o PIN? Para entrar, os teus dados pessoais deste telemóvel (perfil, diário, aniversários, animais) vão ser apagados.')) { ['ceu_pin', 'ceu_profile', 'ceu_me', 'ceu_diario', 'ceu_bdays', 'ceu_pets', 'ceu_cycle', 'ceu_moments'].forEach(k => { try { localStorage.removeItem(k); } catch (e) { } }); try { Object.keys(localStorage).filter(k => /^ceu_ano_/.test(k)).forEach(k => localStorage.removeItem(k)); indexedDB.deleteDatabase('ceu-fotos'); } catch (e) { } el.hidden = true; res(true); } };
+    $('#lockForgot').onclick = () => { if (confirmBox('Esqueceste o PIN? Para entrar, todos os teus dados deste telemóvel (perfil, diário, aniversários, animais, Carta da Alma e ligações, livros, viagens…) vão ser apagados.')) { try { Object.keys(localStorage).filter(k => /^ceu_/.test(k) && !/^ceu_(theme|brand|bkevery|inst_hide|voice|push)/.test(k)).forEach(k => localStorage.removeItem(k)); indexedDB.deleteDatabase('ceu-fotos'); } catch (e) { } el.hidden = true; res(true); } };
   });
 }
 function confirmBox(msg) { try { return window.confirm(msg); } catch (e) { return false; } }

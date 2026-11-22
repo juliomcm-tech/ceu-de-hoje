@@ -238,10 +238,10 @@ async function sharePerson(x) {
 function checkAddLink() {
   const m = /#add=([^&]+)/.exec(location.hash); if (!m) return;
   let o; try { o = JSON.parse(decodeURIComponent(escape(atob(m[1])))); } catch (e) { return; } history.replaceState(null, '', location.pathname + location.search);
-  if (!o || !o.n || !/^\d{4}-\d\d-\d\d$/.test(o.d)) return;
+  if (!o || !o.n || !/^\d{4}-\d\d-\d\d$/.test(o.d)) return; o.n = String(o.n).slice(0, 40); if (o.t && !/^\d\d:\d\d$/.test(o.t)) o.t = ''; // links forjados não partem a app
   const si = o.t ? sunSignAt(o.d, o.t) : sunSignOf(o.d), me = P.get(), opts = REL_GROUPS.filter(g => g[0] !== 'Animais').flatMap(g => g[1]).map(r => `<option value="${r}">${(RELS.find(z => z[0] === r) || [])[2]}</option>`).join('');
   $('#infoTitle').textContent = '✨ Cartão recebido';
-  $('#infoBody').innerHTML = `<div class="pethero" style="--c:${elc(SIGNS[si])}"><span class="em">${G(SIGNS[si].g)}</span><h3>${esc(o.n)}</h3><p>${SIGNS[si].n} · ${o.d.split('-').reverse().join('/')}${o.t ? ' às ' + o.t : ''}</p></div><div class="form"><label>Quem é para ti?<select id="adRel"><option value="eu">Sou eu! (o meu perfil)</option>${opts}</select></label><button class="btn main" id="adGo">Guardar na minha app</button></div>`;
+  $('#infoBody').innerHTML = `<div class="pethero" style="--c:${elc(SIGNS[si])}"><span class="em">${G(SIGNS[si].g)}</span><h3>${esc(o.n)}</h3><p>${SIGNS[si].n} · ${o.d.split('-').reverse().join('/')}${o.t ? ' às ' + esc(o.t) : ''}</p></div><div class="form"><label>Quem é para ti?<select id="adRel"><option value="eu">Sou eu! (o meu perfil)</option>${opts}</select></label><button class="btn main" id="adGo">Guardar na minha app</button></div>`;
   $('#adGo').onclick = () => { const rel = $('#adRel').value; if (rel === 'eu') { const p = P.get() || {}; if (p.d && p.d !== o.d && !confirmBox('Já tens um perfil. Substituir pelos dados do cartão?')) return; P.set({ ...p, name: o.n, d: o.d, t: o.t }); } else { const L = P.list('ceu_bdays'); if (!L.some(x => x.name === o.n && x.d === o.d)) L.push({ name: o.n, rel, d: o.d, t: o.t }); P.setList('ceu_bdays', L); try { syncAlertData(); } catch (e) { } } $('#infoDlg').close(); toast('Guardado ✨'); render(); };
   if (!$('#infoDlg').open) $('#infoDlg').showModal();
 }
