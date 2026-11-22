@@ -766,17 +766,19 @@ function canvasTheme() { const t = store.get('ceu_theme') || 'astral'; return TH
 
 // ---------- Listas de escolha com as cores da app (substitui as janelas cinzentas do telemóvel) ----------
 (function () {
-  if (typeof HTMLSelectElement === 'undefined') return;
+  if (typeof HTMLSelectElement === 'undefined' || typeof HTMLDialogElement === 'undefined') return;
+  // iPhone/iPad: a roda nativa do iOS funciona bem e a nossa janela por cima de outra janela partia-se (lista vazia, não guardava)
+  if (/iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) return;
   const lbl = s => { const o = s.options[s.selectedIndex]; return o ? o.textContent : '—'; };
   const refresh = s => { if (s.__btn) { s.__btn.querySelector('b').textContent = lbl(s); s.__btn.hidden = s.hidden; } };
   for (const prop of ['value', 'selectedIndex']) { const d = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, prop); if (d && d.set) Object.defineProperty(HTMLSelectElement.prototype, prop, { get() { return d.get.call(this); }, set(v) { d.set.call(this, v); refresh(this); }, configurable: true }); }
   function openList(s) {
     let dlg = document.getElementById('selDlg');
-    if (!dlg) { dlg = document.createElement('dialog'); dlg.id = 'selDlg'; dlg.innerHTML = '<h2 id="selT"></h2><input type="search" id="selQ" placeholder="🔎 Procurar…"><div id="selL"></div><div class="dlgfoot"><button class="btn" id="selX">Fechar</button></div>'; document.body.appendChild(dlg); dlg.querySelector('#selX').onclick = () => dlg.close(); dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); }); }
+    if (!dlg) { dlg = document.createElement('dialog'); dlg.id = 'selDlg'; dlg.innerHTML = '<h2 id="selT" tabindex="-1" autofocus></h2><input type="search" id="selQ" placeholder="🔎 Procurar…"><div id="selL"></div><div class="dlgfoot"><button class="btn" id="selX">Fechar</button></div>'; document.body.appendChild(dlg); dlg.querySelector('#selX').onclick = () => dlg.close(); dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); }); }
     const L = dlg.querySelector('#selL'), q = dlg.querySelector('#selQ'), lab = s.closest('label'), title = s.getAttribute('aria-label') || (lab ? [...lab.childNodes].filter(n => n.nodeType === 3).map(n => n.textContent).join('').trim() : '') || 'Escolhe';
     dlg.querySelector('#selT').textContent = title; q.value = ''; q.hidden = s.options.length < 12;
     const draw = () => { const f = nrm(q.value); const sub = (t, q) => { let j = 0; for (const ch of t) if (ch === q[j]) j++; return j === q.length; }; L.innerHTML = [...s.options].map((o, i) => (!f || nrm(o.textContent).includes(f) || (f.length >= 3 && sub(nrm(o.textContent), f.replace(/\s/g, '')))) ? `<button data-i="${i}"${i === s.selectedIndex ? ' class="on"' : ''}>${esc(o.textContent)}${i === s.selectedIndex ? ' <i>✓</i>' : ''}</button>` : '').join(''); L.querySelectorAll('[data-i]').forEach(b => b.onclick = () => { s.selectedIndex = +b.dataset.i; s.dispatchEvent(new Event('change', { bubbles: true })); s.dispatchEvent(new Event('input', { bubbles: true })); dlg.close(); }); };
-    q.oninput = draw; draw(); dlg.showModal(); const on = L.querySelector('.on'); if (on) on.scrollIntoView({ block: 'center' });
+    q.oninput = draw; draw(); try { dlg.showModal(); } catch (e) { s.classList.remove('selhid'); if (s.__btn) s.__btn.hidden = true; s.focus(); return; } const on = L.querySelector('.on'); if (on) L.scrollTop = on.offsetTop - L.offsetTop - L.clientHeight / 2 + on.offsetHeight / 2; // sem scrollIntoView: não mexe na página por trás
   }
   function enhance(s) {
     if (s.__btn || s.multiple || s.closest('#selDlg')) return;
