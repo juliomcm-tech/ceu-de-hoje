@@ -1,5 +1,5 @@
 // ===== App de telemóvel =====
-const APP_VERSION = '16.11.2026 09:40';
+const APP_VERSION = '22.11.2026 11:10';
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const G = g => `${g}&#xFE0E;`;
@@ -105,7 +105,7 @@ function openPerson(k, preset) {
   $('#perTitle').textContent = k === null ? 'Novo aniversário' : 'Editar ' + x.name; $('#perDel').hidden = k === null; $('#perSave').hidden = false;
   $('#xRel').onchange = () => $('#xRelTxtL').hidden = $('#xRel').value !== 'outro';
   if (k !== null) { $('#perBody').insertAdjacentHTML('beforeend', '<button class="btn" id="xCard" style="width:100%;margin-top:8px">🪪 Enviar o cartão (a pessoa guarda na app dela)</button>'); $('#xCard').onclick = () => sharePerson(l[k]); }
-  $('#perSave').onclick = () => { const n = $('#xName').value.trim(), d = $('#xDate').value; if (!n || !d) { toast('Nome e data'); return; } const rel = $('#xRel').value, o = { name: n, rel: rel === 'outro' ? 'amigo' : rel, relTxt: rel === 'outro' ? $('#xRelTxt').value.trim() || 'Outro' : '', d, t: $('#xTime').value, tel: $('#xTel').value.trim() }; const L = P.list('ceu_bdays'); if (k === null) L.push(o); else L[k] = { ...L[k], ...o }; P.setList('ceu_bdays', L); $('#perDlg').close(); ST.agMonth = d.slice(0, 4) <= todayStr().slice(0, 4) ? todayStr().slice(0, 5) + d.slice(5, 7) : ST.agMonth; toast('Guardado 🎂'); render(); if (k !== null) openPersonSheet(k); };
+  $('#perSave').onclick = () => { const n = $('#xName').value.trim(), d = $('#xDate').value; if (!n || !d) { toast('Nome e data'); return; } const rel = $('#xRel').value, o = { name: n, rel: rel === 'outro' ? (/a$/i.test(($('#xRelTxt').value.trim().split(/\s+/)[0] || '')) ? 'amiga' : 'amigo') : rel, relTxt: rel === 'outro' ? $('#xRelTxt').value.trim() || 'Outro' : '', d, t: $('#xTime').value, tel: $('#xTel').value.trim() }; const L = P.list('ceu_bdays'); if (k === null) L.push(o); else L[k] = { ...L[k], ...o }; P.setList('ceu_bdays', L); $('#perDlg').close(); ST.agMonth = d.slice(0, 4) <= todayStr().slice(0, 4) ? todayStr().slice(0, 5) + d.slice(5, 7) : ST.agMonth; toast('Guardado 🎂'); render(); if (k !== null) openPersonSheet(k); };
   $('#perDel').onclick = () => { const L = P.list('ceu_bdays'); L.splice(k, 1); P.setList('ceu_bdays', L); $('#perDlg').close(); render(); };
   $('#perDlg').showModal();
 }
@@ -172,7 +172,7 @@ const bdFrame = Bd => (ctx, t) => (Bd.theme === 'plain' ? drawPlainFrame : drawB
 const bdCap = Bd => Bd.theme === 'plain' ? capPlain(Bd) : capBday(Bd);
 function showBday(o, save, seed) {
   if (!o.name || !o.d) { toast('Escreve o nome e a data'); return; }
-  logBday(o);
+  logBday(o); bdMarkDone(o);
   const style = o.style || store.get('ceu_bdstyle') || 'plain'; o.style = style;
   let Bd = makeBday(o); if (style === 'plain') Bd = plainize(Bd, seed ?? Math.floor(Math.random() * 1e6)); ST.bd = Bd; ST.bdO = o;
   if (save) { const l = P.list('ceu_bdays'), j = l.findIndex(x => x.name === o.name && x.d === o.d); if (j >= 0) l[j] = { ...l[j], rel: o.rel }; else l.push({ name: o.name, rel: o.rel, d: o.d, t: o.t || '' }); P.setList('ceu_bdays', l); }
@@ -231,8 +231,12 @@ function vEuMe() {
 }
 function bdayBanner() {
   const L = todaysBirthdays(); if (!L.length) return '';
-  return `<div class="party">🎂 <b>Hoje faz${L.length > 1 ? 'em' : ''} anos:</b>${L.map((x, i) => `<div class="bdrow"><span>${esc(x.label)}</span><button class="btn main bdmk" data-k="${i}">Criar cartaz</button></div>`).join('')}</div>`;
+  const done = bdDone();
+  return `<div class="party">🎂 <b>Hoje faz${L.length > 1 ? 'em' : ''} anos:</b>${L.map((x, i) => { const ok = done.includes(bdKey(x.o)); return `<div class="bdrow"><span>${esc(x.label)}</span><button class="btn ${ok ? 'bddone' : 'main'} bdmk" data-k="${i}">${ok ? '🎉 Parabéns dados ✓' : 'Criar cartaz'}</button></div>`; }).join('')}</div>`;
 }
+const bdKey = o => norm2(o.name || '') + '|' + String(o.d || '').slice(5);
+const bdDone = () => (store.get('ceu_bddone_' + todayStr()) || '').split(',').filter(Boolean);
+function bdMarkDone(o) { if (!o || !o.d || daysToBirthday(o.d) !== 0) return; const L = bdDone(), k = bdKey(o); if (!L.includes(k)) { L.push(k); store.set('ceu_bddone_' + todayStr(), L.join(',')); } }
 function bindBanner() { const L = todaysBirthdays(); document.querySelectorAll('.bdmk').forEach(b => b.onclick = e => { e.stopPropagation(); const o = L[+b.dataset.k].o; ST.type = 'anos'; ST.anosView = 'criar'; render(); showBday(o, false); }); }
 function openPet(i, isNew, edit) {
   const pets = P.list('ceu_pets'), a = isNew ? { name: '', sp: 'cao', d: '', t: '' } : pets[i];

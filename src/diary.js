@@ -17,22 +17,23 @@ function petTip(rd, name = '') {
 
 // ---------- Cartazes sem astrologia ----------
 const LAYOUTS = ['festa', 'baloes', 'dourado', 'kids', 'romantico', 'patinhas', 'minimal'];
-const PLAIN = {
-  pet: ['Mais um ano de lambidelas, sestas e travessuras!', 'Parabéns ao dono do sofá!', 'Que nunca faltem petiscos nem mimos.', 'O melhor amigo de quatro patas faz anos!', 'A casa é mais feliz contigo.'],
-  crianca: ['Que cresças feliz, curioso e sempre a sorrir!', 'Hoje a festa é toda tua!', 'Mais um ano de aventuras e gargalhadas!', 'Que todos os teus sonhos se realizem!'],
-  teen: ['O mundo é teu: vai com tudo!', 'Mais um ano a brilhar à tua maneira.', 'Que este ano seja épico!'],
-  par: ['Amo-te mais a cada aniversário.', 'Obrigado por cada dia ao teu lado.', 'Feliz aniversário ao amor da minha vida!', 'Contigo, todos os dias são festa.'],
-  velho: ['Obrigado por tudo o que me deste.', 'És o meu exemplo e o meu porto seguro.', 'Que a vida te devolva todo o amor que dás.', 'Um brinde a ti, hoje e sempre!'],
-  amigo: ['Amigos assim não se encontram duas vezes.', 'Que a festa seja tão boa como tu!', 'Obrigado por estares sempre lá.', 'Mais um ano de histórias para contar!'],
-  irmao: ['Crescemos juntos e ainda bem!', 'Para sempre a minha equipa.', 'O melhor presente que os pais me deram foste tu.'],
-  trab: ['Que este ano traga ainda mais conquistas.', 'Obrigado pela boa energia de todos os dias.', 'Um ano cheio de sucesso e boas notícias!'],
-  eu: ['Hoje celebro-me a mim!', 'Mais um ano, mais sabedoria (e mais bolo).', 'Que este novo ano seja o melhor até agora.']
+const PLAIN = { // {masc|fem} escolhe pelo género de quem faz anos; frases sem género de quem escreve
+  pet: ['Mais um ano de lambidelas, sestas e travessuras!', 'Parabéns {ao dono|à dona} do sofá!', 'Que nunca faltem petiscos nem mimos.', '{O melhor amigo|A melhor amiga} de quatro patas faz anos!', 'A casa é mais feliz contigo.', 'Um ano inteiro de amor sem condições.', 'Hoje há petisco a dobrar!', 'Que os passeios sejam longos e as sestas ao sol.', 'Mais um ano a encher a casa de pelos e de alegria.', 'Patinhas no ar: é dia de festa!'],
+  crianca: ['Que cresças feliz, {curioso|curiosa} e sempre a sorrir!', 'Hoje a festa é toda tua!', 'Mais um ano de aventuras e gargalhadas!', 'Que todos os teus sonhos se realizem!', 'Que nunca te falte imaginação nem bolo!', 'Mais um ano a crescer e a brilhar.', 'Hoje é dia de balões, prendas e muitas risadas!', 'O mundo fica mais alegre contigo.', 'Que este ano seja cheio de descobertas.', 'Sopra as velas e pede um desejo bem grande!'],
+  teen: ['O mundo é teu: vai com tudo!', 'Mais um ano a brilhar à tua maneira.', 'Que este ano seja épico!', 'Segue o teu caminho: tens tudo para dar certo.', 'Que não te faltem amigos, música e boas histórias.', 'Mais um ano a ser {único|única}.', 'Que os teus sonhos sejam do tamanho do mundo.', 'Este ano é teu: faz dele inesquecível.'],
+  par: ['Amo-te mais a cada aniversário.', 'Gratidão por cada dia ao teu lado.', 'Feliz aniversário ao amor da minha vida!', 'Contigo, todos os dias são festa.', 'És a melhor parte de todos os meus dias.', 'Que a vida nos dê muitos mais anos assim.', 'O meu lugar preferido continua a ser ao teu lado.', 'Mais um ano de nós: brindo a isso.', 'Contigo até os dias comuns são especiais.', 'Feliz aniversário, meu amor: hoje e sempre.'],
+  velho: ['Gratidão por tudo o que me deste.', 'És o meu exemplo e o meu porto seguro.', 'Que a vida te devolva todo o amor que dás.', 'Um brinde a ti, hoje e sempre!', 'Cada ano teu é uma lição de vida.', 'Que nunca te falte saúde, paz e mesa cheia.', 'As tuas histórias são o meu tesouro.', 'Ter-te por perto é um privilégio.', 'Que este ano seja leve, feliz e cheio de abraços.', 'Mais um ano a ensinar-nos o que é amar.'],
+  amigo: ['{Amigos|Amigas} assim não se encontram duas vezes.', 'Que a festa seja tão boa como tu!', 'Um obrigado enorme por estares sempre lá.', 'Mais um ano de histórias para contar!', 'A vida é melhor com {amigos|amigas} como tu.', 'Que este ano te traga tudo o que mereces (e mais um bocadinho).', 'Brindemos a ti e às próximas aventuras!', 'És daquelas pessoas que fazem a vida mais leve.', 'Que nunca te faltem motivos para sorrir.', 'Mais um ano a ser {o melhor|a melhor} do grupo.', 'Que a vida te sorria como tu sorris para nós.'],
+  irmao: ['Crescemos juntos e ainda bem!', 'Para sempre a minha equipa.', 'O melhor presente que os pais me deram foste tu.', 'Partilhamos tudo, até o último pedaço de bolo.', 'Que nunca percas essa mania de me fazer rir.', 'Mais um ano de cumplicidade.', 'Família que escolheria outra vez, sempre.', 'Que este ano seja tão bom como as nossas melhores memórias.'],
+  trab: ['Que este ano traga ainda mais conquistas.', 'Gratidão pela boa energia de todos os dias.', 'Um ano cheio de sucesso e boas notícias!', 'Que o trabalho seja leve e as férias longas!', 'A equipa é melhor contigo.', 'Que não faltem cafés, boas ideias e boas notícias.', 'Mais um ano a fazer a diferença.', 'Que este ano seja de crescer e de celebrar.'],
+  eu: ['Hoje celebro-me a mim!', 'Mais um ano, mais sabedoria (e mais bolo).', 'Que este novo ano seja o melhor até agora.', 'Hoje o dia é meu e vou aproveitá-lo.', 'Grata e grato por mais uma volta ao Sol.', 'Que venham novas aventuras!', 'Mais um ano a aprender a gostar de mim.']
 };
+const gmf = (s, g) => String(s).replace(/\{([^|}]*)\|([^}]*)\}/g, (m, a, b) => g === 'f' ? b : a); // escolhe a forma masculina ou feminina
 function milestone(age, cat) {
   if (cat === 'pet') return age === 1 ? 'O primeiro aniversário! 🐾' : age >= 10 ? 'Uma vida inteira de amor de quatro patas.' : '';
   if (age === 18) return 'Maioridade! Agora é oficial: o mundo é teu.';
   if (age === 21) return '21 anos: idade de grandes começos!';
-  if ([30, 40, 50, 60, 70, 80, 90, 100].includes(age)) return { 30: 'Bem-vindo aos 30: a melhor fase começa agora!', 40: 'Os 40 são os novos 30!', 50: 'Meio século de histórias e sorrisos!', 60: '60 anos de vida bem vivida!', 70: '70 anos de amor e sabedoria.', 80: '80 anos: uma vida que inspira!', 90: '90 anos: um tesouro de família!', 100: '100 anos: um século de vida!' }[age];
+  if ([30, 40, 50, 60, 70, 80, 90, 100].includes(age)) return { 30: '{Bem-vindo|Bem-vinda} aos 30: a melhor fase começa agora!', 40: 'Os 40 são os novos 30!', 50: 'Meio século de histórias e sorrisos!', 60: '60 anos de vida bem vivida!', 70: '70 anos de amor e sabedoria.', 80: '80 anos: uma vida que inspira!', 90: '90 anos: um tesouro de família!', 100: '100 anos: um século de vida!' }[age];
   return '';
 }
 function plainCat(Bd) {
@@ -45,10 +46,11 @@ function plainCat(Bd) {
 function plainize(Bd, seed) {
   const r = seeded('plain' + Bd.name + Bd.d + seed), pc = plainCat(Bd);
   const allowed = Bd.cat === 'pet' ? ['patinhas', 'festa', 'baloes', 'kids'] : pc === 'par' ? ['romantico', 'dourado', 'minimal'] : pc === 'crianca' ? ['kids', 'baloes', 'festa'] : pc === 'teen' ? ['festa', 'kids', 'minimal'] : pc === 'velho' ? ['dourado', 'baloes', 'minimal', 'festa'] : ['festa', 'baloes', 'dourado', 'minimal'];
-  const lines = []; const l1 = pick(PLAIN[pc] || PLAIN.amigo, r); lines.push(l1);
-  let l2 = pick(PLAIN[pc] || PLAIN.amigo, r); if (l2 === l1) l2 = (PLAIN[pc] || PLAIN.amigo).find(x => x !== l1); lines.push(l2);
-  const ms = Bd.showAge ? milestone(Bd.age, Bd.cat) : ''; if (ms) lines.unshift(ms);
-  return { ...Bd, theme: 'plain', layout: pick(allowed, r), plain: lines.slice(0, 3), seed };
+  const g = Bd.g || 'm', pool = (PLAIN[pc] || PLAIN.amigo).slice(), lines = [];
+  const i1 = Math.floor(r() * pool.length), l1 = pool.splice(i1, 1)[0], l2 = pool[Math.floor(r() * pool.length)];
+  const ms = Bd.showAge ? milestone(Bd.age, Bd.cat) : '', sky = Bd.cat !== 'pet' && Bd.B && Bd.B.headline ? '✨ ' + Bd.B.headline : ''; // a frase do céu de hoje para quem faz anos
+  if (ms) lines.push(ms); lines.push(l1); if (!ms || !sky) lines.push(l2); if (sky) lines.push(sky);
+  return { ...Bd, theme: 'plain', layout: pick(allowed, r), plain: lines.slice(0, 3).map(x => gmf(x, g)), seed };
 }
 const PAL = {
   festa: { bg: ['#1b1060', '#06061a'], ink: '#ffffff', acc: '#f2c76e', sub: '#ffb3c9', title: 'italic 600 {s}px "Cormorant Garamond"' },

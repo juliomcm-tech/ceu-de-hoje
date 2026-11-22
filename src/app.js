@@ -541,8 +541,10 @@ function renderLegacy() { // antigo, substituído por render() em ui.js
 const SITE_MARK = '✦ ceudehoje.com';
 function stampMark(ctx, W, H) {
   const fs = Math.max(14, Math.round(W * .019)); ctx.save(); ctx.globalAlpha = 1; ctx.textAlign = 'right'; ctx.textBaseline = 'alphabetic'; ctx.font = `600 ${fs}px Manrope, sans-serif`;
-  ctx.lineJoin = 'round'; ctx.lineWidth = Math.max(3, fs * .22); ctx.strokeStyle = 'rgba(10,6,30,.55)'; const y = H - Math.max(12, Math.round(fs * .9)), x = W - Math.round(W * .03);
-  ctx.strokeText(SITE_MARK, x, y); ctx.fillStyle = 'rgba(255,255,255,.88)'; ctx.fillText(SITE_MARK, x, y); ctx.restore();
+  const y = H - Math.max(12, Math.round(fs * .9)), x = W - Math.round(W * .03), tw = ctx.measureText(SITE_MARK).width;
+  let light = false; try { const d = ctx.getImageData(Math.max(0, x - tw), Math.max(0, y - fs), Math.max(1, tw), fs + 4).data; let L = 0, n = 0; for (let i = 0; i < d.length; i += 16) { L += .2126 * d[i] + .7152 * d[i + 1] + .0722 * d[i + 2]; n++; } light = L / n > 150; } catch (e) { }
+  ctx.fillStyle = light ? 'rgba(40,32,70,.72)' : 'rgba(255,255,255,.88)'; if (!light) { ctx.shadowColor = 'rgba(0,0,0,.3)'; ctx.shadowBlur = Math.round(fs * .3); } // fundo claro: letra escura e sem sombra
+  ctx.fillText(SITE_MARK, x, y); ctx.restore();
 }
 function stampOnce(c) { if (c && !c._stamped) { try { stampMark(c.getContext('2d'), c.width, c.height); c._stamped = 1; } catch (e) { } } return c; }
 const blobOf = (c, q = .92) => new Promise(r => stampOnce(c).toBlob(r, 'image/jpeg', q));
