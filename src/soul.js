@@ -741,53 +741,92 @@ function soulStarsShare() {
   draw();
 }
 // ---------- Tatuagem da constelação: traço fino, minimalista, pronta para levar ao tatuador ----------
-async function soulTattooCanvas(o = {}) { // o.style: 'fino' | 'pontos' · o.names: 0 sem, 1 iniciais, 2 nomes · o.ink: 'preto' | 'branco'
+async function soulTattooCanvas(o = {}) { // o.style: 'fino'|'pontos' · o.names: 0|1|2 · o.frame: 'nada'|'lua'|'circulo' · o.ink: 'preto'|'branco'
   await fontsReady(); const Y = soulStarLayout(40), me = soulMe(), [c, ctx, W, H] = newCanvas(1080, 1350); ctx.__noTheme = true;
-  const paper = o.ink === 'branco' ? '#0d0d12' : '#fbfaf7', ink = o.ink === 'branco' ? '#f4f1ea' : '#16141a';
+  const paper = o.ink === 'branco' ? '#0d0d12' : '#fbfaf7', ink = o.ink === 'branco' ? '#f4f1ea' : '#16141a', rnd = seeded('tat' + (me ? me.serial : '') + Y.n);
   ctx.fillStyle = paper; ctx.fillRect(0, 0, W, H);
-  // enquadrar só a constelação (sem a roda), centrada e com respiro
-  const P = Y.P, xs = P.map(p => p[0]), ys = P.map(p => p[1]), mx = Math.min(...xs), Mx = Math.max(...xs), my = Math.min(...ys), My = Math.max(...ys);
-  const sc = Math.min(24, 780 / Math.max(Mx - mx, 1), 820 / Math.max(My - my, 1)), cx = W / 2, cy = 590, Q = P.map(p => [cx + (p[0] - (mx + Mx) / 2) * sc, cy + (p[1] - (my + My) / 2) * sc]);
-  const z = Math.max(.65, Math.min(1.25, sc / 11)), lw = 2.4 * Math.min(1, z);
-  ctx.strokeStyle = ink; ctx.fillStyle = ink; ctx.lineCap = 'round'; ctx.lineWidth = lw;
-  const rOf = i => { if (!i) return 15 * z; const x = Y.shown[i - 1]; return (linkPet(x) ? 16 : x.l === 3 ? 17 : x.near ? 13 : 9) * z; };
-  Y.lines.forEach(([a, b]) => { // as linhas param antes das estrelas: o respiro típico do traço fino
-    const A = Q[a], B = Q[b], d = Math.hypot(B[0] - A[0], B[1] - A[1]); if (d < 1) return; const ux = (B[0] - A[0]) / d, uy = (B[1] - A[1]) / d, ga = rOf(a) + 7 * z, gb = rOf(b) + 7 * z; if (d <= ga + gb) return;
-    const p0 = [A[0] + ux * ga, A[1] + uy * ga], p1 = [B[0] - ux * gb, B[1] - uy * gb];
-    if (o.style === 'pontos') { const L = Math.hypot(p1[0] - p0[0], p1[1] - p0[1]), n = Math.max(2, Math.round(L / (11 * z))); for (let k = 0; k <= n; k++) { ctx.beginPath(); ctx.arc(p0[0] + (p1[0] - p0[0]) * k / n, p0[1] + (p1[1] - p0[1]) * k / n, 1.7 * z, 0, 7); ctx.fill(); } }
-    else { ctx.beginPath(); ctx.moveTo(...p0); ctx.lineTo(...p1); ctx.stroke(); }
-  });
+  // enquadrar só a constelação, centrada; com moldura fica mais pequena para caber lá dentro
+  const P = Y.P, xs = P.map(p => p[0]), ys = P.map(p => p[1]), mx = Math.min(...xs), Mx = Math.max(...xs), my = Math.min(...ys), My = Math.max(...ys), bx = (mx + Mx) / 2, by = (my + My) / 2;
+  const R0 = Math.max(8, ...P.map(p => Math.hypot(p[0] - bx, p[1] - by))), fr = o.frame || 'nada';
+  let sc = Math.min(24, 760 / Math.max(Mx - mx, 1), 760 / Math.max(My - my, 1)); if (fr === 'lua') sc = Math.min(sc, 250 / R0); if (fr === 'circulo') sc = Math.min(sc, 330 / R0);
+  const wheel = fr === 'roda'; if (wheel) sc = 5.4; // roda: as estrelas ficam no sítio real do signo de cada pessoa
+  const cx = W / 2, cy = wheel ? 580 : 590, ox = wheel ? Y.C[0] : bx, oy = wheel ? Y.C[1] : by, Q = P.map(p => [cx + (p[0] - ox) * sc, cy + (p[1] - oy) * sc]), Rd = wheel ? 59 * sc : R0 * sc;
+  const z = Math.max(.7, Math.min(1.2, sc / 11)), lw = 2.2 * Math.min(1, z);
+  ctx.strokeStyle = ink; ctx.fillStyle = ink; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.lineWidth = lw;
   const dot = (p, r) => { ctx.beginPath(); ctx.arc(p[0], p[1], r, 0, 7); ctx.fill(); };
-  const spark = (p, r, k = 4) => { ctx.beginPath(); for (let i = 0; i < k * 2; i++) { const a = -Math.PI / 2 + i * Math.PI / k, rr = i % 2 ? r * .22 : r; ctx.lineTo(p[0] + Math.cos(a) * rr, p[1] + Math.sin(a) * rr); } ctx.closePath(); ctx.fill(); };
+  const line = (a, b, w = lw) => { ctx.lineWidth = w; ctx.beginPath(); ctx.moveTo(...a); ctx.lineTo(...b); ctx.stroke(); ctx.lineWidth = lw; };
+  const spark = (p, r, k = 4, inner = .2) => { ctx.beginPath(); for (let i = 0; i < k * 2; i++) { const a = -Math.PI / 2 + i * Math.PI / k, rr = i % 2 ? r * inner : r; ctx.lineTo(p[0] + Math.cos(a) * rr, p[1] + Math.sin(a) * rr); } ctx.closePath(); ctx.fill(); };
+  const flare = (p, r) => { spark(p, r * 1.9, 4, .045); spark(p, r * .95, 4, .2); ctx.save(); ctx.translate(p[0], p[1]); ctx.rotate(Math.PI / 4); spark([0, 0], r * .55, 4, .12); ctx.restore(); }; // alma gémea: um brilho de 8 pontas, finas e longas // alma gémea: estrela com raios finos
   const paw = (p, s) => { ctx.save(); ctx.translate(p[0], p[1]); ctx.scale(s, s); ctx.beginPath(); ctx.ellipse(0, 1.6, 2.3, 1.9, 0, 0, 7); ctx.fill(); [[-2.5, -1.4], [-.9, -2.7], [.9, -2.7], [2.5, -1.4]].forEach(([a, b]) => { ctx.beginPath(); ctx.arc(a, b, 1, 0, 7); ctx.fill(); }); ctx.restore(); };
-  // tu: o Sol (círculo com ponto)
-  ctx.lineWidth = lw; ctx.beginPath(); ctx.arc(Q[0][0], Q[0][1], 13 * z, 0, 7); ctx.stroke(); dot(Q[0], 3.6 * z); ctx.lineWidth = lw;
-  Y.shown.forEach((x, i) => { const p = Q[i + 1], pet = linkPet(x);
-    if (pet) paw(p, 3.3 * z); else if (x.l === 3) spark(p, 17 * z); else if (x.near) { dot(p, 4.2 * z); ctx.lineWidth = 1.5 * z; ctx.beginPath(); ctx.arc(p[0], p[1], 10 * z, 0, 7); ctx.stroke(); ctx.lineWidth = lw; } else if (x.l === 2) spark(p, 9 * z); else dot(p, (x.l ? 4.4 : 3.4) * z);
+  const rOf = i => { if (!i) return 22 * z; const x = Y.shown[i - 1]; return (linkPet(x) ? 16 : x.l === 3 ? 34 : x.near ? 13 : x.l === 2 ? 10 : 7) * z; };
+  // moldura
+  const fc = [cx, cy];
+  if (wheel) { // roda do zodíaco em traço fino: anel duplo, faixa dos signos, marcas de grau e órbitas pontilhadas
+    const U = sc, rIn = 62 * U, rOut = 75 * U, rRim = 77.5 * U, A = s => (-90 + s * 30) * Math.PI / 180;
+    ctx.lineWidth = 1.7; ctx.beginPath(); ctx.arc(cx, cy, rOut, 0, 7); ctx.stroke(); ctx.lineWidth = .9; ctx.beginPath(); ctx.arc(cx, cy, rRim, 0, 7); ctx.stroke();
+    ctx.lineWidth = 1.2; ctx.beginPath(); ctx.arc(cx, cy, rIn, 0, 7); ctx.stroke();
+    for (let k = 0; k < 12; k++) line([cx + Math.cos(A(k)) * rIn, cy + Math.sin(A(k)) * rIn], [cx + Math.cos(A(k)) * rOut, cy + Math.sin(A(k)) * rOut], 1);
+    for (let d = 0; d < 360; d += 5) { if (d % 30 === 0) continue; const a = (-90 + d) * Math.PI / 180, l = d % 15 === 0 ? 2.6 * U : 1.4 * U; line([cx + Math.cos(a) * (rOut - l), cy + Math.sin(a) * (rOut - l)], [cx + Math.cos(a) * rOut, cy + Math.sin(a) * rOut], .8); }
+    ctx.font = `${Math.round(5.6 * U)}px "Noto Sans Symbols","Noto Sans Symbols 2","Segoe UI Symbol",sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    for (let k = 0; k < 12; k++) { const a = A(k) + Math.PI / 12, r = (rIn + rOut) / 2 - .6 * U; ctx.fillText(SIGNS[k].g + TXT, cx + Math.cos(a) * r, cy + Math.sin(a) * r); }
+    ctx.textBaseline = 'alphabetic';
+    [28, 52].forEach(rr => { const R = rr * U, n = Math.round(2 * Math.PI * R / 15); for (let k = 0; k < n; k++) { const a = k / n * Math.PI * 2; dot([cx + Math.cos(a) * R, cy + Math.sin(a) * R], .9); } }); // órbitas: perto e longe de ti
+    ctx.lineWidth = lw;
+  }
+  if (fr === 'circulo') { const R = Rd + 70; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(fc[0], fc[1], R, -Math.PI / 2 + .09, Math.PI * 1.5 - .09); ctx.stroke(); spark([fc[0], fc[1] - R], 11, 4, .18); dot([fc[0] - 30, fc[1] - R + 2], 1.8); dot([fc[0] + 30, fc[1] - R + 2], 1.8); ctx.lineWidth = lw; }
+  if (fr === 'lua') { const R = Rd / .6, ic = [fc[0] + R * .28, fc[1] - R * .18], ir = R * .95; ctx.lineWidth = 1.6;
+    ctx.save(); ctx.beginPath(); ctx.rect(0, 0, W, H); ctx.moveTo(ic[0] + ir, ic[1]); ctx.arc(ic[0], ic[1], ir, 0, Math.PI * 2, true); ctx.closePath(); ctx.clip('evenodd'); ctx.beginPath(); ctx.arc(fc[0], fc[1], R, 0, 7); ctx.stroke(); ctx.restore();
+    ctx.save(); ctx.beginPath(); ctx.arc(fc[0], fc[1], R, 0, 7); ctx.clip(); ctx.beginPath(); ctx.arc(ic[0], ic[1], ir, 0, 7); ctx.stroke(); ctx.restore(); ctx.lineWidth = lw; }
+  // linhas: param antes das estrelas (o respiro do traço fino)
+  const segs = [];
+  Y.lines.forEach(([a, b]) => {
+    const A = Q[a], B = Q[b], d = Math.hypot(B[0] - A[0], B[1] - A[1]); if (d < 1) return; const ux = (B[0] - A[0]) / d, uy = (B[1] - A[1]) / d, ga = Math.min(rOf(a), 24 * z) + 8 * z, gb = Math.min(rOf(b), 24 * z) + 8 * z; if (d <= ga + gb) return;
+    const p0 = [A[0] + ux * ga, A[1] + uy * ga], p1 = [B[0] - ux * gb, B[1] - uy * gb]; segs.push([p0, p1]);
+    if (o.style === 'pontos') { const L = Math.hypot(p1[0] - p0[0], p1[1] - p0[1]), n = Math.max(2, Math.round(L / (10 * z))); for (let k = 0; k <= n; k++) dot([p0[0] + (p1[0] - p0[0]) * k / n, p0[1] + (p1[1] - p0[1]) * k / n], 1.6 * z); }
+    else line(p0, p1);
   });
-  if (o.names) { // letra fina e espaçada, como no traço fino
-    const boxes = Q.map(p => [p[0] - 10, p[1] - 10, p[0] + 10, p[1] + 10]), fs = Math.round((o.names === 1 ? 26 : 24) * Math.max(.8, z));
-    ctx.font = `italic 500 ${fs}px "Cormorant Garamond", serif`; ctx.textAlign = 'center'; if ('letterSpacing' in ctx) ctx.letterSpacing = o.names === 1 ? '4px' : '2px';
+  // tu: um pequeno Sol
+  ctx.beginPath(); ctx.arc(Q[0][0], Q[0][1], 12 * z, 0, 7); ctx.stroke(); dot(Q[0], 3.4 * z);
+  for (let k = 0; k < 8; k++) { const a = k * Math.PI / 4, r1 = 17 * z, r2 = (k % 2 ? 21 : 25) * z; line([Q[0][0] + Math.cos(a) * r1, Q[0][1] + Math.sin(a) * r1], [Q[0][0] + Math.cos(a) * r2, Q[0][1] + Math.sin(a) * r2], 1.4 * z); }
+  Y.shown.forEach((x, i) => { const p = Q[i + 1], pet = linkPet(x);
+    if (pet) paw(p, 3.2 * z); else if (x.l === 3) flare(p, 15 * z); else if (x.near) { dot(p, 4 * z); ctx.lineWidth = 1.2 * z; ctx.beginPath(); ctx.arc(p[0], p[1], 10 * z, 0, 7); ctx.stroke(); ctx.lineWidth = lw; } else if (x.l === 2) spark(p, 10 * z, 4, .2); else dot(p, (x.l ? 4.2 : 3) * z);
+  });
+  // nomes
+  const boxes = Q.map((p, i) => { const r = Math.min(rOf(i), 26 * z); return [p[0] - r, p[1] - r, p[0] + r, p[1] + r]; });
+  const hitL = b => segs.some(([A, B]) => { for (let t = 0; t <= 1; t += .04) { const x = A[0] + (B[0] - A[0]) * t, y = A[1] + (B[1] - A[1]) * t; if (x > b[0] && x < b[2] && y > b[1] && y < b[3]) return true; } return false; });
+  if (o.names) {
+    const fs = Math.round((o.names === 1 ? 26 : 24) * Math.max(.85, Math.min(1.1, z))); ctx.font = `italic 500 ${fs}px "Cormorant Garamond", serif`; ctx.textAlign = 'center'; if ('letterSpacing' in ctx) ctx.letterSpacing = o.names === 1 ? '4px' : '2px';
     const nm = t => o.names === 1 ? [...t][0].toUpperCase() + '.' : t;
-    const segs = Y.lines.map(([a, b]) => [Q[a], Q[b]]), hitL = b => segs.some(([A, B]) => { for (let t = .04; t < .97; t += .04) { const x = A[0] + (B[0] - A[0]) * t, y = A[1] + (B[1] - A[1]) * t; if (x > b[0] && x < b[2] && y > b[1] && y < b[3]) return true; } return false; });
-    [[me ? me.first : '', 0]].concat(Y.shown.map((x, i) => [x.first, i + 1])).forEach(([t, i]) => { if (!t) return; const s = nm(t), w = ctx.measureText(s).width, p = Q[i], r = rOf(i) + 8;
-      const cand = [[0, r + fs * .8], [0, -r], [r + w / 2, fs * .35], [-r - w / 2, fs * .35], [r * .8 + w / 2, r * .8 + fs * .6], [-r * .8 - w / 2, r * .8 + fs * .6], [r * .8 + w / 2, -r * .7], [-r * .8 - w / 2, -r * .7]]; // por baixo, por cima, à direita, à esquerda: o primeiro lugar sem linhas nem outros nomes
+    [[me ? me.first : '', 0]].concat(Y.shown.map((x, i) => [x.first, i + 1])).forEach(([t, i]) => { if (!t) return; const s = nm(t), w = ctx.measureText(s).width, p = Q[i], r = Math.min(rOf(i), 26 * z) + 8;
+      const cand = [[0, r + fs * .8], [0, -r], [r + w / 2, fs * .35], [-r - w / 2, fs * .35], [r * .8 + w / 2, r * .8 + fs * .6], [-r * .8 - w / 2, r * .8 + fs * .6], [r * .8 + w / 2, -r * .7], [-r * .8 - w / 2, -r * .7]];
       for (const [dx, dy] of cand) { const x = p[0] + dx, y = p[1] + dy, b = [x - w / 2 - 4, y - fs * .8, x + w / 2 + 4, y + fs * .25]; if (b[0] < 30 || b[2] > W - 30 || hitL(b) || boxes.some((q, k) => k !== i && b[0] < q[2] && b[2] > q[0] && b[1] < q[3] && b[3] > q[1])) continue; boxes.push(b); ctx.fillText(s, x, y); break; }
     });
     if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
   }
+  // poeira de estrelas: poucos pontos, longe das estrelas, linhas e nomes
+  const area = wheel ? 58 * sc : fr === 'nada' ? Rd + 90 : fr === 'lua' ? Rd / .6 * .62 + 30 : Rd + 52, dust = [];
+  for (let t = 0; t < 600 && dust.length < (wheel ? 14 : 22); t++) { const a = rnd() * 7, rr = Math.sqrt(rnd()) * area, p = [cx + Math.cos(a) * rr, cy + Math.sin(a) * rr]; if (p[1] > 1120 || p[1] < 70) continue; const b = [p[0] - 14, p[1] - 14, p[0] + 14, p[1] + 14];
+    if (boxes.some(q => b[0] < q[2] && b[2] > q[0] && b[1] < q[3] && b[3] > q[1]) || hitL(b) || dust.some(d => Math.hypot(d[0] - p[0], d[1] - p[1]) < 46)) continue; dust.push(p); }
+  dust.forEach((p, k) => { if (k % 7 === 0) spark(p, 6 * z, 4, .2); else dot(p, (k % 3 ? 1.4 : 2.2) * z); });
+  // legenda: o teu signo, o teu nome e quantas estrelas
+  const ly = Math.min(1150, wheel ? cy + 77.5 * sc + 92 : (fr === 'nada' ? Math.max(...Q.map(p => p[1])) + 110 : fr === 'lua' ? cy + Rd / .6 + 70 : cy + Rd + 130));
+  ctx.textAlign = 'center'; ctx.fillStyle = ink; ctx.font = `600 22px Manrope`; if ('letterSpacing' in ctx) ctx.letterSpacing = '9px';
+  const sg = me ? SIGNS[me.s].g + TXT : '✦'; ctx.fillText(`${me ? me.first.toUpperCase() : ''}`, W / 2, ly);
+  ctx.font = '30px "Noto Sans Symbols","Noto Sans Symbols 2","Segoe UI Symbol",sans-serif'; if ('letterSpacing' in ctx) ctx.letterSpacing = '0px'; ctx.fillText(sg, W / 2, ly - 40);
+  ctx.globalAlpha = .7; ctx.font = 'italic 500 24px "Cormorant Garamond", serif'; ctx.fillText(`${Y.n} ${Y.n === 1 ? 'estrela' : 'estrelas'} · ${roman(new Date().getFullYear())}`, W / 2, ly + 34); ctx.globalAlpha = 1;
   // assinatura discreta (o tatuador recorta se quiser)
-  ctx.textAlign = 'center'; ctx.globalAlpha = .55; ctx.fillStyle = ink; ctx.font = '700 22px Cinzel'; if ('letterSpacing' in ctx) ctx.letterSpacing = '6px'; ctx.fillText('CÉU DE HOJE', W / 2, H - 92); if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
-  ctx.globalAlpha = .45; ctx.font = '500 20px Manrope'; ctx.fillText(`Constelação ${me ? 'de ' + me.first : ''} · desenhada em ceudehoje.com`, W / 2, H - 58); ctx.globalAlpha = 1;
+  ctx.globalAlpha = .5; ctx.font = '700 20px Cinzel'; if ('letterSpacing' in ctx) ctx.letterSpacing = '6px'; ctx.fillText('CÉU DE HOJE', W / 2, H - 84); if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
+  ctx.globalAlpha = .4; ctx.font = '500 19px Manrope'; ctx.fillText('Constelação desenhada em ceudehoje.com', W / 2, H - 52); ctx.globalAlpha = 1;
   c._stamped = 1; return c;
 }
+const roman = n => [[1000, 'M'], [900, 'CM'], [500, 'D'], [400, 'CD'], [100, 'C'], [90, 'XC'], [50, 'L'], [40, 'XL'], [10, 'X'], [9, 'IX'], [5, 'V'], [4, 'IV'], [1, 'I']].reduce((s, [v, r]) => { while (n >= v) { s += r; n -= v; } return s; }, '');
 function soulTattooView() {
   const dlg = $('#soulDlg'); if (!soulLinks().length) return toast('Lê uma carta primeiro: cada uma acende uma estrela ✦');
-  const o = { style: 'fino', names: 1, ink: 'preto' }; let cv = null;
+  const o = { style: 'fino', names: 1, frame: 'roda', ink: 'preto' }; let cv = null;
   const seg = (k, opts) => `<div class="tatseg" data-k="${k}">${opts.map(([v, t]) => `<button data-v="${v}"${String(o[k]) === String(v) ? ' class="on"' : ''}>${t}</button>`).join('')}</div>`;
   dlg.innerHTML = `<div class="soulwrap"><button class="tclose" id="ttX" aria-label="Fechar">✕</button><h2>🖋️ A tua constelação em tatuagem</h2><p class="note">Traço fino e minimalista, feita das pessoas que leste: não há outra igual. Leva a imagem ao teu tatuador.</p>
-    ${seg('style', [['fino', '✒️ Traço fino'], ['pontos', '⋯ Pontilhado']])}${seg('names', [[0, 'Sem nomes'], [1, 'Iniciais'], [2, 'Nomes']])}${seg('ink', [['preto', '⚫ Tinta preta'], ['branco', '⚪ Tinta branca']])}
-    <img id="ttPrev" class="stprev" alt="A tua tatuagem"><p class="note">✦ alma gémea · ☉ tu · 🐾 patudo · ◎ quem guardaste perto. A forma muda com cada carta que lês.</p>
+    ${seg('style', [['fino', '✒️ Traço fino'], ['pontos', '⋯ Pontilhado']])}${seg('names', [[0, 'Sem nomes'], [1, 'Iniciais'], [2, 'Nomes']])}${seg('frame', [['roda', '☸ Zodíaco'], ['lua', '☾ Lua'], ['circulo', '◯ Círculo'], ['nada', 'Livre']])}${seg('ink', [['preto', '⚫ Tinta preta'], ['branco', '⚪ Tinta branca']])}
+    <img id="ttPrev" class="stprev" alt="A tua tatuagem"><p class="note">☉ tu · ✦ alma gémea · ✧ 2 ligações · 🐾 patudo · ◎ quem guardaste perto. A forma muda com cada carta que lês.</p>
     <div class="dlgfoot"><button class="btn" id="ttBack">Voltar</button><button class="btn main" id="ttGo">📤 Partilhar</button></div></div>`;
   if (!dlg.open) dlg.showModal(); dlg.scrollTop = 0;
   const draw = async () => { cv = await soulTattooCanvas(o); const im = $('#ttPrev'); if (im) im.src = cv.toDataURL('image/jpeg', .85); };
