@@ -687,14 +687,24 @@ function soulSky(ctx, W, H, T, rnd) { // céu em todos os tons: nebulosas, via l
   for (let i = 0; i < 22; i++) { const x = rnd() * W, y = rnd() * H, r = 5 + rnd() * 11; ctx.globalAlpha = .45 + rnd() * .45; ctx.fillStyle = T.spk[i % 2]; ctx.beginPath(); ctx.moveTo(x, y - r); ctx.quadraticCurveTo(x, y, x + r, y); ctx.quadraticCurveTo(x, y, x, y + r); ctx.quadraticCurveTo(x, y, x - r, y); ctx.quadraticCurveTo(x, y, x, y - r); ctx.fill(); ctx.globalAlpha *= .35; ctx.beginPath(); ctx.arc(x, y, r * .55, 0, 7); ctx.fill(); }
   ctx.globalAlpha = 1;
 }
-async function soulStarsCanvas(tone) {
-  await fontsReady(); const T = STAR_TONES[tone] || STAR_TONES.astral, me = soulMe(), Y = soulStarLayout(40), [c, ctx, W, H] = newCanvas(1080, 1350); ctx.__noTheme = true;
-  const gr = ctx.createRadialGradient(W / 2, 520, 60, W / 2, 620, 1000); gr.addColorStop(0, T.bg[0]); gr.addColorStop(1, T.bg[1]); ctx.fillStyle = gr; ctx.fillRect(0, 0, W, H);
+let _appIcon; const appIcon = async () => _appIcon !== undefined ? _appIcon : (_appIcon = await loadImg('icon-192.png').catch(() => null));
+async function soulBrandBand(ctx, W, y, T) { // publicidade do Céu de Hoje em todas as imagens partilhadas: ícone, nome e site
+  const ic = await appIcon(), rr = (a, b, w, h, r) => ctx.roundRect ? ctx.roundRect(a, b, w, h, r) : ctx.rect(a, b, w, h), bw = 760, bh = 92, x = (W - bw) / 2, dark = T.bg[1] === '#06061a';
+  ctx.save(); ctx.globalAlpha = dark ? .14 : .7; ctx.fillStyle = dark ? '#ffffff' : '#ffffff'; ctx.beginPath(); rr(x, y, bw, bh, 46); ctx.fill(); ctx.globalAlpha = .55; ctx.strokeStyle = T.acc; ctx.lineWidth = 2; ctx.stroke(); ctx.restore();
+  const ix = x + 22, iy = y + 14, is = 64;
+  if (ic) { ctx.save(); ctx.beginPath(); rr(ix, iy, is, is, 16); ctx.clip(); ctx.drawImage(ic, ix, iy, is, is); ctx.restore(); } else { ctx.fillStyle = T.acc; ctx.font = '52px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('✦', ix + is / 2, iy + 50); }
+  ctx.textAlign = 'left'; ctx.fillStyle = T.acc; ctx.font = '700 32px Cinzel'; ctx.fillText('CÉU DE HOJE', ix + is + 22, y + 44);
+  ctx.fillStyle = T.ink; ctx.font = '600 23px Manrope'; ctx.fillText('Faz a tua constelação grátis · ceudehoje.com', ix + is + 22, y + 74); ctx.textAlign = 'center';
+}
+async function soulStarsCanvas(tone, story) { // story = 1080×1920 (Instagram/Facebook/WhatsApp estados), senão post 4:5
+  await fontsReady(); const T = STAR_TONES[tone] || STAR_TONES.astral, me = soulMe(), Y = soulStarLayout(40), [c, ctx, W, H] = newCanvas(1080, story ? 1920 : 1350); ctx.__noTheme = true;
+  const G = story ? { t1: 290, t2: 372, cy: 950, sc: 6.7, s1: 1470, s2: 1516, ft: 1580 } : { t1: 110, t2: 185, cy: 655, sc: 6.2, s1: 1160, s2: 1206, ft: 1238 }; // nos stories, o topo e o fundo ficam tapados pelos botões da app
+  const gr = ctx.createRadialGradient(W / 2, G.cy - 130, 60, W / 2, G.cy - 30, H * .75); gr.addColorStop(0, T.bg[0]); gr.addColorStop(1, T.bg[1]); ctx.fillStyle = gr; ctx.fillRect(0, 0, W, H);
   soulSky(ctx, W, H, T, seeded('cst' + (me ? me.serial : '')));
-  ctx.textAlign = 'center'; ctx.fillStyle = T.acc; ctx.font = '700 40px Cinzel'; ctx.fillText('A MINHA CONSTELAÇÃO', W / 2, 110);
-  ctx.fillStyle = T.ink; ctx.font = 'italic 700 60px "Cormorant Garamond"'; ctx.fillText(me ? `O céu de ${me.first}` : 'O meu céu', W / 2, 185);
+  ctx.textAlign = 'center'; ctx.fillStyle = T.acc; ctx.font = '700 40px Cinzel'; ctx.fillText('A MINHA CONSTELAÇÃO', W / 2, G.t1);
+  ctx.fillStyle = T.ink; ctx.font = 'italic 700 60px "Cormorant Garamond"'; ctx.fillText(me ? `O céu de ${me.first}` : 'O meu céu', W / 2, G.t2);
   // da grelha do desenho para a imagem
-  const P = Y.P, cx = 540, cy = 655, sc = 6.2, Q = P.map(p => [cx + (p[0] - Y.C[0]) * sc, cy + (p[1] - Y.C[1]) * sc]); // roda fixa: o mapa tem sempre o mesmo tamanho, com 3 ou 300 estrelas
+  const P = Y.P, cx = 540, cy = G.cy, sc = G.sc, Q = P.map(p => [cx + (p[0] - Y.C[0]) * sc, cy + (p[1] - Y.C[1]) * sc]); // roda fixa: o mapa tem sempre o mesmo tamanho, com 3 ou 300 estrelas
   ctx.strokeStyle = T.acc; ctx.globalAlpha = .28; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(cx, cy, 58 * sc, 0, 7); ctx.stroke(); ctx.globalAlpha = .14; ctx.lineWidth = 1.5; for (let z = 0; z < 12; z++) { const a = (-90 + z * 30) * Math.PI / 180; ctx.beginPath(); ctx.moveTo(cx + Math.cos(a) * 10 * sc, cy + Math.sin(a) * 10 * sc); ctx.lineTo(cx + Math.cos(a) * 58 * sc, cy + Math.sin(a) * 58 * sc); ctx.stroke(); }
   ctx.globalAlpha = .55; ctx.fillStyle = T.acc; ctx.font = '34px "Noto Sans Symbols","Noto Sans Symbols 2","Segoe UI Symbol",sans-serif'; ctx.textBaseline = 'middle'; Y.zod.forEach(([g, x, y]) => ctx.fillText(g + TXT, cx + (x - Y.C[0]) * sc, cy + (y - Y.C[1]) * sc)); ctx.textBaseline = 'alphabetic'; ctx.globalAlpha = 1;
   ctx.strokeStyle = T.acc; ctx.lineWidth = 2.2; ctx.globalAlpha = .5; Y.lines.forEach(([a, b]) => { ctx.beginPath(); ctx.moveTo(...Q[a]); ctx.lineTo(...Q[b]); ctx.stroke(); }); ctx.globalAlpha = 1;
@@ -709,23 +719,24 @@ async function soulStarsCanvas(tone) {
   label(me ? me.first : 'tu', Q[0], 62, T.ink, '700 30px Manrope');
   order.forEach(([x, i]) => { const p = Q[i + 1], big = linkPet(x) || x.l === 3 || x.near; label(x.first, p, (big ? 56 : 40) * (Y.sz < 1 ? .75 : 1), Y.top(x) ? T.ink : T.mute, `${Y.top(x) ? 700 : 600} ${Y.sz < 1 ? 22 : big ? 28 : 24}px Manrope`); });
   const pets = Y.L.filter(x => linkPet(x)).length, l3 = Y.L.filter(x => x.l === 3).length;
-  ctx.fillStyle = T.ink; ctx.font = '700 36px Manrope'; ctx.fillText(`✦ ${Y.n} ${Y.n === 1 ? 'estrela acesa' : 'estrelas acesas'}`, W / 2, 1160);
+  ctx.fillStyle = T.ink; ctx.font = '700 36px Manrope'; ctx.fillText(`✦ ${Y.n} ${Y.n === 1 ? 'estrela acesa' : 'estrelas acesas'}`, W / 2, G.s1);
   const sub = [l3 ? `${l3} alma${l3 > 1 ? 's' : ''} gémea${l3 > 1 ? 's' : ''}` : '', pets ? `${pets} patudo${pets > 1 ? 's' : ''}` : '', Y.n > 40 ? `+${Y.n - 40} fora do desenho` : ''].filter(Boolean).join(' · ');
-  if (sub) { ctx.fillStyle = T.mute; ctx.font = '600 28px Manrope'; ctx.fillText(sub, W / 2, 1206); }
-  ctx.fillStyle = T.acc; ctx.font = '700 26px Cinzel'; ctx.fillText((store.get('ceu_brand') || '').trim() || 'CÉU DE HOJE', W / 2, H - 70); ctx.fillStyle = T.mute; ctx.font = '600 22px Manrope'; ctx.fillText('Lê cartas da alma e acende a tua constelação · ceudehoje.com', W / 2, H - 36);
+  if (sub) { ctx.fillStyle = T.mute; ctx.font = '600 28px Manrope'; ctx.fillText(sub, W / 2, G.s2); }
+  await soulBrandBand(ctx, W, G.ft, T); c._stamped = 1; // a marca já vai na faixa: sem o carimbo pequeno por cima
   return c;
 }
 function soulStarsShare() {
   const dlg = $('#soulDlg'); if (!soulLinks().length) return toast('Lê uma carta primeiro: cada uma acende uma estrela ✦');
-  let tone = STAR_TONES[store.get('ceu_theme')] ? store.get('ceu_theme') : 'astral', cv = null;
+  let tone = STAR_TONES[store.get('ceu_theme')] ? store.get('ceu_theme') : 'astral', story = false, cv = null;
   dlg.innerHTML = `<div class="soulwrap"><button class="tclose" id="ssX" aria-label="Fechar">✕</button><h2>✦ Partilhar a minha constelação</h2><p class="note">Escolhe o tom. Os nomes de quem leste aparecem na imagem.</p>
     <div class="sttones">${Object.entries(STAR_TONES).map(([k, t]) => `<button data-t="${k}"${k === tone ? ' class="on"' : ''}><i style="background:linear-gradient(135deg,${t.bg[0]},${t.bg[1]});border-color:${t.acc}"></i>${t.nm}</button>`).join('')}</div>
-    <img id="ssPrev" class="stprev" alt="A tua constelação"><div class="dlgfoot"><button class="btn" id="ssBack">Voltar</button><button class="btn main" id="ssGo">📤 Partilhar</button></div></div>`;
+    <div class="stfmt"><button data-f="0" class="on">📱 Post <i>4:5</i></button><button data-f="1">🎬 Story <i>9:16</i></button></div><img id="ssPrev" class="stprev" alt="A tua constelação"><div class="dlgfoot"><button class="btn" id="ssBack">Voltar</button><button class="btn main" id="ssGo">📤 Partilhar</button></div></div>`;
   if (!dlg.open) dlg.showModal(); dlg.scrollTop = 0;
-  const draw = async () => { cv = await soulStarsCanvas(tone); const im = $('#ssPrev'); if (im) im.src = cv.toDataURL('image/jpeg', .82); };
+  const draw = async () => { cv = await soulStarsCanvas(tone, story); const im = $('#ssPrev'); if (im) im.src = cv.toDataURL('image/jpeg', .82); };
+  dlg.querySelectorAll('.stfmt button').forEach(b => b.onclick = () => { story = b.dataset.f === '1'; dlg.querySelectorAll('.stfmt button').forEach(z => z.classList.toggle('on', z === b)); draw(); });
   dlg.querySelectorAll('.sttones button').forEach(b => b.onclick = () => { tone = b.dataset.t; dlg.querySelectorAll('.sttones button').forEach(z => z.classList.toggle('on', z === b)); draw(); });
   $('#ssX').onclick = () => dlg.close(); $('#ssBack').onclick = soulLinksView;
-  $('#ssGo').onclick = async () => { if (!cv) await draw(); shareCanvases([{ c: cv, name: 'a-minha-constelacao' }], `✦ A minha constelação no Céu de Hoje: ${soulLinks().length} estrelas acesas. Cada carta da alma que leio acende uma. Lê a tua em ceudehoje.com #CartaDaAlma`); };
+  $('#ssGo').onclick = async () => { if (!cv) await draw(); shareCanvases([{ c: cv, name: story ? 'a-minha-constelacao-story' : 'a-minha-constelacao' }], `✦ A minha constelação no Céu de Hoje: ${soulLinks().length} estrelas acesas. Cada carta da alma que leio acende uma. Lê a tua em ceudehoje.com #CartaDaAlma`); };
   draw();
 }
 function soulMilestone(prevN) { // marcos novos depois de ler uma carta
