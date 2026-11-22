@@ -1,5 +1,5 @@
 // ===== App de telemóvel =====
-const APP_VERSION = '23.11.2026 01:50';
+const APP_VERSION = '23.11.2026 02:10';
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const G = g => `${g}&#xFE0E;`;
@@ -29,7 +29,7 @@ function vPares() {
   const PR = pairsDay(ST.date, ST.modern);
   const me = P.get(), mySi = me && me.d ? sunSignOf(me.d) : 0, sOpt = sel => SIGNS.map((s, i) => `<option value="${i}"${i === sel ? ' selected' : ''}>${s.n}</option>`).join('');
   const pa = ST.pkA ?? mySi, pb = ST.pkB ?? 4, sb = (side, i) => `<button class="spk" data-side="${side}" style="--c:${elc(SIGNS[i])}"><span>${G(SIGNS[i].g)}</span><b>${SIGNS[i].n}</b><i>▾</i></button>`;
-  let h = soulBoxHtml() + `<div class="pickbox"><div class="pick2">${sb('A', pa)}<em>💞</em>${sb('B', pb)}</div><div class="pick2 names"><input type="text" id="nmA" maxlength="40" placeholder="Nome (opcional)" value="${esc(ST.nmA ?? (me && me.name ? me.name.split(' ')[0] : ''))}"><em>🔤</em><input type="text" id="nmB" maxlength="40" placeholder="Nome (opcional)" value="${esc(ST.nmB || '')}"></div><button class="btn main" id="pkGo">💞 Ver compatibilidade</button><p class="note">Escolhe os signos e, se quiseres, escreve os nomes: vês a ligação pelos dois.</p></div><h2 class="vt">💞 Quem combina hoje</h2>`;
+  let h = `<div class="pickbox"><div class="pick2">${sb('A', pa)}<em>💞</em>${sb('B', pb)}</div><div class="pick2 names"><input type="text" id="nmA" maxlength="40" placeholder="Nome (opcional)" value="${esc(ST.nmA ?? (me && me.name ? me.name.split(' ')[0] : ''))}"><em>🔤</em><input type="text" id="nmB" maxlength="40" placeholder="Nome (opcional)" value="${esc(ST.nmB || '')}"></div><button class="btn main" id="pkGo">💞 Ver compatibilidade</button><p class="note">Escolhe os signos e, se quiseres, escreve os nomes: vês a ligação pelos dois.</p></div><h2 class="vt">💞 Quem combina hoje</h2>`;
   PR.top.forEach((p, i) => h += `<div class="pair r${i + 1}" data-a="${p.a}" data-b="${p.b}"><div class="pg"><span style="color:${elc(SIGNS[p.a])}">${G(SIGNS[p.a].g)}</span><b>${p.score}%</b><span style="color:${elc(SIGNS[p.b])}">${G(SIGNS[p.b].g)}</span></div><div class="pn">${SIGNS[p.a].n} + ${SIGNS[p.b].n}</div><small>${cap1(PAIR_TXT[p.k])}</small><span class="open">Ver tudo ›</span></div>`);
   h += `<div class="warn">Paciência hoje: ${G(SIGNS[PR.worst.a].g)} ${SIGNS[PR.worst.a].n} + ${G(SIGNS[PR.worst.b].g)} ${SIGNS[PR.worst.b].n} (${PR.worst.score}%)</div>`;
   h += `<h2 class="vt">O par ideal de cada signo</h2><div class="list">`;

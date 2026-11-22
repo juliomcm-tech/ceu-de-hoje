@@ -263,7 +263,7 @@ function openDreams(edit) {
 function todayStrip() {
   const me = P.get(); if (!me || !me.d || ST.date !== todayStr() || ST.mode !== 'dia' || ST.pets) return '';
   const si = sunSignOf(me.d), pos = (ST.rank || []).findIndex(r => r.si === si), s = skyFor(todayStr()), L = (() => { try { return todaysBirthdays(); } catch (e) { return []; } })(), first = (me.name || '').split(' ')[0];
-  return `<div class="tstrip"><div class="tsh1"><b>${isMyBday() ? '🎂 Parabéns' : 'Olá'}${first ? ', ' + esc(first) : ''}!</b><span><button class="link" id="wk1">📅 Semana</button> · <button class="link" id="spk1">🔊 Ouvir</button></span></div><div class="tsg">
+  return `<div class="tstrip"><div class="tsh1"><b>${isMyBday() ? '🎂 Parabéns' : 'Olá'}${first ? ', ' + esc(first) : ''}!</b><span><button class="link" id="spk1">🔊 Ouvir</button></span></div><div class="tsg">
     <button data-go="sign"><span>${G(SIGNS[si].g)}</span><b>${pos >= 0 ? pos + 1 + '.º' : ''}</b><small>${SIGNS[si].n} hoje</small></button>
     <button data-go="tarot"><span>🃏</span><b>${tarOpened() ? TAROT[dailyCard(me).i][0].replace(/^(O|A|Os) /, '') : 'Abrir'}</b><small>a tua carta</small></button>
     <button data-go="lua"><span>${moonEmoji(s.phase.elong)}</span><b>${SIGNS[s.moon.sign].n}</b><small>Lua</small></button>
@@ -274,12 +274,23 @@ function bindTodayStrip() {
   document.querySelectorAll('.tsg [data-go]').forEach(b => b.onclick = () => { const g = b.dataset.go; if (g === 'tarot') openTarot(!tarOpened()); else if (g === 'sign') { const si = sunSignOf(P.get().d), el = document.querySelector(`.sc[data-i="${ST.rank.findIndex(r => r.si === si)}"]`); el && el.scrollIntoView({ behavior: 'smooth', block: 'center' }); } else { ST.type = g; render(); scrollTo(0, 0); } });
   if (isMyBday() && !store.get('ceu_conf_' + todayStr())) { store.set('ceu_conf_' + todayStr(), '1'); setTimeout(confetti, 400); }
 }
-function euChips() { return `<div class="euchips">${[['💫', 'Alma', 'soul'], ['🃏', 'Carta', 'tarot'], ['📅', 'Semana', 'week'], ['🌙', 'Noite', 'night'], ['🎁', 'O meu ano', 'wrap'], ['⏳', 'Contagens', 'cd'], ['💭', 'Sonhos', 'dreams'], ['✂️', 'Rotinas', 'rout'], ['🌸', 'Ciclo', 'cyc'], ['🐾', 'Animais', 'pets'], ['🔢', 'Números', 'num'], ['🔮', 'Oráculo', 'oracle'], ['📣', 'Posts', 'posts'], ['✨', 'Ano astral', 'ya']].map(c => `<button data-jump="${c[2]}">${c[0]}<span>${c[1]}</span></button>`).join('')}</div>`; }
+const EU_MAIN = [['💫', 'Alma', 'soul'], ['🃏', 'Carta', 'tarot'], ['🌙', 'Noite', 'night'], ['🐾', 'Animais', 'pets'], ['🌸', 'Ciclo', 'cyc']];
+const EU_MORE = [['📅', 'A minha semana', 'week'], ['⏳', 'Contagens', 'cd'], ['💭', 'Sonhos', 'dreams'], ['✂️', 'Rotinas pela Lua', 'rout'], ['🔢', 'Números', 'num'], ['🔮', 'Oráculo', 'oracle'], ['🎁', 'Vídeo do ano', 'wrap'], ['✨', 'Ano astral', 'ya'], ['📣', 'Posts para redes', 'posts']];
+function euChips() { return `<div class="euchips">${EU_MAIN.map(c => `<button data-jump="${c[2]}">${c[0]}<span>${c[1]}</span></button>`).join('')}<button data-jump="more">➕<span>Mais</span></button></div>`; } // 6 atalhos; o resto vive em «Mais»
+function euMore() { // a lista «Mais»: tudo o que não precisa de estar sempre à vista
+  $('#infoTitle').textContent = '➕ Mais no teu espaço';
+  $('#infoBody').innerHTML = `<div class="eumore">${EU_MORE.map(c => `<button data-jm="${c[2]}"><b>${c[0]}</b><span>${c[1]}</span><i>›</i></button>`).join('')}</div>`;
+  $('#infoBody').querySelectorAll('[data-jm]').forEach(b => b.onclick = () => { $('#infoDlg').close(); euJump(b.dataset.jm); });
+  if (!$('#infoDlg').open) $('#infoDlg').showModal();
+}
 function bindEuChips() {
-  document.querySelectorAll('[data-jump]').forEach(b => b.onclick = () => { const k = b.dataset.jump; if (k === 'soul') return openSoul(); if (k === 'dreams') return openDreams(); if (k === 'night') return openNight(); if (k === 'week') return openWeekView(); if (k === 'wrap') return openWrapped(); if (k === 'posts') return openStudio(); if (k === 'ya') return openYearAstral();
-    const el = { tarot: '.box.tarot', rout: '#sec-rout', cd: '#sec-cd', cyc: '.box.cyc', pets: '#sec-pets', num: '.box.num', oracle: '.box.oracle' }[k]; const n = el && document.querySelector(el); n && n.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+  document.querySelectorAll('[data-jump]').forEach(b => b.onclick = () => euJump(b.dataset.jump));
   if ($('#cdNew')) $('#cdNew').onclick = () => cdForm(null); document.querySelectorAll('.cdr').forEach(r => r.onclick = () => cdForm(r.dataset.id));
   if ($('#t3Go')) $('#t3Go').onclick = openSpread; if ($('#cpGo')) $('#cpGo').onclick = coupleStart; if ($('#wkGo')) $('#wkGo').onclick = () => openTarot(!store.get('ceu_tarw_' + mondayOf(todayStr())), true);
+}
+function euJump(k) {
+  { if (k === 'more') return euMore(); if (k === 'soul') return openSoul(); if (k === 'dreams') return openDreams(); if (k === 'night') return openNight(); if (k === 'week') return openWeekView(); if (k === 'wrap') return openWrapped(); if (k === 'posts') return openStudio(); if (k === 'ya') return openYearAstral();
+    const el = { tarot: '.box.tarot', rout: '#sec-rout', cd: '#sec-cd', cyc: '.box.cyc', pets: '#sec-pets', num: '.box.num', oracle: '.box.oracle' }[k]; const n = el && document.querySelector(el); n && n.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
 }
 const TOUR = [['✨', 'Bem-vindo(a) ao Céu de Hoje', 'O céu verdadeiro, calculado no teu telemóvel. Sem registo e sem anúncios: os teus dados ficam só contigo.'], ['🌟', 'Hoje', 'No início vês o teu signo, a tua carta do dia, a Lua e quem faz anos. Toca em «🔊 Ouvir o meu dia» e a app lê-te tudo.'], ['🧭', 'Em baixo, os separadores', 'Top dos signos, Pares, Lua, Aniversários, Horas e o teu espaço ✨ Eu, onde guardas o diário, o ciclo, livros, viagens e animais.']];
 function maybeTour(force) {
