@@ -447,8 +447,13 @@ function soulBoxHtml() {
 document.addEventListener('click', e => { // toque numa estrela: quem é
   const g = e.target.closest && e.target.closest('.sst'); if (!g) return; const x = soulLinks().find(y => y.serial === g.dataset.s), w = $('#sstWho'); if (!x || !w) return;
   document.querySelectorAll('.sst.on').forEach(z => z.classList.remove('on')); g.classList.add('on');
-  const kd = linkKind(x); w.hidden = false; w.innerHTML = `<span class="lv lv${x.l}">${kd !== 'outra' ? kindIc(kd) : '✦'.repeat(x.l) || '·'}</span><div><b>${x.near ? '★ ' : ''}${esc(x.first)}</b><i>${x.l === 3 ? 'Alma gémea' : soulLvlTxt(x.l)[0].replace(/^\S+\s/, '')} · lida a ${x.d.split('-').reverse().join('/')}</i></div><button class="btn" id="sstOpen">Ver</button>`;
+  const kd = linkKind(x); w.hidden = false; w.innerHTML = `<span class="lv lv${x.l}">${kd !== 'outra' ? kindIc(kd) : '✦'.repeat(x.l) || '·'}</span><div><b>${x.near ? '★ ' : ''}${esc(x.first)}</b><i>${x.l === 3 ? 'Alma gémea' : soulLvlTxt(x.l)[0].replace(/^\S+\s/, '')} · lida a ${x.d.split('-').reverse().join('/')}</i></div><button class="btn" id="sstOpen">Ver</button><button class="btn" id="sstDel" aria-label="Tirar da constelação">🗑</button>`;
   $('#sstOpen').onclick = () => { const o = soulParse(x.code); if (o) soulMatch(o); };
+  $('#sstDel').onclick = () => { // tirar a pessoa (ou o patudo) do teu céu, ali mesmo
+    w.innerHTML = `<div class="sldelc"><span>Tirar <b>${esc(x.first)}</b> da tua constelação?</span><button class="btn" id="sstNo">Não</button><button class="btn main" id="sstYes">Tirar</button></div>`;
+    $('#sstNo').onclick = () => { w.hidden = true; g.classList.remove('on'); };
+    $('#sstYes').onclick = () => { store.set('ceu_soul_links', JSON.stringify(soulLinks().filter(z => z.serial !== x.serial))); toast(`${x.first} saiu do teu céu. Há sempre novas estrelas ✦`); const t = document.querySelector('.soultoday'), me = soulMe(); if (t && me) t.outerHTML = soulTodayHtml(me); const lk = $('#soulLinks'); if (lk) lk.textContent = `💫 As minhas ligações (${soulLinks().length})`; };
+  };
 });
 document.addEventListener('click', e => { if (e.target.closest && e.target.closest('#stShare')) soulStarsShare(); });
 document.addEventListener('click', e => { if (e.target.closest && e.target.closest('#soulBoxGo')) { if (soulMe()) openSoul(); else soulWelcome(true); } });
@@ -723,7 +728,7 @@ function soulStarLayout(cap = 40) { // mapa astral real: direção = signo solar
 }
 function soulStarsSVG(n, cap = 40) { // a tua constelação na roda do zodíaco (o mesmo desenho da tatuagem, nas cores do tema)
   const Y = soulStarLayout(cap), { P, C } = Y, f = v => v.toFixed(1), z = Y.sz, R = WHEEL_R, at = (d, r) => [C[0] + Math.cos(d * Math.PI / 180) * r, C[1] + Math.sin(d * Math.PI / 180) * r];
-  const lb = [[C[0] - 6, C[1] - 6, C[0] + 6, C[1] + 12]], lab = (t, x, y) => { const w = [...t].length * 2.9 + 2, b = [x - w / 2, y - 5, x + w / 2, y + 1]; if (lb.some(o => b[0] < o[2] && b[2] > o[0] && b[1] < o[3] && b[3] > o[1])) return ''; lb.push(b); return `<text class="ssn" x="${f(x)}" y="${f(y)}">${esc(t)}</text>`; };
+  const lb = [[C[0] - 5, C[1] - 5, C[0] + 5, C[1] + 4]], lab = (t, x, y) => { const w = [...t].length * 2.9 + 2, b = [x - w / 2, y - 5, x + w / 2, y + 1]; if (lb.some(o => b[0] < o[2] && b[2] > o[0] && b[1] < o[3] && b[3] > o[1])) return ''; lb.push(b); return `<text class="ssn" x="${f(x)}" y="${f(y)}">${esc(t)}</text>`; };
   let s = `<circle class="zr0" cx="${C[0]}" cy="${C[1]}" r="${R}"/><circle class="zr1" cx="${C[0]}" cy="${C[1]}" r="${f(R * .965)}"/><circle class="zr1" cx="${C[0]}" cy="${C[1]}" r="${f(R * .8)}"/>`;
   for (let i = 0; i < 12; i++) { const p = at(180 - i * 30, R * .8), q = at(180 - i * 30, R * .965); s += `<line class="zs" x1="${f(p[0])}" y1="${f(p[1])}" x2="${f(q[0])}" y2="${f(q[1])}"/>`; }
   for (let d = 0; d < 360; d += 5) { if (d % 30 === 0 || d % 30 === 15) continue; const l = d % 10 === 0 ? R * .035 : R * .02, p = at(d, R * .965 - l), q = at(d, R * .965); s += `<line class="zt" x1="${f(p[0])}" y1="${f(p[1])}" x2="${f(q[0])}" y2="${f(q[1])}"/>`; }
