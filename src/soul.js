@@ -287,7 +287,7 @@ function soulSealBox(o) {
   return `<div class="soulwant"><b>🔏 Carta selada desde ${dd}</b><p>${changed ? 'Mudaste o teu perfil, mas a tua carta continua a mesma: é ela que está nos links, no QR e nos chips que já partilhaste.' : 'Desde que a partilhaste, esta é para sempre a tua carta, mesmo que mudes o perfil.'}</p>${changed ? '<button class="btn" id="soulRedo" style="width:100%">↻ Refazer a minha carta com o perfil novo</button>' : ''}</div>`;
 }
 function openSoul() {
-  const dlg = $('#soulDlg'), o = soulMe();
+  soulSyncLevels(); const dlg = $('#soulDlg'), o = soulMe();
   if (!o) { soulWelcome(true); return; }
   const first = !store.get('ceu_soul_seen');
   dlg.innerHTML = `<div class="soulwrap"><button class="tclose" id="soulX" aria-label="Fechar">✕</button>
@@ -415,7 +415,7 @@ async function shareSoulMatch(me, other, l, pct) {
   shareCanvases([{ c, name: 'leitor-do-ceu' }], `🔭 O Leitor do Céu leu as nossas Cartas da Alma: ${h} (${l} de 3 ligações). Descobre a tua em ceudehoje.com #CartaDaAlma`);
 }
 function soulLinksView() {
-  const dlg = $('#soulDlg'), L = soulLinks();
+  soulSyncLevels(); const dlg = $('#soulDlg'), L = soulLinks();
   dlg.innerHTML = `<div class="soulwrap"><h2>💫 As minhas ligações</h2><p class="note">Cada carta que lês fica gravada na tua alma: pessoas e patudos 🐾.</p>
     ${L.length ? `<p class="note">Toca na ☆ para guardares alguém <b>perto</b> (fica no centro da constelação). 🗑 tira alguém do teu céu. Toca no símbolo à esquerda para dizer quem é: ❤️ amor, 🏡 família, 🤝 amigo.</p><div class="soullist">${L.map((x, i) => [x, i]).sort((a, b) => (b[0].near ? 1 : 0) - (a[0].near ? 1 : 0)).map(([x, i]) => { const kd = linkKind(x); return `<div class="soulrow"><button class="slkind" data-k="${i}" aria-label="Quem é ${esc(x.first)}">${kd !== 'outra' ? kindIc(kd) : '✦'}</button><button class="soulli" data-i="${i}"><span class="lv lv${x.l}">${'✦'.repeat(x.l) || '·'}</span><b>${esc(x.first)}</b><i>${soulLvlTxt(x.l)[0].replace(/^\S+\s/, '')} · ${x.pct}% · ${x.d.split('-').reverse().join('/')}</i></button><button class="slnear${x.near ? ' on' : ''}" data-n="${i}" aria-label="Guardar perto">${x.near ? '★' : '☆'}</button><button class="sldel" data-d="${i}" aria-label="Tirar ${esc(x.first)}">🗑</button></div>`; }).join('')}</div>
     <div class="sttwo"><button class="btn" id="slShare">📤 Partilhar constelação</button><button class="btn" id="slTat">🖋️ Criar tatuagem</button></div>` : '<p>Ainda não leste nenhuma carta. Pede a alguém o link ou o QR da Carta da Alma (também de patudos 🐾).</p>'}
@@ -695,22 +695,28 @@ function wheelCanvas(ctx, cx, cy, R, col, o = {}) {
   for (let i = 0; i < 12; i++) { const p = at(180 - i * 30 - 15, R * .875); ctx.fillText(SIGNS[i].g + TXT, p[0], p[1] + 1); }
   ctx.textBaseline = 'alphabetic'; ctx.globalAlpha = a0;
   [[-90, 1], [0, 0], [90, 1], [180, 0]].forEach(([d, big]) => spark(at(d, R + R * .052), (big ? 14 : 11) * R / 430));
-  [28, 52].forEach(rr => { const r = rr / WHEEL_R * R, n = Math.round(2 * Math.PI * r / 16); for (let i = 0; i < n; i++) { const p = at(i / n * 360, r); ctx.beginPath(); ctx.arc(p[0], p[1], 1.6 * k, 0, 7); ctx.fill(); } });
+  [23, 35, 47].forEach(rr => { const r = rr / WHEEL_R * R, n = Math.round(2 * Math.PI * r / 16); for (let i = 0; i < n; i++) { const p = at(i / n * 360, r); ctx.beginPath(); ctx.arc(p[0], p[1], 1.6 * k, 0, 7); ctx.fill(); } });
   ctx.restore();
 }
 function soulCheckMap() { // verificação: cada estrela está na fatia do seu signo e à distância certa do centro
   const Y = soulStarLayout(40), bad = [];
   Y.shown.forEach((x, i) => { const o = soulParse(x.code); if (!o) return; const p = Y.P[i + 1], deg = Math.atan2(p[1] - Y.C[1], p[0] - Y.C[0]) * 180 / Math.PI, s = Math.floor((((180 - deg) % 360) + 360) % 360 / 30), r = Math.hypot(p[0] - Y.C[0], p[1] - Y.C[1]);
-    if (s !== o.s) bad.push(`${x.first}: está em ${SIGNS[s].n}, é ${SIGNS[o.s].n}`); if (r > 58.01) bad.push(`${x.first}: fora do círculo (${r.toFixed(1)})`); });
+    if (s !== o.s) bad.push(`${x.first}: está em ${SIGNS[s].n}, é ${SIGNS[o.s].n}`); if (r > 58.01) bad.push(`${x.first}: fora do círculo (${r.toFixed(1)})`);
+    const me = soulMe(), lv = me ? soulLevel(me, o) : x.l, B = ZOD_B[lv]; if (lv !== x.l) bad.push(`${x.first}: nível guardado ${x.l}, real ${lv}`); if (r < B[0] - .01 || r > B[1] + .01) bad.push(`${x.first}: distância ${r.toFixed(1)} fora da faixa do nível ${lv}`);
+    if (lv === 3 && me && o.s !== (me.s + 6) % 12) bad.push(`${x.first}: alma gémea fora do signo oposto`); });
   return bad;
 }
-const ZOD_R = [52, 40, 28, 16]; // distância ao centro por nº de ligações (0..3): almas gémeas bem perto
+const ZOD_B = [[48, 58], [36, 46], [24, 34], [10, 22]]; // faixa de distância ao centro por nº de ligações (0..3): almas gémeas bem perto; as faixas não se tocam
+function soulSyncLevels() { // o nível guardado de cada ligação acompanha sempre a tua carta atual
+  const me = soulMe(); if (!me) return; const A = soulLinks(), key = me.serial + ':' + A.length + ':' + (A[0] && A[0].serial); if (store.get('ceu_soul_lvk') === key) return;
+  let ch = false; A.forEach(x => { const o = soulParse(x.code); if (!o) return; const l = soulLevel(me, o), pct = bond(me.s, o.s).pct; if (x.l !== l || x.pct !== pct) { x.l = l; x.pct = pct; ch = true; } });
+  if (ch) store.set('ceu_soul_links', JSON.stringify(A)); store.set('ceu_soul_lvk', key);
+}
 function soulStarLayout(cap = 40) { // mapa astral real: direção = signo solar de cada um (roda do zodíaco como nos mapas natais: Carneiro à esquerda, sentido anti-horário), distância = ligação contigo
   const L = soulLinks(), n = L.length, top = x => !!(x.near || x.l === 3 || ['amor', 'familia'].includes(linkKind(x)) || linkPet(x)), C = [100, 100], R = 72;
   const shown = L.filter(top).concat(L.filter(x => !top(x))).slice(0, cap), k = shown.length; // almas gémeas, patudos e quem está perto nunca saem do mapa
   const ang = s => (180 - s * 30 - 15) * Math.PI / 180, pol = (a, r) => [C[0] + Math.cos(a) * r, C[1] + Math.sin(a) * r];
-  const meta = shown.map(x => { const o = soulParse(x.code) || { s: 0 }, rnd = seeded('zp' + x.serial), base = ZOD_R[x.l || 0] - (x.near && x.l < 3 ? 5 : 0); return { s: o.s, g: o.s + '_' + (x.l || 0), base, a: ang(o.s) + (rnd() - .5) * .28, r: base + (rnd() - .5) * 4 }; });
-  const gsz = {}; meta.forEach(m => gsz[m.g] = (gsz[m.g] || 0) + 1); meta.forEach(m => m.band = Math.min(22, 7 + (gsz[m.g] - 1) * 1.8)); // almas gémeas ficam todas no signo oposto ao teu: quando há muitas, o grupo ganha espaço para fora
+  const meta = shown.map(x => { const o = soulParse(x.code) || { s: 0 }, rnd = seeded('zp' + x.serial), B = ZOD_B[x.l || 0], base = x.near && x.l < 3 ? B[0] + (B[1] - B[0]) * .3 : (B[0] + B[1]) / 2; return { s: o.s, B, a: ang(o.s) + (rnd() - .5) * .28, r: base + (rnd() - .5) * 3 }; });
   for (let it = 0; it < 80; it++) { // quem calha no mesmo signo e nível afasta-se um pouco, sem sair da sua fatia
     let moved = false;
     for (let i = 0; i < k; i++) for (let j = i + 1; j < k; j++) {
@@ -718,13 +724,13 @@ function soulStarLayout(cap = 40) { // mapa astral real: direção = signo solar
       moved = true; const push = (14 - d) / 2, ux = dx / d, uy = dy / d;
       [[i, -1], [j, 1]].forEach(([q, sg]) => { const m = meta[q], p = pol(m.a, m.r), np = [p[0] + ux * push * sg, p[1] + uy * push * sg]; m.a = Math.atan2(np[1] - C[1], np[0] - C[0]); m.r = Math.hypot(np[0] - C[0], np[1] - C[1]); });
     }
-    meta.forEach(m => { const c = ang(m.s); let da = Math.atan2(Math.sin(m.a - c), Math.cos(m.a - c)); da = Math.max(-.24, Math.min(.24, da)); m.a = c + da; m.r = Math.max(Math.max(9, m.base - 7), Math.min(m.base + m.band, 58, m.r)); });
+    meta.forEach(m => { const c = ang(m.s); let da = Math.atan2(Math.sin(m.a - c), Math.cos(m.a - c)); da = Math.max(-.24, Math.min(.24, da)); m.a = c + da; m.r = Math.max(m.B[0], Math.min(m.B[1], m.r)) }); // a distância diz sempre a verdade: cada nível tem a sua faixa, sem se misturar
     if (!moved) break;
   }
   const P = [C].concat(meta.map(m => pol(m.a, m.r)));
   const lines = []; for (let r = 1; r <= k; r++) { let j0 = 0, dm = 1e9; for (let j = 0; j < r; j++) { const dd = (P[r][0] - P[j][0]) ** 2 + (P[r][1] - P[j][1]) ** 2; if (dd < dm) { dm = dd; j0 = j; } } lines.push([j0, r]); } // cada estrela liga-se à vizinha mais próxima
   const zod = SIGNS.map((g, s) => [g.g, ...pol(ang(s), 64)]);
-  return { L, n, shown, k, ghosts: 0, P, lines, top, C, R, zod, rings: ZOD_R.map(r => r), named: x => k <= 14 || top(x), sz: k > 20 ? .62 : 1 };
+  return { L, n, shown, k, ghosts: 0, P, lines, top, C, R, zod, named: x => k <= 14 || top(x), sz: k > 20 ? .62 : 1 };
 }
 function soulStarsSVG(n, cap = 40) { // a tua constelação na roda do zodíaco (o mesmo desenho da tatuagem, nas cores do tema)
   const Y = soulStarLayout(cap), { P, C } = Y, f = v => v.toFixed(1), z = Y.sz, R = WHEEL_R, at = (d, r) => [C[0] + Math.cos(d * Math.PI / 180) * r, C[1] + Math.sin(d * Math.PI / 180) * r];
@@ -734,7 +740,7 @@ function soulStarsSVG(n, cap = 40) { // a tua constelação na roda do zodíaco 
   for (let d = 0; d < 360; d += 5) { if (d % 30 === 0 || d % 30 === 15) continue; const l = d % 10 === 0 ? R * .035 : R * .02, p = at(d, R * .965 - l), q = at(d, R * .965); s += `<line class="zt" x1="${f(p[0])}" y1="${f(p[1])}" x2="${f(q[0])}" y2="${f(q[1])}"/>`; }
   for (let i = 0; i < 12; i++) { const p = at(180 - i * 30 - 15, R * .875); s += `<text class="zg" x="${f(p[0])}" y="${f(p[1] + 2.4)}">${SIGNS[i].g}${TXT}</text>`; }
   [-90, 0, 90, 180].forEach(d => { const p = at(d, R + 4); s += `<path class="zc" d="M${f(p[0])} ${f(p[1] - 2.6)}L${f(p[0] + .45)} ${f(p[1] - .45)} ${f(p[0] + 2.6)} ${f(p[1])} ${f(p[0] + .45)} ${f(p[1] + .45)} ${f(p[0])} ${f(p[1] + 2.6)} ${f(p[0] - .45)} ${f(p[1] + .45)} ${f(p[0] - 2.6)} ${f(p[1])} ${f(p[0] - .45)} ${f(p[1] - .45)}Z"/>`; });
-  [28, 52].forEach(rr => { const nn = Math.round(2 * Math.PI * rr / 3.2); for (let i = 0; i < nn; i++) { const p = at(i / nn * 360, rr); s += `<circle class="zo" cx="${f(p[0])}" cy="${f(p[1])}" r=".32"/>`; } });
+  [23, 35, 47].forEach(rr => { const nn = Math.round(2 * Math.PI * rr / 3.2); for (let i = 0; i < nn; i++) { const p = at(i / nn * 360, rr); s += `<circle class="zo" cx="${f(p[0])}" cy="${f(p[1])}" r=".32"/>`; } });
   Y.lines.forEach(([a, b]) => { s += `<line class="sl" x1="${f(P[a][0])}" y1="${f(P[a][1])}" x2="${f(P[b][0])}" y2="${f(P[b][1])}"/>`; });
   s += `<circle class="sme" cx="${f(C[0])}" cy="${f(C[1])}" r="4.5"/><circle class="sg" cx="${f(C[0])}" cy="${f(C[1])}" r="1.8"/>` + (Y.k ? lab((soulMe() || {}).first || 'tu', C[0], C[1] + 9.5) : ''); // o ponto do centro és tu, com o teu nome
   Y.shown.forEach((x, i) => {
