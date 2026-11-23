@@ -444,7 +444,7 @@ function drawLuaCat(cat) { // o calendário da categoria escolhida (cabelo, unha
   days.forEach((d, i) => {
     const k = first + i, x = P + (k % 7) * cw, yy = top + Math.floor(k / 7) * ch, g = G[i], D = lunarDay(d);
     ctx.fillStyle = g >= 3 ? '#f2c76e' : g === 2 ? 'rgba(126,224,166,.32)' : 'rgba(255,255,255,.06)'; rr(ctx, x + 5, yy + 5, cw - 10, ch - 10, 14); ctx.fill();
-    ctx.fillStyle = g >= 3 ? '#2a1d05' : g === 0 ? 'rgba(255,255,255,.35)' : '#fff'; ctx.font = `${g >= 3 ? 800 : 700} ${Math.round(ch * .3)}px Manrope`; ctx.textAlign = 'left'; ctx.fillText(String(+d.slice(8)), x + 16, yy + ch * .42);
+    const lightBest = g >= 3 && canvasTheme() !== 'astral'; if (lightBest) ctx.__noTheme = true; ctx.fillStyle = lightBest ? '#ffffff' : g >= 3 ? '#2a1d05' : g === 0 ? 'rgba(255,255,255,.35)' : '#fff'; ctx.font = `${g >= 3 ? 800 : 700} ${Math.round(ch * .3)}px Manrope`; ctx.textAlign = 'left'; ctx.fillText(String(+d.slice(8)), x + 16, yy + ch * .42); ctx.__noTheme = false;
     drawMoon(ctx, x + cw - 26, yy + ch - 26, Math.min(cw, ch) * .11, D.e);
     if (g >= 3) { ctx.font = `${Math.round(ch * .22)}px ${EMOJI_F}`; ctx.fillText('⭐', x + 14, yy + ch - 16); }
     if (g === 0) { ctx.strokeStyle = 'rgba(255,143,163,.55)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x + 14, yy + ch - 18); ctx.lineTo(x + cw - 48, yy + ch * .5); ctx.stroke(); }
@@ -577,11 +577,11 @@ function renderLegacy() { // antigo, substituído por render() em ui.js
 // assinatura fixa em tudo o que sai da app (imagens, PDFs e vídeos): «✦ ceudehoje.com»
 const SITE_MARK = '✦ ceudehoje.com';
 function stampMark(ctx, W, H) {
-  const fs = Math.max(14, Math.round(W * .019)); ctx.save(); ctx.globalAlpha = 1; ctx.textAlign = 'right'; ctx.textBaseline = 'alphabetic'; ctx.font = `600 ${fs}px Manrope, sans-serif`;
+  const nt = ctx.__noTheme; ctx.__noTheme = true; const fs = Math.max(14, Math.round(W * .019)); ctx.save(); ctx.globalAlpha = 1; ctx.textAlign = 'right'; ctx.textBaseline = 'alphabetic'; ctx.font = `600 ${fs}px Manrope, sans-serif`;
   const y = H - Math.max(12, Math.round(fs * .9)), x = W - Math.round(W * .03), tw = ctx.measureText(SITE_MARK).width;
   let light = false; try { const d = ctx.getImageData(Math.max(0, x - tw), Math.max(0, y - fs), Math.max(1, tw), fs + 4).data; let L = 0, n = 0; for (let i = 0; i < d.length; i += 16) { L += .2126 * d[i] + .7152 * d[i + 1] + .0722 * d[i + 2]; n++; } light = L / n > 150; } catch (e) { }
   ctx.fillStyle = light ? 'rgba(40,32,70,.72)' : 'rgba(255,255,255,.88)'; if (!light) { ctx.shadowColor = 'rgba(0,0,0,.3)'; ctx.shadowBlur = Math.round(fs * .3); } // fundo claro: letra escura e sem sombra
-  const nt = ctx.__noTheme; ctx.__noTheme = true; ctx.fillText(SITE_MARK, x, y); ctx.restore(); ctx.__noTheme = nt;
+  ctx.fillText(SITE_MARK, x, y); ctx.restore(); ctx.__noTheme = nt;
 }
 function stampOnce(c) { if (c && !c._stamped) { try { stampMark(c.getContext('2d'), c.width, c.height); c._stamped = 1; } catch (e) { } } return c; }
 const blobOf = (c, q = .92) => new Promise(r => stampOnce(c).toBlob(r, 'image/jpeg', q));
