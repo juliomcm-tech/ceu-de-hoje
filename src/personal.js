@@ -336,8 +336,8 @@ async function enableAlerts() {
   try {
     const reg = await navigator.serviceWorker.ready;
     if ('periodicSync' in reg) { try { await reg.periodicSync.register('ceu-bdays', { minInterval: 12 * 3600 * 1000 }); store.set('ceu_psync', '1'); } catch (e) { store.set('ceu_psync', '0'); } }
-    reg.showNotification('🔔 Alertas ligados', { body: 'Vais receber um aviso no dia de anos de quem guardaste.', icon: 'icon-192.png', badge: 'badge-96.png', tag: 'ceu-test' });
-  } catch (e) { new Notification('🔔 Alertas ligados', { body: 'Vais receber um aviso no dia de anos de quem guardaste.' }); }
+    reg.showNotification('🔔 Alertas ligados', { body: 'Vais receber avisos de aniversários, do teu dia e dos teus animais.', icon: 'icon-192.png', badge: 'badge-96.png', tag: 'ceu-test' });
+  } catch (e) { new Notification('🔔 Alertas ligados', { body: 'Vais receber avisos de aniversários, do teu dia e dos teus animais.' }); }
   render();
 }
 

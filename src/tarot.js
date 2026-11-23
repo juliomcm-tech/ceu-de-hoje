@@ -123,6 +123,7 @@ function openTarot(reveal, wk) { // ritual: carta virada, toca, abre (wk = carta
     const st = dlg.querySelector('.tstage'); if (st.classList.contains('open')) return;
     st.classList.add('open'); store.set(key, '1'); try { navigator.vibrate && navigator.vibrate([20, 40, 30]); } catch (e) { }
     $('#tBurst').innerHTML = Array.from({ length: 26 }, (_, k) => `<b style="--a:${k * 360 / 26}deg;--d:${120 + (k % 5) * 30}px;animation-delay:${(k % 4) * .04}s"></b>`).join('');
+    if (!wk && store.get('ceu_mvoice') === '1') voiceUnlock(); // destrava a voz ainda dentro do toque
     setTimeout(() => { dlg.querySelector('.thint').innerHTML = `<b>${TAROT[i][0]}</b>`; $('#tInfo').innerHTML = tarotDetail(i); bindDet(); render(); if (!wk && store.get('ceu_mvoice') === '1') speakDay(); }, 900);
   };
 }

@@ -30,6 +30,9 @@ async function jwtFor(aud, k) {
 }
 // hora local "HH:MM" + diferença do fuso (minutos, como Date.getTimezoneOffset) -> fatia UTC "HHMM" de 15 em 15 min
 function slot(hhmm, off) { const [h, m] = String(hhmm).split(':').map(Number); if (!(h >= 0 && h < 24 && m >= 0 && m < 60)) return null; let t = h * 60 + m + (+off || 0); t = ((Math.round(t / 15) * 15) % 1440 + 1440) % 1440; return String(Math.floor(t / 60)).padStart(2, '0') + String(t % 60).padStart(2, '0'); }
+// diferença do fuso (minutos, como getTimezoneOffset) num fuso com nome, numa data — para a hora de verão nunca desacertar
+function tzOff(tz, d) { try { const p = Object.fromEntries(new Intl.DateTimeFormat('en-US', { timeZone: tz, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }).formatToParts(d).map(x => [x.type, x.value])); return Math.round((d.getTime() - Date.UTC(+p.year, p.month - 1, +p.day, +p.hour % 24, +p.minute)) / 60000); } catch (e) { return null; } }
+const okTz = tz => typeof tz === 'string' && /^[A-Za-z_]+(\/[A-Za-z0-9_+-]+){0,2}$/.test(tz) && tzOff(tz, new Date()) !== null;
 const nowSlot = d => { const t = Math.floor((d.getUTCHours() * 60 + d.getUTCMinutes()) / 15) * 15; return String(Math.floor(t / 60)).padStart(2, '0') + String(t % 60).padStart(2, '0'); };
 const okEndpoint = e => { try { const u = new URL(e); return u.protocol === 'https:' && /(^|\.)(googleapis\.com|push\.apple\.com|mozilla\.com|mozaws\.net|windows\.com|notify\.windows\.com)$/.test(u.hostname); } catch (x) { return false; } };
 
@@ -59,12 +62,17 @@ export default {
     if (url.pathname === '/sub' && req.method === 'POST') {
       const b = await req.json().catch(() => ({})), id = String(b.id || '').replace(/[^\w-]/g, '').slice(0, 40);
       if (!id || !okEndpoint(b.endpoint)) return json({ ok: false, err: 'dados inválidos' }, 400);
-      const keys = [];
-      for (const [t, on, hh] of [['m', b.on?.m !== false, b.m || '08:00'], ['n', b.on?.n !== false, b.n || '21:30']]) { const s = on && slot(hh, b.off); if (s) keys.push(`${t}:${s}:${id}`); }
+      const keys = [], tz = okTz(b.tz) ? b.tz : '', y = new Date().getUTCFullYear(), meta = {};
+      for (const [t, on, hh] of [['m', b.on?.m !== false, b.m || '08:00'], ['n', b.on?.n !== false, b.n || '21:30']]) {
+        if (!on) continue;
+        // com fuso conhecido: inscreve na hora de inverno e na de verão; na hora de enviar confirma qual vale nesse dia
+        const offs = tz ? [...new Set([tzOff(tz, new Date(Date.UTC(y, 0, 15))), tzOff(tz, new Date(Date.UTC(y, 6, 15)))])] : [b.off];
+        for (const o of offs) { const s = slot(hh, o); if (s && !keys.includes(`${t}:${s}:${id}`)) { keys.push(`${t}:${s}:${id}`); meta[`${t}:${s}:${id}`] = tz ? { tz, hm: hh } : null; } }
+      }
       const old = await env.PUSH.get('u:' + id, 'json');
       for (const key of (old?.keys || [])) if (!keys.includes(key)) await env.PUSH.delete(key);
-      for (const key of keys) if (!(old?.keys || []).includes(key) || old.e !== b.endpoint) await env.PUSH.put(key, '', { metadata: { e: b.endpoint, id } });
-      await env.PUSH.put('u:' + id, JSON.stringify({ keys, e: b.endpoint }));
+      for (const key of keys) if (!(old?.keys || []).includes(key) || old.e !== b.endpoint || old.tz !== tz) await env.PUSH.put(key, '', { metadata: { e: b.endpoint, id, ...(meta[key] || {}) } });
+      await env.PUSH.put('u:' + id, JSON.stringify({ keys, e: b.endpoint, tz }));
       return json({ ok: true, keys: keys.length });
     }
     if (url.pathname === '/unsub' && req.method === 'POST') { const b = await req.json().catch(() => ({})); if (b.id) await unsub(String(b.id).replace(/[^\w-]/g, ''), env); return json({ ok: true }); }
@@ -76,7 +84,7 @@ export default {
   },
   async scheduled(ev, env, ctx) {
     const s = nowSlot(new Date(ev.scheduledTime)), due = [];
-    for (const t of ['m', 'n']) { let cursor; do { const r = await env.PUSH.list({ prefix: `${t}:${s}:`, cursor }); r.keys.forEach(x => x.metadata && due.push({ id: x.metadata.id, e: x.metadata.e })); cursor = r.list_complete ? null : r.cursor; } while (cursor); }
+    for (const t of ['m', 'n']) { let cursor; do { const r = await env.PUSH.list({ prefix: `${t}:${s}:`, cursor }); r.keys.forEach(x => { const m = x.metadata; if (!m) return; if (m.tz && slot(m.hm, tzOff(m.tz, new Date(ev.scheduledTime))) !== s) return; /* esta é a hora da outra estação */ if (!due.some(d => d.id === m.id && d.t === t)) due.push({ id: m.id, e: m.e, t }); }); cursor = r.list_complete ? null : r.cursor; } while (cursor); }
     if (!due.length) return;
     if (due.length <= FAN) { await sendAll(due, env); return; }
     const k = await vapid(env), self = env.SELF_URL || 'https://ceu-avisos.juliomcm.workers.dev'; // com muita gente: divide em lotes

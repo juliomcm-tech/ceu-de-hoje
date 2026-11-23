@@ -1,5 +1,5 @@
 // ===== App de telemóvel =====
-const APP_VERSION = '23.11.2026 02:40';
+const APP_VERSION = '23.11.2026 21:00';
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const G = g => `${g}&#xFE0E;`;
@@ -500,8 +500,8 @@ const VIEWS = { top: vTop, pares: vPares, lua: vLua, anos: vAnos, horas: vHoras,
 
 let _syncT = 0;
 function render() {
-  if (Date.now() - _syncT > 15000) { _syncT = Date.now(); setTimeout(() => { try { syncAlertData(); } catch (e) { } }, 1500); }
-  syncAlertData();
+  if (ST._lastType && ST._lastType !== ST.type) stopAll(); ST._lastType = ST.type; // mudar de aba cala a leitura
+  if (Date.now() - _syncT > 15000) { _syncT = Date.now(); setTimeout(() => { try { syncAlertData(); } catch (e) { } }, 1500); } // no máximo de 15 em 15 s (era a cada toque)
   if (!TABS[ST.type].includes(ST.mode)) ST.mode = TABS[ST.type][0];
   document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.t === ST.type));
   document.querySelectorAll('#modes button').forEach(b => { b.hidden = !TABS[ST.type].includes(b.dataset.m); b.classList.toggle('on', b.dataset.m === ST.mode); });
@@ -581,6 +581,11 @@ async function shareCurrent() {
 }
 
 // ---------- Janela de aniversários ----------
+function routeQS(qs, live) { // abre o ecrã pedido por um aviso (./?carta, ./?ciclo…); live = a app já estava aberta
+  if (live) document.querySelectorAll('dialog[open]').forEach(d => d.close());
+  if (/[?&]alma($|&)/.test(qs)) setTimeout(openSoul, 600); if (/[?&]copia($|&)/.test(qs)) setTimeout(() => { try { $('[data-open=menu]').click(); setTimeout(() => { const b = $('#bkMenu'); if (b) b.scrollIntoView({ block: 'center', behavior: 'smooth' }); }, 400); } catch (e) { } }, 700); if (/carta/.test(qs)) setTimeout(() => openTarot(!tarOpened()), 600); if (/[?&]semana($|&)/.test(qs)) setTimeout(() => openTarot(!store.get('ceu_tarw_' + mondayOf(todayStr())), true), 600); if (/asemana/.test(qs)) setTimeout(openWeekView, 600); if (/semana-lua/.test(qs)) { ST.type = 'eu'; ST.euView = 'me'; setTimeout(() => { const n = document.querySelector('#sec-rout'); n && n.scrollIntoView({ block: 'start' }); }, 700); } if (/posts/.test(qs)) setTimeout(() => openStudio(), 600); if (/noite/.test(qs)) setTimeout(openNight, 600); if (/wrapped/.test(qs)) setTimeout(() => openWrapped(), 600); if (/ciclo|resumo|livro|patudos/.test(qs)) { ST.type = 'eu'; ST.euView = 'me'; setTimeout(() => { if (/ciclo/.test(qs)) (CY.get().preg ? openPreg() : openCycle()); else if (/resumo/.test(qs)) openMonth(); else if (/livro/.test(qs)) openAno(); else if (/patudos/.test(qs)) { const n = document.querySelector('#sec-pets'); n && n.scrollIntoView({ block: 'start', behavior: 'smooth' }); } }, 700); }
+  if (live) render();
+}
 function showTodayDlg(force) {
   const key = 'ceu_seen_' + todayStr(), T = bdaysOn(0), M = bdaysOn(1), CD = careDue(3), YN = yearNudge(), AD = adoptToday(), CYA = cycleAlerts(), MN = +todayStr().slice(8) <= 3 && !store.get('ceu_monseen_' + todayStr().slice(0, 7)), TAR = P.get() && !tarOpened(), sig = `${T.length + M.length}|${CD.length}|${YN ? 1 : 0}|${AD.length}|${CYA.length}|${MN ? 1 : 0}|${TAR ? 1 : 0}`;
   if (!T.length && !M.length && !CD.length && !YN && !AD.length && !CYA.length && !MN && !TAR) return false;
@@ -657,8 +662,11 @@ async function init() {
   if (hasPin()) await lockScreen();
   ST.date = todayStr();
   if (/aniversarios/.test(location.search + location.hash)) { ST.type = 'anos'; ST.anosView = 'agenda'; }
-  const qs = location.search; if (/[?&]alma($|&)/.test(qs)) setTimeout(openSoul, 600); if (/[?&]copia($|&)/.test(qs)) setTimeout(() => { try { $('[data-open=menu]').click(); setTimeout(() => { const b = $('#bkMenu'); if (b) b.scrollIntoView({ block: 'center', behavior: 'smooth' }); }, 400); } catch (e) { } }, 700); if (/carta/.test(qs)) setTimeout(() => openTarot(!tarOpened()), 600); if (/[?&]semana($|&)/.test(qs)) setTimeout(() => openTarot(!store.get('ceu_tarw_' + mondayOf(todayStr())), true), 600); if (/asemana/.test(qs)) setTimeout(openWeekView, 600); if (/semana-lua/.test(qs)) { ST.type = 'eu'; ST.euView = 'me'; setTimeout(() => { const n = document.querySelector('#sec-rout'); n && n.scrollIntoView({ block: 'start' }); }, 700); } if (/posts/.test(qs)) setTimeout(() => openStudio(), 600); if (/noite/.test(qs)) setTimeout(openNight, 600); if (/wrapped/.test(qs)) setTimeout(() => openWrapped(), 600); if (/ciclo|resumo|livro|patudos/.test(qs)) { ST.type = 'eu'; ST.euView = 'me'; setTimeout(() => { if (/ciclo/.test(qs)) (CY.get().preg ? openPreg() : openCycle()); else if (/resumo/.test(qs)) openMonth(); else if (/livro/.test(qs)) openAno(); }, 700); }
+  routeQS(location.search); if (location.search) try { history.replaceState(null, '', location.pathname + location.hash); } catch (e) { } // depois de abrir o ecrã pedido, o endereço fica limpo (recarregar não volta a abrir)
   document.addEventListener('visibilitychange', () => { if (document.visibilityState !== 'visible') return; const t = todayStr(); if (ST._day && ST._day !== t) { if (ST.date === ST._day) ST.date = t; ST._day = t; render(); setTimeout(() => showTodayDlg(false), 400); } });
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') try { syncAlertData(); } catch (e) { } });
+  document.addEventListener('close', e => { if (e.target && e.target.tagName === 'DIALOG' && e.target.id !== 'selDlg') stopAll(); }, true); // fechar uma janela cala a leitura e a respiração // ao sair da app, os avisos ficam com os dados mais recentes
+  try { navigator.serviceWorker && navigator.serviceWorker.addEventListener('message', e => { if (e.data && e.data.go != null) routeQS(String(e.data.go), true); }); } catch (e) { } // toque num aviso com a app aberta
   ST._day = todayStr(); setTimeout(() => pushSync(false), 4000); try { if (navigator.storage && navigator.storage.persist && hasPersonalData()) navigator.storage.persist(); } catch (e) { }
   render();
   if (/^#mig=/.test(location.hash)) setTimeout(checkMigLink, 300); else if (/#add=/.test(location.hash)) setTimeout(checkAddLink, 400); else if (/#casal=/.test(location.hash)) checkCoupleLink(); else if (/^#alma=/.test(location.hash)) checkSoulLink(); else if (!isOldHost()) setTimeout(() => { if (!soulWelcome() && !showTodayDlg(false)) maybeTour(); }, 600);

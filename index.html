@@ -1963,8 +1963,8 @@ async function enableAlerts() {
   try {
     const reg = await navigator.serviceWorker.ready;
     if ('periodicSync' in reg) { try { await reg.periodicSync.register('ceu-bdays', { minInterval: 12 * 3600 * 1000 }); store.set('ceu_psync', '1'); } catch (e) { store.set('ceu_psync', '0'); } }
-    reg.showNotification('🔔 Alertas ligados', { body: 'Vais receber um aviso no dia de anos de quem guardaste.', icon: 'icon-192.png', badge: 'badge-96.png', tag: 'ceu-test' });
-  } catch (e) { new Notification('🔔 Alertas ligados', { body: 'Vais receber um aviso no dia de anos de quem guardaste.' }); }
+    reg.showNotification('🔔 Alertas ligados', { body: 'Vais receber avisos de aniversários, do teu dia e dos teus animais.', icon: 'icon-192.png', badge: 'badge-96.png', tag: 'ceu-test' });
+  } catch (e) { new Notification('🔔 Alertas ligados', { body: 'Vais receber avisos de aniversários, do teu dia e dos teus animais.' }); }
   render();
 }
 
@@ -4062,8 +4062,8 @@ function alertEvents() {
   try { bkAlerts().forEach(a => ev.push(a)); } catch (e) { }
   try { [...giftAlerts(), ...nightAlerts(), ...wrapAlerts(), ...weekAlerts(), ...routineAlerts()].forEach(a => ev.push(a)); } catch (e) { }
   try { const o = CY.get(); if (o.on && !o.preg) { const st = cycleStats(o); if (st.last) { if (o.alerts.period) { add(dayStr(noonJd(st.next) - 2), '🩸 O período deve chegar daqui a 2 dias', 'Leva o que precisas na mala 💗', 'cy-p2-' + st.next, './?ciclo'); add(st.next, '🩸 O período pode chegar hoje', 'Cuida bem de ti hoje 💗', 'cy-p0-' + st.next, './?ciclo'); } if (o.alerts.fertile) add(st.fert[0], '🌸 Começa hoje a tua janela fértil', `Até ${niceDate(st.fert[1]).replace(/^[^,]+, /, '')} (estimativa)`, 'cy-f-' + st.fert[0], './?ciclo'); if (o.ttc && o.alerts.fertile) add(st.peak[0], '🔥 Começam hoje os teus dias de pico', `${cyRange(st.peak[0], st.peak[1])}. Regista os sinais na app para afinar.`, 'cy-pk-' + st.peak[0], './?ciclo'); } } } catch (e) { }
-  try { P.list('ceu_pets').forEach(a => ['vac', 'des'].forEach(k => { const n = careNext(a, k); if (!n) return; const lbl = `${CARE_T[k][1]} ${spOf(a)[0] === 'gata' ? 'da' : 'do'} ${a.name}`; add(dayStr(noonJd(n) - 1), `${CARE_T[k][0]} Amanhã: ${lbl}`, 'Já marcaste o veterinário?', `pet-${a.name}-${k}-${n}-1`, './?patudos'); add(n, `${CARE_T[k][0]} Hoje: ${lbl}`, 'Depois de tratar, carrega em ✅ Feito na app.', `pet-${a.name}-${k}-${n}-0`, './?patudos'); }));
-    P.list('ceu_pets').filter(a => a.adopt).forEach(a => { for (const y of [+today.slice(0, 4), +today.slice(0, 4) + 1]) { const d = y + a.adopt.slice(4); if (d > a.adopt) add(d, `🏡 Faz ${y - +a.adopt.slice(0, 4)} ano${y - +a.adopt.slice(0, 4) > 1 ? 's' : ''} que ${a.name} chegou a casa!`, 'Toca para criar o cartaz do dia de adoção 🐾', `adopt-${a.name}-${y}`, './?patudos'); } }); } catch (e) { }
+  try { P.list('ceu_pets').forEach(a => ['vac', 'des'].forEach(k => { const n = careNext(a, k); if (!n) return; const lbl = `${CARE_T[k][1]} de ${a.name}`; add(dayStr(noonJd(n) - 1), `${CARE_T[k][0]} Amanhã: ${lbl}`, 'Já marcaste o veterinário?', `pet-${a.name}-${k}-${n}-1`, './?patudos'); add(n, `${CARE_T[k][0]} Hoje: ${lbl}`, 'Depois de tratar, carrega em ✅ Feito na app.', `pet-${a.name}-${k}-${n}-0`, './?patudos'); }));
+    P.list('ceu_pets').filter(a => a.adopt).forEach(a => { for (const y of [+today.slice(0, 4), +today.slice(0, 4) + 1]) { const leap = (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0, d = y + (a.adopt.slice(4) === '-02-29' && !leap ? '-02-28' : a.adopt.slice(4)); if (d > a.adopt) add(d, `🏡 Faz ${y - +a.adopt.slice(0, 4)} ano${y - +a.adopt.slice(0, 4) > 1 ? 's' : ''} que ${a.name} chegou a casa!`, 'Toca para criar o cartaz do dia de adoção 🐾', `adopt-${a.name}-${y}`, './?patudos'); } }); } catch (e) { }
   try { skyAgenda(70).forEach(x => { if (x.rxStart) { add(dayStr(noonJd(x.d) - 1), '☿ Amanhã Mercúrio fica retrógrado', 'Revê mensagens e contratos com calma nas próximas semanas.', 'sky-rx-' + x.d); } if (/Eclipse/.test(x.t)) add(x.d, `${x.ic} Hoje há ${x.t.toLowerCase()}`, 'Dia de viragem: bom para refletir e recomeçar.', 'sky-ecl-' + x.d); }); } catch (e) { }
   const [y, m] = today.split('-').map(Number), nm = new Date(y, m, 1), nd = `${nm.getFullYear()}-${String(nm.getMonth() + 1).padStart(2, '0')}-01`;
   add(nd, `📊 O teu ${MESES[m - 1]} está pronto`, 'Livros, séries, momentos e humor do mês, num só resumo.', 'month-' + nd, './?resumo');
@@ -4500,6 +4500,7 @@ function openTarot(reveal, wk) { // ritual: carta virada, toca, abre (wk = carta
     const st = dlg.querySelector('.tstage'); if (st.classList.contains('open')) return;
     st.classList.add('open'); store.set(key, '1'); try { navigator.vibrate && navigator.vibrate([20, 40, 30]); } catch (e) { }
     $('#tBurst').innerHTML = Array.from({ length: 26 }, (_, k) => `<b style="--a:${k * 360 / 26}deg;--d:${120 + (k % 5) * 30}px;animation-delay:${(k % 4) * .04}s"></b>`).join('');
+    if (!wk && store.get('ceu_mvoice') === '1') voiceUnlock(); // destrava a voz ainda dentro do toque
     setTimeout(() => { dlg.querySelector('.thint').innerHTML = `<b>${TAROT[i][0]}</b>`; $('#tInfo').innerHTML = tarotDetail(i); bindDet(); render(); if (!wk && store.get('ceu_mvoice') === '1') speakDay(); }, 900);
   };
 }
@@ -4754,8 +4755,8 @@ async function bestVoice() { const V = (await getVoicesP()).filter(isPT), want =
 const useSystemVoice = () => !store.get('ceu_voice'); // vazio = a voz escolhida nas definições do telemóvel
 const AMB = { ctx: null, nodes: [], t: 0 };
 function ambientStart() {
-  if (store.get('ceu_music') === '0') return; try {
-    const C = AMB.ctx = new (window.AudioContext || window.webkitAudioContext)(), out = C.createGain(); out.gain.value = 0; out.connect(C.destination); out.gain.linearRampToValueAtTime(+(store.get('ceu_mvol') || .16), C.currentTime + 2.5);
+  ambientKill(); if (store.get('ceu_music') === '0') return; try {
+    const C = AMB.ctx = new (window.AudioContext || window.webkitAudioContext)(), out = C.createGain(); try { C.resume && C.resume(); } catch (e) { } out.gain.value = 0; out.connect(C.destination); out.gain.linearRampToValueAtTime(+(store.get('ceu_mvol') || .16), C.currentTime + 2.5);
     const lp = C.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 900; lp.Q.value = .6; lp.connect(out);
     const lfo = C.createOscillator(), lg = C.createGain(); lfo.frequency.value = .07; lg.gain.value = 350; lfo.connect(lg); lg.connect(lp.frequency); lfo.start();
     const chords = [[174.6, 261.6, 329.6, 440], [196, 293.7, 349.2, 440], [164.8, 246.9, 329.6, 392], [174.6, 261.6, 349.2, 440]];
@@ -4764,17 +4765,31 @@ function ambientStart() {
     AMB.nodes = [out, lfo, ...voices];
   } catch (e) { }
 }
+function ambientKill() { clearInterval(AMB.t); if (AMB.ctx) { try { AMB.ctx.close(); } catch (e) { } AMB.ctx = null; } } // nunca dois sons ao mesmo tempo
 function ambientStop() { clearInterval(AMB.t); const C = AMB.ctx; if (!C) return; try { AMB.nodes[0].gain.cancelScheduledValues(C.currentTime); AMB.nodes[0].gain.setTargetAtTime(0, C.currentTime, .6); setTimeout(() => { try { C.close(); } catch (e) { } }, 2500); } catch (e) { } AMB.ctx = null; }
-let _spkRun = 0;
-async function speakText(text, btn, label) {
+let _spkRun = 0, _spkBtn = null, _spkLbl = '';
+function stopAll() { // cala tudo: leitura, respiração e música (ao fechar janelas, mudar de aba ou começar outra leitura)
+  _spkRun = 0; try { window.speechSynthesis && speechSynthesis.cancel(); } catch (e) { }
+  try { if (typeof _br !== 'undefined' && _br) { clearTimeout(_br.t); _br = null; const t = $('#bT'), c = $('#bC'); if (t) t.textContent = 'Toca para respirar'; if (c) c.className = 'bcirc'; } } catch (e) { }
+  ambientStop(); if (_spkBtn) { _spkBtn.textContent = _spkLbl; _spkBtn.removeAttribute('aria-pressed'); _spkBtn = null; }
+}
+function voiceUnlock() { try { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; speechSynthesis.speak(u); } catch (e) { } } // no iPhone a voz só pode começar dentro de um toque
+function pickVoice() { // a voz escolhida; senão Portugal; sem voz de Portugal, a do Brasil (melhor do que inglês)
+  const V = (window.speechSynthesis && speechSynthesis.getVoices()) || [], want = store.get('ceu_voice'), ch = want && V.find(v => v.voiceURI === want);
+  if (ch) return ch; if (V.some(isPT) || !V.length) return null; const br = V.find(isPTany);
+  if (br && !ST._noPtVoice) { ST._noPtVoice = 1; setTimeout(() => toast('Não há voz de Portugal neste telemóvel: uso a do Brasil. Em Definições → Voz explico como instalar.', 6000), 300); }
+  return br || null;
+}
+function speakText(text, btn, label) {
   const S = window.speechSynthesis; if (!S) { toast('Este telemóvel não lê em voz alta'); return; }
-  if (S.speaking || _spkRun) { _spkRun = 0; S.cancel(); ambientStop(); if (btn) btn.textContent = label; return; }
-  const v = await bestVoice();
-  const run = ++_spkRun, parts = text.match(/[^.!?]+[.!?]*/g) || [text]; if (btn) btn.textContent = '⏹️ Parar'; ambientStart();
-  const say = k => { if (run !== _spkRun) return; if (k >= parts.length) { setTimeout(() => { if (run === _spkRun) { _spkRun = 0; ambientStop(); if (btn) btn.textContent = label; } }, 900); return; }
-    const u = new SpeechSynthesisUtterance(parts[k].trim()); if (v) u.voice = v; u.lang = 'pt-PT'; u.rate = +(store.get('ceu_vrate') || .9); u.pitch = 1; u.volume = +(store.get('ceu_vvol') || .7);
+  if (S.speaking || _spkRun) { const same = btn && _spkBtn === btn; stopAll(); if (same) return; } // tocar outra vez = parar; outro botão = troca de leitura
+  const v = pickVoice(), run = ++_spkRun, parts = String(text).replace(/([^.])\.\.(?!\.)/g, '$1.').match(/[^.!?]+[.!?]*/g) || [text];
+  if (btn) { _spkBtn = btn; _spkLbl = label; btn.textContent = '⏹️ Parar'; btn.setAttribute('aria-pressed', 'true'); }
+  ambientStart();
+  const say = k => { if (run !== _spkRun) return; if (k >= parts.length) { setTimeout(() => { if (run === _spkRun) stopAll(); }, 900); return; }
+    const u = new SpeechSynthesisUtterance(parts[k].trim()); if (v) u.voice = v; u.lang = v ? v.lang : 'pt-PT'; u.rate = +(store.get('ceu_vrate') || .9); u.pitch = 1; u.volume = +(store.get('ceu_vvol') || .8);
     u.onend = () => setTimeout(() => say(k + 1), /[.!?]$/.test(parts[k].trim()) ? 420 : 150); u.onerror = () => say(k + 1); S.speak(u); };
-  setTimeout(() => say(0), store.get('ceu_music') === '0' ? 0 : 1400);
+  say(0); // já dentro do toque (o iPhone exige); a música entra devagar por baixo
 }
 function speakDay(btn) { return speakText(dayScript(), btn, '🔊 Ouvir o meu dia'); }
 function voiceHelp(none) {
@@ -4957,7 +4972,7 @@ function bdMsg(x, style, n) {
     astral: [`Parabéns, ${C}! ✨ Hoje o Sol volta ao sítio onde estava quando nasceste: começa o teu novo ano astral. ${q[1]} de ${S} vai brilhar ainda mais este ano. 🌟`, `Feliz aniversário, ${C}! 🌙 Que as estrelas de ${S} te tragam um ano de sorte, amor e caminhos abertos. Que Júpiter te proteja! 💫`, `${cap1(C)}, nasceste com a Lua em ${mo} e isso explica muita coisa 😉 Que este novo ano astral seja dos melhores. Parabéns! ✨`] };
   const L = T[style]; return gx(L[((n % L.length) + L.length) % L.length], f);
 }
-function nextBirthday(d) { const t = todayStr(), y = +t.slice(0, 4), c = y + d.slice(4); return (c >= t ? c : (y + 1) + d.slice(4)).replace(/-02-29$/, '-02-28'); }
+function nextBirthday(d) { const t = todayStr(), lp = y => (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0, on = y => y + (d.slice(4) === '-02-29' && !lp(y) ? '-02-28' : d.slice(4)), y = +t.slice(0, 4); return on(y) >= t ? on(y) : on(y + 1); } // 29 de fevereiro: 28 nos anos comuns, 29 nos bissextos
 function openBdMsg(k, style = 'carinhosa', n = 0) {
   const x = P.list('ceu_bdays')[k]; if (!x) return; const txt = bdMsg(x, style, n), tel = (x.tel || '').replace(/\D/g, ''), num = tel ? (tel.length === 9 ? '351' + tel : tel) : '';
   $('#infoTitle').textContent = '💬 Mensagem para ' + x.name.split(' ')[0];
@@ -4987,13 +5002,13 @@ function openNight() {
   $('#nAl').onchange = e => { store.set('ceu_night_alert', e.target.checked ? '1' : '0'); try { syncAlertData(); } catch (er) { } };
 }
 let _br = null;
-function stopBreath() { if (_br) { clearTimeout(_br.t); _br = null; } try { speechSynthesis.cancel(); } catch (e) { } ambientStop(); }
+function stopBreath() { stopAll(); }
 function startBreath() {
-  if (_br) { stopBreath(); $('#bT').textContent = 'Toca para respirar'; $('#bC').className = 'bcirc'; return; }
-  _br = { n: 0 }; ambientStart(); const say = w => { try { const u = new SpeechSynthesisUtterance(w); u.lang = 'pt-PT'; u.rate = .8; u.volume = +(store.get('ceu_vvol') || .7) * .8; const v = store.get('ceu_voice'); if (v) { const vv = speechSynthesis.getVoices().find(z => z.voiceURI === v); if (vv) u.voice = vv; } speechSynthesis.speak(u); } catch (e) { } };
+  if (_br) { stopAll(); return; }
+  stopAll(); _br = { n: 0 }; ambientStart(); voiceUnlock(); const bv = pickVoice(); const say = w => { try { const u = new SpeechSynthesisUtterance(w); u.lang = 'pt-PT'; u.rate = .8; u.volume = +(store.get('ceu_vvol') || .7) * .8; if (bv) { u.voice = bv; u.lang = bv.lang; } speechSynthesis.speak(u); } catch (e) { } };
   const steps = [['Inspira…', 'in', 4000], ['Segura…', 'hold', 3000], ['Expira devagar…', 'out', 6000]];
   const go = k => { if (!_br) return; if (k >= steps.length) { if (++_br.n >= 4) { $('#bT').textContent = 'Dorme bem 🌙'; $('#bC').className = 'bcirc'; say('Dorme bem.'); _br.t = setTimeout(() => { ambientStop(); _br = null; }, 4000); return; } k = 0; } const [w, c, ms] = steps[k]; $('#bT').textContent = w; $('#bC').className = 'bcirc ' + c; say(w.replace('…', '')); _br.t = setTimeout(() => go(k + 1), ms); };
-  _br.t = setTimeout(() => go(0), 1200);
+  _br.t = setTimeout(() => go(0), 900);
 }
 function nightAlerts() { if (store.get('ceu_night_alert') !== '1') return []; const t0 = noonJd(todayStr()); return Array.from({ length: 30 }, (_, k) => { const d = dayStr(t0 + k); return { d, t: '🌙 Esta noite: o teu ritual da noite', b: 'Antes de dormir: respira, agradece e vê a Lua de hoje.', tag: 'night-' + d, url: './?noite', h: 18 }; }); }
 
@@ -5105,7 +5120,7 @@ function openWeekView() {
   $('#infoBody').innerHTML = `${n ? '' : '<p class="note">Semana calma: nada marcado. Aproveita! 🌿</p>'}<div class="wkv">${W.map(x => `<div class="wkday${x.d === todayStr() ? ' today' : ''}"><div class="wkhd"><b>${cap1(WDAY[wdOf(x.d)][0].replace('-feira', ''))}</b><small>${+x.d.slice(8)} ${MESES[+x.d.slice(5, 7) - 1].slice(0, 3)}</small><span>${moonEmoji(skyFor(x.d).phase.elong)}</span></div>${x.it.length ? x.it.map(i => `<p><span>${i[0]}</span><span class="wtx">${esc(i[1])}${i[2] ? `<small>${esc(i[2])}</small>` : ''}</span></p>`).join('') : '<p class="mute">—</p>'}</div>`).join('')}</div>
     <div class="drow"><button class="btn main" id="wkSpk">🔊 Ouvir a semana</button><button class="btn" id="wkSh">📤 Partilhar</button></div><label class="chk"><input type="checkbox" id="wkAl"${store.get('ceu_week_alert') === '0' ? '' : ' checked'}> Avisar-me ao domingo à noite com a semana</label>`;
   if (!$('#infoDlg').open) $('#infoDlg').showModal(); $('#infoDlg').scrollTop = 0;
-  const txt = () => `A tua semana${me.name ? ', ' + me.name.split(' ')[0] : ''}. ` + W.filter(x => x.it.length).map(x => `${WDAY[wdOf(x.d)][0]}: ${x.it.map(i => i[1] + (i[2] ? '. ' + i[2] : '')).join(' ')}.`).join(' ') || 'Semana calma, sem nada marcado.';
+  const txt = () => `A tua semana${me.name ? ', ' + me.name.split(' ')[0] : ''}. ` + W.filter(x => x.it.length).map(x => `${WDAY[wdOf(x.d)][0]}: ${x.it.map(i => i[1] + (i[2] ? '. ' + i[2] : '')).join(' ')}.`).join(' ') + (W.some(x => x.it.length) ? '' : ' Semana calma, sem nada marcado.');
   $('#wkAl').onchange = e => { store.set('ceu_week_alert', e.target.checked ? '1' : '0'); try { syncAlertData(); } catch (er) { } };
   $('#wkSpk').onclick = e => speakText(txt(), e.currentTarget, '🔊 Ouvir a semana');
   $('#wkSh').onclick = async () => { await fontsReady(); const [c, ctx, Wd, H] = newCanvas(); bg(ctx, Wd, H, 'wk' + from, ['#2a5fd1', '#06081a']); ctx.textAlign = 'center'; ctx.fillStyle = '#f2c76e'; ctx.font = '700 36px Cinzel'; ctx.fillText('A MINHA SEMANA NO CÉU', Wd / 2, 100);
@@ -5156,16 +5171,17 @@ async function pushSync(force) {
   const o = PS.get(), url = pushUrl(); if (!url || !o.on || !('serviceWorker' in navigator) || !('PushManager' in window)) return false;
   try { const reg = await navigator.serviceWorker.ready; let sub = await reg.pushManager.getSubscription();
     if (!sub) { const { key } = await (await fetch(url + '/vapid')).json(); sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: u8(key) }); force = true; }
-    const off = new Date().getTimezoneOffset(), sig = [sub.endpoint, off, o.m, o.n, o.mOn, o.nOn].join('|');
+    const off = new Date().getTimezoneOffset(), tz = (() => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) { return ''; } })(), sig = [sub.endpoint, off, tz, o.m, o.n, o.mOn, o.nOn].join('|');
     if (!force && o.sig === sig && Date.now() - (o.at || 0) < 7 * 864e5) { if (o.err) { o.err = ''; PS.set(o); } return true; }
     o.id = o.id || (crypto.randomUUID ? crypto.randomUUID() : 'u' + Date.now() + Math.random().toString(36).slice(2));
-    const r = await fetch(url + '/sub', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id: o.id, endpoint: sub.endpoint, off, m: o.m || '08:00', n: o.n || '21:30', on: { m: o.mOn !== false, n: !!o.nOn } }) });
-    if (!r.ok) throw new Error('servidor ' + r.status); o.sig = sig; o.at = Date.now(); o.err = ''; PS.set(o); return true;
+    const r = await fetch(url + '/sub', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id: o.id, endpoint: sub.endpoint, off, tz, m: o.m || '08:00', n: o.n || '21:30', on: { m: o.mOn !== false, n: !!o.nOn } }) });
+    if (!r.ok) throw new Error('servidor ' + r.status);
+    try { const c = await caches.open('ceu-data'); await c.put('./__pushcfg', new Response(JSON.stringify({ url, id: o.id, tz, m: o.m || '08:00', n: o.n || '21:30', on: { m: o.mOn !== false, n: !!o.nOn } }))); } catch (e) { } o.sig = sig; o.at = Date.now(); o.err = ''; PS.set(o); return true; // (a cópia em ceu-data deixa o telemóvel renovar a inscrição sozinho)
   } catch (e) { o.err = String(e.message || e).slice(0, 80); PS.set(o); return false; }
 }
-async function pushOff() { const o = PS.get(), url = pushUrl(); o.on = false; PS.set(o); try { if (url && o.id) await fetch(url + '/unsub', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id: o.id }) }); const reg = await navigator.serviceWorker.ready, s = await reg.pushManager.getSubscription(); s && s.unsubscribe(); } catch (e) { } }
+async function pushOff() { const o = PS.get(), url = pushUrl(); o.on = false; PS.set(o); try { const c = await caches.open('ceu-data'); await c.delete('./__pushcfg'); } catch (e) { } try { if (url && o.id) await fetch(url + '/unsub', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id: o.id }) }); const reg = await navigator.serviceWorker.ready, s = await reg.pushManager.getSubscription(); s && s.unsubscribe(); } catch (e) { } }
 function pushBox() {
-  if (!pushUrl()) return ''; const o = PS.get(), ios = /iPhone|iPad/.test(navigator.userAgent), standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone, can = 'PushManager' in window;
+  if (!pushUrl()) return ''; const o = PS.get(), ios = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1), standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone, can = 'PushManager' in window;
   return `<div class="box pushb"><h3>⏰ Avisos à hora certa</h3><p class="note">Chegam mesmo com a app fechada, à hora que escolheres${ios ? ', também no iPhone' : ''}. O servidor não guarda nada teu: só a hora do toque.</p>
     ${ios && !standalone ? '<p class="note">📲 No iPhone, primeiro instala a app: Safari → Partilhar → Adicionar ao ecrã principal. Depois abre-a pelo ícone e volta aqui.</p>' : !can ? '<p class="note">Este navegador não deixa avisos com a app fechada.</p>' : `
     <label class="chk"><input type="checkbox" id="psOn"${o.on ? ' checked' : ''}> Ligar os avisos à hora certa</label>
@@ -5174,8 +5190,8 @@ function pushBox() {
     <p class="note" id="psSt">${o.on ? (o.err ? '⚠️ Não deu para ligar ao servidor dos avisos (sem rede?). <button class="btn" id="psRetry" style="padding:6px 12px;font-size:13px;margin-top:6px">🔄 Tentar de novo</button>' : '✅ Ligado') : ''}</p>`}</div>`;
 }
 function bindPushBox() {
-  if (!$('#psOn')) return; const save = async () => { const o = PS.get(); Object.assign(o, { m: $('#psM').value || '08:00', n: $('#psN').value || '21:30', mOn: $('#psMOn').checked, nOn: $('#psNOn').checked }); PS.set(o); if (o.on) { $('#psSt').textContent = 'A ligar…'; const ok = await pushSync(true); $('#psSt').textContent = ok ? '✅ Ligado' : '⚠️ ' + (PS.get().err || 'Não deu'); } };
-  $('#psOn').onchange = async e => { if (e.target.checked) { if (Notification.permission !== 'granted') { const p = await Notification.requestPermission(); if (p !== 'granted') { e.target.checked = false; toast('Sem autorização para avisos'); return; } } const o = PS.get(); o.on = true; PS.set(o); save(); } else { await pushOff(); $('#psSt').textContent = 'Desligado'; } };
+  if (!$('#psOn')) return; const save = async () => { const o = PS.get(); Object.assign(o, { m: $('#psM').value || '08:00', n: $('#psN').value || '21:30', mOn: $('#psMOn').checked, nOn: $('#psNOn').checked }); PS.set(o); if (o.on) { $('#psSt').textContent = 'A ligar…'; const ok = await pushSync(true); $('#psSt').textContent = ok ? (o.mOn === false && !o.nOn ? '⚠️ Ligado, mas sem hora: marca a manhã ou a noite' : '✅ Ligado') : '⚠️ ' + (PS.get().err || 'Não deu'); } };
+  $('#psOn').onchange = async e => { if (e.target.checked) { if (Notification.permission !== 'granted') { const p = await Notification.requestPermission(); if (p !== 'granted') { e.target.checked = false; toast(p === 'denied' ? 'Os avisos estão bloqueados. Liga-os nas definições do telemóvel: Apps → Céu de Hoje (ou o navegador) → Notificações.' : 'Sem autorização para avisos', 6000); return; } } const o = PS.get(); o.on = true; PS.set(o); save(); } else { await pushOff(); $('#psSt').textContent = 'Desligado'; } };
   ['#psM', '#psN', '#psMOn', '#psNOn'].forEach(id => $(id).onchange = save);
   const retry = async () => { const st = $('#psSt'); if (st) st.textContent = 'A ligar…'; const ok = await pushSync(true); if (st) { st.innerHTML = ok ? '✅ Ligado' : '⚠️ Ainda sem ligação. Verifica a internet e tenta mais tarde. <button class="btn" id="psRetry" style="padding:6px 12px;font-size:13px;margin-top:6px">🔄 Tentar de novo</button>'; const b = $('#psRetry'); if (b) b.onclick = retry; } };
   if ($('#psRetry')) $('#psRetry').onclick = retry;
@@ -6106,7 +6122,7 @@ function soulTodayHtml(o) { // a secção "Hoje" dentro da carta
 }
 
 // ===== App de telemóvel =====
-const APP_VERSION = '23.11.2026 02:40';
+const APP_VERSION = '23.11.2026 21:00';
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const G = g => `${g}&#xFE0E;`;
@@ -6607,8 +6623,8 @@ const VIEWS = { top: vTop, pares: vPares, lua: vLua, anos: vAnos, horas: vHoras,
 
 let _syncT = 0;
 function render() {
-  if (Date.now() - _syncT > 15000) { _syncT = Date.now(); setTimeout(() => { try { syncAlertData(); } catch (e) { } }, 1500); }
-  syncAlertData();
+  if (ST._lastType && ST._lastType !== ST.type) stopAll(); ST._lastType = ST.type; // mudar de aba cala a leitura
+  if (Date.now() - _syncT > 15000) { _syncT = Date.now(); setTimeout(() => { try { syncAlertData(); } catch (e) { } }, 1500); } // no máximo de 15 em 15 s (era a cada toque)
   if (!TABS[ST.type].includes(ST.mode)) ST.mode = TABS[ST.type][0];
   document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.t === ST.type));
   document.querySelectorAll('#modes button').forEach(b => { b.hidden = !TABS[ST.type].includes(b.dataset.m); b.classList.toggle('on', b.dataset.m === ST.mode); });
@@ -6688,6 +6704,11 @@ async function shareCurrent() {
 }
 
 // ---------- Janela de aniversários ----------
+function routeQS(qs, live) { // abre o ecrã pedido por um aviso (./?carta, ./?ciclo…); live = a app já estava aberta
+  if (live) document.querySelectorAll('dialog[open]').forEach(d => d.close());
+  if (/[?&]alma($|&)/.test(qs)) setTimeout(openSoul, 600); if (/[?&]copia($|&)/.test(qs)) setTimeout(() => { try { $('[data-open=menu]').click(); setTimeout(() => { const b = $('#bkMenu'); if (b) b.scrollIntoView({ block: 'center', behavior: 'smooth' }); }, 400); } catch (e) { } }, 700); if (/carta/.test(qs)) setTimeout(() => openTarot(!tarOpened()), 600); if (/[?&]semana($|&)/.test(qs)) setTimeout(() => openTarot(!store.get('ceu_tarw_' + mondayOf(todayStr())), true), 600); if (/asemana/.test(qs)) setTimeout(openWeekView, 600); if (/semana-lua/.test(qs)) { ST.type = 'eu'; ST.euView = 'me'; setTimeout(() => { const n = document.querySelector('#sec-rout'); n && n.scrollIntoView({ block: 'start' }); }, 700); } if (/posts/.test(qs)) setTimeout(() => openStudio(), 600); if (/noite/.test(qs)) setTimeout(openNight, 600); if (/wrapped/.test(qs)) setTimeout(() => openWrapped(), 600); if (/ciclo|resumo|livro|patudos/.test(qs)) { ST.type = 'eu'; ST.euView = 'me'; setTimeout(() => { if (/ciclo/.test(qs)) (CY.get().preg ? openPreg() : openCycle()); else if (/resumo/.test(qs)) openMonth(); else if (/livro/.test(qs)) openAno(); else if (/patudos/.test(qs)) { const n = document.querySelector('#sec-pets'); n && n.scrollIntoView({ block: 'start', behavior: 'smooth' }); } }, 700); }
+  if (live) render();
+}
 function showTodayDlg(force) {
   const key = 'ceu_seen_' + todayStr(), T = bdaysOn(0), M = bdaysOn(1), CD = careDue(3), YN = yearNudge(), AD = adoptToday(), CYA = cycleAlerts(), MN = +todayStr().slice(8) <= 3 && !store.get('ceu_monseen_' + todayStr().slice(0, 7)), TAR = P.get() && !tarOpened(), sig = `${T.length + M.length}|${CD.length}|${YN ? 1 : 0}|${AD.length}|${CYA.length}|${MN ? 1 : 0}|${TAR ? 1 : 0}`;
   if (!T.length && !M.length && !CD.length && !YN && !AD.length && !CYA.length && !MN && !TAR) return false;
@@ -6764,8 +6785,11 @@ async function init() {
   if (hasPin()) await lockScreen();
   ST.date = todayStr();
   if (/aniversarios/.test(location.search + location.hash)) { ST.type = 'anos'; ST.anosView = 'agenda'; }
-  const qs = location.search; if (/[?&]alma($|&)/.test(qs)) setTimeout(openSoul, 600); if (/[?&]copia($|&)/.test(qs)) setTimeout(() => { try { $('[data-open=menu]').click(); setTimeout(() => { const b = $('#bkMenu'); if (b) b.scrollIntoView({ block: 'center', behavior: 'smooth' }); }, 400); } catch (e) { } }, 700); if (/carta/.test(qs)) setTimeout(() => openTarot(!tarOpened()), 600); if (/[?&]semana($|&)/.test(qs)) setTimeout(() => openTarot(!store.get('ceu_tarw_' + mondayOf(todayStr())), true), 600); if (/asemana/.test(qs)) setTimeout(openWeekView, 600); if (/semana-lua/.test(qs)) { ST.type = 'eu'; ST.euView = 'me'; setTimeout(() => { const n = document.querySelector('#sec-rout'); n && n.scrollIntoView({ block: 'start' }); }, 700); } if (/posts/.test(qs)) setTimeout(() => openStudio(), 600); if (/noite/.test(qs)) setTimeout(openNight, 600); if (/wrapped/.test(qs)) setTimeout(() => openWrapped(), 600); if (/ciclo|resumo|livro|patudos/.test(qs)) { ST.type = 'eu'; ST.euView = 'me'; setTimeout(() => { if (/ciclo/.test(qs)) (CY.get().preg ? openPreg() : openCycle()); else if (/resumo/.test(qs)) openMonth(); else if (/livro/.test(qs)) openAno(); }, 700); }
+  routeQS(location.search); if (location.search) try { history.replaceState(null, '', location.pathname + location.hash); } catch (e) { } // depois de abrir o ecrã pedido, o endereço fica limpo (recarregar não volta a abrir)
   document.addEventListener('visibilitychange', () => { if (document.visibilityState !== 'visible') return; const t = todayStr(); if (ST._day && ST._day !== t) { if (ST.date === ST._day) ST.date = t; ST._day = t; render(); setTimeout(() => showTodayDlg(false), 400); } });
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') try { syncAlertData(); } catch (e) { } });
+  document.addEventListener('close', e => { if (e.target && e.target.tagName === 'DIALOG' && e.target.id !== 'selDlg') stopAll(); }, true); // fechar uma janela cala a leitura e a respiração // ao sair da app, os avisos ficam com os dados mais recentes
+  try { navigator.serviceWorker && navigator.serviceWorker.addEventListener('message', e => { if (e.data && e.data.go != null) routeQS(String(e.data.go), true); }); } catch (e) { } // toque num aviso com a app aberta
   ST._day = todayStr(); setTimeout(() => pushSync(false), 4000); try { if (navigator.storage && navigator.storage.persist && hasPersonalData()) navigator.storage.persist(); } catch (e) { }
   render();
   if (/^#mig=/.test(location.hash)) setTimeout(checkMigLink, 300); else if (/#add=/.test(location.hash)) setTimeout(checkAddLink, 400); else if (/#casal=/.test(location.hash)) checkCoupleLink(); else if (/^#alma=/.test(location.hash)) checkSoulLink(); else if (!isOldHost()) setTimeout(() => { if (!soulWelcome() && !showTodayDlg(false)) maybeTour(); }, 600);

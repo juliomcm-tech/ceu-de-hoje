@@ -13,7 +13,7 @@ function bdMsg(x, style, n) {
     astral: [`Parabéns, ${C}! ✨ Hoje o Sol volta ao sítio onde estava quando nasceste: começa o teu novo ano astral. ${q[1]} de ${S} vai brilhar ainda mais este ano. 🌟`, `Feliz aniversário, ${C}! 🌙 Que as estrelas de ${S} te tragam um ano de sorte, amor e caminhos abertos. Que Júpiter te proteja! 💫`, `${cap1(C)}, nasceste com a Lua em ${mo} e isso explica muita coisa 😉 Que este novo ano astral seja dos melhores. Parabéns! ✨`] };
   const L = T[style]; return gx(L[((n % L.length) + L.length) % L.length], f);
 }
-function nextBirthday(d) { const t = todayStr(), y = +t.slice(0, 4), c = y + d.slice(4); return (c >= t ? c : (y + 1) + d.slice(4)).replace(/-02-29$/, '-02-28'); }
+function nextBirthday(d) { const t = todayStr(), lp = y => (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0, on = y => y + (d.slice(4) === '-02-29' && !lp(y) ? '-02-28' : d.slice(4)), y = +t.slice(0, 4); return on(y) >= t ? on(y) : on(y + 1); } // 29 de fevereiro: 28 nos anos comuns, 29 nos bissextos
 function openBdMsg(k, style = 'carinhosa', n = 0) {
   const x = P.list('ceu_bdays')[k]; if (!x) return; const txt = bdMsg(x, style, n), tel = (x.tel || '').replace(/\D/g, ''), num = tel ? (tel.length === 9 ? '351' + tel : tel) : '';
   $('#infoTitle').textContent = '💬 Mensagem para ' + x.name.split(' ')[0];
@@ -43,13 +43,13 @@ function openNight() {
   $('#nAl').onchange = e => { store.set('ceu_night_alert', e.target.checked ? '1' : '0'); try { syncAlertData(); } catch (er) { } };
 }
 let _br = null;
-function stopBreath() { if (_br) { clearTimeout(_br.t); _br = null; } try { speechSynthesis.cancel(); } catch (e) { } ambientStop(); }
+function stopBreath() { stopAll(); }
 function startBreath() {
-  if (_br) { stopBreath(); $('#bT').textContent = 'Toca para respirar'; $('#bC').className = 'bcirc'; return; }
-  _br = { n: 0 }; ambientStart(); const say = w => { try { const u = new SpeechSynthesisUtterance(w); u.lang = 'pt-PT'; u.rate = .8; u.volume = +(store.get('ceu_vvol') || .7) * .8; const v = store.get('ceu_voice'); if (v) { const vv = speechSynthesis.getVoices().find(z => z.voiceURI === v); if (vv) u.voice = vv; } speechSynthesis.speak(u); } catch (e) { } };
+  if (_br) { stopAll(); return; }
+  stopAll(); _br = { n: 0 }; ambientStart(); voiceUnlock(); const bv = pickVoice(); const say = w => { try { const u = new SpeechSynthesisUtterance(w); u.lang = 'pt-PT'; u.rate = .8; u.volume = +(store.get('ceu_vvol') || .7) * .8; if (bv) { u.voice = bv; u.lang = bv.lang; } speechSynthesis.speak(u); } catch (e) { } };
   const steps = [['Inspira…', 'in', 4000], ['Segura…', 'hold', 3000], ['Expira devagar…', 'out', 6000]];
   const go = k => { if (!_br) return; if (k >= steps.length) { if (++_br.n >= 4) { $('#bT').textContent = 'Dorme bem 🌙'; $('#bC').className = 'bcirc'; say('Dorme bem.'); _br.t = setTimeout(() => { ambientStop(); _br = null; }, 4000); return; } k = 0; } const [w, c, ms] = steps[k]; $('#bT').textContent = w; $('#bC').className = 'bcirc ' + c; say(w.replace('…', '')); _br.t = setTimeout(() => go(k + 1), ms); };
-  _br.t = setTimeout(() => go(0), 1200);
+  _br.t = setTimeout(() => go(0), 900);
 }
 function nightAlerts() { if (store.get('ceu_night_alert') !== '1') return []; const t0 = noonJd(todayStr()); return Array.from({ length: 30 }, (_, k) => { const d = dayStr(t0 + k); return { d, t: '🌙 Esta noite: o teu ritual da noite', b: 'Antes de dormir: respira, agradece e vê a Lua de hoje.', tag: 'night-' + d, url: './?noite', h: 18 }; }); }
 

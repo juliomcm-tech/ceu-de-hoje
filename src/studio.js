@@ -156,8 +156,8 @@ async function bestVoice() { const V = (await getVoicesP()).filter(isPT), want =
 const useSystemVoice = () => !store.get('ceu_voice'); // vazio = a voz escolhida nas definições do telemóvel
 const AMB = { ctx: null, nodes: [], t: 0 };
 function ambientStart() {
-  if (store.get('ceu_music') === '0') return; try {
-    const C = AMB.ctx = new (window.AudioContext || window.webkitAudioContext)(), out = C.createGain(); out.gain.value = 0; out.connect(C.destination); out.gain.linearRampToValueAtTime(+(store.get('ceu_mvol') || .16), C.currentTime + 2.5);
+  ambientKill(); if (store.get('ceu_music') === '0') return; try {
+    const C = AMB.ctx = new (window.AudioContext || window.webkitAudioContext)(), out = C.createGain(); try { C.resume && C.resume(); } catch (e) { } out.gain.value = 0; out.connect(C.destination); out.gain.linearRampToValueAtTime(+(store.get('ceu_mvol') || .16), C.currentTime + 2.5);
     const lp = C.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 900; lp.Q.value = .6; lp.connect(out);
     const lfo = C.createOscillator(), lg = C.createGain(); lfo.frequency.value = .07; lg.gain.value = 350; lfo.connect(lg); lg.connect(lp.frequency); lfo.start();
     const chords = [[174.6, 261.6, 329.6, 440], [196, 293.7, 349.2, 440], [164.8, 246.9, 329.6, 392], [174.6, 261.6, 349.2, 440]];
@@ -166,17 +166,31 @@ function ambientStart() {
     AMB.nodes = [out, lfo, ...voices];
   } catch (e) { }
 }
+function ambientKill() { clearInterval(AMB.t); if (AMB.ctx) { try { AMB.ctx.close(); } catch (e) { } AMB.ctx = null; } } // nunca dois sons ao mesmo tempo
 function ambientStop() { clearInterval(AMB.t); const C = AMB.ctx; if (!C) return; try { AMB.nodes[0].gain.cancelScheduledValues(C.currentTime); AMB.nodes[0].gain.setTargetAtTime(0, C.currentTime, .6); setTimeout(() => { try { C.close(); } catch (e) { } }, 2500); } catch (e) { } AMB.ctx = null; }
-let _spkRun = 0;
-async function speakText(text, btn, label) {
+let _spkRun = 0, _spkBtn = null, _spkLbl = '';
+function stopAll() { // cala tudo: leitura, respiração e música (ao fechar janelas, mudar de aba ou começar outra leitura)
+  _spkRun = 0; try { window.speechSynthesis && speechSynthesis.cancel(); } catch (e) { }
+  try { if (typeof _br !== 'undefined' && _br) { clearTimeout(_br.t); _br = null; const t = $('#bT'), c = $('#bC'); if (t) t.textContent = 'Toca para respirar'; if (c) c.className = 'bcirc'; } } catch (e) { }
+  ambientStop(); if (_spkBtn) { _spkBtn.textContent = _spkLbl; _spkBtn.removeAttribute('aria-pressed'); _spkBtn = null; }
+}
+function voiceUnlock() { try { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; speechSynthesis.speak(u); } catch (e) { } } // no iPhone a voz só pode começar dentro de um toque
+function pickVoice() { // a voz escolhida; senão Portugal; sem voz de Portugal, a do Brasil (melhor do que inglês)
+  const V = (window.speechSynthesis && speechSynthesis.getVoices()) || [], want = store.get('ceu_voice'), ch = want && V.find(v => v.voiceURI === want);
+  if (ch) return ch; if (V.some(isPT) || !V.length) return null; const br = V.find(isPTany);
+  if (br && !ST._noPtVoice) { ST._noPtVoice = 1; setTimeout(() => toast('Não há voz de Portugal neste telemóvel: uso a do Brasil. Em Definições → Voz explico como instalar.', 6000), 300); }
+  return br || null;
+}
+function speakText(text, btn, label) {
   const S = window.speechSynthesis; if (!S) { toast('Este telemóvel não lê em voz alta'); return; }
-  if (S.speaking || _spkRun) { _spkRun = 0; S.cancel(); ambientStop(); if (btn) btn.textContent = label; return; }
-  const v = await bestVoice();
-  const run = ++_spkRun, parts = text.match(/[^.!?]+[.!?]*/g) || [text]; if (btn) btn.textContent = '⏹️ Parar'; ambientStart();
-  const say = k => { if (run !== _spkRun) return; if (k >= parts.length) { setTimeout(() => { if (run === _spkRun) { _spkRun = 0; ambientStop(); if (btn) btn.textContent = label; } }, 900); return; }
-    const u = new SpeechSynthesisUtterance(parts[k].trim()); if (v) u.voice = v; u.lang = 'pt-PT'; u.rate = +(store.get('ceu_vrate') || .9); u.pitch = 1; u.volume = +(store.get('ceu_vvol') || .7);
+  if (S.speaking || _spkRun) { const same = btn && _spkBtn === btn; stopAll(); if (same) return; } // tocar outra vez = parar; outro botão = troca de leitura
+  const v = pickVoice(), run = ++_spkRun, parts = String(text).replace(/([^.])\.\.(?!\.)/g, '$1.').match(/[^.!?]+[.!?]*/g) || [text];
+  if (btn) { _spkBtn = btn; _spkLbl = label; btn.textContent = '⏹️ Parar'; btn.setAttribute('aria-pressed', 'true'); }
+  ambientStart();
+  const say = k => { if (run !== _spkRun) return; if (k >= parts.length) { setTimeout(() => { if (run === _spkRun) stopAll(); }, 900); return; }
+    const u = new SpeechSynthesisUtterance(parts[k].trim()); if (v) u.voice = v; u.lang = v ? v.lang : 'pt-PT'; u.rate = +(store.get('ceu_vrate') || .9); u.pitch = 1; u.volume = +(store.get('ceu_vvol') || .8);
     u.onend = () => setTimeout(() => say(k + 1), /[.!?]$/.test(parts[k].trim()) ? 420 : 150); u.onerror = () => say(k + 1); S.speak(u); };
-  setTimeout(() => say(0), store.get('ceu_music') === '0' ? 0 : 1400);
+  say(0); // já dentro do toque (o iPhone exige); a música entra devagar por baixo
 }
 function speakDay(btn) { return speakText(dayScript(), btn, '🔊 Ouvir o meu dia'); }
 function voiceHelp(none) {
