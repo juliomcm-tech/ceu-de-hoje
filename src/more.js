@@ -1,7 +1,7 @@
 // ===== Mais: cópia de segurança, partilhar itens, citações, passaporte, meta, empréstimos, O meu ano =====
 
 // ---------- Cópia de segurança ----------
-const BK_SKIP = /^ceu_(pin|news|sug_|lastbk|bksnooze|seen_|ep_|monseen_|tar_\d|tar3_|tarw_|conf_|tour|bddone_|soul_lvk|push|psync)/; // os avisos são de cada telemóvel
+const BK_SKIP = /^ceu_(pin|news|sug_|lastbk|bksnooze|seen_|ep_|monseen_|tar_\d|tar3_|tarw_|conf_|tour|bddone_|soul_lvk|push|psync|pinfail)/; // os avisos são de cada telemóvel
 function hasPersonalData() { if (store.get('ceu_profile') || store.get('ceu_cycle')) return true; return ['ceu_moments', 'ceu_books', 'ceu_bdays', 'ceu_diario', 'ceu_trips', 'ceu_shows', 'ceu_pets', 'ceu_soul_links', 'ceu_colls', 'ceu_dreams', 'ceu_countdown'].some(k => { try { const v = JSON.parse(localStorage.getItem(k) || '[]'); return Array.isArray(v) && v.length; } catch (e) { return false; } }); }
 function backupData() { const o = {}; try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && k.startsWith('ceu_') && !BK_SKIP.test(k)) o[k] = localStorage.getItem(k); } } catch (e) { } return { app: 'ceu-de-hoje', v: 2, at: new Date().toISOString(), data: o }; }
 async function doBackup() {
@@ -287,7 +287,7 @@ function yearData(y) {
   const durs = read.filter(x => x.sd).map(x => ({ x, d: Math.max(1, Math.round(noonJd(x.ed) - noonJd(x.sd))) })), fastest = durs.sort((a, b) => a.d - b.d)[0];
   const quotes = books.flatMap(x => (x.quotes || []).filter(q => (q.d || '').startsWith(ys)).map(q => ({ ...q, b: x })));
   const shows = intList('series').filter(x => inY(x, 'ed') || inY(x, 'sd')), favS = [...shows].sort((a, b) => (b.rating || 0) - (a.rating || 0))[0];
-  const trips = intList('viagens').filter(x => x.status >= 1 && inY(x, 'sd')).sort((a, b) => a.sd.localeCompare(b.sd)), countries = []; trips.forEach(x => { const cc = countryOf(x); if (cc && !countries.find(c => c[1] === cc[1])) countries.push(cc); });
+  const trips = intList('viagens').filter(x => x.status >= 1 && inY(x, 'sd') && (x.sd || '') <= todayStr()).sort((a, b) => a.sd.localeCompare(b.sd)), countries = []; trips.forEach(x => { const cc = countryOf(x); if (cc && !countries.find(c => c[1] === cc[1])) countries.push(cc); });
   const favT = [...trips].sort((a, b) => (b.rating || 0) - (a.rating || 0))[0];
   const ppl = P.list('ceu_bdays'), pets = P.list('ceu_pets'); let bdlog = []; try { bdlog = JSON.parse(store.get('ceu_bdlog') || '[]').filter(b => (b.d || '').startsWith(ys)); } catch (e) { }
   const cards = [...new Set(bdlog.map(b => b.n))];

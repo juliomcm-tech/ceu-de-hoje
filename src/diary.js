@@ -94,14 +94,29 @@ async function hashPin(pin) {
   try { const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('ceu|' + pin)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join(''); }
   catch (e) { let h = 5381; for (const c of 'ceu|' + pin) h = (h * 33) ^ c.charCodeAt(0); return 'x' + (h >>> 0).toString(16); }
 }
+async function hashPin2(pin, salt) { // PBKDF2 com sal: adivinhar o PIN a partir do valor guardado fica muito lento
+  const k = await crypto.subtle.importKey('raw', new TextEncoder().encode(pin), 'PBKDF2', false, ['deriveBits']);
+  const b = await crypto.subtle.deriveBits({ name: 'PBKDF2', salt: new TextEncoder().encode(salt), iterations: 210000, hash: 'SHA-256' }, k, 256);
+  return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join('');
+}
 const hasPin = () => !!store.get('ceu_pin');
-async function checkPin(pin) { return (await hashPin(pin)) === store.get('ceu_pin'); }
-async function setPin(pin) { if (!pin) { store.set('ceu_pin', ''); try { localStorage.removeItem('ceu_pin'); } catch (e) { } return; } store.set('ceu_pin', await hashPin(pin)); }
+async function checkPin(pin) {
+  const v = store.get('ceu_pin') || '';
+  if (v.startsWith('p2$')) { const [, salt, h] = v.split('$'); try { return (await hashPin2(pin, salt)) === h; } catch (e) { return false; } }
+  const ok = (await hashPin(pin)) === v; if (ok) { try { await setPin(pin); } catch (e) { } } return ok; // PIN antigo: passa para o formato forte
+}
+async function setPin(pin) {
+  if (!pin) { store.set('ceu_pin', ''); try { localStorage.removeItem('ceu_pin'); } catch (e) { } return; }
+  try { const salt = [...crypto.getRandomValues(new Uint8Array(12))].map(x => x.toString(16).padStart(2, '0')).join(''); store.set('ceu_pin', `p2$${salt}$${await hashPin2(pin, salt)}`); }
+  catch (e) { store.set('ceu_pin', await hashPin(pin)); }
+}
+const pinWait = () => { try { const f = JSON.parse(store.get('ceu_pinfail') || '{}'); return Math.max(0, (f.until || 0) - Date.now()); } catch (e) { return 0; } };
+function pinFail() { let f = {}; try { f = JSON.parse(store.get('ceu_pinfail') || '{}'); } catch (e) { } f.n = (f.n || 0) + 1; if (f.n >= 5) f.until = Date.now() + Math.min(15 * 60, 30 * 2 ** (f.n - 5)) * 1000; store.set('ceu_pinfail', JSON.stringify(f)); return f; }
 function lockScreen() {
   return new Promise(res => {
     const el = $('#lock'); el.hidden = false; const inp = $('#lockPin'); inp.value = ''; setTimeout(() => inp.focus(), 100);
     const p = P.get(); $('#lockHi').textContent = p && p.name ? `Olá, ${p.name.split(' ')[0]}!` : 'Olá!';
-    const go = async () => { if (await checkPin(inp.value)) { el.hidden = true; res(true); } else { inp.value = ''; el.querySelector('.lockbox').classList.add('shake'); setTimeout(() => el.querySelector('.lockbox').classList.remove('shake'), 400); toast('PIN errado'); } };
+    const go = async () => { const w = pinWait(); if (w) { inp.value = ''; toast(`Muitas tentativas. Espera ${Math.ceil(w / 1000)} s.`); return; } if (await checkPin(inp.value)) { try { localStorage.removeItem('ceu_pinfail'); } catch (e) { } el.hidden = true; res(true); } else { inp.value = ''; const f = pinFail(); el.querySelector('.lockbox').classList.add('shake'); setTimeout(() => el.querySelector('.lockbox').classList.remove('shake'), 400); toast(f.until ? `PIN errado. Espera ${Math.ceil(pinWait() / 1000)} s antes de tentar outra vez.` : 'PIN errado'); } };
     $('#lockGo').onclick = go; inp.onkeydown = e => { if (e.key === 'Enter') go(); };
     inp.oninput = () => { if (inp.value.length >= 4 && inp.value.length === (+store.get('ceu_pinlen') || 4)) go(); };
     $('#lockForgot').onclick = () => { if (confirmBox('Esqueceste o PIN? Para entrar, todos os teus dados deste telemóvel (perfil, diário, aniversários, animais, Carta da Alma e ligações, livros, viagens…) vão ser apagados.')) { try { try { if (typeof PS !== 'undefined' && PS.get().on) pushOff(); } catch (e) { } Object.keys(localStorage).filter(k => /^ceu_/.test(k) && !/^ceu_(theme|brand|bkevery|inst_hide|voice)/.test(k)).forEach(k => localStorage.removeItem(k)); indexedDB.deleteDatabase('ceu-fotos'); caches.delete('ceu-data'); } catch (e) { } el.hidden = true; res(true); } };

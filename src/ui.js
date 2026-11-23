@@ -1,5 +1,5 @@
 // ===== App de telemóvel =====
-const APP_VERSION = '23.11.2026 22:00';
+const APP_VERSION = '23.11.2026 23:40';
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const G = g => `${g}&#xFE0E;`;
@@ -664,7 +664,7 @@ async function init() {
   if (/aniversarios/.test(location.search + location.hash)) { ST.type = 'anos'; ST.anosView = 'agenda'; }
   routeQS(location.search); if (location.search) try { history.replaceState(null, '', location.pathname + location.hash); } catch (e) { } // depois de abrir o ecrã pedido, o endereço fica limpo (recarregar não volta a abrir)
   document.addEventListener('visibilitychange', () => { if (document.visibilityState !== 'visible') return; const t = todayStr(); if (ST._day && ST._day !== t) { if (ST.date === ST._day) ST.date = t; ST._day = t; render(); setTimeout(() => showTodayDlg(false), 400); } });
-  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') try { syncAlertData(); } catch (e) { } });
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') { ST._hidAt = Date.now(); try { syncAlertData(); } catch (e) { } } else if (hasPin() && ST._hidAt && Date.now() - ST._hidAt > 5 * 60000 && $('#lock').hidden) { ST._hidAt = 0; lockScreen(); } }); // com PIN: volta a pedir ao fim de 5 minutos fora
   document.addEventListener('close', e => { if (e.target && e.target.tagName === 'DIALOG' && e.target.id !== 'selDlg') stopAll(); }, true); // fechar uma janela cala a leitura e a respiração // ao sair da app, os avisos ficam com os dados mais recentes
   try { navigator.serviceWorker && navigator.serviceWorker.addEventListener('message', e => { if (e.data && e.data.go != null) routeQS(String(e.data.go), true); }); } catch (e) { } // toque num aviso com a app aberta
   ST._day = todayStr(); setTimeout(() => pushSync(false), 4000); try { if (navigator.storage && navigator.storage.persist && hasPersonalData()) navigator.storage.persist(); } catch (e) { }

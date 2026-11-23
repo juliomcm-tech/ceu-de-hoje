@@ -2146,14 +2146,29 @@ async function hashPin(pin) {
   try { const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('ceu|' + pin)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join(''); }
   catch (e) { let h = 5381; for (const c of 'ceu|' + pin) h = (h * 33) ^ c.charCodeAt(0); return 'x' + (h >>> 0).toString(16); }
 }
+async function hashPin2(pin, salt) { // PBKDF2 com sal: adivinhar o PIN a partir do valor guardado fica muito lento
+  const k = await crypto.subtle.importKey('raw', new TextEncoder().encode(pin), 'PBKDF2', false, ['deriveBits']);
+  const b = await crypto.subtle.deriveBits({ name: 'PBKDF2', salt: new TextEncoder().encode(salt), iterations: 210000, hash: 'SHA-256' }, k, 256);
+  return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join('');
+}
 const hasPin = () => !!store.get('ceu_pin');
-async function checkPin(pin) { return (await hashPin(pin)) === store.get('ceu_pin'); }
-async function setPin(pin) { if (!pin) { store.set('ceu_pin', ''); try { localStorage.removeItem('ceu_pin'); } catch (e) { } return; } store.set('ceu_pin', await hashPin(pin)); }
+async function checkPin(pin) {
+  const v = store.get('ceu_pin') || '';
+  if (v.startsWith('p2$')) { const [, salt, h] = v.split('$'); try { return (await hashPin2(pin, salt)) === h; } catch (e) { return false; } }
+  const ok = (await hashPin(pin)) === v; if (ok) { try { await setPin(pin); } catch (e) { } } return ok; // PIN antigo: passa para o formato forte
+}
+async function setPin(pin) {
+  if (!pin) { store.set('ceu_pin', ''); try { localStorage.removeItem('ceu_pin'); } catch (e) { } return; }
+  try { const salt = [...crypto.getRandomValues(new Uint8Array(12))].map(x => x.toString(16).padStart(2, '0')).join(''); store.set('ceu_pin', `p2$${salt}$${await hashPin2(pin, salt)}`); }
+  catch (e) { store.set('ceu_pin', await hashPin(pin)); }
+}
+const pinWait = () => { try { const f = JSON.parse(store.get('ceu_pinfail') || '{}'); return Math.max(0, (f.until || 0) - Date.now()); } catch (e) { return 0; } };
+function pinFail() { let f = {}; try { f = JSON.parse(store.get('ceu_pinfail') || '{}'); } catch (e) { } f.n = (f.n || 0) + 1; if (f.n >= 5) f.until = Date.now() + Math.min(15 * 60, 30 * 2 ** (f.n - 5)) * 1000; store.set('ceu_pinfail', JSON.stringify(f)); return f; }
 function lockScreen() {
   return new Promise(res => {
     const el = $('#lock'); el.hidden = false; const inp = $('#lockPin'); inp.value = ''; setTimeout(() => inp.focus(), 100);
     const p = P.get(); $('#lockHi').textContent = p && p.name ? `Olá, ${p.name.split(' ')[0]}!` : 'Olá!';
-    const go = async () => { if (await checkPin(inp.value)) { el.hidden = true; res(true); } else { inp.value = ''; el.querySelector('.lockbox').classList.add('shake'); setTimeout(() => el.querySelector('.lockbox').classList.remove('shake'), 400); toast('PIN errado'); } };
+    const go = async () => { const w = pinWait(); if (w) { inp.value = ''; toast(`Muitas tentativas. Espera ${Math.ceil(w / 1000)} s.`); return; } if (await checkPin(inp.value)) { try { localStorage.removeItem('ceu_pinfail'); } catch (e) { } el.hidden = true; res(true); } else { inp.value = ''; const f = pinFail(); el.querySelector('.lockbox').classList.add('shake'); setTimeout(() => el.querySelector('.lockbox').classList.remove('shake'), 400); toast(f.until ? `PIN errado. Espera ${Math.ceil(pinWait() / 1000)} s antes de tentar outra vez.` : 'PIN errado'); } };
     $('#lockGo').onclick = go; inp.onkeydown = e => { if (e.key === 'Enter') go(); };
     inp.oninput = () => { if (inp.value.length >= 4 && inp.value.length === (+store.get('ceu_pinlen') || 4)) go(); };
     $('#lockForgot').onclick = () => { if (confirmBox('Esqueceste o PIN? Para entrar, todos os teus dados deste telemóvel (perfil, diário, aniversários, animais, Carta da Alma e ligações, livros, viagens…) vão ser apagados.')) { try { try { if (typeof PS !== 'undefined' && PS.get().on) pushOff(); } catch (e) { } Object.keys(localStorage).filter(k => /^ceu_/.test(k) && !/^ceu_(theme|brand|bkevery|inst_hide|voice)/.test(k)).forEach(k => localStorage.removeItem(k)); indexedDB.deleteDatabase('ceu-fotos'); caches.delete('ceu-data'); } catch (e) { } el.hidden = true; res(true); } };
@@ -2757,7 +2772,7 @@ function bindLibSearch() {
 // ===== Mais: cópia de segurança, partilhar itens, citações, passaporte, meta, empréstimos, O meu ano =====
 
 // ---------- Cópia de segurança ----------
-const BK_SKIP = /^ceu_(pin|news|sug_|lastbk|bksnooze|seen_|ep_|monseen_|tar_\d|tar3_|tarw_|conf_|tour|bddone_|soul_lvk|push|psync)/; // os avisos são de cada telemóvel
+const BK_SKIP = /^ceu_(pin|news|sug_|lastbk|bksnooze|seen_|ep_|monseen_|tar_\d|tar3_|tarw_|conf_|tour|bddone_|soul_lvk|push|psync|pinfail)/; // os avisos são de cada telemóvel
 function hasPersonalData() { if (store.get('ceu_profile') || store.get('ceu_cycle')) return true; return ['ceu_moments', 'ceu_books', 'ceu_bdays', 'ceu_diario', 'ceu_trips', 'ceu_shows', 'ceu_pets', 'ceu_soul_links', 'ceu_colls', 'ceu_dreams', 'ceu_countdown'].some(k => { try { const v = JSON.parse(localStorage.getItem(k) || '[]'); return Array.isArray(v) && v.length; } catch (e) { return false; } }); }
 function backupData() { const o = {}; try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && k.startsWith('ceu_') && !BK_SKIP.test(k)) o[k] = localStorage.getItem(k); } } catch (e) { } return { app: 'ceu-de-hoje', v: 2, at: new Date().toISOString(), data: o }; }
 async function doBackup() {
@@ -3043,7 +3058,7 @@ function yearData(y) {
   const durs = read.filter(x => x.sd).map(x => ({ x, d: Math.max(1, Math.round(noonJd(x.ed) - noonJd(x.sd))) })), fastest = durs.sort((a, b) => a.d - b.d)[0];
   const quotes = books.flatMap(x => (x.quotes || []).filter(q => (q.d || '').startsWith(ys)).map(q => ({ ...q, b: x })));
   const shows = intList('series').filter(x => inY(x, 'ed') || inY(x, 'sd')), favS = [...shows].sort((a, b) => (b.rating || 0) - (a.rating || 0))[0];
-  const trips = intList('viagens').filter(x => x.status >= 1 && inY(x, 'sd')).sort((a, b) => a.sd.localeCompare(b.sd)), countries = []; trips.forEach(x => { const cc = countryOf(x); if (cc && !countries.find(c => c[1] === cc[1])) countries.push(cc); });
+  const trips = intList('viagens').filter(x => x.status >= 1 && inY(x, 'sd') && (x.sd || '') <= todayStr()).sort((a, b) => a.sd.localeCompare(b.sd)), countries = []; trips.forEach(x => { const cc = countryOf(x); if (cc && !countries.find(c => c[1] === cc[1])) countries.push(cc); });
   const favT = [...trips].sort((a, b) => (b.rating || 0) - (a.rating || 0))[0];
   const ppl = P.list('ceu_bdays'), pets = P.list('ceu_pets'); let bdlog = []; try { bdlog = JSON.parse(store.get('ceu_bdlog') || '[]').filter(b => (b.d || '').startsWith(ys)); } catch (e) { }
   const cards = [...new Set(bdlog.map(b => b.n))];
@@ -5078,7 +5093,7 @@ function openWrapped(y) {
   $('#tarX').onclick = () => { cancelAnimationFrame(raf); dlg.close(); };
   $('#wNext').onclick = () => { if (k < S.length - 1) { k++; t0 = 0; } }; $('#wPrev').onclick = () => { if (k > 0) k--; t0 = 0; };
   $('#wImg').onclick = () => { const cc = document.createElement('canvas'); cc.width = 1080; cc.height = 1920; drawWrapSlide(cc.getContext('2d'), 1080, 1920, S[k], 1).then(() => shareCanvases([{ name: 'o-meu-ano-' + (k + 1), c: cc }], `✨ O meu ${y} no Céu de Hoje\n\nVê o teu em ${APP_URL}`)); };
-  $('#wVid').onclick = async e => { for (const s of S) if (s.card != null) await cardImg(s.card); const per = 3.2, tot = per * S.length; const r = await recordAnim((cx, t) => { const i = Math.min(S.length - 1, Math.floor(t / per)); /* desenho síncrono: as imagens já estão em cache */ drawWrapSlideSync(cx, 1080, 1920, S[i], (t - i * per) / per); }, tot, 1080, 1920, e.currentTarget, '🎬'); if (!r) return; const f = new File([r.blob], `o-meu-${y}.${r.ext}`, { type: r.blob.type }); try { if (navigator.canShare && navigator.canShare({ files: [f] })) { await navigator.share({ files: [f], text: `🎁 O meu ano no céu ✨\n\n${APP_URL}` }); return; } } catch (er) { if (er && er.name === 'AbortError') return; } saveBlob(r.blob, f.name); };
+  $('#wVid').onclick = async e => { for (const s of S) if (s.card != null) await cardImg(s.card); const per = 3.2, tot = per * S.length; const r = await recordAnim((cx, t) => { const i = Math.min(S.length - 1, Math.floor(t / per)); /* desenho síncrono: as imagens já estão em cache */ drawWrapSlideSync(cx, 1080, 1920, S[i], (t - i * per) / per); }, tot, 1080, 1920, e.currentTarget, '🎬'); if (!r || !$('#tarDlg').open) return; const f = new File([r.blob], `o-meu-${y}.${r.ext}`, { type: r.blob.type }); try { if (navigator.canShare && navigator.canShare({ files: [f] })) { await navigator.share({ files: [f], text: `🎁 O meu ano no céu ✨\n\n${APP_URL}` }); return; } } catch (er) { if (er && er.name === 'AbortError') return; } saveBlob(r.blob, f.name); };
 }
 const _cardSync = {}; // versão síncrona para o vídeo (usa as imagens já carregadas)
 function drawWrapSlideSync(ctx, W, H, sl, p) {
@@ -6128,7 +6143,7 @@ function soulTodayHtml(o) { // a secção "Hoje" dentro da carta
 }
 
 // ===== App de telemóvel =====
-const APP_VERSION = '23.11.2026 22:00';
+const APP_VERSION = '23.11.2026 23:40';
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const G = g => `${g}&#xFE0E;`;
@@ -6793,7 +6808,7 @@ async function init() {
   if (/aniversarios/.test(location.search + location.hash)) { ST.type = 'anos'; ST.anosView = 'agenda'; }
   routeQS(location.search); if (location.search) try { history.replaceState(null, '', location.pathname + location.hash); } catch (e) { } // depois de abrir o ecrã pedido, o endereço fica limpo (recarregar não volta a abrir)
   document.addEventListener('visibilitychange', () => { if (document.visibilityState !== 'visible') return; const t = todayStr(); if (ST._day && ST._day !== t) { if (ST.date === ST._day) ST.date = t; ST._day = t; render(); setTimeout(() => showTodayDlg(false), 400); } });
-  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') try { syncAlertData(); } catch (e) { } });
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') { ST._hidAt = Date.now(); try { syncAlertData(); } catch (e) { } } else if (hasPin() && ST._hidAt && Date.now() - ST._hidAt > 5 * 60000 && $('#lock').hidden) { ST._hidAt = 0; lockScreen(); } }); // com PIN: volta a pedir ao fim de 5 minutos fora
   document.addEventListener('close', e => { if (e.target && e.target.tagName === 'DIALOG' && e.target.id !== 'selDlg') stopAll(); }, true); // fechar uma janela cala a leitura e a respiração // ao sair da app, os avisos ficam com os dados mais recentes
   try { navigator.serviceWorker && navigator.serviceWorker.addEventListener('message', e => { if (e.data && e.data.go != null) routeQS(String(e.data.go), true); }); } catch (e) { } // toque num aviso com a app aberta
   ST._day = todayStr(); setTimeout(() => pushSync(false), 4000); try { if (navigator.storage && navigator.storage.persist && hasPersonalData()) navigator.storage.persist(); } catch (e) { }
