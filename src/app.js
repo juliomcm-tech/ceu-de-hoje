@@ -3,7 +3,7 @@ const $ = s => document.querySelector(s);
 const MESES = MES_N;
 const DIAS = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
 const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); return true; } catch (e) { if (!store._warned || Date.now() - store._warned > 20000) { store._warned = Date.now(); setTimeout(() => { try { toast('⚠️ A memória da app está cheia: não foi possível guardar. Faz uma cópia de segurança e apaga algumas fotos.', 6000); } catch (x) { } }, 50); } return false; } } };
-const ST = { date: '', type: 'top', mode: 'dia', fmt: store.get('ceu_fmt') || 'feed', modern: store.get('ceu_modern') === '1', sky: store.get('ceu_sky') !== '0', cover: store.get('ceu_cover') === '1', brand: store.get('ceu_brand') || '', city: +(store.get('ceu_city') || 0), reads: [], rank: [], canvases: [], cap: '' };
+const ST = { bookView: store.get('ceu_bookview') || '', colView: store.get('ceu_colview') || '', shelfSort: store.get('ceu_shelfsort') || '', intTab: store.get('ceu_inttab') || '', date: '', type: 'top', mode: 'dia', fmt: store.get('ceu_fmt') || 'feed', modern: store.get('ceu_modern') === '1', sky: store.get('ceu_sky') !== '0', cover: store.get('ceu_cover') === '1', brand: store.get('ceu_brand') || '', city: +(store.get('ceu_city') || 0), reads: [], rank: [], canvases: [], cap: '' };
 const TYPE_MODES = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'] };
 let DL = null;
 try { if (window.claude && claude.use) claude.use('downloads').then(x => { DL = x; }).catch(() => { }); } catch (e) { }
@@ -425,6 +425,43 @@ function drawLuaMonth() {
   footer(ctx, W, H, S, 'Guarda e partilha · Segue ' + brand());
   return c;
 }
+function drawLuaCat(cat) { // o calendário da categoria escolhida (cabelo, unhas, pele…): para partilhar com clientes
+  const [c, ctx, W, H, S] = mk(), [y0, m0] = dParts(ST.date), C = LUA_CATS.find(x => x[0] === cat) || LUA_CATS[0];
+  bg(ctx, W, H, ST.date.slice(0, 7) + 'luacat' + cat, ['#cfd8e3', '#1d2547']);
+  const days = daysIn(...periodRange(ST.date, 'mes')), G = days.map(d => luaGuide(d)[cat]), first = (new Date(Date.UTC(y0, m0 - 1, 1)).getUTCDay() + 6) % 7, rows = Math.ceil((first + days.length) / 7);
+  const best = days.filter((d, i) => G[i] >= 3).map(d => +d.slice(8)), good = days.filter((d, i) => G[i] === 2).map(d => +d.slice(8)), avoid = days.filter((d, i) => G[i] === 0).map(d => +d.slice(8));
+  let y = S ? 200 : 74; ctx.textAlign = 'center';
+  ctx.fillStyle = '#f2c76e'; ctx.font = '700 28px Cinzel'; ctx.fillText('CALENDÁRIO LUNAR · ' + MESES[m0 - 1].toUpperCase() + ' ' + y0, W / 2, y);
+  y += 84; ctx.fillStyle = '#fff'; ctx.font = `700 64px Cinzel, ${EMOJI_F}`; ctx.fillText(`${C[1]} ${C[2].replace(' (tradição)', '')}`, W / 2, y);
+  y += 50; ctx.fillStyle = '#ffe3a3'; ctx.font = 'italic 600 36px "Cormorant Garamond"'; ctx.fillText('Os melhores dias pela Lua', W / 2, y);
+  // caixa com os dias
+  y += 34; const bx = 60, bw = W - 120, lines = [['⭐ Ótimos', best, '#f2c76e'], ['👍 Bons', good, '#7ee0a6'], ['⛔ Evitar', avoid, '#ff8fa3']].filter(l => l[1].length);
+  const bh = 36 + lines.length * 50; ctx.fillStyle = 'rgba(255,255,255,.08)'; rr(ctx, bx, y, bw, bh, 22); ctx.fill();
+  ctx.textAlign = 'left'; lines.forEach(([t, L, col], i) => { const ly = y + 52 + i * 50; ctx.fillStyle = col; ctx.font = `800 30px Manrope, ${EMOJI_F}`; ctx.fillText(t, bx + 28, ly); ctx.fillStyle = '#fff'; let fs = 30; ctx.font = `700 ${fs}px Manrope`; const txt = L.join(', '); while (ctx.measureText(txt).width > bw - 260 && fs > 18) { fs--; ctx.font = `700 ${fs}px Manrope`; } ctx.fillText(txt, bx + 230, ly); });
+  // calendário
+  const top = y + bh + 70, P = 50, cw = (W - 2 * P) / 7, foot = S ? 330 : 190, ch = Math.min(S ? 150 : 108, (H - top - foot) / rows);
+  ctx.textAlign = 'center'; ctx.fillStyle = '#9b9cc9'; ctx.font = '800 20px Manrope'; ['SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB', 'DOM'].forEach((d, i) => ctx.fillText(d, P + cw * i + cw / 2, top - 16));
+  days.forEach((d, i) => {
+    const k = first + i, x = P + (k % 7) * cw, yy = top + Math.floor(k / 7) * ch, g = G[i], D = lunarDay(d);
+    ctx.fillStyle = g >= 3 ? '#f2c76e' : g === 2 ? 'rgba(126,224,166,.32)' : 'rgba(255,255,255,.06)'; rr(ctx, x + 5, yy + 5, cw - 10, ch - 10, 14); ctx.fill();
+    ctx.fillStyle = g >= 3 ? '#2a1d05' : g === 0 ? 'rgba(255,255,255,.35)' : '#fff'; ctx.font = `${g >= 3 ? 800 : 700} ${Math.round(ch * .3)}px Manrope`; ctx.textAlign = 'left'; ctx.fillText(String(+d.slice(8)), x + 16, yy + ch * .42);
+    drawMoon(ctx, x + cw - 26, yy + ch - 26, Math.min(cw, ch) * .11, D.e);
+    if (g >= 3) { ctx.font = `${Math.round(ch * .22)}px ${EMOJI_F}`; ctx.fillText('⭐', x + 14, yy + ch - 16); }
+    if (g === 0) { ctx.strokeStyle = 'rgba(255,143,163,.55)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x + 14, yy + ch - 18); ctx.lineTo(x + cw - 48, yy + ch * .5); ctx.stroke(); }
+  });
+  // porquê + rodapé com a marca de quem partilha e sempre o Céu de Hoje
+  let fy = top + rows * ch + 44; ctx.textAlign = 'center'; ctx.fillStyle = '#c9c9ee'; ctx.font = 'italic 500 26px "Cormorant Garamond"'; ctx.fillText(LUA_WHY[cat] || '', W / 2, fy);
+  const own = ST.brand && !/^c[ée]u de hoje$/i.test(ST.brand.trim());
+  if (own) { ctx.fillStyle = '#fff'; ctx.font = '800 34px Manrope'; ctx.fillText('📅 Marca já: ' + ST.brand.trim(), W / 2, H - (S ? 250 : 92)); }
+  ctx.fillStyle = '#f2c76e'; ctx.font = '700 24px Cinzel'; ctx.fillText(own ? 'Calendário do Céu de Hoje · ceudehoje.com' : 'CÉU DE HOJE · calendário lunar grátis em ceudehoje.com', W / 2, H - (S ? 200 : 46));
+  ctx.textAlign = 'left'; return c;
+}
+function capLuaCat(cat) {
+  const [a, b] = periodRange(ST.date, 'mes'), days = daysIn(a, b), C = LUA_CATS.find(x => x[0] === cat) || LUA_CATS[0], G = days.map(d => luaGuide(d)[cat]);
+  const best = days.filter((d, i) => G[i] >= 3).map(d => +d.slice(8)), good = days.filter((d, i) => G[i] === 2).map(d => +d.slice(8)), own = ST.brand && !/^c[ée]u de hoje$/i.test(ST.brand.trim());
+  return [`${C[1]} ${C[2].replace(' (tradição)', '').toUpperCase()} · ${periodLabel('mes').toUpperCase()}`, '', `🌙 Os melhores dias pela Lua:`, `⭐ Ótimos: ${best.join(', ') || '—'}`, `👍 Bons: ${good.join(', ') || '—'}`, '', LUA_WHY[cat] || '', '',
+    own ? `📅 Marca já o teu dia com ${ST.brand.trim()}!` : '📌 Guarda para marcares no dia certo!', `🌙 Calendário lunar grátis: ${APP_URL}`, '', `#calendariolunar #lua #${cat}`].join('\n');
+}
 function capLuaDay() {
   const D = lunarDay(ST.date);
   return [`🌙 LUA DE HOJE · ${niceDate(ST.date).toUpperCase()}`, `${D.ph} em ${SIGN_IN[D.sign]} (${Math.round(D.s.phase.illum * 100)}% iluminada)${D.ingress ? ` · entra em ${SIGN_IN[D.ingress.to]} às ${fmtHM(+D.ingress.time, city()[3])}` : ''}`, '',
@@ -517,7 +554,7 @@ function buildPost(type = ST.type) {
     return { cs, cap: capTop() };
   }
   if (type === 'pares') { const P = pairsDay(ST.date, ST.modern); return { cs: [{ name: '01-quem-combina', c: drawPairsTop(P) }, { name: '02-par-de-cada-signo', c: drawPairsList(P) }], cap: capPairs(P) }; }
-  if (type === 'lua') return ST.mode === 'mes' ? { cs: [{ name: 'calendario-lunar', c: drawLuaMonth() }], cap: capLuaMonth() } : { cs: [{ name: 'lua-de-hoje', c: drawLuaDay() }], cap: capLuaDay() };
+  if (type === 'lua') return ST.mode === 'mes' ? { cs: [{ name: 'lua-' + (ST.luaCat || 'cabelo'), c: drawLuaCat(ST.luaCat || 'cabelo') }, { name: 'calendario-lunar', c: drawLuaMonth() }], cap: capLuaCat(ST.luaCat || 'cabelo') } : { cs: [{ name: 'lua-de-hoje', c: drawLuaDay() }], cap: capLuaDay() };
   if (type === 'anos') return { cs: [{ name: 'parabens', c: drawBirthday() }], cap: capBirthday() };
   if (type === 'horas') return { cs: [{ name: 'horas-planetarias', c: drawHours() }], cap: capHours() };
 }

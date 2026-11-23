@@ -51,7 +51,7 @@ function vShelf() {
   return h;
 }
 function bindShelf() {
-  $('#shSort').onchange = e => { ST.shelfSort = e.target.value; render(); };
+  $('#shSort').onchange = e => { ST.shelfSort = e.target.value; store.set('ceu_shelfsort', ST.shelfSort); render(); };
   document.querySelectorAll('[data-look]').forEach(b => b.onclick = () => { const S = SHELF.get(); S.look = b.dataset.look; SHELF.set(S); render(); });
   document.querySelectorAll('[data-c]').forEach(b => b.onclick = () => { const S = SHELF.get(), c = b.dataset.c; if (c === 'e+') S.e = Math.min(10, S.e + 1); if (c === 'e-') S.e = Math.max(1, S.e - 1); if (c === 'p+') S.p = Math.min(12, S.p + 1); if (c === 'p-') S.p = Math.max(1, S.p - 1); SHELF.set(S); render(); });
   document.querySelectorAll('[data-wood]').forEach(b => b.onclick = () => { const S = SHELF.get(); S.wood = b.dataset.wood; SHELF.set(S); render(); });

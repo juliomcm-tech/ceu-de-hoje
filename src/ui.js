@@ -1,5 +1,5 @@
 // ===== App de telemóvel =====
-const APP_VERSION = '23.11.2026 23:40';
+const APP_VERSION = '24.11.2026 00:10';
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const G = g => `${g}&#xFE0E;`;
@@ -353,16 +353,16 @@ function vInteresses() {
 }
 function bindInteresses() {
   const t = ST.intTab || 'livros';
-  document.querySelectorAll('[data-it]').forEach(b => b.onclick = () => { ST.intTab = b.dataset.it; render(); });
+  document.querySelectorAll('[data-it]').forEach(b => b.onclick = () => { ST.intTab = b.dataset.it; store.set('ceu_inttab', ST.intTab); render(); });
   if ($('#intAdd')) $('#intAdd').onclick = () => openItem(t, null, true);
   document.querySelectorAll('[data-more]').forEach(b => b.onclick = () => { ST.intMore = ST.intMore || {}; ST.intMore[b.dataset.more] = ((ST.intMore[b.dataset.more]) || 60) + 60; render(); });
   if (t === 'colecoes') bindCollections();
-  document.querySelectorAll('[data-vw]').forEach(b => b.onclick = () => { ST.bookView = b.dataset.vw; render(); });
+  document.querySelectorAll('[data-vw]').forEach(b => b.onclick = () => { ST.bookView = b.dataset.vw; store.set('ceu_bookview', ST.bookView); render(); }); // fica a escolha da pessoa (lista ou estante)
   document.querySelectorAll('[data-tv]').forEach(b => b.onclick = () => { ST.tripView = b.dataset.tv; render(); });
   bindGoal(); bindLibSearch(); bindDreams(); if ($('#ppShare')) $('#ppShare').onclick = async () => { toast('A preparar o passaporte…'); const P2 = passportStamps(); await shareCanvases([{ name: 'passaporte', c: await drawPassport() }], `🛂 O meu passaporte: ${P2.S.map(s => flagOf(s.iso)).join(' ')}\n${P2.S.length} países · ${P2.euPct}% da Europa\n\nFeito com Céu de Hoje ✨ ${APP_URL}`); };
   if ($('#intScan')) $('#intScan').onclick = async () => { try { const code = await scanBarcode(); if (!code) return; toast('A procurar o livro…'); const b = await isbnLookup(code); if (!b) { toast('Não está nas bases abertas — preenche ou fotografa a capa 📷', 4000); openItem('livros', null, true, { isbn: code, status: 2, notFound: 1 }); return; } openItem('livros', null, true, { ...b, isbn: code, status: 2 }); } catch (e) { toast('Sem câmara ou sem internet'); } };
   if ((t === 'livros' && ST.bookView === 'estante') || (t === 'colecoes' && ST.colView === 'estante')) { SHT = t; bindShelf(); }
-  document.querySelectorAll('[data-cv]').forEach(b => b.onclick = () => { ST.colView = b.dataset.cv; render(); });
+  document.querySelectorAll('[data-cv]').forEach(b => b.onclick = () => { ST.colView = b.dataset.cv; store.set('ceu_colview', ST.colView); render(); });
   if (t === 'livros' && ST.bookView === 'stats') bindReadShare(ST.statYear || todayStr().slice(0, 4));
   if (t === 'livros' && ST.bookView === 'stats') { $('#syPrev').onclick = () => { ST.statYear = +(ST.statYear || todayStr().slice(0, 4)) - 1; render(); }; $('#syNext').onclick = () => { ST.statYear = +(ST.statYear || todayStr().slice(0, 4)) + 1; render(); }; }
   document.querySelectorAll('.iit').forEach(el => el.onclick = () => openItem(t, el.dataset.id, false));
