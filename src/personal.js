@@ -66,7 +66,7 @@ const SIGN_KEYS = ['carneiro|aries', 'touro', 'gemeos', 'caranguejo|cancer', 'le
 const ORACLE_SUGGEST = ['Como vai o meu amor hoje?', 'Ele gosta de mim? Sim ou não', 'Que signos combinam comigo?', 'Qual é o meu ascendente?', 'Quando é a próxima lua cheia?', 'Posso cortar o cabelo hoje?', 'Qual o melhor dia desta semana para o trabalho?', 'Como lidar com o meu filho hoje?', 'Mercúrio está retrógrado?', 'Qual é o meu signo chinês?'];
 function oracle(q, prof) {
   const t = norm2(q), name = prof && prof.name ? prof.name.split(' ')[0] : '';
-  const mySign = prof && prof.d ? sunSignOf(prof.d) : null;
+  const mySign = prof && prof.d ? profSign(prof) : null;
   const signs = SIGN_KEYS.map((k, i) => new RegExp('\\b(' + k + ')\\b').test(t) ? i : -1).filter(i => i >= 0);
   const has = re => re.test(t);
   const kq = typeof oracleKids === 'function' ? oracleKids(t) : null; if (kq) return kq;
@@ -232,6 +232,7 @@ async function doInstall() { if (BIP) { BIP.prompt(); const r = await BIP.userCh
 // ---------- Animais: espécies, idade humana, signo chinês ----------
 const SPECIES = [['cao', '🐶', 'Cão'], ['gato', '🐱', 'Gato'], ['coelho', '🐰', 'Coelho'], ['ave', '🐦', 'Pássaro'], ['hamster', '🐹', 'Hamster'], ['tartaruga', '🐢', 'Tartaruga'], ['peixe', '🐠', 'Peixe'], ['cavalo', '🐴', 'Cavalo'], ['outro', '🐾', 'Outro']];
 const spOf = a => SPECIES.find(s => s[0] === a.sp || s[1] === a.sp) || SPECIES[8];
+const profSign = p => p && p.d ? sunSignAt(p.d, p.t, p.c) : 0; // o teu signo solar com hora e local (igual em toda a app, também em dias de mudança de signo)
 function sunSignAt(d, t, c = 0) { const [y, m, dd] = dParts(d), [h, mi] = (t || '12:00').split(':').map(Number), ci = CITIES[+c] || CITIES[0]; return Math.floor(sunLon(jdFromMs(localToUtcMs(y, m, dd, h, mi, ci[3]))) / 30); }
 function humanAge(a) {
   const yrs = (Date.UTC(...dParts(todayStr()).map((v, i) => i === 1 ? v - 1 : v)) - Date.UTC(...dParts(a.d).map((v, i) => i === 1 ? v - 1 : v))) / (365.25 * 864e5), s = spOf(a)[0];

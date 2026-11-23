@@ -100,7 +100,7 @@ const SPARK = n => Array.from({ length: n }, (_, k) => `<b class="tspark" style=
 function cardForYou(i) {
   const me = P.get() || {}, s = skyFor(todayStr()), ms = SIGNS[s.moon.sign], out = [], r = TRULE[i];
   out.push(`🪐 É regida ${typeof r === 'number' ? 'pelo signo de ' + SIGNS[r].n : /^o /.test(r) ? 'pelo ' + r.slice(2) : /^a /.test(r) ? 'pela ' + r.slice(2) : 'por ' + r}.`);
-  if (me.d) { const ss = sunSignOf(me.d); if (r === ss) out.push(`✨ É a carta do teu signo! Hoje é um dia muito teu: confia em ti.`); else if (typeof r === 'number' && SIGNS[r].el === SIGNS[ss].el) out.push(`💫 É do mesmo elemento que o teu ${SIGNS[ss].n} (${SIGNS[ss].el}): a mensagem chega-te com facilidade.`); }
+  if (me.d) { const ss = profSign(me); if (r === ss) out.push(`✨ É a carta do teu signo! Hoje é um dia muito teu: confia em ti.`); else if (typeof r === 'number' && SIGNS[r].el === SIGNS[ss].el) out.push(`💫 É do mesmo elemento que o teu ${SIGNS[ss].n} (${SIGNS[ss].el}): a mensagem chega-te com facilidade.`); }
   out.push(`🌙 Com a Lua hoje em ${ms.n}, ${{ fogo: 'a energia é de ação: não deixes a mensagem para amanhã', terra: 'transforma a mensagem em algo prático e concreto', ar: 'fala sobre ela com alguém: as conversas trazem respostas', agua: 'sente-a: a resposta vem pelas emoções e pela intuição' }[ms.el]}.`);
   try { const pd = numDay(me.d || '2000-01-01', todayStr()); if (me.d && typeof DAY_MEAN !== 'undefined') out.push(`🔢 O teu dia pessoal é ${pd}: ${DAY_MEAN[pd]}.`); } catch (e) { }
   return out;

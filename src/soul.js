@@ -291,7 +291,7 @@ function openSoul() {
   if (!o) { soulWelcome(true); return; }
   const first = !store.get('ceu_soul_seen');
   dlg.innerHTML = `<div class="soulwrap"><button class="tclose" id="soulX" aria-label="Fechar">✕</button>
-    <p class="soulhint" id="soulHint">${first ? 'A tua alma tem uma carta só tua. Toca para a revelar ✨' : 'Inclina o telemóvel ou passa o dedo pela carta'}</p>
+    <p class="soulhint" id="soulHint">${first ? 'A tua alma tem uma carta só tua. Toca na carta para a virar ✨' : 'Inclina o telemóvel ou passa o dedo pela carta'}</p>
     <div class="soulstage">${soul3dHtml(o, first)}</div>
     <div class="soulbtns"><button class="btn" id="soulFlip">↻ Ver o verso</button><button class="btn main" id="soulSh">📤 Partilhar</button><button class="btn" id="soulLk">🔗 Enviar o link</button>${'NDEFReader' in window ? '<button class="btn" id="soulNfc">📶 Gravar num chip NFC</button>' : ''}${SOUL_SHOP ? '<button class="btn soon" data-soon="porta-chaves">🔑 Encomendar porta-chaves <small>brevemente</small></button><button class="btn soon" data-soon="carta">🃏 Encomendar a carta <small>brevemente</small></button>' : ''}</div>
     <div class="soulinfo" id="soulInfo"${first ? ' hidden' : ''}>
@@ -304,6 +304,7 @@ function openSoul() {
   dlg.showModal(); bindSoulTilt();
   $('#soulX').onclick = () => dlg.close();
   const card = $('#soul3d');
+  if (first && !(/iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1))) setTimeout(() => { if (dlg.open && !store.get('ceu_soul_seen') && $('#soul3d') === card) card.click(); }, 1300); // revela sozinha (no iPhone espera pelo toque, que é preciso para a inclinação)
   card.onclick = async () => { if (first && !store.get('ceu_soul_seen')) { await soulMotionOk(); store.set('ceu_soul_seen', todayStr()); card.classList.add('reveal'); card.classList.remove('flip'); $('#soulHint').textContent = 'Esta é a tua alma. Inclina o telemóvel ✨'; try { confetti(); } catch (e) { } setTimeout(() => { $('#soulInfo').hidden = false; }, 900); } };
   $('#soulFlip').onclick = async () => { await soulMotionOk(); card.classList.toggle('flip'); $('#soulFlip').textContent = card.classList.contains('flip') ? '↻ Ver a frente' : '↻ Ver o verso'; };
   $('#soulSh').onclick = () => shareSoul(o);
@@ -565,17 +566,17 @@ function soulWelcome(force, after) {
   const dlg = $('#soulDlg'), ci = +(ST.city || 0), demo = ['9b5axQK4M2P7A~Sofia', '617gxZX7Q4K1A~Inês', '0b99xMMYRA17J~Tiago'].map(soulParse).filter(Boolean);
   dlg.innerHTML = `<div class="soulwrap wlc"><div class="wlcards">${demo.map((o, k) => `<div class="wc wc${k}">${soulSVG2(o)}</div>`).join('')}</div>
     <h2>✨ A tua alma tem uma carta. Só tua.</h2><p>Diz-me o teu nome e quando nasceste: em segundos revelo a tua <b>Carta da Alma</b>, única no mundo, e quem tem a outra metade da tua constelação.</p>
-    <div class="form"><label>O teu nome<input type="text" id="wName" maxlength="24" placeholder="Como te chamas?" autocomplete="given-name"></label><label>Data de nascimento<input type="date" id="wDate" max="${todayStr()}"></label>
-    <div class="two"><label>Hora (se souberes)<input type="time" id="wTime"></label><label>Onde nasceste<select id="wCity">${CITIES.map((c, i) => `<option value="${i}"${i === ci ? ' selected' : ''}>${c[0]}</option>`).join('')}</select></label></div></div>
+    <div class="form"><label>O teu nome<input type="text" id="wName" maxlength="40" placeholder="Como te chamas?" autocomplete="given-name"></label><label>Data de nascimento<input type="date" id="wDate" min="1900-01-01" max="${todayStr()}"></label>
+    <label>Hora (se souberes)<input type="time" id="wTime"></label><label>Onde nasceste<select id="wCity">${cityOpts(ci)}</select></label></div>
     <button class="btn main" id="wGo" style="width:100%;padding:14px;font-size:16px">✨ Revelar a minha carta</button>
     <p class="note" style="text-align:center">Sem registo e sem contas: fica só neste telemóvel.</p>${force ? '' : '<button class="btn ghost" id="wSkip" style="width:100%">Agora não, só quero espreitar</button>'}</div>`;
   if (!dlg.open) dlg.showModal(); dlg.scrollTop = 0;
   $('#wGo').onclick = () => {
-    const name = $('#wName').value.trim(), d = $('#wDate').value; if (!name) { toast('Como te chamas?'); $('#wName').focus(); return; } if (!d) { toast('Falta a data de nascimento'); return; }
-    const old = P.get() || {}; P.set(Object.assign({}, old, { name, d, t: $('#wTime').value, c: $('#wCity').value })); store.set('ceu_welcome', '1'); render();
+    const name = $('#wName').value.trim(), d = $('#wDate').value; if (!name) { toast('Como te chamas?'); $('#wName').focus(); return; } if (!d) { toast('Falta a data de nascimento'); return; } if (d < '1900-01-01' || d > todayStr()) { toast('Essa data não parece certa: escolhe entre 1900 e hoje'); return; }
+    const old = P.get() || {}; P.set(Object.assign({}, old, { name, d, t: $('#wTime').value, c: $('#wCity').value })); store.set('ceu_welcome', todayStr()); render();
     if (after) after(); else openSoul();
   };
-  if ($('#wSkip')) $('#wSkip').onclick = () => { store.set('ceu_welcome', '1'); dlg.close(); };
+  if ($('#wSkip')) $('#wSkip').onclick = () => { store.set('ceu_welcome', todayStr()); dlg.close(); };
   return true;
 }
 

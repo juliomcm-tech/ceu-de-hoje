@@ -1,5 +1,5 @@
 // ===== App de telemóvel =====
-const APP_VERSION = '23.11.2026 02:10';
+const APP_VERSION = '23.11.2026 02:40';
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const G = g => `${g}&#xFE0E;`;
@@ -27,7 +27,7 @@ function vTop() {
 }
 function vPares() {
   const PR = pairsDay(ST.date, ST.modern);
-  const me = P.get(), mySi = me && me.d ? sunSignOf(me.d) : 0, sOpt = sel => SIGNS.map((s, i) => `<option value="${i}"${i === sel ? ' selected' : ''}>${s.n}</option>`).join('');
+  const me = P.get(), mySi = me && me.d ? profSign(me) : 0, sOpt = sel => SIGNS.map((s, i) => `<option value="${i}"${i === sel ? ' selected' : ''}>${s.n}</option>`).join('');
   const pa = ST.pkA ?? mySi, pb = ST.pkB ?? 4, sb = (side, i) => `<button class="spk" data-side="${side}" style="--c:${elc(SIGNS[i])}"><span>${G(SIGNS[i].g)}</span><b>${SIGNS[i].n}</b><i>▾</i></button>`;
   let h = `<div class="pickbox"><div class="pick2">${sb('A', pa)}<em>💞</em>${sb('B', pb)}</div><div class="pick2 names"><input type="text" id="nmA" maxlength="40" placeholder="Nome (opcional)" value="${esc(ST.nmA ?? (me && me.name ? me.name.split(' ')[0] : ''))}"><em>🔤</em><input type="text" id="nmB" maxlength="40" placeholder="Nome (opcional)" value="${esc(ST.nmB || '')}"></div><button class="btn main" id="pkGo">💞 Ver compatibilidade</button><p class="note">Escolhe os signos e, se quiseres, escreve os nomes: vês a ligação pelos dois.</p></div><h2 class="vt">💞 Quem combina hoje</h2>`;
   PR.top.forEach((p, i) => h += `<div class="pair r${i + 1}" data-a="${p.a}" data-b="${p.b}"><div class="pg"><span style="color:${elc(SIGNS[p.a])}">${G(SIGNS[p.a].g)}</span><b>${p.score}%</b><span style="color:${elc(SIGNS[p.b])}">${G(SIGNS[p.b].g)}</span></div><div class="pn">${SIGNS[p.a].n} + ${SIGNS[p.b].n}</div><small>${cap1(PAIR_TXT[p.k])}</small><span class="open">Ver tudo ›</span></div>`);
@@ -95,17 +95,17 @@ function vAgenda() {
   return h;
 }
 function openPerson(k, preset) {
-  const l = P.list('ceu_bdays'), x = k === null ? { name: '', rel: 'amigo', d: '', t: '', tel: '', relTxt: '', ...(preset || {}) } : l[k];
+  const l = P.list('ceu_bdays'), x = k === null ? { name: '', rel: '', d: '', t: '', tel: '', relTxt: '', ...(preset || {}) } : l[k];
   const groups = REL_GROUPS.filter(g => g[0] !== 'Animais').map(g => `<optgroup label="${g[0]}">${g[1].map(r => `<option value="${r}"${x.rel === r && !x.relTxt ? ' selected' : ''}>${(RELS.find(z => z[0] === r) || [])[2]}</option>`).join('')}</optgroup>`).join('');
   $('#perBody').innerHTML = `<div class="form"><label>Nome<input type="text" id="xName" maxlength="24" value="${esc(x.name)}" placeholder="Ex.: João"></label>
-    <label>Ligação<select id="xRel">${groups}<option value="outro"${x.relTxt ? ' selected' : ''}>Outra…</option></select></label>
+    <label>Quem é para ti<select id="xRel">${x.rel ? '' : '<option value="" selected disabled>Escolhe… (mãe, amigo, filho…)</option>'}${groups}<option value="outro"${x.relTxt ? ' selected' : ''}>Outra…</option></select></label>
     <label id="xRelTxtL"${x.relTxt ? '' : ' hidden'}>Escreve a ligação<input type="text" id="xRelTxt" maxlength="24" value="${esc(x.relTxt || '')}" placeholder="Ex.: Vizinha, Professor, Treinador"></label>
     <label>Data de nascimento${x.md ? ` <small>(faz anos a ${+x.md.slice(3)} de ${MESES[+x.md.slice(0, 2) - 1]}: falta só o ano)</small>` : ''}<input type="date" id="xDate" max="${todayStr()}" value="${x.d}"></label><label>Hora (opcional)<input type="time" id="xTime" value="${x.t || ''}"></label>
     <label>Telemóvel (opcional, para o WhatsApp)<input type="tel" id="xTel" inputmode="tel" value="${esc(x.tel || '')}" placeholder="9xx xxx xxx"></label></div>`;
   $('#perTitle').textContent = k === null ? 'Novo aniversário' : 'Editar ' + x.name; $('#perDel').hidden = k === null; $('#perSave').hidden = false;
   $('#xRel').onchange = () => $('#xRelTxtL').hidden = $('#xRel').value !== 'outro';
   if (k !== null) { $('#perBody').insertAdjacentHTML('beforeend', '<button class="btn" id="xCard" style="width:100%;margin-top:8px">🪪 Enviar o cartão (a pessoa guarda na app dela)</button>'); $('#xCard').onclick = () => sharePerson(l[k]); }
-  $('#perSave').onclick = () => { const n = $('#xName').value.trim(), d = $('#xDate').value; if (!n || !d) { toast('Nome e data'); return; } const rel = $('#xRel').value, o = { name: n, rel: rel === 'outro' ? (/a$/i.test(($('#xRelTxt').value.trim().split(/\s+/)[0] || '')) ? 'amiga' : 'amigo') : rel, relTxt: rel === 'outro' ? $('#xRelTxt').value.trim() || 'Outro' : '', d, t: $('#xTime').value, tel: $('#xTel').value.trim() }; const L = P.list('ceu_bdays'); if (k === null) L.push(o); else L[k] = { ...L[k], ...o }; P.setList('ceu_bdays', L); $('#perDlg').close(); ST.agMonth = d.slice(0, 4) <= todayStr().slice(0, 4) ? todayStr().slice(0, 5) + d.slice(5, 7) : ST.agMonth; toast('Guardado 🎂'); render(); if (k !== null) openPersonSheet(k); };
+  $('#perSave').onclick = () => { const n = $('#xName').value.trim(), d = $('#xDate').value; if (!n || !d) { toast('Nome e data'); return; } const rel = $('#xRel').value; if (!rel) { toast('Escolhe quem é para ti (mãe, amigo…)'); return; } const o = { name: n, rel: rel === 'outro' ? (/a$/i.test(($('#xRelTxt').value.trim().split(/\s+/)[0] || '')) ? 'amiga' : 'amigo') : rel, relTxt: rel === 'outro' ? $('#xRelTxt').value.trim() || 'Outro' : '', d, t: $('#xTime').value, tel: $('#xTel').value.trim() }; const L = P.list('ceu_bdays'); if (k === null) L.push(o); else L[k] = { ...L[k], ...o }; P.setList('ceu_bdays', L); $('#perDlg').close(); ST.agMonth = d.slice(0, 4) <= todayStr().slice(0, 4) ? todayStr().slice(0, 5) + d.slice(5, 7) : ST.agMonth; toast('Guardado 🎂'); render(); if (k !== null) openPersonSheet(k); };
   $('#perDel').onclick = () => { const L = P.list('ceu_bdays'); L.splice(k, 1); P.setList('ceu_bdays', L); $('#perDlg').close(); render(); };
   $('#perDlg').showModal();
 }
@@ -127,10 +127,10 @@ function bindAgenda() {
 }
 function fertBox() {
   const g = luaGuide(ST.date).fertilidade, next = luaBest('fertilidade', ST.date, dayStr(noonJd(ST.date) + 30)).slice(0, 5);
-  const p = P.get(), mine = p && p.d ? daysIn(ST.date, dayStr(noonJd(ST.date) + 30)).filter(d => skyFor(d).moon.sign === sunSignOf(p.d)).slice(0, 3) : [];
+  const p = P.get(), mine = p && p.d ? daysIn(ST.date, dayStr(noonJd(ST.date) + 30)).filter(d => skyFor(d).moon.sign === profSign(p)).slice(0, 3) : [];
   const nd = d => { const [y, m, dd] = dParts(d); return `${dd} ${MESES[m - 1].slice(0, 3)}`; };
   return `<div class="box fert"><h3>👶 Fertilidade</h3><p>Hoje, pela tradição lunar: <b style="color:${LUA_COL[g]}">${LUA_LBL[g]}</b>.</p>
-    <p>Próximos dias «férteis» da Lua: <b>${next.map(nd).join(' · ') || '—'}</b></p>${mine.length ? `<p>Lua no teu signo (${SIGNS[sunSignOf(p.d)].n}), dias de mais energia para ti: <b>${mine.map(nd).join(' · ')}</b></p>` : ''}
+    <p>Próximos dias «férteis» da Lua: <b>${next.map(nd).join(' · ') || '—'}</b></p>${mine.length ? `<p>Lua no teu signo (${SIGNS[profSign(p)].n}), dias de mais energia para ti: <b>${mine.map(nd).join(' · ')}</b></p>` : ''}
     ${(() => { const c = CY.get(), st = c.on ? cycleStats(c) : null; if (!st || !st.last) return ''; const lua = daysIn(st.fert[0], st.fert[1]).filter(d => luaGuide(d).fertilidade >= 3).map(d => +d.slice(8)); return `<p>🌸 Pelo teu ciclo, a janela fértil é de <b>${niceDate(st.fert[0]).replace(/^[^,]+, /, '')} a ${niceDate(st.fert[1]).replace(/^[^,]+, /, '')}</b>${lua.length ? `, e a Lua também ajuda nos dias <b>${lua.join(', ')}</b> 🌙` : ''}.</p>`; })()}
     <button class="btn" id="fertCalc" style="width:100%;margin-top:6px">📅 ${CY.get().on && CY.get().starts.length ? 'Ver o meu ciclo' : 'Calcular a janela fértil pelo ciclo'}</button>
     <p class="note">A astrologia é só tradição e entretenimento. A fertilidade real depende da ovulação e da saúde de cada um. Se estão a tentar há mais de 12 meses (ou 6 meses a partir dos 35 anos), falem com o médico de família ou um especialista em fertilidade.</p></div>`;
@@ -194,10 +194,10 @@ function vEu() {
   return seg + vEuMe();
 }
 function vEuMe() {
-  const p = P.get(), opts = sel => CITIES.map((c, i) => `<option value="${i}"${+sel === i ? ' selected' : ''}>${c[0]}</option>`).join('');
+  const p = P.get(), opts = cityOpts;
   if (!p || !p.d || ST.editProfile) {
     return `<h2 class="vt">✨ O meu espaço</h2><p class="sub2">Sem registo e sem palavras-passe: os teus dados ficam só neste telemóvel.</p>
-    <div class="form"><label>O teu nome<input type="text" id="pName" maxlength="24" value="${esc(p ? p.name || '' : '')}" placeholder="Como te chamas?"></label>
+    <div class="form"><label>O teu nome<input type="text" id="pName" maxlength="40" value="${esc(p ? p.name || '' : '')}" placeholder="Como te chamas?"></label>
     <label>Data de nascimento<input type="date" id="bDate" min="1900-01-01" max="${todayStr()}" value="${p ? p.d || '' : ''}"></label>
     <label>Hora de nascimento (opcional, para o ascendente)<input type="time" id="bTime" value="${p ? p.t || '' : ''}"></label>
     <label>Onde nasceste<select id="bCity">${opts(p ? p.c : 0)}</select></label>
@@ -205,7 +205,7 @@ function vEuMe() {
     <label>📍 Lugar favorito<input type="text" id="pFP" maxlength="60" value="${esc(p ? p.favPlace || '' : '')}"></label><label>✈️ Viagem de sonho<input type="text" id="pDT" maxlength="60" value="${esc(p ? p.dream || '' : '')}"></label>
     <button class="btn main" id="pSave">Guardar</button></div>`;
   }
-  const first = p.name ? p.name.split(' ')[0] : '', si = sunSignOf(p.d), ci = CITIES[+p.c || 0], today = todayStr();
+  const first = p.name ? p.name.split(' ')[0] : '', si = profSign(p), ci = CITIES[+p.c || 0], today = todayStr();
   const [y, m, dd] = dParts(p.d), [hh, mi] = (p.t || '12:00').split(':').map(Number), ms = localToUtcMs(y, m, dd, hh, mi, ci[3]);
   const natal = natalChart(ms, ci), PD = personalDay(natal, today, ST.modern), base = p.t ? PD.byAsc : readDay(si, today, ST.modern);
   const keepPets = ST.pets; ST.pets = false; computeTop(); ST.pets = keepPets; const pos = ST.rank.findIndex(r => r.si === si), rd = ST.rank[pos], v = verdict(rd);
@@ -476,10 +476,10 @@ function bindEu() {
   document.querySelectorAll('[data-ev]').forEach(b => b.onclick = () => { ST.euView = b.dataset.ev; render(); });
   if (ST.euView === 'diario') { bindDiario(); return; }
   if (ST.euView === 'int') { bindInteresses(); return; }
-  if ($('#pSave')) { $('#pSave').onclick = () => { const d = $('#bDate').value; if (!d) { toast('Indica a data de nascimento'); return; } P.set({ name: $('#pName').value.trim(), d, t: $('#bTime').value, c: $('#bCity').value, favBook: $('#pFB').value.trim(), favShow: $('#pFS').value.trim(), favPlace: $('#pFP').value.trim(), dream: $('#pDT').value.trim() }); ST.editProfile = false; toast('Guardado neste telemóvel ✨'); render(); }; return; }
+  if ($('#pSave')) { $('#pSave').onclick = () => { const d = $('#bDate').value; if (!d) { toast('Indica a data de nascimento'); return; } if (d < '1900-01-01' || d > todayStr()) { toast('Essa data não parece certa: escolhe entre 1900 e hoje'); return; } P.set({ name: $('#pName').value.trim(), d, t: $('#bTime').value, c: $('#bCity').value, favBook: $('#pFB').value.trim(), favShow: $('#pFS').value.trim(), favPlace: $('#pFP').value.trim(), dream: $('#pDT').value.trim() }); ST.editProfile = false; toast('Guardado neste telemóvel ✨'); render(); }; return; }
   $('#pEdit').onclick = () => { ST.editProfile = true; render(); };
   if ($('#monGo')) $('#monGo').onclick = () => openMonth(); if ($('#cnGo')) $('#cnGo').onclick = openChinese; bindTarot(); bindTarotNew(); bindMore(); bindFact(); bindEuChips(); bindRoutines(); document.querySelectorAll('[data-num]').forEach(b => b.onclick = () => openNum(b.dataset.num));
-  const p = P.get(), si = sunSignOf(p.d);
+  const p = P.get(), si = profSign(p);
   $('#myCard').onclick = () => { const kp = ST.pets; ST.pets = false; computeTop(); ST.pets = kp; openSheet(ST.rank.findIndex(r => r.si === si)); };
   if (false) $('#myPoster').onclick = () => { ST.type = 'anos'; ST.anosView = 'criar'; render(); showBday({ name: p.name || 'Tu', rel: 'eu', d: p.d, showAge: true, from: '' }, false); };
   $('#askF').onsubmit = e => { e.preventDefault(); askOracle($('#askQ').value); };
@@ -584,6 +584,7 @@ async function shareCurrent() {
 function showTodayDlg(force) {
   const key = 'ceu_seen_' + todayStr(), T = bdaysOn(0), M = bdaysOn(1), CD = careDue(3), YN = yearNudge(), AD = adoptToday(), CYA = cycleAlerts(), MN = +todayStr().slice(8) <= 3 && !store.get('ceu_monseen_' + todayStr().slice(0, 7)), TAR = P.get() && !tarOpened(), sig = `${T.length + M.length}|${CD.length}|${YN ? 1 : 0}|${AD.length}|${CYA.length}|${MN ? 1 : 0}|${TAR ? 1 : 0}`;
   if (!T.length && !M.length && !CD.length && !YN && !AD.length && !CYA.length && !MN && !TAR) return false;
+  if (!force && store.get('ceu_welcome') === todayStr() && !T.length && !M.length && !CYA.length) return false; // no dia em que chegaste, não abre outra «carta» por cima da Carta da Alma
   if (!force && store.get(key) === sig) return false;
   const card = (x, tom) => { const si = x.t ? sunSignAt(x.d, x.t) : sunSignOf(x.d), age = ageOn(x.d, dayStr(noonJd(todayStr()) + (tom ? 1 : 0))), em = x.kind === 'a' ? spOf(P.list('ceu_pets')[x.k] || {})[1] : x.kind === 'me' ? '🥳' : relIcon(x);
     return `<div class="tcard${tom ? ' tom' : ''}" style="--c:${elc(SIGNS[si])}"><span class="av">${esc(em)}</span><div class="who"><b>${esc(x.kind === 'me' ? 'Tu!' : x.name)}</b><small>${esc(x.kind === 'me' ? 'O teu dia' : relLabel(x))} · ${age > 0 ? (tom ? 'faz ' : 'faz ') + age + (age === 1 ? ' ano' : ' anos') : ''} · ${G(SIGNS[si].g)} ${SIGNS[si].n}</small></div>
@@ -640,7 +641,7 @@ async function init() {
   document.querySelectorAll('#who button').forEach(b => b.onclick = () => { ST.pets = b.dataset.w === 'a'; store.set('ceu_pets_mode', ST.pets ? '1' : '0'); render(); });
   document.querySelectorAll('.installBtn').forEach(b => { b.onclick = doInstall; b.hidden = isStandalone(); });
   $('#installHelp').innerHTML = isIOS() ? '<p><b>iPhone:</b> abre no Safari ou no Chrome, toca em <b>Partilhar</b> (□↑) e escolhe <b>«Adicionar ao ecrã principal»</b>.</p>' : '<p><b>Android (Chrome):</b> toca nos <b>⋮</b> em cima à direita e escolhe <b>«Instalar app»</b> ou <b>«Adicionar ao ecrã principal»</b>.</p>';
-  if (!isStandalone() && !store.get('ceu_inst_hide')) { $('#instBanner').hidden = false; $('#instClose').onclick = () => { $('#instBanner').hidden = true; store.set('ceu_inst_hide', '1'); }; $('#instGo').onclick = doInstall; }
+  if (!isStandalone() && !store.get('ceu_inst_hide')) { $('#instBanner').hidden = false; if ($('#instHow')) $('#instHow').textContent = /iPhone|iPad|iPod/.test(navigator.userAgent) ? 'No Safari: Partilhar ⬆️ → «Adicionar ao ecrã principal».' : 'Fica no ecrã do telemóvel, como uma app.'; $('#instClose').onclick = () => { $('#instBanner').hidden = true; store.set('ceu_inst_hide', '1'); }; $('#instGo').onclick = doInstall; }
   $('#sheetShare').onclick = () => shareCanvases(($('#sheet')._extra || []).concat([{ name: $('#sheet')._name, c: $('#sheet')._canvas }]), $('#sheet')._cap);
   $('#sheetPrev').onclick = () => openSheet(SHEET - 1); $('#sheetNext').onclick = () => openSheet(SHEET + 1);
   let tx = null; $('#sheetBody').addEventListener('touchstart', e => tx = e.touches[0].clientX, { passive: true });

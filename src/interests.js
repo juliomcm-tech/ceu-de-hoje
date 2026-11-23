@@ -162,8 +162,8 @@ function tripScore(ds) {
 function bestTripDays(n = 90) { const all = [], pp = new Set(typeof predPeriods === 'function' ? predPeriods(todayStr(), dayStr(noonJd(todayStr()) + n + 7)) : []); let d = dayStr(noonJd(todayStr()) + 1); for (let k = 0; k < n; k++) { if (!pp.has(d) && !pp.has(dayStr(noonJd(d) + 2))) all.push([d, tripScore(d).sc]); d = dayStr(noonJd(d) + 1); } return all.filter(a => a[1] >= 2).sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1)).slice(0, 4).map(a => a[0]).sort(); }
 function meLine(ds) {
   const me = P.get(); if (!me || !me.d) return '';
-  const my = SIGNS[sunSignOf(me.d)], s = skyFor(ds), m = SIGNS[s.moon.sign];
-  if (s.moon.sign === sunSignOf(me.d)) return `💫 A Lua estava no teu signo (${my.n}): foi um momento muito teu.`;
+  const my = SIGNS[profSign(me)], s = skyFor(ds), m = SIGNS[s.moon.sign];
+  if (s.moon.sign === profSign(me)) return `💫 A Lua estava no teu signo (${my.n}): foi um momento muito teu.`;
   if (m.el === my.el) return `💫 A Lua em ${m.n} é do mesmo elemento que o teu ${my.n} (${my.el}): harmonia contigo.`;
   return '';
 }

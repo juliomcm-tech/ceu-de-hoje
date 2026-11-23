@@ -142,7 +142,7 @@ const weekCardI = () => Math.floor(seeded('wk' + ((P.get() || {}).name || '') + 
 function dayScript() {
   const me = P.get() || {}, t = todayStr(), s = skyFor(t), first = (me.name || '').split(' ')[0], out = [];
   out.push(`${new Date().getHours() < 13 ? 'Bom dia' : new Date().getHours() < 20 ? 'Boa tarde' : 'Boa noite'}${first ? ', ' + first : ''}. Hoje é ${niceDate(t).toLowerCase()}.`);
-  if (me.d) { const si = sunSignOf(me.d), r = readDay(si, t, ST.modern); out.push(`Para ${SIGNS[si].n}: ${r.headline}`); out.push(`No amor: ${firstSentence(r.love)}`); out.push(`No trabalho: ${firstSentence(r.work || r.trabalho || '')}`); }
+  if (me.d) { const si = profSign(me), r = readDay(si, t, ST.modern); out.push(`Para ${SIGNS[si].n}: ${r.headline}`); out.push(`No amor: ${firstSentence(r.love)}`); out.push(`No trabalho: ${firstSentence(r.work || r.trabalho || '')}`); }
   out.push(`A Lua está em ${SIGNS[s.moon.sign].n}, ${moonPhaseName(s.phase.elong)}.`);
   out.push(tarOpened() ? `A tua carta de hoje é ${TAROT[dailyCard(me).i][0]}. ${TDAY[dailyCard(me).i][3]}` : 'A tua carta de hoje está à tua espera. Abre-a quando quiseres.');
   try { const L = todaysBirthdays(); if (L.length) out.push(`Hoje faz anos: ${L.map(x => x.name || x.label).join(', ')}. Não te esqueças de dar os parabéns!`); } catch (e) { }
@@ -205,7 +205,7 @@ const HOUSE_J = ['tu próprio(a): confiança e um novo começo', 'dinheiro e val
 function yearCardOf(d, y) { let n = +d.slice(8) + +d.slice(5, 7) + String(y).split('').reduce((a, b) => a + +b, 0); while (n > 22) n = String(n).split('').reduce((a, b) => a + +b, 0); return n === 22 ? 0 : n; }
 const isMyBday = () => { const me = P.get(), t = todayStr(), y = +t.slice(0, 4), lp = (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0; return !!(me && me.d && (me.d.slice(5) === t.slice(5) || (me.d.slice(5) === '02-29' && !lp && t.slice(5) === '02-28'))); };
 function yearAstral() {
-  const me = P.get(); if (!me || !me.d) return null; const t = todayStr(), y = +t.slice(0, 4), lastB = (me.d.slice(5) <= t.slice(5) ? y : y - 1) + me.d.slice(4), s = skyFor(lastB.replace(/-02-29$/, '-02-28')), si = sunSignOf(me.d);
+  const me = P.get(); if (!me || !me.d) return null; const t = todayStr(), y = +t.slice(0, 4), lastB = (me.d.slice(5) <= t.slice(5) ? y : y - 1) + me.d.slice(4), s = skyFor(lastB.replace(/-02-29$/, '-02-28')), si = profSign(me);
   const hj = (s.jupiter.sign - si + 12) % 12, hs = (s.saturn.sign - si + 12) % 12, yc = yearCardOf(me.d, +lastB.slice(0, 4)), py = personalYear(me.d, +lastB.slice(0, 4));
   return { from: lastB, age: ageOn(me.d, lastB), yc, py, jup: [SIGNS[s.jupiter.sign].n, HOUSE_J[hj]], sat: [SIGNS[s.saturn.sign].n, HOUSE_J[hs]], moon: SIGNS[s.moon.sign].n };
 }
@@ -262,7 +262,7 @@ function openDreams(edit) {
 // ---------- Arrumação: «Hoje para ti», atalhos e visita guiada ----------
 function todayStrip() {
   const me = P.get(); if (!me || !me.d || ST.date !== todayStr() || ST.mode !== 'dia' || ST.pets) return '';
-  const si = sunSignOf(me.d), pos = (ST.rank || []).findIndex(r => r.si === si), s = skyFor(todayStr()), L = (() => { try { return todaysBirthdays(); } catch (e) { return []; } })(), first = (me.name || '').split(' ')[0];
+  const si = profSign(me), pos = (ST.rank || []).findIndex(r => r.si === si), s = skyFor(todayStr()), L = (() => { try { return todaysBirthdays(); } catch (e) { return []; } })(), first = (me.name || '').split(' ')[0];
   return `<div class="tstrip"><div class="tsh1"><b>${isMyBday() ? '🎂 Parabéns' : 'Olá'}${first ? ', ' + esc(first) : ''}!</b><span><button class="link" id="spk1">🔊 Ouvir</button></span></div><div class="tsg">
     <button data-go="sign"><span>${G(SIGNS[si].g)}</span><b>${pos >= 0 ? pos + 1 + '.º' : ''}</b><small>${SIGNS[si].n} hoje</small></button>
     <button data-go="tarot"><span>🃏</span><b>${tarOpened() ? TAROT[dailyCard(me).i][0].replace(/^(O|A|Os) /, '') : 'Abrir'}</b><small>a tua carta</small></button>
@@ -302,7 +302,7 @@ function maybeTour(force) {
 // ---------- Ficha de cada pessoa (igual aos animais: Hoje · Mapa · Mais, e Editar no fim) ----------
 function openPersonSheet(k) {
   const L = P.list('ceu_bdays'), x = L[k]; if (!x) return; const si = x.t ? sunSignAt(x.d, x.t) : sunSignOf(x.d), S = SIGNS[si], cn = chineseSign(x.d), age = ageOn(x.d), dd = daysToBirthday(x.d), first = x.name.split(' ')[0];
-  const rd = readDay(si, todayStr(), ST.modern), v = verdict(rd), tab = ST.perTab || 'hoje', me = P.get(), ms = me && me.d ? sunSignOf(me.d) : null;
+  const rd = readDay(si, todayStr(), ST.modern), v = verdict(rd), tab = ST.perTab || 'hoje', me = P.get(), ms = me && me.d ? profSign(me) : null;
   const born = skyFor(x.d), isKid = /^(filho|filha|neto|neta)$/.test(x.rel);
   let h = `<div class="pethero" style="--c:${elc(S)}"><span class="em">${esc(relIcon(x))}</span><h3>${esc(x.name)}</h3><p>${esc(relLabel(x))} · <b>${G(S.g)} ${S.n}</b> · ${cn.e} ${cn.n} (${cn.el})</p><p>${age > 0 ? age + (age === 1 ? ' ano' : ' anos') : 'Menos de 1 ano'} · ${dd === 0 ? '🎂 <b>faz anos hoje!</b>' : dd === 1 ? '🎂 faz anos <b>amanhã</b>' : `🎂 anos em ${dd} dias`}</p></div>
     <div class="seg2 ptabs"><button data-xt="hoje"${tab === 'hoje' ? ' class="on"' : ''}>☀️ Hoje</button><button data-xt="mapa"${tab === 'mapa' ? ' class="on"' : ''}>🪐 Mapa</button><button data-xt="mais"${tab === 'mais' ? ' class="on"' : ''}>💞 Mais</button></div>`;

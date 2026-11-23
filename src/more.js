@@ -272,7 +272,7 @@ function yearCard() {
 }
 function lowFirst(s) { s = String(s || '').trim().replace(/[.!]+$/, ''); return s ? s[0].toLowerCase() + s.slice(1) : ''; }
 function yearData(y) {
-  const ys = String(y), p = P.get() || {}, si = p.d ? (p.t ? sunSignAt(p.d, p.t, p.c) : sunSignOf(p.d)) : null;
+  const ys = String(y), p = P.get() || {}, si = p.d ? (p.t ? sunSignAt(p.d, p.t, p.c) : profSign(p)) : null;
   const inY = (x, k) => (x[k] || '').startsWith(ys);
   const books = intList('livros'), read = books.filter(x => x.status === 2 && inY(x, 'ed')).sort((a, b) => a.ed.localeCompare(b.ed));
   const pages = read.reduce((a, x) => a + (+x.pages || 0), 0), favB = [...read].sort((a, b) => (b.rating || 0) - (a.rating || 0))[0];
@@ -589,9 +589,9 @@ function bindCare(i) {
 const EL_FRIEND = { fogo: 'ar', ar: 'fogo', terra: 'agua', agua: 'terra' };
 function ownerPet(a) {
   const p = P.get(); if (!p || !p.d) return null;
-  const o = sunSignOf(p.d), s = sunSignAt(a.d, a.t), O = SIGNS[o], S = SIGNS[s];
+  const o = profSign(p), s = sunSignAt(a.d, a.t), O = SIGNS[o], S = SIGNS[s];
   const k = o === s ? 'same' : O.el === S.el ? 'el' : EL_FRIEND[O.el] === S.el ? 'friend' : 'diff';
-  const kd = Math.min((sunSignOf(p.d) - s + 12) % 12, (s - sunSignOf(p.d) + 12) % 12), pct = Math.min(99, PAIR_BASE[kd] + 6);
+  const kd = Math.min((profSign(p) - s + 12) % 12, (s - profSign(p) + 12) % 12), pct = Math.min(99, PAIR_BASE[kd] + 6);
   const txt = { same: `Mesmo signo! ${a.name} é praticamente o teu reflexo de quatro patas: sentem as coisas da mesma maneira.`, el: `Os dois são de ${O.el === 'agua' ? 'água' : O.el}: entendem-se sem palavras e têm o mesmo ritmo.`, friend: `${O.n} e ${S.n} completam-se: ${O.el === 'fogo' || O.el === 'ar' ? 'um dá a faísca, o outro o entusiasmo' : 'um dá estabilidade, o outro carinho'}. Dupla de sucesso.`, diff: `Feitios diferentes, e é aí que está a graça: ${a.name} ensina-te ${['paciência', 'a viver o momento', 'a brincar mais', 'a abrandar'][(seeded(a.name)() * 4) | 0]}, tu dás-lhe segurança.` }[k];
   return { o, s, O, S, pct: Math.min(100, pct), txt, me: (p.name || 'Tu').split(' ')[0] };
 }
@@ -777,7 +777,10 @@ function canvasTheme() { const t = store.get('ceu_theme') || 'astral'; return TH
     if (!dlg) { dlg = document.createElement('dialog'); dlg.id = 'selDlg'; dlg.innerHTML = '<h2 id="selT" tabindex="-1" autofocus></h2><input type="search" id="selQ" placeholder="🔎 Procurar…"><div id="selL"></div><div class="dlgfoot"><button class="btn" id="selX">Fechar</button></div>'; document.body.appendChild(dlg); dlg.querySelector('#selX').onclick = () => dlg.close(); dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); }); }
     const L = dlg.querySelector('#selL'), q = dlg.querySelector('#selQ'), lab = s.closest('label'), title = s.getAttribute('aria-label') || (lab ? [...lab.childNodes].filter(n => n.nodeType === 3).map(n => n.textContent).join('').trim() : '') || 'Escolhe';
     dlg.querySelector('#selT').textContent = title; q.value = ''; q.hidden = s.options.length < 12;
-    const draw = () => { const f = nrm(q.value); const sub = (t, q) => { let j = 0; for (const ch of t) if (ch === q[j]) j++; return j === q.length; }; L.innerHTML = [...s.options].map((o, i) => (!f || nrm(o.textContent).includes(f) || (f.length >= 3 && sub(nrm(o.textContent), f.replace(/\s/g, '')))) ? `<button data-i="${i}"${i === s.selectedIndex ? ' class="on"' : ''}>${esc(o.textContent)}${i === s.selectedIndex ? ' <i>✓</i>' : ''}</button>` : '').join(''); L.querySelectorAll('[data-i]').forEach(b => b.onclick = () => { s.selectedIndex = +b.dataset.i; s.dispatchEvent(new Event('change', { bubbles: true })); s.dispatchEvent(new Event('input', { bubbles: true })); dlg.close(); }); };
+    const draw = () => { const f = nrm(q.value.trim()); const sub = (t, q) => { let j = 0; for (const ch of t) if (ch === q[j]) j++; return j === q.length; };
+      const sc = o => { const t = nrm(o.textContent), k = nrm(o.dataset.k || ''); if (!f) return 0; if (t.startsWith(f)) return 1; if ((' ' + t).includes(' ' + f) || (' ' + k).includes(' ' + f)) return 2; if (t.includes(f) || k.includes(f)) return 3; return -1; }; // primeiro o que começa pela pesquisa, depois o país/região
+      let hits = [...s.options].map((o, i) => [o, i, sc(o)]).filter(x => x[2] >= 0); if (!hits.length && f.length >= 3) hits = [...s.options].map((o, i) => [o, i, 4]).filter(x => sub(nrm(x[0].textContent), f.replace(/\s/g, ''))); hits.sort((a, b) => a[2] - b[2] || a[1] - b[1]);
+      L.innerHTML = hits.map(([o, i]) => `<button data-i="${i}"${i === s.selectedIndex ? ' class="on"' : ''}>${esc(o.textContent)}${i === s.selectedIndex ? ' <i>✓</i>' : ''}</button>`).join('') || `<p class="note" style="padding:8px">Não encontrei «${esc(q.value)}».${/city/i.test(s.id) ? ' Escolhe a cidade mais próxima com a mesma hora (o mesmo fuso horário): o mapa fica igual.' : ''}</p>`; L.querySelectorAll('[data-i]').forEach(b => b.onclick = () => { s.selectedIndex = +b.dataset.i; s.dispatchEvent(new Event('change', { bubbles: true })); s.dispatchEvent(new Event('input', { bubbles: true })); dlg.close(); }); };
     q.oninput = draw; draw(); try { dlg.showModal(); } catch (e) { s.classList.remove('selhid'); if (s.__btn) s.__btn.hidden = true; s.focus(); return; } const on = L.querySelector('.on'); if (on) L.scrollTop = on.offsetTop - L.offsetTop - L.clientHeight / 2 + on.offsetHeight / 2; // sem scrollIntoView: não mexe na página por trás
   }
   function enhance(s) {

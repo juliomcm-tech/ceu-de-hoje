@@ -142,6 +142,7 @@ dialog.sheet{width:100%;max-width:560px;height:100%;max-height:100%;margin:0 aut
 .sst.on circle:first-child{stroke:var(--gold);stroke-width:1.2}
 .soulinapp{background:color-mix(in srgb,var(--gold) 12%,var(--card));border:1px dashed var(--gold);border-radius:14px;padding:10px 12px;margin:0 0 10px}.soulinapp p{margin:4px 0 8px;font-size:13.5px}.soulinapp .btn{width:100%}
 .eumore{display:grid;gap:6px}.eumore button{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 14px;color:var(--ink);font:600 15px Manrope;cursor:pointer;text-align:left}.eumore b{font-size:22px;width:30px;text-align:center}.eumore span{flex:1}.eumore i{font-style:normal;color:var(--gold)}
+#instClose{min-width:40px;min-height:40px;font-size:16px}#who button,#modes button{min-height:38px}
 .sldel{flex:none;width:44px;border-radius:12px;border:1px solid var(--line);background:var(--card);font-size:17px;cursor:pointer}
 .sldelc{flex:1;display:flex;gap:6px;align-items:center;flex-wrap:wrap;background:color-mix(in srgb,var(--gold) 10%,var(--card));border:1px solid var(--gold);border-radius:12px;padding:8px 10px}.sldelc span{flex:1 1 150px;font-size:14px}.sldelc .btn{padding:7px 12px}
 .sttones{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:8px 0}.sttones button{display:flex;flex-direction:column;align-items:center;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 4px;color:var(--ink);font:600 12.5px Manrope;cursor:pointer}.sttones button.on{border-color:var(--gold);background:var(--r1bg)}.sttones i{width:30px;height:30px;border-radius:50%;border:2px solid}
@@ -285,7 +286,7 @@ footer.ft{color:var(--mute);font-size:11.5px;text-align:center;margin:18px 0 6px
     <div id="who"><button data-w="p" class="on">👤 Pessoas</button><button data-w="a">🐾 Animais</button></div>
     <div id="modes"><button data-m="dia" class="on">Dia</button><button data-m="semana">Semana</button><button data-m="mes">Mês</button><button data-m="ano">Ano</button></div>
   </header>
-  <div id="instBanner" class="inst" hidden><span>📲</span><div><b>Instala a app Céu de Hoje</b><small>Fica no ecrã do telemóvel. Usa o Chrome.</small></div><button class="btn main" id="instGo">Instalar</button><button class="link" id="instClose">✕</button></div>
+  <div id="instBanner" class="inst" hidden><span>📲</span><div><b>Instala a app Céu de Hoje</b><small id="instHow">Fica no ecrã do telemóvel, como uma app.</small></div><button class="btn main" id="instGo">Instalar</button><button class="link" id="instClose">✕</button></div>
   <main id="view"></main>
   <footer class="ft">Posições reais dos astros · para entretenimento<br>© 2026 Júlio Melo · <a href="privacidade.html" style="color:inherit">Privacidade e termos</a> · <a href="https://www.facebook.com/ceudehojeapp" target="_blank" rel="noopener" style="color:inherit">Facebook</a> · <a href="https://www.instagram.com/ceudehojeapp" target="_blank" rel="noopener" style="color:inherit">Instagram</a></footer>
 </div>
@@ -776,7 +777,9 @@ function dayAspects(ds, modern) {
 }
 
 // ===== Extras: horas planetárias, pares, Lua, aniversários, ano, mapa pessoal =====
-const CITIES = [['Lisboa', 38.72, -9.14, 'Europe/Lisbon'], ['Porto', 41.15, -8.61, 'Europe/Lisbon'], ['Braga', 41.55, -8.42, 'Europe/Lisbon'], ['Coimbra', 40.21, -8.43, 'Europe/Lisbon'], ['Aveiro', 40.64, -8.65, 'Europe/Lisbon'], ['Viseu', 40.66, -7.91, 'Europe/Lisbon'], ['Leiria', 39.74, -8.81, 'Europe/Lisbon'], ['Santarém', 39.24, -8.69, 'Europe/Lisbon'], ['Setúbal', 38.52, -8.89, 'Europe/Lisbon'], ['Évora', 38.57, -7.91, 'Europe/Lisbon'], ['Beja', 38.02, -7.86, 'Europe/Lisbon'], ['Faro', 37.02, -7.93, 'Europe/Lisbon'], ['Viana do Castelo', 41.69, -8.83, 'Europe/Lisbon'], ['Vila Real', 41.30, -7.74, 'Europe/Lisbon'], ['Bragança', 41.81, -6.76, 'Europe/Lisbon'], ['Guarda', 40.54, -7.27, 'Europe/Lisbon'], ['Castelo Branco', 39.82, -7.49, 'Europe/Lisbon'], ['Portalegre', 39.29, -7.43, 'Europe/Lisbon'], ['Funchal', 32.65, -16.91, 'Atlantic/Madeira'], ['Ponta Delgada', 37.74, -25.67, 'Atlantic/Azores'], ['Angra do Heroísmo', 38.65, -27.22, 'Atlantic/Azores'], ['Luanda', -8.84, 13.23, 'Africa/Luanda'], ['Maputo', -25.97, 32.57, 'Africa/Maputo'], ['São Paulo', -23.55, -46.63, 'America/Sao_Paulo'], ['Rio de Janeiro', -22.91, -43.17, 'America/Sao_Paulo'], ['Paris', 48.86, 2.35, 'Europe/Paris'], ['Londres', 51.51, -0.13, 'Europe/London'], ['Genebra', 46.20, 6.14, 'Europe/Zurich'], ['Luxemburgo', 49.61, 6.13, 'Europe/Luxembourg']];
+const CITIES = [['Lisboa', 38.72, -9.14, 'Europe/Lisbon'], ['Porto', 41.15, -8.61, 'Europe/Lisbon'], ['Braga', 41.55, -8.42, 'Europe/Lisbon'], ['Coimbra', 40.21, -8.43, 'Europe/Lisbon'], ['Aveiro', 40.64, -8.65, 'Europe/Lisbon'], ['Viseu', 40.66, -7.91, 'Europe/Lisbon'], ['Leiria', 39.74, -8.81, 'Europe/Lisbon'], ['Santarém', 39.24, -8.69, 'Europe/Lisbon'], ['Setúbal', 38.52, -8.89, 'Europe/Lisbon'], ['Évora', 38.57, -7.91, 'Europe/Lisbon'], ['Beja', 38.02, -7.86, 'Europe/Lisbon'], ['Faro', 37.02, -7.93, 'Europe/Lisbon'], ['Viana do Castelo', 41.69, -8.83, 'Europe/Lisbon'], ['Vila Real', 41.30, -7.74, 'Europe/Lisbon'], ['Bragança', 41.81, -6.76, 'Europe/Lisbon'], ['Guarda', 40.54, -7.27, 'Europe/Lisbon'], ['Castelo Branco', 39.82, -7.49, 'Europe/Lisbon'], ['Portalegre', 39.29, -7.43, 'Europe/Lisbon'], ['Funchal', 32.65, -16.91, 'Atlantic/Madeira'], ['Ponta Delgada', 37.74, -25.67, 'Atlantic/Azores'], ['Angra do Heroísmo', 38.65, -27.22, 'Atlantic/Azores'], ['Luanda', -8.84, 13.23, 'Africa/Luanda'], ['Maputo', -25.97, 32.57, 'Africa/Maputo'], ['São Paulo', -23.55, -46.63, 'America/Sao_Paulo'], ['Rio de Janeiro', -22.91, -43.17, 'America/Sao_Paulo'], ['Paris', 48.86, 2.35, 'Europe/Paris'], ['Londres', 51.51, -0.13, 'Europe/London'], ['Genebra', 46.20, 6.14, 'Europe/Zurich'], ['Luxemburgo', 49.61, 6.13, 'Europe/Luxembourg'], ['Guimarães', 41.44, -8.30, 'Europe/Lisbon'], ['Madrid', 40.42, -3.70, 'Europe/Madrid'], ['Barcelona', 41.39, 2.17, 'Europe/Madrid'], ['Bruxelas', 50.85, 4.35, 'Europe/Brussels'], ['Berlim', 52.52, 13.40, 'Europe/Berlin'], ['Amesterdão', 52.37, 4.90, 'Europe/Amsterdam'], ['Zurique', 47.38, 8.54, 'Europe/Zurich'], ['Praia', 14.93, -23.51, 'Atlantic/Cape_Verde'], ['Mindelo', 16.89, -24.98, 'Atlantic/Cape_Verde'], ['Bissau', 11.86, -15.60, 'Africa/Bissau'], ['São Tomé', 0.34, 6.73, 'Africa/Sao_Tome'], ['Joanesburgo', -26.20, 28.05, 'Africa/Johannesburg'], ['Brasília', -15.79, -47.88, 'America/Sao_Paulo'], ['Belo Horizonte', -19.92, -43.94, 'America/Sao_Paulo'], ['Salvador', -12.97, -38.50, 'America/Bahia'], ['Recife', -8.05, -34.88, 'America/Recife'], ['Caracas', 10.49, -66.88, 'America/Caracas'], ['Nova Iorque', 40.71, -74.01, 'America/New_York'], ['Newark', 40.74, -74.17, 'America/New_York'], ['Toronto', 43.65, -79.38, 'America/Toronto'], ['Macau', 22.20, 113.54, 'Asia/Macau'], ['Díli', -8.56, 125.57, 'Asia/Dili']]; // novas cidades sempre no fim: os perfis guardam o número da cidade
+const CITY_K = { 'Funchal': 'madeira', 'Ponta Delgada': 'açores acores são miguel', 'Angra do Heroísmo': 'açores acores terceira', 'São Paulo': 'brasil', 'Rio de Janeiro': 'brasil', 'Brasília': 'brasil', 'Belo Horizonte': 'brasil minas', 'Salvador': 'brasil bahia', 'Recife': 'brasil pernambuco', 'Luanda': 'angola', 'Maputo': 'moçambique', 'Paris': 'frança', 'Londres': 'inglaterra reino unido', 'Genebra': 'suíça', 'Zurique': 'suíça', 'Madrid': 'espanha', 'Barcelona': 'espanha', 'Bruxelas': 'bélgica', 'Berlim': 'alemanha', 'Amesterdão': 'holanda países baixos', 'Praia': 'cabo verde santiago', 'Mindelo': 'cabo verde são vicente', 'Bissau': 'guiné-bissau', 'São Tomé': 'são tomé e príncipe', 'Joanesburgo': 'áfrica do sul', 'Caracas': 'venezuela', 'Nova Iorque': 'eua estados unidos new york', 'Newark': 'eua estados unidos new jersey', 'Toronto': 'canadá', 'Macau': 'china', 'Díli': 'timor-leste' };
+const cityOpts = sel => CITIES.map((c, i) => `<option value="${i}"${+sel === i ? ' selected' : ''}${CITY_K[c[0]] ? ` data-k="${CITY_K[c[0]]}"` : ''}>${c[0]}</option>`).join('');;
 const MES_N = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
 const fmtHM = (ms, tz) => new Date(ms).toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit', timeZone: tz });
 
@@ -1690,7 +1693,7 @@ const SIGN_KEYS = ['carneiro|aries', 'touro', 'gemeos', 'caranguejo|cancer', 'le
 const ORACLE_SUGGEST = ['Como vai o meu amor hoje?', 'Ele gosta de mim? Sim ou não', 'Que signos combinam comigo?', 'Qual é o meu ascendente?', 'Quando é a próxima lua cheia?', 'Posso cortar o cabelo hoje?', 'Qual o melhor dia desta semana para o trabalho?', 'Como lidar com o meu filho hoje?', 'Mercúrio está retrógrado?', 'Qual é o meu signo chinês?'];
 function oracle(q, prof) {
   const t = norm2(q), name = prof && prof.name ? prof.name.split(' ')[0] : '';
-  const mySign = prof && prof.d ? sunSignOf(prof.d) : null;
+  const mySign = prof && prof.d ? profSign(prof) : null;
   const signs = SIGN_KEYS.map((k, i) => new RegExp('\\b(' + k + ')\\b').test(t) ? i : -1).filter(i => i >= 0);
   const has = re => re.test(t);
   const kq = typeof oracleKids === 'function' ? oracleKids(t) : null; if (kq) return kq;
@@ -1856,6 +1859,7 @@ async function doInstall() { if (BIP) { BIP.prompt(); const r = await BIP.userCh
 // ---------- Animais: espécies, idade humana, signo chinês ----------
 const SPECIES = [['cao', '🐶', 'Cão'], ['gato', '🐱', 'Gato'], ['coelho', '🐰', 'Coelho'], ['ave', '🐦', 'Pássaro'], ['hamster', '🐹', 'Hamster'], ['tartaruga', '🐢', 'Tartaruga'], ['peixe', '🐠', 'Peixe'], ['cavalo', '🐴', 'Cavalo'], ['outro', '🐾', 'Outro']];
 const spOf = a => SPECIES.find(s => s[0] === a.sp || s[1] === a.sp) || SPECIES[8];
+const profSign = p => p && p.d ? sunSignAt(p.d, p.t, p.c) : 0; // o teu signo solar com hora e local (igual em toda a app, também em dias de mudança de signo)
 function sunSignAt(d, t, c = 0) { const [y, m, dd] = dParts(d), [h, mi] = (t || '12:00').split(':').map(Number), ci = CITIES[+c] || CITIES[0]; return Math.floor(sunLon(jdFromMs(localToUtcMs(y, m, dd, h, mi, ci[3]))) / 30); }
 function humanAge(a) {
   const yrs = (Date.UTC(...dParts(todayStr()).map((v, i) => i === 1 ? v - 1 : v)) - Date.UTC(...dParts(a.d).map((v, i) => i === 1 ? v - 1 : v))) / (365.25 * 864e5), s = spOf(a)[0];
@@ -2390,8 +2394,8 @@ function tripScore(ds) {
 function bestTripDays(n = 90) { const all = [], pp = new Set(typeof predPeriods === 'function' ? predPeriods(todayStr(), dayStr(noonJd(todayStr()) + n + 7)) : []); let d = dayStr(noonJd(todayStr()) + 1); for (let k = 0; k < n; k++) { if (!pp.has(d) && !pp.has(dayStr(noonJd(d) + 2))) all.push([d, tripScore(d).sc]); d = dayStr(noonJd(d) + 1); } return all.filter(a => a[1] >= 2).sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1)).slice(0, 4).map(a => a[0]).sort(); }
 function meLine(ds) {
   const me = P.get(); if (!me || !me.d) return '';
-  const my = SIGNS[sunSignOf(me.d)], s = skyFor(ds), m = SIGNS[s.moon.sign];
-  if (s.moon.sign === sunSignOf(me.d)) return `💫 A Lua estava no teu signo (${my.n}): foi um momento muito teu.`;
+  const my = SIGNS[profSign(me)], s = skyFor(ds), m = SIGNS[s.moon.sign];
+  if (s.moon.sign === profSign(me)) return `💫 A Lua estava no teu signo (${my.n}): foi um momento muito teu.`;
   if (m.el === my.el) return `💫 A Lua em ${m.n} é do mesmo elemento que o teu ${my.n} (${my.el}): harmonia contigo.`;
   return '';
 }
@@ -3024,7 +3028,7 @@ function yearCard() {
 }
 function lowFirst(s) { s = String(s || '').trim().replace(/[.!]+$/, ''); return s ? s[0].toLowerCase() + s.slice(1) : ''; }
 function yearData(y) {
-  const ys = String(y), p = P.get() || {}, si = p.d ? (p.t ? sunSignAt(p.d, p.t, p.c) : sunSignOf(p.d)) : null;
+  const ys = String(y), p = P.get() || {}, si = p.d ? (p.t ? sunSignAt(p.d, p.t, p.c) : profSign(p)) : null;
   const inY = (x, k) => (x[k] || '').startsWith(ys);
   const books = intList('livros'), read = books.filter(x => x.status === 2 && inY(x, 'ed')).sort((a, b) => a.ed.localeCompare(b.ed));
   const pages = read.reduce((a, x) => a + (+x.pages || 0), 0), favB = [...read].sort((a, b) => (b.rating || 0) - (a.rating || 0))[0];
@@ -3341,9 +3345,9 @@ function bindCare(i) {
 const EL_FRIEND = { fogo: 'ar', ar: 'fogo', terra: 'agua', agua: 'terra' };
 function ownerPet(a) {
   const p = P.get(); if (!p || !p.d) return null;
-  const o = sunSignOf(p.d), s = sunSignAt(a.d, a.t), O = SIGNS[o], S = SIGNS[s];
+  const o = profSign(p), s = sunSignAt(a.d, a.t), O = SIGNS[o], S = SIGNS[s];
   const k = o === s ? 'same' : O.el === S.el ? 'el' : EL_FRIEND[O.el] === S.el ? 'friend' : 'diff';
-  const kd = Math.min((sunSignOf(p.d) - s + 12) % 12, (s - sunSignOf(p.d) + 12) % 12), pct = Math.min(99, PAIR_BASE[kd] + 6);
+  const kd = Math.min((profSign(p) - s + 12) % 12, (s - profSign(p) + 12) % 12), pct = Math.min(99, PAIR_BASE[kd] + 6);
   const txt = { same: `Mesmo signo! ${a.name} é praticamente o teu reflexo de quatro patas: sentem as coisas da mesma maneira.`, el: `Os dois são de ${O.el === 'agua' ? 'água' : O.el}: entendem-se sem palavras e têm o mesmo ritmo.`, friend: `${O.n} e ${S.n} completam-se: ${O.el === 'fogo' || O.el === 'ar' ? 'um dá a faísca, o outro o entusiasmo' : 'um dá estabilidade, o outro carinho'}. Dupla de sucesso.`, diff: `Feitios diferentes, e é aí que está a graça: ${a.name} ensina-te ${['paciência', 'a viver o momento', 'a brincar mais', 'a abrandar'][(seeded(a.name)() * 4) | 0]}, tu dás-lhe segurança.` }[k];
   return { o, s, O, S, pct: Math.min(100, pct), txt, me: (p.name || 'Tu').split(' ')[0] };
 }
@@ -3529,7 +3533,10 @@ function canvasTheme() { const t = store.get('ceu_theme') || 'astral'; return TH
     if (!dlg) { dlg = document.createElement('dialog'); dlg.id = 'selDlg'; dlg.innerHTML = '<h2 id="selT" tabindex="-1" autofocus></h2><input type="search" id="selQ" placeholder="🔎 Procurar…"><div id="selL"></div><div class="dlgfoot"><button class="btn" id="selX">Fechar</button></div>'; document.body.appendChild(dlg); dlg.querySelector('#selX').onclick = () => dlg.close(); dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); }); }
     const L = dlg.querySelector('#selL'), q = dlg.querySelector('#selQ'), lab = s.closest('label'), title = s.getAttribute('aria-label') || (lab ? [...lab.childNodes].filter(n => n.nodeType === 3).map(n => n.textContent).join('').trim() : '') || 'Escolhe';
     dlg.querySelector('#selT').textContent = title; q.value = ''; q.hidden = s.options.length < 12;
-    const draw = () => { const f = nrm(q.value); const sub = (t, q) => { let j = 0; for (const ch of t) if (ch === q[j]) j++; return j === q.length; }; L.innerHTML = [...s.options].map((o, i) => (!f || nrm(o.textContent).includes(f) || (f.length >= 3 && sub(nrm(o.textContent), f.replace(/\s/g, '')))) ? `<button data-i="${i}"${i === s.selectedIndex ? ' class="on"' : ''}>${esc(o.textContent)}${i === s.selectedIndex ? ' <i>✓</i>' : ''}</button>` : '').join(''); L.querySelectorAll('[data-i]').forEach(b => b.onclick = () => { s.selectedIndex = +b.dataset.i; s.dispatchEvent(new Event('change', { bubbles: true })); s.dispatchEvent(new Event('input', { bubbles: true })); dlg.close(); }); };
+    const draw = () => { const f = nrm(q.value.trim()); const sub = (t, q) => { let j = 0; for (const ch of t) if (ch === q[j]) j++; return j === q.length; };
+      const sc = o => { const t = nrm(o.textContent), k = nrm(o.dataset.k || ''); if (!f) return 0; if (t.startsWith(f)) return 1; if ((' ' + t).includes(' ' + f) || (' ' + k).includes(' ' + f)) return 2; if (t.includes(f) || k.includes(f)) return 3; return -1; }; // primeiro o que começa pela pesquisa, depois o país/região
+      let hits = [...s.options].map((o, i) => [o, i, sc(o)]).filter(x => x[2] >= 0); if (!hits.length && f.length >= 3) hits = [...s.options].map((o, i) => [o, i, 4]).filter(x => sub(nrm(x[0].textContent), f.replace(/\s/g, ''))); hits.sort((a, b) => a[2] - b[2] || a[1] - b[1]);
+      L.innerHTML = hits.map(([o, i]) => `<button data-i="${i}"${i === s.selectedIndex ? ' class="on"' : ''}>${esc(o.textContent)}${i === s.selectedIndex ? ' <i>✓</i>' : ''}</button>`).join('') || `<p class="note" style="padding:8px">Não encontrei «${esc(q.value)}».${/city/i.test(s.id) ? ' Escolhe a cidade mais próxima com a mesma hora (o mesmo fuso horário): o mapa fica igual.' : ''}</p>`; L.querySelectorAll('[data-i]').forEach(b => b.onclick = () => { s.selectedIndex = +b.dataset.i; s.dispatchEvent(new Event('change', { bubbles: true })); s.dispatchEvent(new Event('input', { bubbles: true })); dlg.close(); }); };
     q.oninput = draw; draw(); try { dlg.showModal(); } catch (e) { s.classList.remove('selhid'); if (s.__btn) s.__btn.hidden = true; s.focus(); return; } const on = L.querySelector('.on'); if (on) L.scrollTop = on.offsetTop - L.offsetTop - L.clientHeight / 2 + on.offsetHeight / 2; // sem scrollIntoView: não mexe na página por trás
   }
   function enhance(s) {
@@ -3695,7 +3702,7 @@ function kidHtml0(x) {
     <div class="box"><h3>🌟 Como é</h3><p>${K.c}</p><p>Talentos a puxar: <b>${K.t}</b>.</p></div>
     ${(() => { const N = kidNatal(x), M = SIGNS[N.moon]; return `<div class="box"><h3>🌙 O lado emocional · Lua em ${N.moon2 ? SIGNS[N.moon2[0]].n + ' ou ' + SIGNS[N.moon2[1]].n : M.n}</h3><p>${cap1(MOON_KID[M.el])}.</p>${N.moon2 ? '<p class="note">Nesse dia a Lua mudou de signo: com a hora de nascimento fica certinho.</p>' : ''}</div>${N.asc != null ? `<div class="box"><h3>✨ Como se mostra · Ascendente em ${SIGNS[N.asc].n}</h3><p>Na escola e com quem não conhece, ${ASC_KID[SIGNS[N.asc].el]}.</p></div>` : '<p class="note" style="margin:-4px 0 10px">💡 Põe a hora de nascimento (✏️ Editar) para ver também o ascendente: como se mostra aos outros.</p>'}`; })()}
     <div class="box"><h3>🧸 Como lidar</h3><p>💡 <b>O que o(a) motiva:</b> ${K.m}.</p><p>🌪️ <b>Birras e comportamento:</b> ${K.b}</p><p>🌙 <b>Sono:</b> ${K.s}</p></div>
-    ${(() => { const op = x.par && x.par.d ? x.par : pa; return me && me.d || op ? `<div class="box"><h3>💞 A vossa ligação</h3>${me && me.d ? bl('me', sunSignOf(me.d), 'Tu,') : ''}${op ? bl('pa', sunSignOf(op.d), esc((op.name || 'Pai/mãe').split(' ')[0]) + ',') : ''}</div>` : ''; })()}
+    ${(() => { const op = x.par && x.par.d ? x.par : pa; return me && me.d || op ? `<div class="box"><h3>💞 A vossa ligação</h3>${me && me.d ? bl('me', profSign(me), 'Tu,') : ''}${op ? bl('pa', sunSignOf(op.d), esc((op.name || 'Pai/mãe').split(' ')[0]) + ',') : ''}</div>` : ''; })()}
     ${nn ? `<div class="box"><h3>🔤 O nome ${esc(x.name.split(' ')[0])}</h3><p>Pela numerologia, o nome vibra no <b>${nn}</b>: ${NUM_INFO[nn].w.toLowerCase()} (${NUM_MEAN[nn]}).</p></div>` : ''}
     ${momentsBox('kid:' + x.name, 'Momentos de ' + esc(x.name.split(' ')[0]))}
     <div class="tools"><button class="btn main" id="kShare">📤 Partilhar a nossa ligação</button><button class="btn" id="kCard">🪪 Enviar o cartão (fica guardado na app de quem recebe)</button><button class="btn" id="kPoster">🎉 Cartaz de parabéns</button><button class="btn" id="kEdit">✏️ Editar</button></div>`;
@@ -3703,14 +3710,14 @@ function kidHtml0(x) {
 async function drawKid(x) {
   await fontsReady(); const si = kidSign(x), S = SIGNS[si], me = P.get(), [c, ctx, W, H] = newCanvas(); bg(ctx, W, H, 'kid' + x.name, EL_COL[S.el]);
   ctx.textAlign = 'center'; ctx.fillStyle = '#f2c76e'; ctx.font = '700 30px Cinzel'; ctx.fillText(me && me.d ? 'A NOSSA LIGAÇÃO' : 'O SIGNO D' + (x.rel === 'filha' ? 'A MINHA FILHA' : 'O MEU FILHO'), W / 2, 120);
-  if (me && me.d) { const ms = sunSignOf(me.d), b = bond(ms, si); ctx.font = `150px ${SYMF}`; ctx.fillStyle = EL_COL[SIGNS[ms].el][0]; ctx.fillText(SIGNS[ms].g + VS, W / 2 - 260, 400); ctx.fillStyle = EL_COL[S.el][0]; ctx.fillText(S.g + VS, W / 2 + 260, 400); ctx.font = `110px ${EMOJI_F}`; ctx.fillText('💛', W / 2, 390); ctx.fillStyle = '#fff'; ctx.font = '700 44px Cinzel'; ctx.fillText((me.name || 'Eu').split(' ')[0].toUpperCase(), W / 2 - 260, 500); ctx.fillText(x.name.split(' ')[0].toUpperCase(), W / 2 + 260, 500); ctx.font = 'italic 600 32px "Cormorant Garamond"'; ctx.fillStyle = '#d8d0f5'; ctx.fillText(SIGNS[ms].n, W / 2 - 260, 548); ctx.fillText(S.n, W / 2 + 260, 548); ctx.fillStyle = '#f2c76e'; ctx.font = '700 170px Cinzel'; ctx.fillText(b.pct + '%', W / 2, 770); ctx.font = 'italic 600 42px "Cormorant Garamond"'; ctx.fillStyle = '#fff'; wrap(ctx, gz(BOND_TIP[b.k], x.rel), W / 2, 880, W - 200, 56, 3, 'center'); }
+  if (me && me.d) { const ms = profSign(me), b = bond(ms, si); ctx.font = `150px ${SYMF}`; ctx.fillStyle = EL_COL[SIGNS[ms].el][0]; ctx.fillText(SIGNS[ms].g + VS, W / 2 - 260, 400); ctx.fillStyle = EL_COL[S.el][0]; ctx.fillText(S.g + VS, W / 2 + 260, 400); ctx.font = `110px ${EMOJI_F}`; ctx.fillText('💛', W / 2, 390); ctx.fillStyle = '#fff'; ctx.font = '700 44px Cinzel'; ctx.fillText((me.name || 'Eu').split(' ')[0].toUpperCase(), W / 2 - 260, 500); ctx.fillText(x.name.split(' ')[0].toUpperCase(), W / 2 + 260, 500); ctx.font = 'italic 600 32px "Cormorant Garamond"'; ctx.fillStyle = '#d8d0f5'; ctx.fillText(SIGNS[ms].n, W / 2 - 260, 548); ctx.fillText(S.n, W / 2 + 260, 548); ctx.fillStyle = '#f2c76e'; ctx.font = '700 170px Cinzel'; ctx.fillText(b.pct + '%', W / 2, 770); ctx.font = 'italic 600 42px "Cormorant Garamond"'; ctx.fillStyle = '#fff'; wrap(ctx, gz(BOND_TIP[b.k], x.rel), W / 2, 880, W - 200, 56, 3, 'center'); }
   else { ctx.font = `200px ${SYMF}`; ctx.fillStyle = EL_COL[S.el][0]; ctx.fillText(S.g + VS, W / 2, 480); ctx.fillStyle = '#fff'; ctx.font = '700 80px Cinzel'; ctx.fillText(x.name.toUpperCase(), W / 2, 640); }
   ctx.textAlign = 'center'; ctx.font = '500 34px Manrope'; ctx.fillStyle = '#eee'; wrap(ctx, gz(KID_SIGN[si].c, x.rel), W / 2, me && me.d ? 1080 : 760, W - 200, 48, 3, 'center');
   brandFoot(ctx, W, H); return c;
 }
 function openKid(k) {
   const x = P.list('ceu_bdays')[k]; if (!x) return; $('#infoTitle').textContent = ''; $('#infoBody').innerHTML = kidHtml(x); $('#infoDlg').scrollTop = 0;
-  $('#kShare').onclick = async () => { const me = P.get(), si = kidSign(x); toast('A preparar…'); await shareCanvases([{ name: 'ligacao-' + x.name.toLowerCase(), c: await drawKid(x) }], me && me.d ? `${(me.name || 'Eu').split(' ')[0]} ${SIGNS[sunSignOf(me.d)].g} 💛 ${x.name} ${SIGNS[si].g}: ${bond(sunSignOf(me.d), si).pct}% de ligação!\n\nFeito com Céu de Hoje ✨ ${APP_URL}` : `${x.name} é ${SIGNS[si].n} ${SIGNS[si].g}\n\nFeito com Céu de Hoje ✨ ${APP_URL}`); };
+  $('#kShare').onclick = async () => { const me = P.get(), si = kidSign(x); toast('A preparar…'); await shareCanvases([{ name: 'ligacao-' + x.name.toLowerCase(), c: await drawKid(x) }], me && me.d ? `${(me.name || 'Eu').split(' ')[0]} ${SIGNS[profSign(me)].g} 💛 ${x.name} ${SIGNS[si].g}: ${bond(profSign(me), si).pct}% de ligação!\n\nFeito com Céu de Hoje ✨ ${APP_URL}` : `${x.name} é ${SIGNS[si].n} ${SIGNS[si].g}\n\nFeito com Céu de Hoje ✨ ${APP_URL}`); };
   $('#kPoster').onclick = () => { $('#infoDlg').close(); ST.type = 'anos'; ST.anosView = 'criar'; render(); showBday({ name: x.name, rel: x.rel, d: x.d, t: x.t, showAge: true, from: ((P.get() || {}).name || '').split(' ')[0] }, false); };
   $('#kEdit').onclick = () => kidForm(k); $('#kCard').onclick = () => sharePerson(x); bindMoms($('#infoBody'));
   if (!$('#infoDlg').open) $('#infoDlg').showModal();
@@ -4155,7 +4162,7 @@ function openChinese() {
 
 // ---------- Oráculo: perguntas mais procuradas ----------
 function oracleExtra(t, prof) {
-  const has = re => re.test(t), my = prof && prof.d ? sunSignOf(prof.d) : null, hi = prof && prof.name ? prof.name.split(' ')[0] + ', ' : '';
+  const has = re => re.test(t), my = prof && prof.d ? profSign(prof) : null, hi = prof && prof.name ? prof.name.split(' ')[0] + ', ' : '';
   if (has(/ascendente/)) { if (!prof || !prof.d) return 'Para o ascendente preciso da tua data, hora e local de nascimento (em «O meu espaço»).'; if (!prof.t) return 'O ascendente depende da hora de nascimento: põe a hora em «O meu espaço» (editar) e eu digo-te logo.'; const ci = CITIES[+prof.c || 0], [y, m, d] = dParts(prof.d), [hh, mi] = prof.t.split(':').map(Number), a = Math.floor(ascendant(localToUtcMs(y, m, d, hh, mi, ci[3]), ci[1], ci[2]) / 30); return `${hi}o teu ascendente é <b>${SIGNS[a].n} ${G(SIGNS[a].g)}</b>: é como os outros te veem à primeira. O teu Sol é ${SIGNS[my].n}.`; }
   if (has(/signo lunar|minha lua|lua natal|lua de nascimento/)) { if (!prof || !prof.d) return 'Diz-me a tua data de nascimento em «O meu espaço».'; const ci = CITIES[+prof.c || 0], [y, m, d] = dParts(prof.d), [hh, mi] = (prof.t || '12:00').split(':').map(Number), mo = Math.floor(moonLon(jdFromMs(localToUtcMs(y, m, d, hh, mi, ci[3]))) / 30); return `${hi}a tua Lua está em <b>${SIGNS[mo].n} ${G(SIGNS[mo].g)}</b>: é o teu lado emocional, o que precisas para te sentires bem.${prof.t ? '' : ' (Sem hora de nascimento pode variar se a Lua mudou de signo nesse dia.)'}`; }
   if (has(/chines/)) { if (!prof || !prof.d) return 'Diz-me a tua data de nascimento em «O meu espaço».'; const me = chineseSign(prof.d), cur = chineseSign(todayStr()); return `${hi}és <b>${me.e} ${me.n} de ${me.el}</b>. Estamos no ano do ${cur.e} ${cur.n}: ${cnYearFor(me.i, cur.i).txt} <br><small>Toca no teu signo chinês em «O meu espaço» para veres o próximo ano.</small>`; }
@@ -4237,7 +4244,7 @@ function lifeFacts() {
   const nb = (() => { const y = +t.slice(0, 4), c = y + me.d.slice(4); return c >= t ? c : (y + 1) + me.d.slice(4); })().replace(/-02-29$/, '-02-28');
   out.push(['🎂', `O teu próximo aniversário calha ${numa(wdOf(nb))} ${WDAY[wdOf(nb)][0].toLowerCase()}`, `${niceDate(nb)} de ${nb.slice(0, 4)}, com a Lua em ${SIGNS[skyFor(nb).moon.sign].n} (${moonPhaseName(skyFor(nb).phase.elong)}).`]);
   const sid = Math.floor(norm(b.sun.lon - 24) / 30);
-  if (sid !== sunSignOf(me.d)) out.push(['🕉️', `Na astrologia indiana serias de ${SIGNS[sid].n}`, `A astrologia védica usa a posição real das estrelas, que hoje está uns 24 graus desviada. Por isso, para eles, o teu Sol estava em ${SIGNS[sid].n} e não em ${SIGNS[sunSignOf(me.d)].n}.`]);
+  if (sid !== profSign(me)) out.push(['🕉️', `Na astrologia indiana serias de ${SIGNS[sid].n}`, `A astrologia védica usa a posição real das estrelas, que hoje está uns 24 graus desviada. Por isso, para eles, o teu Sol estava em ${SIGNS[sid].n} e não em ${SIGNS[profSign(me)].n}.`]);
   return out;
 }
 const numa = k => k === 0 || k === 6 ? 'num' : 'numa';
@@ -4258,7 +4265,7 @@ function myPatterns() {
   if (D.length >= 10) { const tg = {}; D.forEach(x => (x.tags || []).forEach(t => (tg[t] = tg[t] || []).push(x.mood))); const all = av(D.map(x => x.mood)), best = Object.entries(tg).filter(e => e[1].length >= 3).map(e => [e[0], av(e[1])]).sort((a, b) => b[1] - a[1])[0]; if (best && best[1] - all >= .4) out.push(['💛', `«${best[0]}» faz-te bem`, `Nos dias em que escreves sobre «${best[0]}», o teu humor fica acima da tua média (${f1(best[1])} contra ${f1(all)}).`, 'p']); }
   try { const L = intList('livros').filter(x => x.status === 2 && x.ed); if (L.length >= 6) { const m = Array(12).fill(0); L.forEach(x => m[+x.ed.slice(5, 7) - 1]++); const top = m.indexOf(Math.max(...m)); if (m[top] >= 2) out.push(['📚', `${cap1(MESES[top])} é o teu mês de leitura`, `É o mês em que acabaste mais livros (${m[top]}). ${['dezembro', 'janeiro', 'fevereiro'].includes(MESES[top]) ? 'Mantinha e livro, a combinação perfeita.' : ['julho', 'agosto'].includes(MESES[top]) ? 'Livros de férias, os melhores.' : ''}`, 'p']);
     const d = L.filter(x => x.sd).map(x => ({ w: skyFor(x.sd).phase.elong < 180, n: Math.max(1, Math.round(noonJd(x.ed) - noonJd(x.sd))) })), a = d.filter(x => x.w), b = d.filter(x => !x.w); if (a.length >= 3 && b.length >= 3) { const ma = av(a.map(x => x.n)), mb = av(b.map(x => x.n)); if (Math.abs(ma - mb) >= 3) out.push(['🌙', `Lês mais depressa o que começas com Lua ${ma < mb ? 'crescente' : 'minguante'}`, `Livros começados com Lua crescente: ${Math.round(ma)} dias em média. Com Lua minguante: ${Math.round(mb)} dias. Coincidência ou não, fica a curiosidade 😉`, 'p']); } } } catch (e) { }
-  try { const B = P.list('ceu_bdays').filter(x => x.d); if (B.length >= 5) { const c = Array(12).fill(0); B.forEach(x => c[sunSignOf(x.d)]++); const top = c.indexOf(Math.max(...c)); if (c[top] >= 2) out.push(['🎂', `Estás rodeado(a) de ${SIGNS[top].n}`, `É o signo mais comum na tua agenda: ${c[top]} pessoas. ${(() => { const me = P.get(); return me && me.d && sunSignOf(me.d) === top ? 'E tu também és! Atrais os teus.' : ''; })()}`, 'p']); const md = {}; B.forEach(x => { const k = x.d.slice(5); (md[k] = md[k] || []).push(x.name); }); const twin = Object.values(md).find(v => v.length >= 2); if (twin) out.push(['👯', `${twin[0]} e ${twin[1]} fazem anos no mesmo dia`, 'Com o paradoxo do aniversário, não é assim tão raro, mas dá jeito: uma só festa 🎉', 'p']); } } catch (e) { }
+  try { const B = P.list('ceu_bdays').filter(x => x.d); if (B.length >= 5) { const c = Array(12).fill(0); B.forEach(x => c[sunSignOf(x.d)]++); const top = c.indexOf(Math.max(...c)); if (c[top] >= 2) out.push(['🎂', `Estás rodeado(a) de ${SIGNS[top].n}`, `É o signo mais comum na tua agenda: ${c[top]} pessoas. ${(() => { const me = P.get(); return me && me.d && profSign(me) === top ? 'E tu também és! Atrais os teus.' : ''; })()}`, 'p']); const md = {}; B.forEach(x => { const k = x.d.slice(5); (md[k] = md[k] || []).push(x.name); }); const twin = Object.values(md).find(v => v.length >= 2); if (twin) out.push(['👯', `${twin[0]} e ${twin[1]} fazem anos no mesmo dia`, 'Com o paradoxo do aniversário, não é assim tão raro, mas dá jeito: uma só festa 🎉', 'p']); } } catch (e) { }
   try { const T = intList('viagens').filter(x => x.status === 2 && x.sd); if (T.length >= 4) { const m = Array(12).fill(0); T.forEach(x => m[+x.sd.slice(5, 7) - 1]++); const top = m.indexOf(Math.max(...m)); if (m[top] >= 2) out.push(['✈️', `${cap1(MESES[top])} é o teu mês de partir`, `Das tuas ${T.length} viagens, ${m[top]} começaram em ${MESES[top]}.`, 'p']); } } catch (e) { }
   return out;
 }
@@ -4470,7 +4477,7 @@ const SPARK = n => Array.from({ length: n }, (_, k) => `<b class="tspark" style=
 function cardForYou(i) {
   const me = P.get() || {}, s = skyFor(todayStr()), ms = SIGNS[s.moon.sign], out = [], r = TRULE[i];
   out.push(`🪐 É regida ${typeof r === 'number' ? 'pelo signo de ' + SIGNS[r].n : /^o /.test(r) ? 'pelo ' + r.slice(2) : /^a /.test(r) ? 'pela ' + r.slice(2) : 'por ' + r}.`);
-  if (me.d) { const ss = sunSignOf(me.d); if (r === ss) out.push(`✨ É a carta do teu signo! Hoje é um dia muito teu: confia em ti.`); else if (typeof r === 'number' && SIGNS[r].el === SIGNS[ss].el) out.push(`💫 É do mesmo elemento que o teu ${SIGNS[ss].n} (${SIGNS[ss].el}): a mensagem chega-te com facilidade.`); }
+  if (me.d) { const ss = profSign(me); if (r === ss) out.push(`✨ É a carta do teu signo! Hoje é um dia muito teu: confia em ti.`); else if (typeof r === 'number' && SIGNS[r].el === SIGNS[ss].el) out.push(`💫 É do mesmo elemento que o teu ${SIGNS[ss].n} (${SIGNS[ss].el}): a mensagem chega-te com facilidade.`); }
   out.push(`🌙 Com a Lua hoje em ${ms.n}, ${{ fogo: 'a energia é de ação: não deixes a mensagem para amanhã', terra: 'transforma a mensagem em algo prático e concreto', ar: 'fala sobre ela com alguém: as conversas trazem respostas', agua: 'sente-a: a resposta vem pelas emoções e pela intuição' }[ms.el]}.`);
   try { const pd = numDay(me.d || '2000-01-01', todayStr()); if (me.d && typeof DAY_MEAN !== 'undefined') out.push(`🔢 O teu dia pessoal é ${pd}: ${DAY_MEAN[pd]}.`); } catch (e) { }
   return out;
@@ -4733,7 +4740,7 @@ const weekCardI = () => Math.floor(seeded('wk' + ((P.get() || {}).name || '') + 
 function dayScript() {
   const me = P.get() || {}, t = todayStr(), s = skyFor(t), first = (me.name || '').split(' ')[0], out = [];
   out.push(`${new Date().getHours() < 13 ? 'Bom dia' : new Date().getHours() < 20 ? 'Boa tarde' : 'Boa noite'}${first ? ', ' + first : ''}. Hoje é ${niceDate(t).toLowerCase()}.`);
-  if (me.d) { const si = sunSignOf(me.d), r = readDay(si, t, ST.modern); out.push(`Para ${SIGNS[si].n}: ${r.headline}`); out.push(`No amor: ${firstSentence(r.love)}`); out.push(`No trabalho: ${firstSentence(r.work || r.trabalho || '')}`); }
+  if (me.d) { const si = profSign(me), r = readDay(si, t, ST.modern); out.push(`Para ${SIGNS[si].n}: ${r.headline}`); out.push(`No amor: ${firstSentence(r.love)}`); out.push(`No trabalho: ${firstSentence(r.work || r.trabalho || '')}`); }
   out.push(`A Lua está em ${SIGNS[s.moon.sign].n}, ${moonPhaseName(s.phase.elong)}.`);
   out.push(tarOpened() ? `A tua carta de hoje é ${TAROT[dailyCard(me).i][0]}. ${TDAY[dailyCard(me).i][3]}` : 'A tua carta de hoje está à tua espera. Abre-a quando quiseres.');
   try { const L = todaysBirthdays(); if (L.length) out.push(`Hoje faz anos: ${L.map(x => x.name || x.label).join(', ')}. Não te esqueças de dar os parabéns!`); } catch (e) { }
@@ -4796,7 +4803,7 @@ const HOUSE_J = ['tu próprio(a): confiança e um novo começo', 'dinheiro e val
 function yearCardOf(d, y) { let n = +d.slice(8) + +d.slice(5, 7) + String(y).split('').reduce((a, b) => a + +b, 0); while (n > 22) n = String(n).split('').reduce((a, b) => a + +b, 0); return n === 22 ? 0 : n; }
 const isMyBday = () => { const me = P.get(), t = todayStr(), y = +t.slice(0, 4), lp = (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0; return !!(me && me.d && (me.d.slice(5) === t.slice(5) || (me.d.slice(5) === '02-29' && !lp && t.slice(5) === '02-28'))); };
 function yearAstral() {
-  const me = P.get(); if (!me || !me.d) return null; const t = todayStr(), y = +t.slice(0, 4), lastB = (me.d.slice(5) <= t.slice(5) ? y : y - 1) + me.d.slice(4), s = skyFor(lastB.replace(/-02-29$/, '-02-28')), si = sunSignOf(me.d);
+  const me = P.get(); if (!me || !me.d) return null; const t = todayStr(), y = +t.slice(0, 4), lastB = (me.d.slice(5) <= t.slice(5) ? y : y - 1) + me.d.slice(4), s = skyFor(lastB.replace(/-02-29$/, '-02-28')), si = profSign(me);
   const hj = (s.jupiter.sign - si + 12) % 12, hs = (s.saturn.sign - si + 12) % 12, yc = yearCardOf(me.d, +lastB.slice(0, 4)), py = personalYear(me.d, +lastB.slice(0, 4));
   return { from: lastB, age: ageOn(me.d, lastB), yc, py, jup: [SIGNS[s.jupiter.sign].n, HOUSE_J[hj]], sat: [SIGNS[s.saturn.sign].n, HOUSE_J[hs]], moon: SIGNS[s.moon.sign].n };
 }
@@ -4853,7 +4860,7 @@ function openDreams(edit) {
 // ---------- Arrumação: «Hoje para ti», atalhos e visita guiada ----------
 function todayStrip() {
   const me = P.get(); if (!me || !me.d || ST.date !== todayStr() || ST.mode !== 'dia' || ST.pets) return '';
-  const si = sunSignOf(me.d), pos = (ST.rank || []).findIndex(r => r.si === si), s = skyFor(todayStr()), L = (() => { try { return todaysBirthdays(); } catch (e) { return []; } })(), first = (me.name || '').split(' ')[0];
+  const si = profSign(me), pos = (ST.rank || []).findIndex(r => r.si === si), s = skyFor(todayStr()), L = (() => { try { return todaysBirthdays(); } catch (e) { return []; } })(), first = (me.name || '').split(' ')[0];
   return `<div class="tstrip"><div class="tsh1"><b>${isMyBday() ? '🎂 Parabéns' : 'Olá'}${first ? ', ' + esc(first) : ''}!</b><span><button class="link" id="spk1">🔊 Ouvir</button></span></div><div class="tsg">
     <button data-go="sign"><span>${G(SIGNS[si].g)}</span><b>${pos >= 0 ? pos + 1 + '.º' : ''}</b><small>${SIGNS[si].n} hoje</small></button>
     <button data-go="tarot"><span>🃏</span><b>${tarOpened() ? TAROT[dailyCard(me).i][0].replace(/^(O|A|Os) /, '') : 'Abrir'}</b><small>a tua carta</small></button>
@@ -4893,7 +4900,7 @@ function maybeTour(force) {
 // ---------- Ficha de cada pessoa (igual aos animais: Hoje · Mapa · Mais, e Editar no fim) ----------
 function openPersonSheet(k) {
   const L = P.list('ceu_bdays'), x = L[k]; if (!x) return; const si = x.t ? sunSignAt(x.d, x.t) : sunSignOf(x.d), S = SIGNS[si], cn = chineseSign(x.d), age = ageOn(x.d), dd = daysToBirthday(x.d), first = x.name.split(' ')[0];
-  const rd = readDay(si, todayStr(), ST.modern), v = verdict(rd), tab = ST.perTab || 'hoje', me = P.get(), ms = me && me.d ? sunSignOf(me.d) : null;
+  const rd = readDay(si, todayStr(), ST.modern), v = verdict(rd), tab = ST.perTab || 'hoje', me = P.get(), ms = me && me.d ? profSign(me) : null;
   const born = skyFor(x.d), isKid = /^(filho|filha|neto|neta)$/.test(x.rel);
   let h = `<div class="pethero" style="--c:${elc(S)}"><span class="em">${esc(relIcon(x))}</span><h3>${esc(x.name)}</h3><p>${esc(relLabel(x))} · <b>${G(S.g)} ${S.n}</b> · ${cn.e} ${cn.n} (${cn.el})</p><p>${age > 0 ? age + (age === 1 ? ' ano' : ' anos') : 'Menos de 1 ano'} · ${dd === 0 ? '🎂 <b>faz anos hoje!</b>' : dd === 1 ? '🎂 faz anos <b>amanhã</b>' : `🎂 anos em ${dd} dias`}</p></div>
     <div class="seg2 ptabs"><button data-xt="hoje"${tab === 'hoje' ? ' class="on"' : ''}>☀️ Hoje</button><button data-xt="mapa"${tab === 'mapa' ? ' class="on"' : ''}>🪐 Mapa</button><button data-xt="mais"${tab === 'mais' ? ' class="on"' : ''}>💞 Mais</button></div>`;
@@ -5470,7 +5477,7 @@ function openSoul() {
   if (!o) { soulWelcome(true); return; }
   const first = !store.get('ceu_soul_seen');
   dlg.innerHTML = `<div class="soulwrap"><button class="tclose" id="soulX" aria-label="Fechar">✕</button>
-    <p class="soulhint" id="soulHint">${first ? 'A tua alma tem uma carta só tua. Toca para a revelar ✨' : 'Inclina o telemóvel ou passa o dedo pela carta'}</p>
+    <p class="soulhint" id="soulHint">${first ? 'A tua alma tem uma carta só tua. Toca na carta para a virar ✨' : 'Inclina o telemóvel ou passa o dedo pela carta'}</p>
     <div class="soulstage">${soul3dHtml(o, first)}</div>
     <div class="soulbtns"><button class="btn" id="soulFlip">↻ Ver o verso</button><button class="btn main" id="soulSh">📤 Partilhar</button><button class="btn" id="soulLk">🔗 Enviar o link</button>${'NDEFReader' in window ? '<button class="btn" id="soulNfc">📶 Gravar num chip NFC</button>' : ''}${SOUL_SHOP ? '<button class="btn soon" data-soon="porta-chaves">🔑 Encomendar porta-chaves <small>brevemente</small></button><button class="btn soon" data-soon="carta">🃏 Encomendar a carta <small>brevemente</small></button>' : ''}</div>
     <div class="soulinfo" id="soulInfo"${first ? ' hidden' : ''}>
@@ -5483,6 +5490,7 @@ function openSoul() {
   dlg.showModal(); bindSoulTilt();
   $('#soulX').onclick = () => dlg.close();
   const card = $('#soul3d');
+  if (first && !(/iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1))) setTimeout(() => { if (dlg.open && !store.get('ceu_soul_seen') && $('#soul3d') === card) card.click(); }, 1300); // revela sozinha (no iPhone espera pelo toque, que é preciso para a inclinação)
   card.onclick = async () => { if (first && !store.get('ceu_soul_seen')) { await soulMotionOk(); store.set('ceu_soul_seen', todayStr()); card.classList.add('reveal'); card.classList.remove('flip'); $('#soulHint').textContent = 'Esta é a tua alma. Inclina o telemóvel ✨'; try { confetti(); } catch (e) { } setTimeout(() => { $('#soulInfo').hidden = false; }, 900); } };
   $('#soulFlip').onclick = async () => { await soulMotionOk(); card.classList.toggle('flip'); $('#soulFlip').textContent = card.classList.contains('flip') ? '↻ Ver a frente' : '↻ Ver o verso'; };
   $('#soulSh').onclick = () => shareSoul(o);
@@ -5744,17 +5752,17 @@ function soulWelcome(force, after) {
   const dlg = $('#soulDlg'), ci = +(ST.city || 0), demo = ['9b5axQK4M2P7A~Sofia', '617gxZX7Q4K1A~Inês', '0b99xMMYRA17J~Tiago'].map(soulParse).filter(Boolean);
   dlg.innerHTML = `<div class="soulwrap wlc"><div class="wlcards">${demo.map((o, k) => `<div class="wc wc${k}">${soulSVG2(o)}</div>`).join('')}</div>
     <h2>✨ A tua alma tem uma carta. Só tua.</h2><p>Diz-me o teu nome e quando nasceste: em segundos revelo a tua <b>Carta da Alma</b>, única no mundo, e quem tem a outra metade da tua constelação.</p>
-    <div class="form"><label>O teu nome<input type="text" id="wName" maxlength="24" placeholder="Como te chamas?" autocomplete="given-name"></label><label>Data de nascimento<input type="date" id="wDate" max="${todayStr()}"></label>
-    <div class="two"><label>Hora (se souberes)<input type="time" id="wTime"></label><label>Onde nasceste<select id="wCity">${CITIES.map((c, i) => `<option value="${i}"${i === ci ? ' selected' : ''}>${c[0]}</option>`).join('')}</select></label></div></div>
+    <div class="form"><label>O teu nome<input type="text" id="wName" maxlength="40" placeholder="Como te chamas?" autocomplete="given-name"></label><label>Data de nascimento<input type="date" id="wDate" min="1900-01-01" max="${todayStr()}"></label>
+    <label>Hora (se souberes)<input type="time" id="wTime"></label><label>Onde nasceste<select id="wCity">${cityOpts(ci)}</select></label></div>
     <button class="btn main" id="wGo" style="width:100%;padding:14px;font-size:16px">✨ Revelar a minha carta</button>
     <p class="note" style="text-align:center">Sem registo e sem contas: fica só neste telemóvel.</p>${force ? '' : '<button class="btn ghost" id="wSkip" style="width:100%">Agora não, só quero espreitar</button>'}</div>`;
   if (!dlg.open) dlg.showModal(); dlg.scrollTop = 0;
   $('#wGo').onclick = () => {
-    const name = $('#wName').value.trim(), d = $('#wDate').value; if (!name) { toast('Como te chamas?'); $('#wName').focus(); return; } if (!d) { toast('Falta a data de nascimento'); return; }
-    const old = P.get() || {}; P.set(Object.assign({}, old, { name, d, t: $('#wTime').value, c: $('#wCity').value })); store.set('ceu_welcome', '1'); render();
+    const name = $('#wName').value.trim(), d = $('#wDate').value; if (!name) { toast('Como te chamas?'); $('#wName').focus(); return; } if (!d) { toast('Falta a data de nascimento'); return; } if (d < '1900-01-01' || d > todayStr()) { toast('Essa data não parece certa: escolhe entre 1900 e hoje'); return; }
+    const old = P.get() || {}; P.set(Object.assign({}, old, { name, d, t: $('#wTime').value, c: $('#wCity').value })); store.set('ceu_welcome', todayStr()); render();
     if (after) after(); else openSoul();
   };
-  if ($('#wSkip')) $('#wSkip').onclick = () => { store.set('ceu_welcome', '1'); dlg.close(); };
+  if ($('#wSkip')) $('#wSkip').onclick = () => { store.set('ceu_welcome', todayStr()); dlg.close(); };
   return true;
 }
 
@@ -6098,7 +6106,7 @@ function soulTodayHtml(o) { // a secção "Hoje" dentro da carta
 }
 
 // ===== App de telemóvel =====
-const APP_VERSION = '23.11.2026 02:10';
+const APP_VERSION = '23.11.2026 02:40';
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const G = g => `${g}&#xFE0E;`;
@@ -6126,7 +6134,7 @@ function vTop() {
 }
 function vPares() {
   const PR = pairsDay(ST.date, ST.modern);
-  const me = P.get(), mySi = me && me.d ? sunSignOf(me.d) : 0, sOpt = sel => SIGNS.map((s, i) => `<option value="${i}"${i === sel ? ' selected' : ''}>${s.n}</option>`).join('');
+  const me = P.get(), mySi = me && me.d ? profSign(me) : 0, sOpt = sel => SIGNS.map((s, i) => `<option value="${i}"${i === sel ? ' selected' : ''}>${s.n}</option>`).join('');
   const pa = ST.pkA ?? mySi, pb = ST.pkB ?? 4, sb = (side, i) => `<button class="spk" data-side="${side}" style="--c:${elc(SIGNS[i])}"><span>${G(SIGNS[i].g)}</span><b>${SIGNS[i].n}</b><i>▾</i></button>`;
   let h = `<div class="pickbox"><div class="pick2">${sb('A', pa)}<em>💞</em>${sb('B', pb)}</div><div class="pick2 names"><input type="text" id="nmA" maxlength="40" placeholder="Nome (opcional)" value="${esc(ST.nmA ?? (me && me.name ? me.name.split(' ')[0] : ''))}"><em>🔤</em><input type="text" id="nmB" maxlength="40" placeholder="Nome (opcional)" value="${esc(ST.nmB || '')}"></div><button class="btn main" id="pkGo">💞 Ver compatibilidade</button><p class="note">Escolhe os signos e, se quiseres, escreve os nomes: vês a ligação pelos dois.</p></div><h2 class="vt">💞 Quem combina hoje</h2>`;
   PR.top.forEach((p, i) => h += `<div class="pair r${i + 1}" data-a="${p.a}" data-b="${p.b}"><div class="pg"><span style="color:${elc(SIGNS[p.a])}">${G(SIGNS[p.a].g)}</span><b>${p.score}%</b><span style="color:${elc(SIGNS[p.b])}">${G(SIGNS[p.b].g)}</span></div><div class="pn">${SIGNS[p.a].n} + ${SIGNS[p.b].n}</div><small>${cap1(PAIR_TXT[p.k])}</small><span class="open">Ver tudo ›</span></div>`);
@@ -6194,17 +6202,17 @@ function vAgenda() {
   return h;
 }
 function openPerson(k, preset) {
-  const l = P.list('ceu_bdays'), x = k === null ? { name: '', rel: 'amigo', d: '', t: '', tel: '', relTxt: '', ...(preset || {}) } : l[k];
+  const l = P.list('ceu_bdays'), x = k === null ? { name: '', rel: '', d: '', t: '', tel: '', relTxt: '', ...(preset || {}) } : l[k];
   const groups = REL_GROUPS.filter(g => g[0] !== 'Animais').map(g => `<optgroup label="${g[0]}">${g[1].map(r => `<option value="${r}"${x.rel === r && !x.relTxt ? ' selected' : ''}>${(RELS.find(z => z[0] === r) || [])[2]}</option>`).join('')}</optgroup>`).join('');
   $('#perBody').innerHTML = `<div class="form"><label>Nome<input type="text" id="xName" maxlength="24" value="${esc(x.name)}" placeholder="Ex.: João"></label>
-    <label>Ligação<select id="xRel">${groups}<option value="outro"${x.relTxt ? ' selected' : ''}>Outra…</option></select></label>
+    <label>Quem é para ti<select id="xRel">${x.rel ? '' : '<option value="" selected disabled>Escolhe… (mãe, amigo, filho…)</option>'}${groups}<option value="outro"${x.relTxt ? ' selected' : ''}>Outra…</option></select></label>
     <label id="xRelTxtL"${x.relTxt ? '' : ' hidden'}>Escreve a ligação<input type="text" id="xRelTxt" maxlength="24" value="${esc(x.relTxt || '')}" placeholder="Ex.: Vizinha, Professor, Treinador"></label>
     <label>Data de nascimento${x.md ? ` <small>(faz anos a ${+x.md.slice(3)} de ${MESES[+x.md.slice(0, 2) - 1]}: falta só o ano)</small>` : ''}<input type="date" id="xDate" max="${todayStr()}" value="${x.d}"></label><label>Hora (opcional)<input type="time" id="xTime" value="${x.t || ''}"></label>
     <label>Telemóvel (opcional, para o WhatsApp)<input type="tel" id="xTel" inputmode="tel" value="${esc(x.tel || '')}" placeholder="9xx xxx xxx"></label></div>`;
   $('#perTitle').textContent = k === null ? 'Novo aniversário' : 'Editar ' + x.name; $('#perDel').hidden = k === null; $('#perSave').hidden = false;
   $('#xRel').onchange = () => $('#xRelTxtL').hidden = $('#xRel').value !== 'outro';
   if (k !== null) { $('#perBody').insertAdjacentHTML('beforeend', '<button class="btn" id="xCard" style="width:100%;margin-top:8px">🪪 Enviar o cartão (a pessoa guarda na app dela)</button>'); $('#xCard').onclick = () => sharePerson(l[k]); }
-  $('#perSave').onclick = () => { const n = $('#xName').value.trim(), d = $('#xDate').value; if (!n || !d) { toast('Nome e data'); return; } const rel = $('#xRel').value, o = { name: n, rel: rel === 'outro' ? (/a$/i.test(($('#xRelTxt').value.trim().split(/\s+/)[0] || '')) ? 'amiga' : 'amigo') : rel, relTxt: rel === 'outro' ? $('#xRelTxt').value.trim() || 'Outro' : '', d, t: $('#xTime').value, tel: $('#xTel').value.trim() }; const L = P.list('ceu_bdays'); if (k === null) L.push(o); else L[k] = { ...L[k], ...o }; P.setList('ceu_bdays', L); $('#perDlg').close(); ST.agMonth = d.slice(0, 4) <= todayStr().slice(0, 4) ? todayStr().slice(0, 5) + d.slice(5, 7) : ST.agMonth; toast('Guardado 🎂'); render(); if (k !== null) openPersonSheet(k); };
+  $('#perSave').onclick = () => { const n = $('#xName').value.trim(), d = $('#xDate').value; if (!n || !d) { toast('Nome e data'); return; } const rel = $('#xRel').value; if (!rel) { toast('Escolhe quem é para ti (mãe, amigo…)'); return; } const o = { name: n, rel: rel === 'outro' ? (/a$/i.test(($('#xRelTxt').value.trim().split(/\s+/)[0] || '')) ? 'amiga' : 'amigo') : rel, relTxt: rel === 'outro' ? $('#xRelTxt').value.trim() || 'Outro' : '', d, t: $('#xTime').value, tel: $('#xTel').value.trim() }; const L = P.list('ceu_bdays'); if (k === null) L.push(o); else L[k] = { ...L[k], ...o }; P.setList('ceu_bdays', L); $('#perDlg').close(); ST.agMonth = d.slice(0, 4) <= todayStr().slice(0, 4) ? todayStr().slice(0, 5) + d.slice(5, 7) : ST.agMonth; toast('Guardado 🎂'); render(); if (k !== null) openPersonSheet(k); };
   $('#perDel').onclick = () => { const L = P.list('ceu_bdays'); L.splice(k, 1); P.setList('ceu_bdays', L); $('#perDlg').close(); render(); };
   $('#perDlg').showModal();
 }
@@ -6226,10 +6234,10 @@ function bindAgenda() {
 }
 function fertBox() {
   const g = luaGuide(ST.date).fertilidade, next = luaBest('fertilidade', ST.date, dayStr(noonJd(ST.date) + 30)).slice(0, 5);
-  const p = P.get(), mine = p && p.d ? daysIn(ST.date, dayStr(noonJd(ST.date) + 30)).filter(d => skyFor(d).moon.sign === sunSignOf(p.d)).slice(0, 3) : [];
+  const p = P.get(), mine = p && p.d ? daysIn(ST.date, dayStr(noonJd(ST.date) + 30)).filter(d => skyFor(d).moon.sign === profSign(p)).slice(0, 3) : [];
   const nd = d => { const [y, m, dd] = dParts(d); return `${dd} ${MESES[m - 1].slice(0, 3)}`; };
   return `<div class="box fert"><h3>👶 Fertilidade</h3><p>Hoje, pela tradição lunar: <b style="color:${LUA_COL[g]}">${LUA_LBL[g]}</b>.</p>
-    <p>Próximos dias «férteis» da Lua: <b>${next.map(nd).join(' · ') || '—'}</b></p>${mine.length ? `<p>Lua no teu signo (${SIGNS[sunSignOf(p.d)].n}), dias de mais energia para ti: <b>${mine.map(nd).join(' · ')}</b></p>` : ''}
+    <p>Próximos dias «férteis» da Lua: <b>${next.map(nd).join(' · ') || '—'}</b></p>${mine.length ? `<p>Lua no teu signo (${SIGNS[profSign(p)].n}), dias de mais energia para ti: <b>${mine.map(nd).join(' · ')}</b></p>` : ''}
     ${(() => { const c = CY.get(), st = c.on ? cycleStats(c) : null; if (!st || !st.last) return ''; const lua = daysIn(st.fert[0], st.fert[1]).filter(d => luaGuide(d).fertilidade >= 3).map(d => +d.slice(8)); return `<p>🌸 Pelo teu ciclo, a janela fértil é de <b>${niceDate(st.fert[0]).replace(/^[^,]+, /, '')} a ${niceDate(st.fert[1]).replace(/^[^,]+, /, '')}</b>${lua.length ? `, e a Lua também ajuda nos dias <b>${lua.join(', ')}</b> 🌙` : ''}.</p>`; })()}
     <button class="btn" id="fertCalc" style="width:100%;margin-top:6px">📅 ${CY.get().on && CY.get().starts.length ? 'Ver o meu ciclo' : 'Calcular a janela fértil pelo ciclo'}</button>
     <p class="note">A astrologia é só tradição e entretenimento. A fertilidade real depende da ovulação e da saúde de cada um. Se estão a tentar há mais de 12 meses (ou 6 meses a partir dos 35 anos), falem com o médico de família ou um especialista em fertilidade.</p></div>`;
@@ -6293,10 +6301,10 @@ function vEu() {
   return seg + vEuMe();
 }
 function vEuMe() {
-  const p = P.get(), opts = sel => CITIES.map((c, i) => `<option value="${i}"${+sel === i ? ' selected' : ''}>${c[0]}</option>`).join('');
+  const p = P.get(), opts = cityOpts;
   if (!p || !p.d || ST.editProfile) {
     return `<h2 class="vt">✨ O meu espaço</h2><p class="sub2">Sem registo e sem palavras-passe: os teus dados ficam só neste telemóvel.</p>
-    <div class="form"><label>O teu nome<input type="text" id="pName" maxlength="24" value="${esc(p ? p.name || '' : '')}" placeholder="Como te chamas?"></label>
+    <div class="form"><label>O teu nome<input type="text" id="pName" maxlength="40" value="${esc(p ? p.name || '' : '')}" placeholder="Como te chamas?"></label>
     <label>Data de nascimento<input type="date" id="bDate" min="1900-01-01" max="${todayStr()}" value="${p ? p.d || '' : ''}"></label>
     <label>Hora de nascimento (opcional, para o ascendente)<input type="time" id="bTime" value="${p ? p.t || '' : ''}"></label>
     <label>Onde nasceste<select id="bCity">${opts(p ? p.c : 0)}</select></label>
@@ -6304,7 +6312,7 @@ function vEuMe() {
     <label>📍 Lugar favorito<input type="text" id="pFP" maxlength="60" value="${esc(p ? p.favPlace || '' : '')}"></label><label>✈️ Viagem de sonho<input type="text" id="pDT" maxlength="60" value="${esc(p ? p.dream || '' : '')}"></label>
     <button class="btn main" id="pSave">Guardar</button></div>`;
   }
-  const first = p.name ? p.name.split(' ')[0] : '', si = sunSignOf(p.d), ci = CITIES[+p.c || 0], today = todayStr();
+  const first = p.name ? p.name.split(' ')[0] : '', si = profSign(p), ci = CITIES[+p.c || 0], today = todayStr();
   const [y, m, dd] = dParts(p.d), [hh, mi] = (p.t || '12:00').split(':').map(Number), ms = localToUtcMs(y, m, dd, hh, mi, ci[3]);
   const natal = natalChart(ms, ci), PD = personalDay(natal, today, ST.modern), base = p.t ? PD.byAsc : readDay(si, today, ST.modern);
   const keepPets = ST.pets; ST.pets = false; computeTop(); ST.pets = keepPets; const pos = ST.rank.findIndex(r => r.si === si), rd = ST.rank[pos], v = verdict(rd);
@@ -6575,10 +6583,10 @@ function bindEu() {
   document.querySelectorAll('[data-ev]').forEach(b => b.onclick = () => { ST.euView = b.dataset.ev; render(); });
   if (ST.euView === 'diario') { bindDiario(); return; }
   if (ST.euView === 'int') { bindInteresses(); return; }
-  if ($('#pSave')) { $('#pSave').onclick = () => { const d = $('#bDate').value; if (!d) { toast('Indica a data de nascimento'); return; } P.set({ name: $('#pName').value.trim(), d, t: $('#bTime').value, c: $('#bCity').value, favBook: $('#pFB').value.trim(), favShow: $('#pFS').value.trim(), favPlace: $('#pFP').value.trim(), dream: $('#pDT').value.trim() }); ST.editProfile = false; toast('Guardado neste telemóvel ✨'); render(); }; return; }
+  if ($('#pSave')) { $('#pSave').onclick = () => { const d = $('#bDate').value; if (!d) { toast('Indica a data de nascimento'); return; } if (d < '1900-01-01' || d > todayStr()) { toast('Essa data não parece certa: escolhe entre 1900 e hoje'); return; } P.set({ name: $('#pName').value.trim(), d, t: $('#bTime').value, c: $('#bCity').value, favBook: $('#pFB').value.trim(), favShow: $('#pFS').value.trim(), favPlace: $('#pFP').value.trim(), dream: $('#pDT').value.trim() }); ST.editProfile = false; toast('Guardado neste telemóvel ✨'); render(); }; return; }
   $('#pEdit').onclick = () => { ST.editProfile = true; render(); };
   if ($('#monGo')) $('#monGo').onclick = () => openMonth(); if ($('#cnGo')) $('#cnGo').onclick = openChinese; bindTarot(); bindTarotNew(); bindMore(); bindFact(); bindEuChips(); bindRoutines(); document.querySelectorAll('[data-num]').forEach(b => b.onclick = () => openNum(b.dataset.num));
-  const p = P.get(), si = sunSignOf(p.d);
+  const p = P.get(), si = profSign(p);
   $('#myCard').onclick = () => { const kp = ST.pets; ST.pets = false; computeTop(); ST.pets = kp; openSheet(ST.rank.findIndex(r => r.si === si)); };
   if (false) $('#myPoster').onclick = () => { ST.type = 'anos'; ST.anosView = 'criar'; render(); showBday({ name: p.name || 'Tu', rel: 'eu', d: p.d, showAge: true, from: '' }, false); };
   $('#askF').onsubmit = e => { e.preventDefault(); askOracle($('#askQ').value); };
@@ -6683,6 +6691,7 @@ async function shareCurrent() {
 function showTodayDlg(force) {
   const key = 'ceu_seen_' + todayStr(), T = bdaysOn(0), M = bdaysOn(1), CD = careDue(3), YN = yearNudge(), AD = adoptToday(), CYA = cycleAlerts(), MN = +todayStr().slice(8) <= 3 && !store.get('ceu_monseen_' + todayStr().slice(0, 7)), TAR = P.get() && !tarOpened(), sig = `${T.length + M.length}|${CD.length}|${YN ? 1 : 0}|${AD.length}|${CYA.length}|${MN ? 1 : 0}|${TAR ? 1 : 0}`;
   if (!T.length && !M.length && !CD.length && !YN && !AD.length && !CYA.length && !MN && !TAR) return false;
+  if (!force && store.get('ceu_welcome') === todayStr() && !T.length && !M.length && !CYA.length) return false; // no dia em que chegaste, não abre outra «carta» por cima da Carta da Alma
   if (!force && store.get(key) === sig) return false;
   const card = (x, tom) => { const si = x.t ? sunSignAt(x.d, x.t) : sunSignOf(x.d), age = ageOn(x.d, dayStr(noonJd(todayStr()) + (tom ? 1 : 0))), em = x.kind === 'a' ? spOf(P.list('ceu_pets')[x.k] || {})[1] : x.kind === 'me' ? '🥳' : relIcon(x);
     return `<div class="tcard${tom ? ' tom' : ''}" style="--c:${elc(SIGNS[si])}"><span class="av">${esc(em)}</span><div class="who"><b>${esc(x.kind === 'me' ? 'Tu!' : x.name)}</b><small>${esc(x.kind === 'me' ? 'O teu dia' : relLabel(x))} · ${age > 0 ? (tom ? 'faz ' : 'faz ') + age + (age === 1 ? ' ano' : ' anos') : ''} · ${G(SIGNS[si].g)} ${SIGNS[si].n}</small></div>
@@ -6739,7 +6748,7 @@ async function init() {
   document.querySelectorAll('#who button').forEach(b => b.onclick = () => { ST.pets = b.dataset.w === 'a'; store.set('ceu_pets_mode', ST.pets ? '1' : '0'); render(); });
   document.querySelectorAll('.installBtn').forEach(b => { b.onclick = doInstall; b.hidden = isStandalone(); });
   $('#installHelp').innerHTML = isIOS() ? '<p><b>iPhone:</b> abre no Safari ou no Chrome, toca em <b>Partilhar</b> (□↑) e escolhe <b>«Adicionar ao ecrã principal»</b>.</p>' : '<p><b>Android (Chrome):</b> toca nos <b>⋮</b> em cima à direita e escolhe <b>«Instalar app»</b> ou <b>«Adicionar ao ecrã principal»</b>.</p>';
-  if (!isStandalone() && !store.get('ceu_inst_hide')) { $('#instBanner').hidden = false; $('#instClose').onclick = () => { $('#instBanner').hidden = true; store.set('ceu_inst_hide', '1'); }; $('#instGo').onclick = doInstall; }
+  if (!isStandalone() && !store.get('ceu_inst_hide')) { $('#instBanner').hidden = false; if ($('#instHow')) $('#instHow').textContent = /iPhone|iPad|iPod/.test(navigator.userAgent) ? 'No Safari: Partilhar ⬆️ → «Adicionar ao ecrã principal».' : 'Fica no ecrã do telemóvel, como uma app.'; $('#instClose').onclick = () => { $('#instBanner').hidden = true; store.set('ceu_inst_hide', '1'); }; $('#instGo').onclick = doInstall; }
   $('#sheetShare').onclick = () => shareCanvases(($('#sheet')._extra || []).concat([{ name: $('#sheet')._name, c: $('#sheet')._canvas }]), $('#sheet')._cap);
   $('#sheetPrev').onclick = () => openSheet(SHEET - 1); $('#sheetNext').onclick = () => openSheet(SHEET + 1);
   let tx = null; $('#sheetBody').addEventListener('touchstart', e => tx = e.touches[0].clientX, { passive: true });
