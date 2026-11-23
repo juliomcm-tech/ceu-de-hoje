@@ -815,7 +815,7 @@ function soulStarsShare() {
   dlg.querySelectorAll('.stfmt button').forEach(b => b.onclick = () => { story = b.dataset.f === '1'; dlg.querySelectorAll('.stfmt button').forEach(z => z.classList.toggle('on', z === b)); draw(); });
   dlg.querySelectorAll('.sttones button').forEach(b => b.onclick = () => { tone = b.dataset.t; dlg.querySelectorAll('.sttones button').forEach(z => z.classList.toggle('on', z === b)); draw(); });
   $('#ssX').onclick = () => dlg.close(); $('#ssBack').onclick = soulLinksView;
-  $('#ssGo').onclick = async () => { if (!cv) await draw(); shareCanvases([{ c: cv, name: story ? 'a-minha-constelacao-story' : 'a-minha-constelacao' }], `✦ A minha constelação no Céu de Hoje: ${soulLinks().length} estrelas acesas. Cada carta da alma que leio acende uma. Lê a tua em ceudehoje.com #CartaDaAlma`); };
+  $('#ssGo').onclick = async () => { if (!cv) await draw(); shareCanvases([{ c: cv, name: story ? 'a-minha-constelacao-story' : 'a-minha-constelacao' }], `✦ A minha constelação no Céu de Hoje: ${soulLinks().length} ${soulLinks().length === 1 ? 'estrela acesa' : 'estrelas acesas'}. Cada carta da alma que leio acende uma. Lê a tua em ceudehoje.com #CartaDaAlma`); };
   draw();
 }
 // ---------- Tatuagem da constelação: traço fino, minimalista, pronta para levar ao tatuador ----------

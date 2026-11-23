@@ -544,7 +544,7 @@ function stampMark(ctx, W, H) {
   const y = H - Math.max(12, Math.round(fs * .9)), x = W - Math.round(W * .03), tw = ctx.measureText(SITE_MARK).width;
   let light = false; try { const d = ctx.getImageData(Math.max(0, x - tw), Math.max(0, y - fs), Math.max(1, tw), fs + 4).data; let L = 0, n = 0; for (let i = 0; i < d.length; i += 16) { L += .2126 * d[i] + .7152 * d[i + 1] + .0722 * d[i + 2]; n++; } light = L / n > 150; } catch (e) { }
   ctx.fillStyle = light ? 'rgba(40,32,70,.72)' : 'rgba(255,255,255,.88)'; if (!light) { ctx.shadowColor = 'rgba(0,0,0,.3)'; ctx.shadowBlur = Math.round(fs * .3); } // fundo claro: letra escura e sem sombra
-  ctx.fillText(SITE_MARK, x, y); ctx.restore();
+  const nt = ctx.__noTheme; ctx.__noTheme = true; ctx.fillText(SITE_MARK, x, y); ctx.restore(); ctx.__noTheme = nt;
 }
 function stampOnce(c) { if (c && !c._stamped) { try { stampMark(c.getContext('2d'), c.width, c.height); c._stamped = 1; } catch (e) { } } return c; }
 const blobOf = (c, q = .92) => new Promise(r => stampOnce(c).toBlob(r, 'image/jpeg', q));
@@ -635,7 +635,7 @@ async function makeReel() {
   const r = await recordAnim((ctx, t) => reelFrame(ctx, base, t), 15, 1080, 1920, btn, '🎬 A criar…'); if (!r) return;
   const ext = r.ext, blob = r.blob;
   const v = $('#reelVid'); v.src = URL.createObjectURL(blob); $('#reelDlg').showModal();
-  $('#reelShare').onclick = async () => { const f = new File([blob], `reel-${ST.date}.${ext}`, { type: blob.type }); if (!(await shareFiles([f], ST.cap))) { await saveBlob(f, f.name); toast('Vídeo guardado e legenda copiada'); } };
+  $('#reelShare').onclick = async () => { const f = new File([blob], `reel-${ST.date}.${ext}`, { type: blob.type }); try { ST.cap = buildPost().cap; } catch (e) { ST.cap = `✨ O céu de hoje para os 12 signos\n\n${APP_URL}`; } if (!(await shareFiles([f], ST.cap))) { await saveBlob(f, f.name); toast('Vídeo guardado e legenda copiada'); } };
   $('#reelInfo').textContent = ext === 'webm' ? 'Formato WebM: o Facebook aceita. No iPhone, guarda primeiro e publica a partir do computador se não abrir.' : 'Formato MP4: pronto para os Reels.';
 }
 

@@ -49,8 +49,8 @@ const sunSignOf = d => { const [y, m, dd] = d.split('-').map(Number); return Mat
 const P = {
   get() { try { const p = JSON.parse(store.get('ceu_profile') || 'null'); if (p) return p; const me = JSON.parse(store.get('ceu_me') || 'null'); return me ? { name: '', d: me.d, t: me.t, c: me.c } : null; } catch (e) { return null; } },
   set(p) { store.set('ceu_profile', JSON.stringify(p)); },
-  list(k) { try { return JSON.parse(store.get(k) || '[]'); } catch (e) { return []; } },
-  setList(k, v) { store.set(k, JSON.stringify(v)); }
+  list(k) { try { const v = JSON.parse(store.get(k) || '[]'); return Array.isArray(v) ? v.filter(x => x && typeof x === 'object') : []; } catch (e) { return []; } }, // dados estragados nunca deixam a app em branco
+  setList(k, v) { return store.set(k, JSON.stringify(v)); }
 };
 function daysToBirthday(d, today = todayStr()) {
   const [ty, tm, td] = dParts(today), [, m, dd] = dParts(d), lp = y => (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0, at = y => Date.UTC(y, m - 1, m === 2 && dd === 29 && !lp(y) ? 28 : dd); // 29 fev festeja-se a 28 nos anos comuns
@@ -212,7 +212,7 @@ async function encodeMp4(drawFn, dur, W, H, btn, label) {
 }
 async function recordAnim(drawFn, dur, W, H, btn, label) {
   try { const v = await encodeMp4(drawFn, dur, W, H, btn, label); if (v && v.blob.size > 1000) return v; } catch (e) { console.warn('mp4', e); }
-  const mime = reelMime(); if (!mime || !HTMLCanvasElement.prototype.captureStream) { toast('Este navegador não grava vídeo — usa o Chrome'); return null; }
+  const mime = reelMime(); if (!mime || !HTMLCanvasElement.prototype.captureStream) { toast(/iPhone|iPad|iPod/.test(navigator.userAgent) ? 'Este iPhone ainda não grava vídeo aqui: atualiza o iOS ou partilha a imagem' : 'Este navegador não grava vídeo: experimenta o Chrome', 6000); return null; }
   const c = document.createElement('canvas'); c.width = W; c.height = H; const ctx = c.getContext('2d'); drawFn(ctx, 0);
   const rec = new MediaRecorder(c.captureStream(30), { mimeType: mime, videoBitsPerSecond: 8e6 }), chunks = []; rec.ondataavailable = e => e.data.size && chunks.push(e.data);
   const done = new Promise(r => rec.onstop = r); rec.start(250); const t0 = performance.now(), old = btn ? btn.textContent : '';

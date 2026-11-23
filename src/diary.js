@@ -104,7 +104,7 @@ function lockScreen() {
     const go = async () => { if (await checkPin(inp.value)) { el.hidden = true; res(true); } else { inp.value = ''; el.querySelector('.lockbox').classList.add('shake'); setTimeout(() => el.querySelector('.lockbox').classList.remove('shake'), 400); toast('PIN errado'); } };
     $('#lockGo').onclick = go; inp.onkeydown = e => { if (e.key === 'Enter') go(); };
     inp.oninput = () => { if (inp.value.length >= 4 && inp.value.length === (+store.get('ceu_pinlen') || 4)) go(); };
-    $('#lockForgot').onclick = () => { if (confirmBox('Esqueceste o PIN? Para entrar, todos os teus dados deste telemóvel (perfil, diário, aniversários, animais, Carta da Alma e ligações, livros, viagens…) vão ser apagados.')) { try { Object.keys(localStorage).filter(k => /^ceu_/.test(k) && !/^ceu_(theme|brand|bkevery|inst_hide|voice|push)/.test(k)).forEach(k => localStorage.removeItem(k)); indexedDB.deleteDatabase('ceu-fotos'); } catch (e) { } el.hidden = true; res(true); } };
+    $('#lockForgot').onclick = () => { if (confirmBox('Esqueceste o PIN? Para entrar, todos os teus dados deste telemóvel (perfil, diário, aniversários, animais, Carta da Alma e ligações, livros, viagens…) vão ser apagados.')) { try { try { if (typeof PS !== 'undefined' && PS.get().on) pushOff(); } catch (e) { } Object.keys(localStorage).filter(k => /^ceu_/.test(k) && !/^ceu_(theme|brand|bkevery|inst_hide|voice)/.test(k)).forEach(k => localStorage.removeItem(k)); indexedDB.deleteDatabase('ceu-fotos'); caches.delete('ceu-data'); } catch (e) { } el.hidden = true; res(true); } };
   });
 }
 function confirmBox(msg) { try { return window.confirm(msg); } catch (e) { return false; } }
@@ -160,7 +160,7 @@ function diaryFeedback(note, all) {
   if (mood <= 2 && recent.length >= 3 && recent.slice(0, 3).every(x => x.mood <= 2)) out.push(`<div class="careful">Tens escrito vários dias difíceis seguidos. Falar com alguém pode ajudar muito: uma pessoa de confiança, o teu médico, ou o aconselhamento psicológico do SNS 24 (<a href="tel:808242424">808 24 24 24</a>, opção 4), que é gratuito e funciona 24 horas.</div>`);
   return out.map(x => x.startsWith('<') ? x : `<p>${x}</p>`).join('');
 }
-const DIA = { all: () => P.list('ceu_diario'), save: l => P.setList('ceu_diario', l) };
+const DIA = { all: () => P.list('ceu_diario'), save: l => P.setList('ceu_diario', l) }; // devolve false se a memória estiver cheia
 function diaryInsights(all, ym) {
   const m = all.filter(x => x.d.startsWith(ym)); if (!m.length) return null;
   const avgM = m.reduce((a, x) => a + x.mood, 0) / m.length, counts = {};

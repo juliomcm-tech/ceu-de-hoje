@@ -1483,7 +1483,7 @@ function stampMark(ctx, W, H) {
   const y = H - Math.max(12, Math.round(fs * .9)), x = W - Math.round(W * .03), tw = ctx.measureText(SITE_MARK).width;
   let light = false; try { const d = ctx.getImageData(Math.max(0, x - tw), Math.max(0, y - fs), Math.max(1, tw), fs + 4).data; let L = 0, n = 0; for (let i = 0; i < d.length; i += 16) { L += .2126 * d[i] + .7152 * d[i + 1] + .0722 * d[i + 2]; n++; } light = L / n > 150; } catch (e) { }
   ctx.fillStyle = light ? 'rgba(40,32,70,.72)' : 'rgba(255,255,255,.88)'; if (!light) { ctx.shadowColor = 'rgba(0,0,0,.3)'; ctx.shadowBlur = Math.round(fs * .3); } // fundo claro: letra escura e sem sombra
-  ctx.fillText(SITE_MARK, x, y); ctx.restore();
+  const nt = ctx.__noTheme; ctx.__noTheme = true; ctx.fillText(SITE_MARK, x, y); ctx.restore(); ctx.__noTheme = nt;
 }
 function stampOnce(c) { if (c && !c._stamped) { try { stampMark(c.getContext('2d'), c.width, c.height); c._stamped = 1; } catch (e) { } } return c; }
 const blobOf = (c, q = .92) => new Promise(r => stampOnce(c).toBlob(r, 'image/jpeg', q));
@@ -1574,7 +1574,7 @@ async function makeReel() {
   const r = await recordAnim((ctx, t) => reelFrame(ctx, base, t), 15, 1080, 1920, btn, '🎬 A criar…'); if (!r) return;
   const ext = r.ext, blob = r.blob;
   const v = $('#reelVid'); v.src = URL.createObjectURL(blob); $('#reelDlg').showModal();
-  $('#reelShare').onclick = async () => { const f = new File([blob], `reel-${ST.date}.${ext}`, { type: blob.type }); if (!(await shareFiles([f], ST.cap))) { await saveBlob(f, f.name); toast('Vídeo guardado e legenda copiada'); } };
+  $('#reelShare').onclick = async () => { const f = new File([blob], `reel-${ST.date}.${ext}`, { type: blob.type }); try { ST.cap = buildPost().cap; } catch (e) { ST.cap = `✨ O céu de hoje para os 12 signos\n\n${APP_URL}`; } if (!(await shareFiles([f], ST.cap))) { await saveBlob(f, f.name); toast('Vídeo guardado e legenda copiada'); } };
   $('#reelInfo').textContent = ext === 'webm' ? 'Formato WebM: o Facebook aceita. No iPhone, guarda primeiro e publica a partir do computador se não abrir.' : 'Formato MP4: pronto para os Reels.';
 }
 
@@ -1676,8 +1676,8 @@ const sunSignOf = d => { const [y, m, dd] = d.split('-').map(Number); return Mat
 const P = {
   get() { try { const p = JSON.parse(store.get('ceu_profile') || 'null'); if (p) return p; const me = JSON.parse(store.get('ceu_me') || 'null'); return me ? { name: '', d: me.d, t: me.t, c: me.c } : null; } catch (e) { return null; } },
   set(p) { store.set('ceu_profile', JSON.stringify(p)); },
-  list(k) { try { return JSON.parse(store.get(k) || '[]'); } catch (e) { return []; } },
-  setList(k, v) { store.set(k, JSON.stringify(v)); }
+  list(k) { try { const v = JSON.parse(store.get(k) || '[]'); return Array.isArray(v) ? v.filter(x => x && typeof x === 'object') : []; } catch (e) { return []; } }, // dados estragados nunca deixam a app em branco
+  setList(k, v) { return store.set(k, JSON.stringify(v)); }
 };
 function daysToBirthday(d, today = todayStr()) {
   const [ty, tm, td] = dParts(today), [, m, dd] = dParts(d), lp = y => (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0, at = y => Date.UTC(y, m - 1, m === 2 && dd === 29 && !lp(y) ? 28 : dd); // 29 fev festeja-se a 28 nos anos comuns
@@ -1839,7 +1839,7 @@ async function encodeMp4(drawFn, dur, W, H, btn, label) {
 }
 async function recordAnim(drawFn, dur, W, H, btn, label) {
   try { const v = await encodeMp4(drawFn, dur, W, H, btn, label); if (v && v.blob.size > 1000) return v; } catch (e) { console.warn('mp4', e); }
-  const mime = reelMime(); if (!mime || !HTMLCanvasElement.prototype.captureStream) { toast('Este navegador não grava vídeo — usa o Chrome'); return null; }
+  const mime = reelMime(); if (!mime || !HTMLCanvasElement.prototype.captureStream) { toast(/iPhone|iPad|iPod/.test(navigator.userAgent) ? 'Este iPhone ainda não grava vídeo aqui: atualiza o iOS ou partilha a imagem' : 'Este navegador não grava vídeo: experimenta o Chrome', 6000); return null; }
   const c = document.createElement('canvas'); c.width = W; c.height = H; const ctx = c.getContext('2d'); drawFn(ctx, 0);
   const rec = new MediaRecorder(c.captureStream(30), { mimeType: mime, videoBitsPerSecond: 8e6 }), chunks = []; rec.ondataavailable = e => e.data.size && chunks.push(e.data);
   const done = new Promise(r => rec.onstop = r); rec.start(250); const t0 = performance.now(), old = btn ? btn.textContent : '';
@@ -2156,7 +2156,7 @@ function lockScreen() {
     const go = async () => { if (await checkPin(inp.value)) { el.hidden = true; res(true); } else { inp.value = ''; el.querySelector('.lockbox').classList.add('shake'); setTimeout(() => el.querySelector('.lockbox').classList.remove('shake'), 400); toast('PIN errado'); } };
     $('#lockGo').onclick = go; inp.onkeydown = e => { if (e.key === 'Enter') go(); };
     inp.oninput = () => { if (inp.value.length >= 4 && inp.value.length === (+store.get('ceu_pinlen') || 4)) go(); };
-    $('#lockForgot').onclick = () => { if (confirmBox('Esqueceste o PIN? Para entrar, todos os teus dados deste telemóvel (perfil, diário, aniversários, animais, Carta da Alma e ligações, livros, viagens…) vão ser apagados.')) { try { Object.keys(localStorage).filter(k => /^ceu_/.test(k) && !/^ceu_(theme|brand|bkevery|inst_hide|voice|push)/.test(k)).forEach(k => localStorage.removeItem(k)); indexedDB.deleteDatabase('ceu-fotos'); } catch (e) { } el.hidden = true; res(true); } };
+    $('#lockForgot').onclick = () => { if (confirmBox('Esqueceste o PIN? Para entrar, todos os teus dados deste telemóvel (perfil, diário, aniversários, animais, Carta da Alma e ligações, livros, viagens…) vão ser apagados.')) { try { try { if (typeof PS !== 'undefined' && PS.get().on) pushOff(); } catch (e) { } Object.keys(localStorage).filter(k => /^ceu_/.test(k) && !/^ceu_(theme|brand|bkevery|inst_hide|voice)/.test(k)).forEach(k => localStorage.removeItem(k)); indexedDB.deleteDatabase('ceu-fotos'); caches.delete('ceu-data'); } catch (e) { } el.hidden = true; res(true); } };
   });
 }
 function confirmBox(msg) { try { return window.confirm(msg); } catch (e) { return false; } }
@@ -2212,7 +2212,7 @@ function diaryFeedback(note, all) {
   if (mood <= 2 && recent.length >= 3 && recent.slice(0, 3).every(x => x.mood <= 2)) out.push(`<div class="careful">Tens escrito vários dias difíceis seguidos. Falar com alguém pode ajudar muito: uma pessoa de confiança, o teu médico, ou o aconselhamento psicológico do SNS 24 (<a href="tel:808242424">808 24 24 24</a>, opção 4), que é gratuito e funciona 24 horas.</div>`);
   return out.map(x => x.startsWith('<') ? x : `<p>${x}</p>`).join('');
 }
-const DIA = { all: () => P.list('ceu_diario'), save: l => P.setList('ceu_diario', l) };
+const DIA = { all: () => P.list('ceu_diario'), save: l => P.setList('ceu_diario', l) }; // devolve false se a memória estiver cheia
 function diaryInsights(all, ym) {
   const m = all.filter(x => x.d.startsWith(ym)); if (!m.length) return null;
   const avgM = m.reduce((a, x) => a + x.mood, 0) / m.length, counts = {};
@@ -2757,8 +2757,8 @@ function bindLibSearch() {
 // ===== Mais: cópia de segurança, partilhar itens, citações, passaporte, meta, empréstimos, O meu ano =====
 
 // ---------- Cópia de segurança ----------
-const BK_SKIP = /^ceu_(pin|news|sug_|lastbk|bksnooze|seen_|ep_|monseen_|tar_\d|tar3_|tarw_|conf_|tour|bddone_|soul_lvk)/;
-function hasPersonalData() { return ['ceu_moments', 'ceu_books', 'ceu_bdays', 'ceu_diario', 'ceu_trips', 'ceu_shows', 'ceu_pets'].some(k => { try { const v = JSON.parse(localStorage.getItem(k) || '[]'); return Array.isArray(v) && v.length; } catch (e) { return false; } }); }
+const BK_SKIP = /^ceu_(pin|news|sug_|lastbk|bksnooze|seen_|ep_|monseen_|tar_\d|tar3_|tarw_|conf_|tour|bddone_|soul_lvk|push|psync)/; // os avisos são de cada telemóvel
+function hasPersonalData() { if (store.get('ceu_profile') || store.get('ceu_cycle')) return true; return ['ceu_moments', 'ceu_books', 'ceu_bdays', 'ceu_diario', 'ceu_trips', 'ceu_shows', 'ceu_pets', 'ceu_soul_links', 'ceu_colls', 'ceu_dreams', 'ceu_countdown'].some(k => { try { const v = JSON.parse(localStorage.getItem(k) || '[]'); return Array.isArray(v) && v.length; } catch (e) { return false; } }); }
 function backupData() { const o = {}; try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && k.startsWith('ceu_') && !BK_SKIP.test(k)) o[k] = localStorage.getItem(k); } } catch (e) { } return { app: 'ceu-de-hoje', v: 2, at: new Date().toISOString(), data: o }; }
 async function doBackup() {
   const bk = backupData(); try { if (typeof PHDB !== 'undefined') bk.photos = await PHDB.all(); } catch (e) { }
@@ -2774,9 +2774,15 @@ async function doRestore(file) {
 }
 async function restoreObj(j, ask) {
   if (!j || j.app !== 'ceu-de-hoje') { toast('Este ficheiro não é uma cópia do Céu de Hoje'); return; }
-  if (j.v >= 2 && j.data) {
-    const n = Object.keys(j.data).length; if (!n) { toast('A cópia está vazia'); return; }
-    if (ask !== false && !confirmBox(ask || `Repor a cópia de ${new Date(j.at).toLocaleDateString('pt-PT')}? Os dados deste telemóvel são substituídos pelos da cópia.`)) return;
+  if (j.v > 2) { toast('Esta cópia é de uma versão mais nova da app. Atualiza a app e tenta de novo.', 6000); return; }
+  if (j.v >= 2) {
+    const D = j.data; if (!D || typeof D !== 'object' || Array.isArray(D) || Object.entries(D).some(([k, v]) => typeof k !== 'string' || typeof v !== 'string')) { toast('Esta cópia está estragada: não mexi em nada.', 6000); return; }
+    const okJ = v => { try { JSON.parse(v); return true; } catch (e) { return false; } }, bad = Object.entries(D).filter(([k, v]) => /^ceu_(profile|bdays|pets|diario|cycle|soul_links|moments|books|shows|trips|colls)$/.test(k) && !okJ(v));
+    if (bad.length) { toast('Esta cópia está estragada: não mexi em nada.', 6000); return; }
+    const n = Object.keys(D).length; if (!n) { toast('A cópia está vazia'); return; }
+    const cnt = k => { try { const v = JSON.parse(D[k] || '[]'); return Array.isArray(v) ? v.length : 0; } catch (e) { return 0; } }, pl = (k, a, b) => cnt(k) ? cnt(k) + ' ' + (cnt(k) === 1 ? a : b) : '', sum = [D.ceu_profile ? 'o perfil' : '', pl('ceu_bdays', 'aniversário', 'aniversários'), pl('ceu_diario', 'nota', 'notas'), pl('ceu_pets', 'animal', 'animais'), pl('ceu_soul_links', 'ligação', 'ligações')].filter(Boolean).join(', ') || 'algumas definições';
+    const thin = !D.ceu_profile && !!store.get('ceu_profile'), when = isNaN(new Date(j.at)) ? '' : ' de ' + new Date(j.at).toLocaleDateString('pt-PT');
+    if (ask !== false && !confirmBox(ask || `Repor a cópia${when}? Tem ${sum}.${thin ? ' ⚠️ Esta cópia não tem o teu perfil: parece incompleta.' : ''} Os dados deste telemóvel são substituídos pelos da cópia.`)) return;
     const snap = {}; try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && k.startsWith('ceu_') && !BK_SKIP.test(k)) snap[k] = localStorage.getItem(k); } } catch (e) { }
     try { Object.keys(snap).forEach(k => { if (!(k in j.data)) localStorage.removeItem(k); }); for (const [k, v] of Object.entries(j.data)) if (k.startsWith('ceu_') && !BK_SKIP.test(k)) localStorage.setItem(k, v); } catch (e) { try { Object.keys(j.data).forEach(k => localStorage.removeItem(k)); for (const [k, v] of Object.entries(snap)) localStorage.setItem(k, v); } catch (x) { } toast('Sem espaço no telemóvel para repor tudo: ficou tudo como estava.', 5000); return; }
     if (j.photos) for (const [k, v] of Object.entries(j.photos)) try { await PHDB.put(k, v); } catch (e) { }
@@ -3286,15 +3292,15 @@ async function showAnoBook(y) {
   $('#anoEdit').onclick = () => openAno(1);
   const cap = `O meu ${y}, em livro 📖✨\n\nFeito com a app Céu de Hoje: ${APP_URL}`;
   $('#anoShare').onclick = () => shareCanvases(ANO_PAGES, cap);
-  $('#anoPdf').onclick = async () => { const b = $('#anoPdf'); b.disabled = true; b.textContent = 'A criar…'; try { const pdf = await pagesToPdf(ANO_PAGES), f = new File([pdf], `o-meu-livro-${y}.pdf`, { type: 'application/pdf' }); let ok = false; try { if (navigator.canShare && navigator.canShare({ files: [f] })) { await navigator.share({ files: [f] }); ok = true; } } catch (e) { if (e && e.name === 'AbortError') ok = true; } if (!ok) await saveBlob(f, f.name); } finally { b.disabled = false; b.textContent = '📄 PDF'; } };
-  if ($('#anoAll')) $('#anoAll').onclick = async () => { const b = $('#anoAll'); b.disabled = true; try { const all = []; const Y = anoYears(); for (const yy of Y) { b.textContent = `A escrever ${yy}…`; const pg = await buildYearBook(yy); all.push(...(yy === Y[Y.length - 1] ? pg : pg.slice(0, -1))); } b.textContent = 'A juntar…'; const pdf = await pagesToPdf(all), f = new File([pdf], `os-meus-livros-${Y[0]}-${Y[Y.length - 1]}.pdf`, { type: 'application/pdf' }); let ok = false; try { if (navigator.canShare && navigator.canShare({ files: [f] })) { await navigator.share({ files: [f] }); ok = true; } } catch (e) { if (e && e.name === 'AbortError') ok = true; } if (!ok) await saveBlob(f, f.name); } finally { b.disabled = false; b.textContent = '📚 Todos os anos num só livro'; } };
-  $('#anoSt').onclick = async () => { const b = $('#anoSt'); b.disabled = true; b.textContent = 'A criar os stories…'; try { const st = await buildYearStories(y); $('#anoBody').querySelector('.bookv').innerHTML = st.map(p => `<img class="stv" src="${p.c.toDataURL('image/jpeg', .82)}" alt="">`).join(''); b.textContent = '📤 Partilhar os stories'; b.disabled = false; b.onclick = () => shareCanvases(st, cap); const v = $('#anoVid'); v.onclick = async () => { const per = 2.6, dur = st.length * per; const r = await recordAnim((ctx, t) => { const i = Math.min(st.length - 1, Math.floor(t / per)), f = t - i * per; ctx.globalAlpha = 1; ctx.drawImage(st[i].c, 0, 0); if (f > per - .4 && i < st.length - 1) { ctx.globalAlpha = (f - (per - .4)) / .4; ctx.drawImage(st[i + 1].c, 0, 0); ctx.globalAlpha = 1; } }, dur, 1080, 1920, v, '🎬'); if (!r) return; const f = new File([r.blob], `o-meu-${y}-story.${r.ext}`, { type: r.blob.type }); copySync(cap); try { if (navigator.canShare && navigator.canShare({ files: [f] })) { await navigator.share({ files: [f] }); return; } } catch (e) { if (e && e.name === 'AbortError') return; } await saveBlob(f, f.name); }; } catch (e) { b.disabled = false; b.textContent = '📱 Versão stories'; toast('Não consegui criar os stories'); } };
+  $('#anoPdf').onclick = async () => { const b = $('#anoPdf'); b.disabled = true; b.textContent = 'A criar…'; try { const pdf = await pagesToPdf(ANO_PAGES), f = new File([pdf], `o-meu-livro-${y}.pdf`, { type: 'application/pdf' }); let ok = false; try { if (navigator.canShare && navigator.canShare({ files: [f] })) { await navigator.share({ files: [f], text: `📖 O meu livro do ano no Céu de Hoje ✨\n\n${APP_URL}` }); ok = true; } } catch (e) { if (e && e.name === 'AbortError') ok = true; } if (!ok) await saveBlob(f, f.name); } finally { b.disabled = false; b.textContent = '📄 PDF'; } };
+  if ($('#anoAll')) $('#anoAll').onclick = async () => { const b = $('#anoAll'); b.disabled = true; try { const all = []; const Y = anoYears(); for (const yy of Y) { b.textContent = `A escrever ${yy}…`; const pg = await buildYearBook(yy); all.push(...(yy === Y[Y.length - 1] ? pg : pg.slice(0, -1))); } b.textContent = 'A juntar…'; const pdf = await pagesToPdf(all), f = new File([pdf], `os-meus-livros-${Y[0]}-${Y[Y.length - 1]}.pdf`, { type: 'application/pdf' }); let ok = false; try { if (navigator.canShare && navigator.canShare({ files: [f] })) { await navigator.share({ files: [f], text: `📖 O meu livro do ano no Céu de Hoje ✨\n\n${APP_URL}` }); ok = true; } } catch (e) { if (e && e.name === 'AbortError') ok = true; } if (!ok) await saveBlob(f, f.name); } finally { b.disabled = false; b.textContent = '📚 Todos os anos num só livro'; } };
+  $('#anoSt').onclick = async () => { const b = $('#anoSt'); b.disabled = true; b.textContent = 'A criar os stories…'; try { const st = await buildYearStories(y); $('#anoBody').querySelector('.bookv').innerHTML = st.map(p => `<img class="stv" src="${p.c.toDataURL('image/jpeg', .82)}" alt="">`).join(''); b.textContent = '📤 Partilhar os stories'; b.disabled = false; b.onclick = () => shareCanvases(st, cap); const v = $('#anoVid'); v.onclick = async () => { const per = 2.6, dur = st.length * per; const r = await recordAnim((ctx, t) => { const i = Math.min(st.length - 1, Math.floor(t / per)), f = t - i * per; ctx.globalAlpha = 1; ctx.drawImage(st[i].c, 0, 0); if (f > per - .4 && i < st.length - 1) { ctx.globalAlpha = (f - (per - .4)) / .4; ctx.drawImage(st[i + 1].c, 0, 0); ctx.globalAlpha = 1; } }, dur, 1080, 1920, v, '🎬'); if (!r) return; const f = new File([r.blob], `o-meu-${y}-story.${r.ext}`, { type: r.blob.type }); copySync(cap); try { if (navigator.canShare && navigator.canShare({ files: [f] })) { await navigator.share({ files: [f], text: `📖 O meu livro do ano no Céu de Hoje ✨\n\n${APP_URL}` }); return; } } catch (e) { if (e && e.name === 'AbortError') return; } await saveBlob(f, f.name); }; } catch (e) { b.disabled = false; b.textContent = '📱 Versão stories'; toast('Não consegui criar os stories'); } };
   $('#anoVid').onclick = async () => {
     const per = 3.2, dur = ANO_PAGES.length * per;
     const draw = (ctx, t) => { const i = Math.min(ANO_PAGES.length - 1, Math.floor(t / per)), f = t - i * per; ctx.globalAlpha = 1; ctx.drawImage(ANO_PAGES[i].c, 0, 0); if (f > per - .5 && i < ANO_PAGES.length - 1) { ctx.globalAlpha = (f - (per - .5)) / .5; ctx.drawImage(ANO_PAGES[i + 1].c, 0, 0); ctx.globalAlpha = 1; } };
     const r = await recordAnim(draw, dur, 1080, 1350, $('#anoVid'), '🎬'); if (!r) return;
     const f = new File([r.blob], `o-meu-${y}.${r.ext}`, { type: r.blob.type }); copySync(cap);
-    try { if (navigator.canShare && navigator.canShare({ files: [f] })) { await navigator.share({ files: [f] }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+    try { if (navigator.canShare && navigator.canShare({ files: [f] })) { await navigator.share({ files: [f], text: cap }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
     await saveBlob(f, f.name);
   };
 }
@@ -3486,7 +3492,7 @@ async function vetPdf(i) {
   if (!C.length) L('Ainda sem registos na caderneta.', 'italic 500 30px Manrope', '#777');
   pages.forEach((p, j) => { const g = p.c.getContext('2d'); g.font = '500 22px Manrope'; g.fillStyle = '#999'; g.textAlign = 'center'; g.fillText(`Céu de Hoje · ${a.name} · página ${j + 1} de ${pages.length} · ${todayStr().split('-').reverse().join('/')}`, W / 2, H - 50); });
   const pdf = await pagesToPdf(pages, 595.28, 841.89), f = new File([pdf], `ficha-${a.name.toLowerCase()}.pdf`, { type: 'application/pdf' });
-  try { if (navigator.canShare && navigator.canShare({ files: [f] })) { await navigator.share({ files: [f] }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+  try { if (navigator.canShare && navigator.canShare({ files: [f] })) { await navigator.share({ files: [f], title: `Ficha de ${a.name}` }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
   await saveBlob(f, f.name);
 }
 
@@ -5048,7 +5054,7 @@ function wrapSlides(y) {
   if (Y.shows.length) S.push({ c: '#b0306a', big: String(Y.shows.length), t: Y.shows.length === 1 ? 'série ou filme' : 'séries e filmes', s: Y.favS ? `O que mais adoraste: «${Y.favS.title}»` : '' });
   if (Y.trips.length) S.push({ c: '#1f5fa8', big: String(Y.trips.length), t: Y.trips.length === 1 ? 'viagem' : 'viagens', s: Y.countries.length ? Y.countries.map(c => flagOf(c[1]) + ' ' + (CNAME[c[1]] || cap1(c[0]))).join(', ') : '' });
   if (Y.dreamsY && Y.dreamsY.length) S.push({ c: '#c4741d', big: '✨', t: `${Y.dreamsY.length} ${Y.dreamsY.length === 1 ? 'sonho realizado' : 'sonhos realizados'}`, s: Y.dreamsY.map(x => x.title).join(', ') });
-  if (Y.notes.length) S.push({ c: '#8a2fd1', big: String(Y.notes.length), t: 'notas no diário', s: Y.bestM ? `O teu mês mais feliz: ${MESES[Y.bestM[0] - 1]} 💛` : '' });
+  if (Y.notes.length) S.push({ c: '#8a2fd1', big: String(Y.notes.length), t: Y.notes.length === 1 ? 'nota no diário' : 'notas no diário', s: Y.bestM ? `O teu mês mais feliz: ${MESES[Y.bestM[0] - 1]} 💛` : '' });
   if (topCard) S.push({ c: TCOL[+topCard[0]][0], card: +topCard[0], t: 'A carta que mais te saiu', s: `${TAROT[+topCard[0]][0]}, ${topCard[1]} vezes. ${TDAY[+topCard[0]][3]}` });
   const bd = Y.cards.length; if (Y.ppl.length) S.push({ c: '#d14a7a', big: String(Y.ppl.length), t: 'pessoas especiais na agenda', s: bd ? `Criaste ${bd} cartaz${bd > 1 ? 'es' : ''} de parabéns 🎂` : 'Ninguém ficou sem parabéns 🎂' });
   if (Y.pets.length) S.push({ c: '#2a8a6a', big: Y.pets.map(p => spOf(p)[1]).join(''), t: Y.pets.length === 1 ? 'o teu patudo' : 'os teus patudos', s: Y.pets.map(p => p.name).join(', ') });
@@ -5072,7 +5078,7 @@ function openWrapped(y) {
   $('#tarX').onclick = () => { cancelAnimationFrame(raf); dlg.close(); };
   $('#wNext').onclick = () => { if (k < S.length - 1) { k++; t0 = 0; } }; $('#wPrev').onclick = () => { if (k > 0) k--; t0 = 0; };
   $('#wImg').onclick = () => { const cc = document.createElement('canvas'); cc.width = 1080; cc.height = 1920; drawWrapSlide(cc.getContext('2d'), 1080, 1920, S[k], 1).then(() => shareCanvases([{ name: 'o-meu-ano-' + (k + 1), c: cc }], `✨ O meu ${y} no Céu de Hoje\n\nVê o teu em ${APP_URL}`)); };
-  $('#wVid').onclick = async e => { for (const s of S) if (s.card != null) await cardImg(s.card); const per = 3.2, tot = per * S.length; const r = await recordAnim((cx, t) => { const i = Math.min(S.length - 1, Math.floor(t / per)); /* desenho síncrono: as imagens já estão em cache */ drawWrapSlideSync(cx, 1080, 1920, S[i], (t - i * per) / per); }, tot, 1080, 1920, e.currentTarget, '🎬'); if (!r) return; const f = new File([r.blob], `o-meu-${y}.${r.ext}`, { type: r.blob.type }); try { if (navigator.canShare && navigator.canShare({ files: [f] })) { await navigator.share({ files: [f] }); return; } } catch (er) { if (er && er.name === 'AbortError') return; } saveBlob(r.blob, f.name); };
+  $('#wVid').onclick = async e => { for (const s of S) if (s.card != null) await cardImg(s.card); const per = 3.2, tot = per * S.length; const r = await recordAnim((cx, t) => { const i = Math.min(S.length - 1, Math.floor(t / per)); /* desenho síncrono: as imagens já estão em cache */ drawWrapSlideSync(cx, 1080, 1920, S[i], (t - i * per) / per); }, tot, 1080, 1920, e.currentTarget, '🎬'); if (!r) return; const f = new File([r.blob], `o-meu-${y}.${r.ext}`, { type: r.blob.type }); try { if (navigator.canShare && navigator.canShare({ files: [f] })) { await navigator.share({ files: [f], text: `🎁 O meu ano no céu ✨\n\n${APP_URL}` }); return; } } catch (er) { if (er && er.name === 'AbortError') return; } saveBlob(r.blob, f.name); };
 }
 const _cardSync = {}; // versão síncrona para o vídeo (usa as imagens já carregadas)
 function drawWrapSlideSync(ctx, W, H, sl, p) {
@@ -5124,7 +5130,7 @@ function openWeekView() {
   $('#wkAl').onchange = e => { store.set('ceu_week_alert', e.target.checked ? '1' : '0'); try { syncAlertData(); } catch (er) { } };
   $('#wkSpk').onclick = e => speakText(txt(), e.currentTarget, '🔊 Ouvir a semana');
   $('#wkSh').onclick = async () => { await fontsReady(); const [c, ctx, Wd, H] = newCanvas(); bg(ctx, Wd, H, 'wk' + from, ['#2a5fd1', '#06081a']); ctx.textAlign = 'center'; ctx.fillStyle = '#f2c76e'; ctx.font = '700 36px Cinzel'; ctx.fillText('A MINHA SEMANA NO CÉU', Wd / 2, 100);
-    let y = 170; W.forEach(x => { ctx.textAlign = 'left'; ctx.fillStyle = '#ffe9a8'; ctx.font = '700 32px Manrope'; ctx.fillText(`${cap1(WDAY[wdOf(x.d)][0].replace('-feira', ''))} ${+x.d.slice(8)}`, 80, y); ctx.font = `30px ${EMOJI_F}`; ctx.fillText(moonEmoji(skyFor(x.d).phase.elong), Wd - 120, y); y += 44; ctx.fillStyle = '#fff'; ctx.font = '500 28px Manrope'; (x.it.length ? x.it.slice(0, 3) : [['·', 'dia livre']]).forEach(i => { ctx.fillText(`${i[0]}  ${i[1]}`.slice(0, 52), 110, y); y += 38; }); y += 18; });
+    let y = 170; const PRIV = /🩸|🌸|🔥|🤰|👶|período|fértil|pico|ovula|gravidez|bebé/i; W.map(x => ({ ...x, it: x.it.filter(i => !PRIV.test(i[0] + ' ' + i[1])) })).forEach(x => { ctx.textAlign = 'left'; ctx.fillStyle = '#ffe9a8'; ctx.font = '700 32px Manrope'; ctx.fillText(`${cap1(WDAY[wdOf(x.d)][0].replace('-feira', ''))} ${+x.d.slice(8)}`, 80, y); ctx.font = `30px ${EMOJI_F}`; ctx.fillText(moonEmoji(skyFor(x.d).phase.elong), Wd - 120, y); y += 44; ctx.fillStyle = '#fff'; ctx.font = '500 28px Manrope'; (x.it.length ? x.it.slice(0, 3) : [['·', 'dia livre']]).forEach(i => { ctx.fillText(`${i[0]}  ${i[1]}`.slice(0, 52), 110, y); y += 38; }); y += 18; });
     brandFoot(ctx, Wd, H); shareCanvases([{ name: 'a-minha-semana', c }], `📅 A minha semana no céu ✨\n\n${APP_URL}`); };
 }
 function weekAlerts() {
@@ -6017,7 +6023,7 @@ function soulStarsShare() {
   dlg.querySelectorAll('.stfmt button').forEach(b => b.onclick = () => { story = b.dataset.f === '1'; dlg.querySelectorAll('.stfmt button').forEach(z => z.classList.toggle('on', z === b)); draw(); });
   dlg.querySelectorAll('.sttones button').forEach(b => b.onclick = () => { tone = b.dataset.t; dlg.querySelectorAll('.sttones button').forEach(z => z.classList.toggle('on', z === b)); draw(); });
   $('#ssX').onclick = () => dlg.close(); $('#ssBack').onclick = soulLinksView;
-  $('#ssGo').onclick = async () => { if (!cv) await draw(); shareCanvases([{ c: cv, name: story ? 'a-minha-constelacao-story' : 'a-minha-constelacao' }], `✦ A minha constelação no Céu de Hoje: ${soulLinks().length} estrelas acesas. Cada carta da alma que leio acende uma. Lê a tua em ceudehoje.com #CartaDaAlma`); };
+  $('#ssGo').onclick = async () => { if (!cv) await draw(); shareCanvases([{ c: cv, name: story ? 'a-minha-constelacao-story' : 'a-minha-constelacao' }], `✦ A minha constelação no Céu de Hoje: ${soulLinks().length} ${soulLinks().length === 1 ? 'estrela acesa' : 'estrelas acesas'}. Cada carta da alma que leio acende uma. Lê a tua em ceudehoje.com #CartaDaAlma`); };
   draw();
 }
 // ---------- Tatuagem da constelação: traço fino, minimalista, pronta para levar ao tatuador ----------
@@ -6122,7 +6128,7 @@ function soulTodayHtml(o) { // a secção "Hoje" dentro da carta
 }
 
 // ===== App de telemóvel =====
-const APP_VERSION = '23.11.2026 21:00';
+const APP_VERSION = '23.11.2026 22:00';
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const G = g => `${g}&#xFE0E;`;
@@ -6436,7 +6442,7 @@ function bindDiario() {
     const txt = $('#dTxt').value.trim(); if (!txt && mi < 0) { toast('Escreve algo ou escolhe como te sentes'); return; }
     const m = MOODS[mi < 0 ? 2 : mi], tags = [...document.querySelectorAll('.tg.on')].map(b => b.textContent), L = DIA.all();
     const note = { id: ed ? ed.id : 'n' + Date.now().toString(36), d: $('#dDate').value || todayStr(), mood: m[0], moodE: m[1], txt, tags, ts: Date.now() };
-    if (ed) L[L.findIndex(x => x.id === ed.id)] = note; else L.push(note); DIA.save(L); ST.dEdit = null; render(); dreamCheckText(note.txt, note.d);
+    if (ed) L[L.findIndex(x => x.id === ed.id)] = note; else L.push(note); if (DIA.save(L) === false) return; /* memória cheia: o texto fica na caixa */ ST.dEdit = null; render(); dreamCheckText(note.txt, note.d);
     $('#dFb').innerHTML = `<div class="box fb"><h3>💬 Para ti</h3>${diaryFeedback(note, DIA.all())}</div>`; $('#dFb').scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
   if ($('#dCancel')) { $('#dCancel').onclick = () => { ST.dEdit = null; render(); }; $('#dDel').onclick = () => { if (!confirmBox('Apagar esta nota?')) return; DIA.save(DIA.all().filter(x => x.id !== ed.id)); ST.dEdit = null; render(); }; }

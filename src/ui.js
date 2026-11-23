@@ -1,5 +1,5 @@
 // ===== App de telemóvel =====
-const APP_VERSION = '23.11.2026 21:00';
+const APP_VERSION = '23.11.2026 22:00';
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const G = g => `${g}&#xFE0E;`;
@@ -313,7 +313,7 @@ function bindDiario() {
     const txt = $('#dTxt').value.trim(); if (!txt && mi < 0) { toast('Escreve algo ou escolhe como te sentes'); return; }
     const m = MOODS[mi < 0 ? 2 : mi], tags = [...document.querySelectorAll('.tg.on')].map(b => b.textContent), L = DIA.all();
     const note = { id: ed ? ed.id : 'n' + Date.now().toString(36), d: $('#dDate').value || todayStr(), mood: m[0], moodE: m[1], txt, tags, ts: Date.now() };
-    if (ed) L[L.findIndex(x => x.id === ed.id)] = note; else L.push(note); DIA.save(L); ST.dEdit = null; render(); dreamCheckText(note.txt, note.d);
+    if (ed) L[L.findIndex(x => x.id === ed.id)] = note; else L.push(note); if (DIA.save(L) === false) return; /* memória cheia: o texto fica na caixa */ ST.dEdit = null; render(); dreamCheckText(note.txt, note.d);
     $('#dFb').innerHTML = `<div class="box fb"><h3>💬 Para ti</h3>${diaryFeedback(note, DIA.all())}</div>`; $('#dFb').scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
   if ($('#dCancel')) { $('#dCancel').onclick = () => { ST.dEdit = null; render(); }; $('#dDel').onclick = () => { if (!confirmBox('Apagar esta nota?')) return; DIA.save(DIA.all().filter(x => x.id !== ed.id)); ST.dEdit = null; render(); }; }
