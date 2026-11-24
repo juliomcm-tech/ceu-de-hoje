@@ -102,27 +102,40 @@ function moonPhaseName(e) {
 }
 const housesOf = (si, sky) => { const H = {}; for (const p of ALLP) H[p] = ((sky[p].sign - si + 12) % 12) + 1; return H; };
 
-function scoreDay(si, sky, H) {
-  const area = { amor: 60, trabalho: 60, dinheiro: 60, energia: 60 }, add = (k, v) => area[k] += v, has = (p, hs) => hs.includes(H[p]);
-  if (has('venus', [1, 5, 7, 11])) add('amor', 22); else if (has('venus', [2, 3, 9, 10])) add('amor', 10); else if (has('venus', [6, 8, 12])) add('amor', -4);
-  if (has('moon', [5, 7])) add('amor', 12); if (has('moon', [12])) add('amor', -6); if (has('jupiter', [5, 7])) add('amor', 14);
-  if (has('mars', [5])) add('amor', 8); if (has('mars', [7])) add('amor', -10); if (has('saturn', [5, 7])) add('amor', -14); if (sky.venus.rx) add('amor', -8);
-  for (const p of ['sun', 'mars', 'jupiter']) if (has(p, [10, 6])) add('trabalho', p === 'jupiter' ? 18 : 10);
-  if (has('mercury', [3, 6, 10, 1])) add('trabalho', 8); if (has('moon', [10, 6])) add('trabalho', 8);
-  if (has('saturn', [10, 6])) add('trabalho', -10); if (has('saturn', [1])) add('trabalho', -6); if (sky.mercury.rx) add('trabalho', -8); if (has('moon', [12])) add('trabalho', -6);
-  if (has('jupiter', [2, 8, 11])) add('dinheiro', 20); if (has('venus', [2, 8, 11])) add('dinheiro', 14); if (has('sun', [2, 11])) add('dinheiro', 6); if (has('moon', [2, 11])) add('dinheiro', 8);
-  if (has('saturn', [2, 8])) add('dinheiro', -14); if (has('mars', [2, 8])) add('dinheiro', -10); if (sky.mercury.rx && has('mercury', [2, 8])) add('dinheiro', -6);
-  if (has('sun', [1])) add('energia', 18); if (has('mars', [1])) add('energia', 14); if (has('moon', [1])) add('energia', 10);
-  if (has('mars', [6, 12])) add('energia', -10); if (has('saturn', [1])) add('energia', -16); if (has('moon', [12, 6])) add('energia', -8); if (has('jupiter', [1, 5, 9])) add('energia', 8);
+const SLOW = { jupiter: 1, saturn: 1 }; // planetas lentos: ficam meses no mesmo sítio
+function scoreDay(si, sky, H, o = {}) { // o.slow: peso dos lentos (no dia 0,5: o que muda hoje pesa mais); o.why: lista de razões
+  const area = { amor: 60, trabalho: 60, dinheiro: 60, energia: 60 }, sw = o.slow == null ? 1 : o.slow, W = o.why, has = (p, hs) => hs.includes(H[p]);
+  const add = (k, v, p, lab) => { const w = SLOW[p] ? sw : 1, val = v * w; if (k === '*') { for (const a in area) area[a] += val; } else area[k] += val; if (W && val) W.push({ k, v: val, t: lab }); };
+  const at = p => `${PL[p].n} na tua casa ${H[p]}`;
+  if (has('venus', [1, 5, 7, 11])) add('amor', 22, 'venus', at('venus')); else if (has('venus', [2, 3, 9, 10])) add('amor', 10, 'venus', at('venus')); else if (has('venus', [6, 8, 12])) add('amor', -4, 'venus', at('venus'));
+  if (has('moon', [5, 7])) add('amor', 12, 'moon', at('moon')); if (has('moon', [12])) add('amor', -6, 'moon', at('moon')); if (has('jupiter', [5, 7])) add('amor', 14, 'jupiter', at('jupiter'));
+  if (has('mars', [5])) add('amor', 8, 'mars', at('mars')); if (has('mars', [7])) add('amor', -10, 'mars', at('mars')); if (has('saturn', [5, 7])) add('amor', -14, 'saturn', at('saturn')); if (sky.venus.rx) add('amor', -8, 'venus', 'Vénus retrógrada');
+  for (const p of ['sun', 'mars', 'jupiter']) if (has(p, [10, 6])) add('trabalho', p === 'jupiter' ? 18 : 10, p, at(p));
+  if (has('mercury', [3, 6, 10, 1])) add('trabalho', 8, 'mercury', at('mercury')); if (has('moon', [10, 6])) add('trabalho', 8, 'moon', at('moon'));
+  if (has('saturn', [10, 6])) add('trabalho', -10, 'saturn', at('saturn')); if (has('saturn', [1])) add('trabalho', -6, 'saturn', at('saturn')); if (sky.mercury.rx) add('trabalho', -8, 'mercury', 'Mercúrio retrógrado'); if (has('moon', [12])) add('trabalho', -6, 'moon', at('moon'));
+  if (has('jupiter', [2, 8, 11])) add('dinheiro', 20, 'jupiter', at('jupiter')); if (has('venus', [2, 8, 11])) add('dinheiro', 14, 'venus', at('venus')); if (has('sun', [2, 11])) add('dinheiro', 6, 'sun', at('sun')); if (has('moon', [2, 11])) add('dinheiro', 8, 'moon', at('moon'));
+  if (has('saturn', [2, 8])) add('dinheiro', -14, 'saturn', at('saturn')); if (has('mars', [2, 8])) add('dinheiro', -10, 'mars', at('mars')); if (sky.mercury.rx && has('mercury', [2, 8])) add('dinheiro', -6, 'mercury', 'Mercúrio retrógrado ' + at('mercury').replace('Mercúrio ', ''));
+  if (has('sun', [1])) add('energia', 18, 'sun', 'O Sol no teu signo'); if (has('mars', [1])) add('energia', 14, 'mars', at('mars')); if (has('moon', [1])) add('energia', 10, 'moon', 'A Lua no teu signo');
+  if (has('mars', [6, 12])) add('energia', -10, 'mars', at('mars')); if (has('saturn', [1])) add('energia', -16, 'saturn', 'Saturno no teu signo'); if (has('moon', [12, 6])) add('energia', -8, 'moon', at('moon')); if (has('jupiter', [1, 5, 9])) add('energia', 8, 'jupiter', at('jupiter'));
   const mAng = Math.abs(angDiff(sky.moon.lon, si * 30 + 15));
-  for (const [ang, val] of [[60, 8], [120, 10], [90, -8], [180, -6], [0, 6]]) { const orb = Math.abs(mAng - ang); if (orb < 12) for (const k in area) add(k, val * (1 - orb / 12)); }
-  const ru = SIGNS[si].ruler, b = { domicilio: 8, exaltacao: 8, exilio: -7, queda: -7 }[dignity(ru, sky[ru].sign)] || 0; for (const k in area) add(k, b);
+  for (const [ang, val, nm] of [[60, 8, 'em sextil'], [120, 10, 'em trígono'], [90, -8, 'em quadratura'], [180, -6, 'em oposição'], [0, 6, 'em conjunção']]) { const orb = Math.abs(mAng - ang); if (orb < 12) add('*', val * (1 - orb / 12), 'moon', `A Lua ${nm} com o teu signo`); }
+  const ru = SIGNS[si].ruler, dg = dignity(ru, sky[ru].sign), b = { domicilio: 8, exaltacao: 8, exilio: -7, queda: -7 }[dg] || 0;
+  if (b) add('*', b, ru, `O teu regente, ${PL[ru].n}, em ${{ domicilio: 'casa', exaltacao: 'exaltação', exilio: 'exílio', queda: 'queda' }[dg]}`);
   for (const [p, nat] of [['jupiter', 1], ['venus', 0.6], ['saturn', -1], ['mars', -0.6]]) {
-    const a = aspectOf(H[p]); const v = a === 'tri' || a === 'sext' ? (nat > 0 ? 6 : 3) * Math.abs(nat) : a === 'quad' || a === 'opo' ? (nat > 0 ? 1 : -6) * Math.abs(nat) : 0; for (const k in area) add(k, v);
+    const a = aspectOf(H[p]); const v = a === 'tri' || a === 'sext' ? (nat > 0 ? 6 : 3) * Math.abs(nat) : a === 'quad' || a === 'opo' ? (nat > 0 ? 1 : -6) * Math.abs(nat) : 0;
+    if (v) add('*', v, p, `${PL[p].n} ${{ tri: 'em trígono', sext: 'em sextil', quad: 'em quadratura', opo: 'em oposição' }[a]} com o teu signo`);
   }
-  for (const k in area) area[k] = clamp(Math.round(area[k]), 8, 98);
+  const raw = {}; for (const k in area) { raw[k] = area[k]; area[k] = clamp(Math.round(area[k]), 8, 98); }
+  Object.defineProperty(area, '_raw', { value: raw, enumerable: false });
   return area;
 }
+function scoreDayFull(si, ds) { // o dia inteiro: a Lua às 6h, 12h e 18h (muda de signo a cada 2-3 dias) + lentos com meio peso
+  const j = noonJd(ds), skies = _dayskies[ds] || (_dayskies[ds] = [skyAtJd(j - 0.25), skyFor(ds), skyAtJd(j + 0.25)]), why = [];
+  const parts = skies.map((s, n) => scoreDay(si, s, housesOf(si, s), { slow: .5, why: n === 1 ? why : null }));
+  const area = {}, raw = {}; for (const k of ['amor', 'trabalho', 'dinheiro', 'energia']) { raw[k] = parts.reduce((a, p) => a + p._raw[k], 0) / 3; area[k] = clamp(Math.round(raw[k]), 8, 98); }
+  return { area, raw, why };
+}
+const _dayskies = {};
 function texts(si, sky, H, area, r, modern) {
   const has = (p, hs) => hs.includes(H[p]);
   const love = pick(T_LOVE[H.venus], r) + (sky.venus.rx ? ' Vénus retrógrada: bom para rever relações, mau para começar novas.' : '');
@@ -174,10 +187,11 @@ function extras(si, sky, H, r) {
 
 // ---------- Dia ----------
 function readDay(si, ds, modern) {
-  const sky = skyFor(ds), H = housesOf(si, sky), r = seeded(ds + '|' + si), area = scoreDay(si, sky, H);
+  const sky = skyFor(ds), H = housesOf(si, sky), r = seeded(ds + '|' + si), F = scoreDayFull(si, ds), area = F.area;
   const t = texts(si, sky, H, area, r, modern), x = extras(si, sky, H, r);
   const stars = {}; for (const k in area) stars[k] = toStars(area[k]);
-  return Object.assign({ mode: 'dia', ds, si, sign: SIGNS[si], H, area, stars, overall: avg(area), headline: pick(T_MOON[H.moon], r), keyword: KEYWORD[H.moon] }, t, x);
+  const rawAll = (F.raw.amor + F.raw.trabalho + F.raw.dinheiro + F.raw.energia) / 4, why = F.why.slice().sort((a, b) => Math.abs(b.v) - Math.abs(a.v));
+  return Object.assign({ mode: 'dia', ds, si, sign: SIGNS[si], H, area, stars, overall: avg(area), raw: rawAll, why, headline: pick(T_MOON[H.moon], r), keyword: KEYWORD[H.moon] }, t, x);
 }
 const avg = a => clamp(Math.round((a.amor + a.trabalho + a.dinheiro + a.energia) / 4), 8, 98);
 

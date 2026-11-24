@@ -1,5 +1,5 @@
 // ===== App de telemóvel =====
-const APP_VERSION = '24.11.2026 00:35';
+const APP_VERSION = '24.11.2026 19:40';
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const G = g => `${g}&#xFE0E;`;
@@ -11,7 +11,7 @@ let SHEET = 0;
 function vTop() {
   computeTop();
   const alert = dayAlert();
-  let h = ST.pets ? `<div class="alert">🐾 O dia dos animais de estimação, pelo signo de cada um. Sabes quando nasceu o teu? Junta-o em ✨ Eu.</div><p class="hint">Toca no signo do teu animal para abrir o cartão</p>` : `<div class="alert">📣 ${esc(alert)}</div><p class="hint">Toca no teu signo para abrir o cartão completo</p>`;
+  let h = ST.pets ? `<div class="alert">🐾 O dia dos animais de estimação, pelo signo de cada um. Sabes quando nasceu o teu? Junta-o em ✨ Eu.</div><p class="hint">Toca no signo do teu animal para abrir o cartão</p>` : `<div class="alert">📣 ${esc(alert)}</div><p class="hint">Toca no teu signo para abrir o cartão completo · <button class="link" id="topHow">ℹ️ Como é feito o Top</button></p>`;
   ST.rank.forEach((rd, i) => {
     const v = verdict(rd), c = elc(rd.sign);
     const ex = rd.mode === 'dia' ? `Sorte <b>${rd.lucky}</b> · <span class="dot" style="background:${PL[rd.fav].hex}"></span>${PL[rd.fav].cor} · ${G(PL[rd.fav].g)} ${PL[rd.fav].n} · Aliado ${G(SIGNS[rd.ally].g)} ${SIGNS[rd.ally].n}`
@@ -528,6 +528,23 @@ function capOne(rd, i) {
     rd.mode === 'dia' ? `🍀 Sorte ${rd.lucky} · 🎨 ${PL[rd.fav].cor} · 🤝 ${SIGNS[rd.ally].n}` : `📆 ${rd.mode === 'ano' ? 'Melhor mês' : 'Melhor dia'}: ${rd.bestDay} · 🎨 ${PL[rd.fav].cor}`, '',
     `👉 Segue ${brand()} · marca alguém de ${rd.sign.n}!`, `#horoscopo #signos #${rd.sign.tag}`].join('\n');
 }
+function whyHtml(rd, pos) { // as razões reais deste lugar: o que pesou a favor e contra, hoje
+  const g = {}; rd.why.forEach(w => { const key = w.t; g[key] = g[key] || { t: w.t, v: 0, k: new Set() }; g[key].v += w.k === '*' ? w.v * 4 : w.v; g[key].k.add(w.k === '*' ? 'tudo' : w.k); });
+  const L = Object.values(g).filter(x => Math.abs(x.v) >= 2).sort((a, b) => Math.abs(b.v) - Math.abs(a.v)).slice(0, 6), nm = { amor: 'amor', trabalho: 'trabalho', dinheiro: 'dinheiro', energia: 'energia', tudo: 'tudo' };
+  if (!L.length) return '';
+  return `<section class="why"><h4>🔍 Porquê o ${pos + 1}º lugar hoje</h4>${L.map(x => `<p>${x.v > 0 ? '✅' : '⚠️'} ${esc(x.t)} <small>(${[...x.k].map(k => nm[k]).join(', ')})</small></p>`).join('')}<p class="note">Calculado com as posições reais dos planetas hoje, com as mesmas regras para os 12 signos.</p></section>`;
+}
+function topHow() {
+  $('#infoTitle').textContent = 'ℹ️ Como é feito o Top do dia';
+  $('#infoBody').innerHTML = `<p>Cada página de signos faz o seu Top à sua maneira, por isso dão resultados diferentes. O nosso segue sempre o mesmo método, que podes confirmar:</p>
+    <p>🔭 <b>Céu real</b>: calculamos onde estão hoje o Sol, a Lua e os planetas com fórmulas astronómicas (as mesmas dos observatórios). Comparámos com uma efeméride profissional: o erro é de menos de 0,02° no Sol e 0,04° na Lua.</p>
+    <p>🏠 <b>Casas solares</b>: para cada signo vemos em que «casa» cai cada planeta (a forma clássica dos horóscopos por signo).</p>
+    <p>⚖️ <b>Regras fixas</b>: Vénus e Júpiter favorecem, Saturno e Marte pesam, a Lua dá o tom do dia. As regras são iguais para os 12 signos e iguais todos os dias. <b>Não há sorteio.</b></p>
+    <p>🌙 <b>O dia inteiro</b>: a Lua muda de signo a cada 2 ou 3 dias, por isso vemos o céu às 6h, 12h e 18h. Os planetas lentos (Júpiter e Saturno) contam menos no dia a dia, porque ficam meses no mesmo sítio.</p>
+    <p>🔍 Em cada signo podes ver <b>porquê</b> ficou naquele lugar.</p>
+    <p class="note">A astrologia é tradição e entretenimento, não ciência: usa o Top como inspiração, não para decisões importantes.</p>`;
+  if (!$('#infoDlg').open) $('#infoDlg').showModal();
+}
 function openSheet(i, title) {
   $('#sheet').classList.remove('nonav');
   SHEET = (i + 12) % 12; const rd = ST.rank[SHEET], v = verdict(rd); $('#sheet')._extra = null;
@@ -538,7 +555,7 @@ function openSheet(i, title) {
     <div class="det"><button class="link spkx" id="shSpk">🔊 Ouvir</button><div class="vd ${v.k}"><b>${v.icon}</b> ${esc(v.txt)}</div>
     ${AREAS4(rd).map(([l, k, t], j) => sec((rd.pet ? ['🥰', '🎾', '🍖', '🐾'] : ['❤️', '💼', '💰', '⚡'])[j], l, k, t)).join('')}
     <section><h4>🔮 Conselho</h4><p>${esc(rd.advice)}</p></section>${rd.pet ? '' : signExtras(rd)}
-    ${rd.pet || rd.mode !== 'dia' ? '' : loveDoHtml(rd)}${rd.highlights && rd.highlights.length ? `<section><h4>📅 Em destaque</h4>${rd.highlights.map(x => `<p>${esc(x)}</p>`).join('')}</section>` : ''}</div>`;
+    ${rd.pet || rd.mode !== 'dia' ? '' : loveDoHtml(rd)}${rd.why && rd.why.length ? whyHtml(rd, SHEET) : ''}${rd.highlights && rd.highlights.length ? `<section><h4>📅 Em destaque</h4>${rd.highlights.map(x => `<p>${esc(x)}</p>`).join('')}</section>` : ''}</div>`;
   if ($('#shSpk')) $('#shSpk').onclick = e => speakText(`${rd.sign.n}. ${rd.headline}. No amor: ${firstSentence(rd.love)} No trabalho: ${firstSentence(rd.work)} No dinheiro: ${firstSentence(rd.money)} Conselho: ${rd.advice}`, e.currentTarget, '🔊 Ouvir');
   $('#sheetBody').scrollTop = 0; $('#sheet').dataset.canvas = '';
   $('#sheet')._canvas = c; $('#sheet')._cap = capOne(rd, SHEET); $('#sheet')._name = `${rd.sign.tag}-${ST.date}`;
@@ -666,6 +683,7 @@ async function init() {
   document.addEventListener('visibilitychange', () => { if (document.visibilityState !== 'visible') return; const t = todayStr(); if (ST._day && ST._day !== t) { if (ST.date === ST._day) ST.date = t; ST._day = t; render(); setTimeout(() => showTodayDlg(false), 400); } });
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') { ST._hidAt = Date.now(); try { syncAlertData(); } catch (e) { } } else if (hasPin() && ST._hidAt && Date.now() - ST._hidAt > 5 * 60000 && $('#lock').hidden) { ST._hidAt = 0; document.querySelectorAll('dialog[open]').forEach(d => d.close()); lockScreen(); } }); // as janelas ficam por cima de tudo: fecham-se para o cadeado tapar o ecrã // com PIN: volta a pedir ao fim de 5 minutos fora
   document.addEventListener('close', e => { if (e.target && e.target.tagName === 'DIALOG' && e.target.id !== 'selDlg') stopAll(); }, true); // fechar uma janela cala a leitura e a respiração // ao sair da app, os avisos ficam com os dados mais recentes
+  document.addEventListener('click', e => { if (e.target.closest && e.target.closest('#topHow')) topHow(); });
   try { navigator.serviceWorker && navigator.serviceWorker.addEventListener('message', e => { if (e.data && e.data.go != null) routeQS(String(e.data.go), true); }); } catch (e) { } // toque num aviso com a app aberta
   ST._day = todayStr(); setTimeout(() => pushSync(false), 4000); try { if (navigator.storage && navigator.storage.persist && hasPersonalData()) navigator.storage.persist(); } catch (e) { }
   render();

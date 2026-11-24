@@ -540,7 +540,7 @@ function capHours() {
 // ---------- Montar o post ----------
 function computeTop() {
   ST.reads = ST.mode === 'ano' ? yearReads(+ST.date.slice(0, 4), ST.modern) : SIGNS.map((_, i) => readAny(i, ST.date, ST.mode, ST.modern));
-  ST.rank = ST.reads.slice().sort((a, b) => b.overall - a.overall || (b.area.amor + b.area.dinheiro) - (a.area.amor + a.area.dinheiro) || a.si - b.si);
+  ST.rank = ST.reads.slice().sort((a, b) => b.overall - a.overall || (b.raw || 0) - (a.raw || 0) || (b.area.amor + b.area.dinheiro) - (a.area.amor + a.area.dinheiro) || a.si - b.si); // empates: decide a pontuação exata, nunca a ordem do zodíaco
 
   if (ST.pets) ST.rank = ST.rank.map(petize);
 }

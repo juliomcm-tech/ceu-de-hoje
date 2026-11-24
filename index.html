@@ -642,27 +642,40 @@ function moonPhaseName(e) {
 }
 const housesOf = (si, sky) => { const H = {}; for (const p of ALLP) H[p] = ((sky[p].sign - si + 12) % 12) + 1; return H; };
 
-function scoreDay(si, sky, H) {
-  const area = { amor: 60, trabalho: 60, dinheiro: 60, energia: 60 }, add = (k, v) => area[k] += v, has = (p, hs) => hs.includes(H[p]);
-  if (has('venus', [1, 5, 7, 11])) add('amor', 22); else if (has('venus', [2, 3, 9, 10])) add('amor', 10); else if (has('venus', [6, 8, 12])) add('amor', -4);
-  if (has('moon', [5, 7])) add('amor', 12); if (has('moon', [12])) add('amor', -6); if (has('jupiter', [5, 7])) add('amor', 14);
-  if (has('mars', [5])) add('amor', 8); if (has('mars', [7])) add('amor', -10); if (has('saturn', [5, 7])) add('amor', -14); if (sky.venus.rx) add('amor', -8);
-  for (const p of ['sun', 'mars', 'jupiter']) if (has(p, [10, 6])) add('trabalho', p === 'jupiter' ? 18 : 10);
-  if (has('mercury', [3, 6, 10, 1])) add('trabalho', 8); if (has('moon', [10, 6])) add('trabalho', 8);
-  if (has('saturn', [10, 6])) add('trabalho', -10); if (has('saturn', [1])) add('trabalho', -6); if (sky.mercury.rx) add('trabalho', -8); if (has('moon', [12])) add('trabalho', -6);
-  if (has('jupiter', [2, 8, 11])) add('dinheiro', 20); if (has('venus', [2, 8, 11])) add('dinheiro', 14); if (has('sun', [2, 11])) add('dinheiro', 6); if (has('moon', [2, 11])) add('dinheiro', 8);
-  if (has('saturn', [2, 8])) add('dinheiro', -14); if (has('mars', [2, 8])) add('dinheiro', -10); if (sky.mercury.rx && has('mercury', [2, 8])) add('dinheiro', -6);
-  if (has('sun', [1])) add('energia', 18); if (has('mars', [1])) add('energia', 14); if (has('moon', [1])) add('energia', 10);
-  if (has('mars', [6, 12])) add('energia', -10); if (has('saturn', [1])) add('energia', -16); if (has('moon', [12, 6])) add('energia', -8); if (has('jupiter', [1, 5, 9])) add('energia', 8);
+const SLOW = { jupiter: 1, saturn: 1 }; // planetas lentos: ficam meses no mesmo sítio
+function scoreDay(si, sky, H, o = {}) { // o.slow: peso dos lentos (no dia 0,5: o que muda hoje pesa mais); o.why: lista de razões
+  const area = { amor: 60, trabalho: 60, dinheiro: 60, energia: 60 }, sw = o.slow == null ? 1 : o.slow, W = o.why, has = (p, hs) => hs.includes(H[p]);
+  const add = (k, v, p, lab) => { const w = SLOW[p] ? sw : 1, val = v * w; if (k === '*') { for (const a in area) area[a] += val; } else area[k] += val; if (W && val) W.push({ k, v: val, t: lab }); };
+  const at = p => `${PL[p].n} na tua casa ${H[p]}`;
+  if (has('venus', [1, 5, 7, 11])) add('amor', 22, 'venus', at('venus')); else if (has('venus', [2, 3, 9, 10])) add('amor', 10, 'venus', at('venus')); else if (has('venus', [6, 8, 12])) add('amor', -4, 'venus', at('venus'));
+  if (has('moon', [5, 7])) add('amor', 12, 'moon', at('moon')); if (has('moon', [12])) add('amor', -6, 'moon', at('moon')); if (has('jupiter', [5, 7])) add('amor', 14, 'jupiter', at('jupiter'));
+  if (has('mars', [5])) add('amor', 8, 'mars', at('mars')); if (has('mars', [7])) add('amor', -10, 'mars', at('mars')); if (has('saturn', [5, 7])) add('amor', -14, 'saturn', at('saturn')); if (sky.venus.rx) add('amor', -8, 'venus', 'Vénus retrógrada');
+  for (const p of ['sun', 'mars', 'jupiter']) if (has(p, [10, 6])) add('trabalho', p === 'jupiter' ? 18 : 10, p, at(p));
+  if (has('mercury', [3, 6, 10, 1])) add('trabalho', 8, 'mercury', at('mercury')); if (has('moon', [10, 6])) add('trabalho', 8, 'moon', at('moon'));
+  if (has('saturn', [10, 6])) add('trabalho', -10, 'saturn', at('saturn')); if (has('saturn', [1])) add('trabalho', -6, 'saturn', at('saturn')); if (sky.mercury.rx) add('trabalho', -8, 'mercury', 'Mercúrio retrógrado'); if (has('moon', [12])) add('trabalho', -6, 'moon', at('moon'));
+  if (has('jupiter', [2, 8, 11])) add('dinheiro', 20, 'jupiter', at('jupiter')); if (has('venus', [2, 8, 11])) add('dinheiro', 14, 'venus', at('venus')); if (has('sun', [2, 11])) add('dinheiro', 6, 'sun', at('sun')); if (has('moon', [2, 11])) add('dinheiro', 8, 'moon', at('moon'));
+  if (has('saturn', [2, 8])) add('dinheiro', -14, 'saturn', at('saturn')); if (has('mars', [2, 8])) add('dinheiro', -10, 'mars', at('mars')); if (sky.mercury.rx && has('mercury', [2, 8])) add('dinheiro', -6, 'mercury', 'Mercúrio retrógrado ' + at('mercury').replace('Mercúrio ', ''));
+  if (has('sun', [1])) add('energia', 18, 'sun', 'O Sol no teu signo'); if (has('mars', [1])) add('energia', 14, 'mars', at('mars')); if (has('moon', [1])) add('energia', 10, 'moon', 'A Lua no teu signo');
+  if (has('mars', [6, 12])) add('energia', -10, 'mars', at('mars')); if (has('saturn', [1])) add('energia', -16, 'saturn', 'Saturno no teu signo'); if (has('moon', [12, 6])) add('energia', -8, 'moon', at('moon')); if (has('jupiter', [1, 5, 9])) add('energia', 8, 'jupiter', at('jupiter'));
   const mAng = Math.abs(angDiff(sky.moon.lon, si * 30 + 15));
-  for (const [ang, val] of [[60, 8], [120, 10], [90, -8], [180, -6], [0, 6]]) { const orb = Math.abs(mAng - ang); if (orb < 12) for (const k in area) add(k, val * (1 - orb / 12)); }
-  const ru = SIGNS[si].ruler, b = { domicilio: 8, exaltacao: 8, exilio: -7, queda: -7 }[dignity(ru, sky[ru].sign)] || 0; for (const k in area) add(k, b);
+  for (const [ang, val, nm] of [[60, 8, 'em sextil'], [120, 10, 'em trígono'], [90, -8, 'em quadratura'], [180, -6, 'em oposição'], [0, 6, 'em conjunção']]) { const orb = Math.abs(mAng - ang); if (orb < 12) add('*', val * (1 - orb / 12), 'moon', `A Lua ${nm} com o teu signo`); }
+  const ru = SIGNS[si].ruler, dg = dignity(ru, sky[ru].sign), b = { domicilio: 8, exaltacao: 8, exilio: -7, queda: -7 }[dg] || 0;
+  if (b) add('*', b, ru, `O teu regente, ${PL[ru].n}, em ${{ domicilio: 'casa', exaltacao: 'exaltação', exilio: 'exílio', queda: 'queda' }[dg]}`);
   for (const [p, nat] of [['jupiter', 1], ['venus', 0.6], ['saturn', -1], ['mars', -0.6]]) {
-    const a = aspectOf(H[p]); const v = a === 'tri' || a === 'sext' ? (nat > 0 ? 6 : 3) * Math.abs(nat) : a === 'quad' || a === 'opo' ? (nat > 0 ? 1 : -6) * Math.abs(nat) : 0; for (const k in area) add(k, v);
+    const a = aspectOf(H[p]); const v = a === 'tri' || a === 'sext' ? (nat > 0 ? 6 : 3) * Math.abs(nat) : a === 'quad' || a === 'opo' ? (nat > 0 ? 1 : -6) * Math.abs(nat) : 0;
+    if (v) add('*', v, p, `${PL[p].n} ${{ tri: 'em trígono', sext: 'em sextil', quad: 'em quadratura', opo: 'em oposição' }[a]} com o teu signo`);
   }
-  for (const k in area) area[k] = clamp(Math.round(area[k]), 8, 98);
+  const raw = {}; for (const k in area) { raw[k] = area[k]; area[k] = clamp(Math.round(area[k]), 8, 98); }
+  Object.defineProperty(area, '_raw', { value: raw, enumerable: false });
   return area;
 }
+function scoreDayFull(si, ds) { // o dia inteiro: a Lua às 6h, 12h e 18h (muda de signo a cada 2-3 dias) + lentos com meio peso
+  const j = noonJd(ds), skies = _dayskies[ds] || (_dayskies[ds] = [skyAtJd(j - 0.25), skyFor(ds), skyAtJd(j + 0.25)]), why = [];
+  const parts = skies.map((s, n) => scoreDay(si, s, housesOf(si, s), { slow: .5, why: n === 1 ? why : null }));
+  const area = {}, raw = {}; for (const k of ['amor', 'trabalho', 'dinheiro', 'energia']) { raw[k] = parts.reduce((a, p) => a + p._raw[k], 0) / 3; area[k] = clamp(Math.round(raw[k]), 8, 98); }
+  return { area, raw, why };
+}
+const _dayskies = {};
 function texts(si, sky, H, area, r, modern) {
   const has = (p, hs) => hs.includes(H[p]);
   const love = pick(T_LOVE[H.venus], r) + (sky.venus.rx ? ' Vénus retrógrada: bom para rever relações, mau para começar novas.' : '');
@@ -714,10 +727,11 @@ function extras(si, sky, H, r) {
 
 // ---------- Dia ----------
 function readDay(si, ds, modern) {
-  const sky = skyFor(ds), H = housesOf(si, sky), r = seeded(ds + '|' + si), area = scoreDay(si, sky, H);
+  const sky = skyFor(ds), H = housesOf(si, sky), r = seeded(ds + '|' + si), F = scoreDayFull(si, ds), area = F.area;
   const t = texts(si, sky, H, area, r, modern), x = extras(si, sky, H, r);
   const stars = {}; for (const k in area) stars[k] = toStars(area[k]);
-  return Object.assign({ mode: 'dia', ds, si, sign: SIGNS[si], H, area, stars, overall: avg(area), headline: pick(T_MOON[H.moon], r), keyword: KEYWORD[H.moon] }, t, x);
+  const rawAll = (F.raw.amor + F.raw.trabalho + F.raw.dinheiro + F.raw.energia) / 4, why = F.why.slice().sort((a, b) => Math.abs(b.v) - Math.abs(a.v));
+  return Object.assign({ mode: 'dia', ds, si, sign: SIGNS[si], H, area, stars, overall: avg(area), raw: rawAll, why, headline: pick(T_MOON[H.moon], r), keyword: KEYWORD[H.moon] }, t, x);
 }
 const avg = a => clamp(Math.round((a.amor + a.trabalho + a.dinheiro + a.energia) / 4), 8, 98);
 
@@ -1479,7 +1493,7 @@ function capHours() {
 // ---------- Montar o post ----------
 function computeTop() {
   ST.reads = ST.mode === 'ano' ? yearReads(+ST.date.slice(0, 4), ST.modern) : SIGNS.map((_, i) => readAny(i, ST.date, ST.mode, ST.modern));
-  ST.rank = ST.reads.slice().sort((a, b) => b.overall - a.overall || (b.area.amor + b.area.dinheiro) - (a.area.amor + a.area.dinheiro) || a.si - b.si);
+  ST.rank = ST.reads.slice().sort((a, b) => b.overall - a.overall || (b.raw || 0) - (a.raw || 0) || (b.area.amor + b.area.dinheiro) - (a.area.amor + a.area.dinheiro) || a.si - b.si); // empates: decide a pontuação exata, nunca a ordem do zodíaco
 
   if (ST.pets) ST.rank = ST.rank.map(petize);
 }
@@ -6180,7 +6194,7 @@ function soulTodayHtml(o) { // a secção "Hoje" dentro da carta
 }
 
 // ===== App de telemóvel =====
-const APP_VERSION = '24.11.2026 00:35';
+const APP_VERSION = '24.11.2026 19:40';
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const G = g => `${g}&#xFE0E;`;
@@ -6192,7 +6206,7 @@ let SHEET = 0;
 function vTop() {
   computeTop();
   const alert = dayAlert();
-  let h = ST.pets ? `<div class="alert">🐾 O dia dos animais de estimação, pelo signo de cada um. Sabes quando nasceu o teu? Junta-o em ✨ Eu.</div><p class="hint">Toca no signo do teu animal para abrir o cartão</p>` : `<div class="alert">📣 ${esc(alert)}</div><p class="hint">Toca no teu signo para abrir o cartão completo</p>`;
+  let h = ST.pets ? `<div class="alert">🐾 O dia dos animais de estimação, pelo signo de cada um. Sabes quando nasceu o teu? Junta-o em ✨ Eu.</div><p class="hint">Toca no signo do teu animal para abrir o cartão</p>` : `<div class="alert">📣 ${esc(alert)}</div><p class="hint">Toca no teu signo para abrir o cartão completo · <button class="link" id="topHow">ℹ️ Como é feito o Top</button></p>`;
   ST.rank.forEach((rd, i) => {
     const v = verdict(rd), c = elc(rd.sign);
     const ex = rd.mode === 'dia' ? `Sorte <b>${rd.lucky}</b> · <span class="dot" style="background:${PL[rd.fav].hex}"></span>${PL[rd.fav].cor} · ${G(PL[rd.fav].g)} ${PL[rd.fav].n} · Aliado ${G(SIGNS[rd.ally].g)} ${SIGNS[rd.ally].n}`
@@ -6709,6 +6723,23 @@ function capOne(rd, i) {
     rd.mode === 'dia' ? `🍀 Sorte ${rd.lucky} · 🎨 ${PL[rd.fav].cor} · 🤝 ${SIGNS[rd.ally].n}` : `📆 ${rd.mode === 'ano' ? 'Melhor mês' : 'Melhor dia'}: ${rd.bestDay} · 🎨 ${PL[rd.fav].cor}`, '',
     `👉 Segue ${brand()} · marca alguém de ${rd.sign.n}!`, `#horoscopo #signos #${rd.sign.tag}`].join('\n');
 }
+function whyHtml(rd, pos) { // as razões reais deste lugar: o que pesou a favor e contra, hoje
+  const g = {}; rd.why.forEach(w => { const key = w.t; g[key] = g[key] || { t: w.t, v: 0, k: new Set() }; g[key].v += w.k === '*' ? w.v * 4 : w.v; g[key].k.add(w.k === '*' ? 'tudo' : w.k); });
+  const L = Object.values(g).filter(x => Math.abs(x.v) >= 2).sort((a, b) => Math.abs(b.v) - Math.abs(a.v)).slice(0, 6), nm = { amor: 'amor', trabalho: 'trabalho', dinheiro: 'dinheiro', energia: 'energia', tudo: 'tudo' };
+  if (!L.length) return '';
+  return `<section class="why"><h4>🔍 Porquê o ${pos + 1}º lugar hoje</h4>${L.map(x => `<p>${x.v > 0 ? '✅' : '⚠️'} ${esc(x.t)} <small>(${[...x.k].map(k => nm[k]).join(', ')})</small></p>`).join('')}<p class="note">Calculado com as posições reais dos planetas hoje, com as mesmas regras para os 12 signos.</p></section>`;
+}
+function topHow() {
+  $('#infoTitle').textContent = 'ℹ️ Como é feito o Top do dia';
+  $('#infoBody').innerHTML = `<p>Cada página de signos faz o seu Top à sua maneira, por isso dão resultados diferentes. O nosso segue sempre o mesmo método, que podes confirmar:</p>
+    <p>🔭 <b>Céu real</b>: calculamos onde estão hoje o Sol, a Lua e os planetas com fórmulas astronómicas (as mesmas dos observatórios). Comparámos com uma efeméride profissional: o erro é de menos de 0,02° no Sol e 0,04° na Lua.</p>
+    <p>🏠 <b>Casas solares</b>: para cada signo vemos em que «casa» cai cada planeta (a forma clássica dos horóscopos por signo).</p>
+    <p>⚖️ <b>Regras fixas</b>: Vénus e Júpiter favorecem, Saturno e Marte pesam, a Lua dá o tom do dia. As regras são iguais para os 12 signos e iguais todos os dias. <b>Não há sorteio.</b></p>
+    <p>🌙 <b>O dia inteiro</b>: a Lua muda de signo a cada 2 ou 3 dias, por isso vemos o céu às 6h, 12h e 18h. Os planetas lentos (Júpiter e Saturno) contam menos no dia a dia, porque ficam meses no mesmo sítio.</p>
+    <p>🔍 Em cada signo podes ver <b>porquê</b> ficou naquele lugar.</p>
+    <p class="note">A astrologia é tradição e entretenimento, não ciência: usa o Top como inspiração, não para decisões importantes.</p>`;
+  if (!$('#infoDlg').open) $('#infoDlg').showModal();
+}
 function openSheet(i, title) {
   $('#sheet').classList.remove('nonav');
   SHEET = (i + 12) % 12; const rd = ST.rank[SHEET], v = verdict(rd); $('#sheet')._extra = null;
@@ -6719,7 +6750,7 @@ function openSheet(i, title) {
     <div class="det"><button class="link spkx" id="shSpk">🔊 Ouvir</button><div class="vd ${v.k}"><b>${v.icon}</b> ${esc(v.txt)}</div>
     ${AREAS4(rd).map(([l, k, t], j) => sec((rd.pet ? ['🥰', '🎾', '🍖', '🐾'] : ['❤️', '💼', '💰', '⚡'])[j], l, k, t)).join('')}
     <section><h4>🔮 Conselho</h4><p>${esc(rd.advice)}</p></section>${rd.pet ? '' : signExtras(rd)}
-    ${rd.pet || rd.mode !== 'dia' ? '' : loveDoHtml(rd)}${rd.highlights && rd.highlights.length ? `<section><h4>📅 Em destaque</h4>${rd.highlights.map(x => `<p>${esc(x)}</p>`).join('')}</section>` : ''}</div>`;
+    ${rd.pet || rd.mode !== 'dia' ? '' : loveDoHtml(rd)}${rd.why && rd.why.length ? whyHtml(rd, SHEET) : ''}${rd.highlights && rd.highlights.length ? `<section><h4>📅 Em destaque</h4>${rd.highlights.map(x => `<p>${esc(x)}</p>`).join('')}</section>` : ''}</div>`;
   if ($('#shSpk')) $('#shSpk').onclick = e => speakText(`${rd.sign.n}. ${rd.headline}. No amor: ${firstSentence(rd.love)} No trabalho: ${firstSentence(rd.work)} No dinheiro: ${firstSentence(rd.money)} Conselho: ${rd.advice}`, e.currentTarget, '🔊 Ouvir');
   $('#sheetBody').scrollTop = 0; $('#sheet').dataset.canvas = '';
   $('#sheet')._canvas = c; $('#sheet')._cap = capOne(rd, SHEET); $('#sheet')._name = `${rd.sign.tag}-${ST.date}`;
@@ -6847,6 +6878,7 @@ async function init() {
   document.addEventListener('visibilitychange', () => { if (document.visibilityState !== 'visible') return; const t = todayStr(); if (ST._day && ST._day !== t) { if (ST.date === ST._day) ST.date = t; ST._day = t; render(); setTimeout(() => showTodayDlg(false), 400); } });
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') { ST._hidAt = Date.now(); try { syncAlertData(); } catch (e) { } } else if (hasPin() && ST._hidAt && Date.now() - ST._hidAt > 5 * 60000 && $('#lock').hidden) { ST._hidAt = 0; document.querySelectorAll('dialog[open]').forEach(d => d.close()); lockScreen(); } }); // as janelas ficam por cima de tudo: fecham-se para o cadeado tapar o ecrã // com PIN: volta a pedir ao fim de 5 minutos fora
   document.addEventListener('close', e => { if (e.target && e.target.tagName === 'DIALOG' && e.target.id !== 'selDlg') stopAll(); }, true); // fechar uma janela cala a leitura e a respiração // ao sair da app, os avisos ficam com os dados mais recentes
+  document.addEventListener('click', e => { if (e.target.closest && e.target.closest('#topHow')) topHow(); });
   try { navigator.serviceWorker && navigator.serviceWorker.addEventListener('message', e => { if (e.data && e.data.go != null) routeQS(String(e.data.go), true); }); } catch (e) { } // toque num aviso com a app aberta
   ST._day = todayStr(); setTimeout(() => pushSync(false), 4000); try { if (navigator.storage && navigator.storage.persist && hasPersonalData()) navigator.storage.persist(); } catch (e) { }
   render();
