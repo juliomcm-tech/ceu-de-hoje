@@ -1,0 +1,10 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.ceudehoje.app",
+    "sha256_cert_fingerprints": [
+      "DD:44:03:94:38:E1:EE:56:D6:17:B2:1A:31:12:B5:80:34:01:B4:26:A7:4E:32:B1:FB:15:15:13:16:42:5B:01"
+    ]
+  }
+}]
