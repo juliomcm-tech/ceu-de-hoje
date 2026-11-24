@@ -1,5 +1,5 @@
 // ===== App de telemóvel =====
-const APP_VERSION = '24.11.2026 00:20';
+const APP_VERSION = '24.11.2026 00:35';
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const G = g => `${g}&#xFE0E;`;
@@ -323,7 +323,7 @@ function bindDiario() {
   $('#dImp').onchange = e => e.target.files[0] && doRestore(e.target.files[0]);
 }
 function vInteresses() {
-  const t = ST.intTab || 'livros', C = INT[t], L = intList(t), S = intStats(t);
+  const t = INT[ST.intTab] ? ST.intTab : 'livros', C = INT[t], L = intList(t), S = intStats(t);
   let h = `<div class="itabs">${Object.entries(INT).map(([k, v]) => `<button data-it="${k}"${k === t ? ' class="on"' : ''}>${v.ic} ${k === 'livros' ? 'Livros' : k === 'series' ? 'Séries' : (k === 'colecoes' ? 'Coleções' : 'Viagens')}</button>`).join('')}</div>`;
   if (t === 'colecoes') { const own = L.filter(x => x.status === 2 || x.status === 3), pcs = own.reduce((a, x) => a + (+x.pcs || 0), 0), val = own.reduce((a, x) => a + (+String(x.price || '').replace(',', '.') || 0), 0); h += `<div class="box istats"><div><b>${own.length}</b><span>tenho</span></div><div><b>${L.filter(x => x.status === 0).length}</b><span>quero</span></div>${pcs ? `<div><b>${pcs.toLocaleString('pt-PT')}</b><span>peças</span></div>` : ''}${val ? `<div><b>${Math.round(val).toLocaleString('pt-PT')} €</b><span>investido</span></div>` : ''}</div><div class="box"><h3>🔎 Já tenho isto?</h3><p class="note">Na loja, lê o código de barras da caixa: digo-te logo se já está na tua coleção.</p><div class="addrow"><button class="btn main" id="colScan">📷 Ler código de barras</button></div><input type="search" id="colQ" placeholder="Ou procura por nome, nº do set ou marca…" value="${esc(ST.colQ || '')}" style="width:100%;margin-top:8px"><div id="colRes"></div></div>`; } else
   h += `<div class="box istats"><div><b>${S.done}</b><span>${C.verb[2].toLowerCase()}${S.done === 1 ? '' : 's'}</span></div><div><b>${S.year}</b><span>em ${todayStr().slice(0, 4)}</span></div><div><b>${S.doing}</b><span>${C.doing}</span></div><div><b>${t === 'viagens' ? S.countries.length : S.avgDays ?? '–'}</b><span>${t === 'viagens' ? 'países' : 'dias em média'}</span></div></div>`;
@@ -352,7 +352,7 @@ function vInteresses() {
   return h;
 }
 function bindInteresses() {
-  const t = ST.intTab || 'livros';
+  const t = INT[ST.intTab] ? ST.intTab : 'livros';
   document.querySelectorAll('[data-it]').forEach(b => b.onclick = () => { ST.intTab = b.dataset.it; store.set('ceu_inttab', ST.intTab); render(); });
   if ($('#intAdd')) $('#intAdd').onclick = () => openItem(t, null, true);
   document.querySelectorAll('[data-more]').forEach(b => b.onclick = () => { ST.intMore = ST.intMore || {}; ST.intMore[b.dataset.more] = ((ST.intMore[b.dataset.more]) || 60) + 60; render(); });
@@ -664,7 +664,7 @@ async function init() {
   if (/aniversarios/.test(location.search + location.hash)) { ST.type = 'anos'; ST.anosView = 'agenda'; }
   routeQS(location.search); if (location.search) try { history.replaceState(null, '', location.pathname + location.hash); } catch (e) { } // depois de abrir o ecrã pedido, o endereço fica limpo (recarregar não volta a abrir)
   document.addEventListener('visibilitychange', () => { if (document.visibilityState !== 'visible') return; const t = todayStr(); if (ST._day && ST._day !== t) { if (ST.date === ST._day) ST.date = t; ST._day = t; render(); setTimeout(() => showTodayDlg(false), 400); } });
-  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') { ST._hidAt = Date.now(); try { syncAlertData(); } catch (e) { } } else if (hasPin() && ST._hidAt && Date.now() - ST._hidAt > 5 * 60000 && $('#lock').hidden) { ST._hidAt = 0; lockScreen(); } }); // com PIN: volta a pedir ao fim de 5 minutos fora
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') { ST._hidAt = Date.now(); try { syncAlertData(); } catch (e) { } } else if (hasPin() && ST._hidAt && Date.now() - ST._hidAt > 5 * 60000 && $('#lock').hidden) { ST._hidAt = 0; document.querySelectorAll('dialog[open]').forEach(d => d.close()); lockScreen(); } }); // as janelas ficam por cima de tudo: fecham-se para o cadeado tapar o ecrã // com PIN: volta a pedir ao fim de 5 minutos fora
   document.addEventListener('close', e => { if (e.target && e.target.tagName === 'DIALOG' && e.target.id !== 'selDlg') stopAll(); }, true); // fechar uma janela cala a leitura e a respiração // ao sair da app, os avisos ficam com os dados mais recentes
   try { navigator.serviceWorker && navigator.serviceWorker.addEventListener('message', e => { if (e.data && e.data.go != null) routeQS(String(e.data.go), true); }); } catch (e) { } // toque num aviso com a app aberta
   ST._day = todayStr(); setTimeout(() => pushSync(false), 4000); try { if (navigator.storage && navigator.storage.persist && hasPersonalData()) navigator.storage.persist(); } catch (e) { }

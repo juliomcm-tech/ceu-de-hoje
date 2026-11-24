@@ -32,7 +32,7 @@ function bookEl(x, look) {
   return `<div class="bk sp${ln}" data-id="${x.id}" style="--bc:${col(x.title + x.by)};height:${h}px;width:${w}px${x.pos && x.pos.g ? `;margin-left:${x.pos.g}%` : ''}" title="${esc(x.title)}"><span>${esc(x.title)}</span>${st}</div>`;
 }
 function vShelf() {
-  const S = SHELF.get(), sort = ST.shelfSort || 'manual', look = S.look;
+  const S = SHELF.get(), sort = SORTS.some(z => z[0] === ST.shelfSort) ? ST.shelfSort : 'manual', look = S.look;
   let L = sort === 'manual' ? normShelf() : intList(SHT);
   let h = `<div class="shtools"><select id="shSort">${SORTS.map(([k, n]) => `<option value="${k}"${k === sort ? ' selected' : ''}>${n}</option>`).join('')}</select><div class="seg3"><button data-look="capas"${look === 'capas' ? ' class="on"' : ''}>Capas</button><button data-look="lombadas"${look === 'lombadas' ? ' class="on"' : ''}>Lombadas</button></div></div>
     <div class="woods">${[['madeira', 'Madeira'], ['branca', 'Branca'], ['preta', 'Preta']].map(([k, n]) => `<button data-wood="${k}" class="wd-${k}${S.wood === k ? ' on' : ''}">${n}</button>`).join('')}</div>`;
@@ -56,7 +56,7 @@ function bindShelf() {
   document.querySelectorAll('[data-c]').forEach(b => b.onclick = () => { const S = SHELF.get(), c = b.dataset.c; if (c === 'e+') S.e = Math.min(10, S.e + 1); if (c === 'e-') S.e = Math.max(1, S.e - 1); if (c === 'p+') S.p = Math.min(12, S.p + 1); if (c === 'p-') S.p = Math.max(1, S.p - 1); SHELF.set(S); render(); });
   document.querySelectorAll('[data-wood]').forEach(b => b.onclick = () => { const S = SHELF.get(); S.wood = b.dataset.wood; SHELF.set(S); render(); });
   document.querySelectorAll('[data-est]').forEach(el => el.onclick = () => editEstante(+el.dataset.est));
-  const manual = (ST.shelfSort || 'manual') === 'manual';
+  const manual = !SORTS.some(z => z[0] === ST.shelfSort) || ST.shelfSort === 'manual';
   document.querySelectorAll('.bk').forEach(el => el.addEventListener('pointerdown', ev => bookDown(ev, el, manual)));
 }
 let DRAG = null;
