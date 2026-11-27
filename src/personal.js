@@ -46,6 +46,7 @@ const DAY_MEAN = { 1: 'começa algo novo', 2: 'coopera e ouve', 3: 'diverte-te e
 const sunSignOf = d => { const [y, m, dd] = d.split('-').map(Number); return Math.floor(sunLon(jdFromMs(Date.UTC(y, m - 1, dd, 12))) / 30); };
 
 // ---------- PERFIL ----------
+const isMan = () => (P.get() || {}).sx === 'm';
 const P = {
   get() { try { const p = JSON.parse(store.get('ceu_profile') || 'null'); if (p) return p; const me = JSON.parse(store.get('ceu_me') || 'null'); return me ? { name: '', d: me.d, t: me.t, c: me.c } : null; } catch (e) { return null; } },
   set(p) { store.set('ceu_profile', JSON.stringify(p)); },
@@ -137,7 +138,7 @@ const RELS = [['eu', 'x', 'Para mim', 'Hoje o dia é teu!'], ['pai', 'm', 'Pai',
   ['colegam', 'm', 'Colega', 'Ao melhor colega'], ['colegaf', 'f', 'Colega', 'À melhor colega'], ['chefem', 'm', 'Chefe', 'Ao nosso chefe'], ['chefef', 'f', 'Chefe', 'À nossa chefe'], ['patrao', 'm', 'Patrão', 'Ao nosso patrão'], ['patroa', 'f', 'Patroa', 'À nossa patroa'],
   ['cao', 'p', '🐶 Cão', 'Ao melhor cão do mundo'], ['gato', 'p', '🐱 Gato', 'Ao gato mais lindo do mundo'], ['pet', 'p', '🐾 Outro animal', 'Ao meu companheiro de quatro patas']];
 const REL_CAT = { pai: 'velho', mae: 'velho', avom: 'velho', avof: 'velho', tio: 'velho', tia: 'velho', sogro: 'velho', sogra: 'velho', padrinho: 'velho', madrinha: 'velho', filho: 'novo', filha: 'novo', neto: 'novo', neta: 'novo', sobrinho: 'novo', sobrinha: 'novo', afilhado: 'novo', afilhada: 'novo', marido: 'par', mulher: 'par', namorado: 'par', namorada: 'par', bffm: 'amigo', bfff: 'amigo', amigo: 'amigo', amiga: 'amigo', irmao: 'irmao', irma: 'irmao', primo: 'irmao', prima: 'irmao', colegam: 'trab', colegaf: 'trab', chefem: 'trab', chefef: 'trab', patrao: 'trab', patroa: 'trab', cao: 'pet', gato: 'pet', pet: 'pet', eu: 'eu' };
-const REL_WISH = { velho: ['Gratidão por tudo o que me ensinaste.', 'És o meu exemplo de todos os dias.', 'Que a vida te devolva todo o amor que dás.'], novo: ['Que nunca percas esse brilho.', 'O mundo é teu: vai com tudo!', 'Que cada sonho teu ganhe asas.'], par: ['Cada dia ao teu lado é um presente.', 'És a minha pessoa favorita no universo.', 'Contigo, até os dias comuns brilham.'], amigo: ['Um obrigado enorme por estares sempre lá.', '{Amigos|Amigas} assim são estrelas raras.', 'A vida é mais leve contigo por perto.'], irmao: ['Crescemos juntos e ainda bem!', 'Para sempre a minha equipa.'], trab: ['Gratidão pela boa energia de todos os dias.', 'Que este ano traga ainda mais conquistas.'], pet: ['Obrigado por todo o amor sem condições.', 'A casa é mais feliz contigo.'], eu: ['Que este novo ano astral seja o teu melhor.', 'Celebra-te: mereces tudo de bom.'] };
+const REL_WISH = { velho: ['Gratidão por tudo o que me ensinaste.', 'És o meu exemplo de todos os dias.', 'Que a vida te devolva todo o amor que dás.'], novo: ['Que nunca percas esse brilho.', 'O mundo é teu: vai com tudo!', 'Que cada sonho teu ganhe asas.'], par: ['Cada dia ao teu lado é um presente.', 'És a minha pessoa favorita no universo.', 'Contigo, até os dias comuns brilham.'], amigo: ['Um obrigado enorme por estares sempre lá.', '{Amigos|Amigas} assim são estrelas raras.', 'A vida é mais leve contigo por perto.'], irmao: ['{Crescemos juntos e ainda bem!|Crescemos juntas e ainda bem!}', 'Para sempre a minha equipa.'], trab: ['Gratidão pela boa energia de todos os dias.', 'Que este ano traga ainda mais conquistas.'], pet: ['Obrigado por todo o amor sem condições.', 'A casa é mais feliz contigo.'], eu: ['Que este novo ano astral seja o teu melhor.', 'Celebra-te: mereces tudo de bom.'] };
 const SIGN_FORCE = ['coragem', 'lealdade', 'alegria', 'ternura', 'generosidade', 'dedicação', 'elegância', 'intensidade', 'boa disposição', 'determinação', 'originalidade', 'sensibilidade'];
 function makeBday(o) {
   const rel = RELS.find(r => r[0] === o.rel) || RELS[0], si = o.t ? sunSignAt(o.d, o.t) : sunSignOf(o.d), cat = REL_CAT[rel[0]];
@@ -146,7 +147,7 @@ function makeBday(o) {
   const B = birthday(bd, ST.modern), lp = lifePath(o.d), r = seeded(o.name + o.d + o.rel);
   const force = cat === 'pet' ? `Um ${SIGNS[si].n} que ${PET_TRAIT[si]}.` : `Toda a ${SIGN_FORCE[si]} de um ${SIGNS[si].n}.`;
   const cn = chineseSign(o.d);
-  const g = o.relTxt ? (/a$/i.test(o.relTxt.trim().split(/\s+/)[0]) ? 'f' : 'm') : rel[1] === 'f' ? 'f' : 'm'; // género de quem faz anos
+  const g = o.relTxt ? (/[aãá]$/i.test(o.relTxt.trim().split(/\s+/)[0]) ? 'f' : 'm') : rel[1] === 'f' ? 'f' : 'm'; // género de quem faz anos
   const dedication = o.relTxt ? `${g === 'f' ? 'À minha' : 'Ao meu'} ${o.relTxt.trim().toLowerCase()}` : rel[3];
   return { ...o, rel, cat, g, si, sign: SIGNS[si], cn, age, lp, B, dedication, wish: gmf(pick(REL_WISH[cat], r), g), force, year: cat === 'pet' ? 'Um ano cheio de mimos, passeios e petiscos.' : `Este ano: ${B.headline.replace(/^Um ano/, 'um ano').replace(/\.$/, '')}.`, num: `Número da vida ${lp}: ${NUM_MEAN[lp]}` };
 }
@@ -303,7 +304,7 @@ function agendaAll() {
   return out;
 }
 function waText(x) {
-  const Bd = makeBday({ name: x.name, rel: x.rel, d: x.d, showAge: true, from: '' });
+  const Bd = makeBday({ name: x.name, rel: x.rel, relTxt: x.relTxt, d: x.d, showAge: true, from: '' });
   return `🎉 Parabéns, ${x.name}! ${Bd.cat === 'pet' ? '🐾' : '🎂'}\n${Bd.force} ${Bd.wish}\n✨ ${Bd.year}\n\nVê o teu signo do dia em ${APP_URL}`;
 }
 function waLink(x) { const tel = (x.tel || '').replace(/\D/g, ''); const num = tel ? (tel.length === 9 ? '351' + tel : tel) : ''; return `https://wa.me/${num}?text=${encodeURIComponent(waText(x))}`; }

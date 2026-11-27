@@ -1,5 +1,5 @@
 // ===== App de telemóvel =====
-const APP_VERSION = '27.11.2026 12:40';
+const APP_VERSION = '28.11.2026 00:30';
 const TABS = { top: ['dia', 'semana', 'mes', 'ano'], pares: ['dia'], lua: ['dia', 'mes'], anos: ['dia'], horas: ['dia'], eu: ['dia'] };
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const G = g => `${g}&#xFE0E;`;
@@ -188,7 +188,7 @@ function showBday(o, save, seed) {
   $('#bdOut').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 function vEu() {
-  const seg = `<div class="seg2"><button data-ev="me"${ST.euView !== 'diario' ? ' class="on"' : ''}>✨ O meu espaço</button><button data-ev="diario"${ST.euView === 'diario' ? ' class="on"' : ''}>📔 Diário</button><button data-ev="int"${ST.euView === 'int' ? ' class="on"' : ''}>📚 Interesses</button></div>`;
+  const seg = `<div class="seg2"><button data-ev="me"${ST.euView !== 'diario' && ST.euView !== 'int' ? ' class="on"' : ''}>✨ O meu espaço</button><button data-ev="diario"${ST.euView === 'diario' ? ' class="on"' : ''}>📔 Diário</button><button data-ev="int"${ST.euView === 'int' ? ' class="on"' : ''}>📚 Interesses</button></div>`;
   if (ST.euView === 'diario') return seg + vDiario();
   if (ST.euView === 'int') return seg + vInteresses();
   return seg + vEuMe();
@@ -198,6 +198,7 @@ function vEuMe() {
   if (!p || !p.d || ST.editProfile) {
     return `<h2 class="vt">✨ O meu espaço</h2><p class="sub2">Sem registo e sem palavras-passe: os teus dados ficam só neste telemóvel.</p>
     <div class="form"><label>O teu nome<input type="text" id="pName" maxlength="40" value="${esc(p ? p.name || '' : '')}" placeholder="Como te chamas?"></label>
+    <label>Sou<select id="pSx"><option value=""${!p || !p.sx ? ' selected' : ''}>Prefiro não dizer</option><option value="f"${p && p.sx === 'f' ? ' selected' : ''}>Mulher</option><option value="m"${p && p.sx === 'm' ? ' selected' : ''}>Homem</option></select></label>
     <label>Data de nascimento<input type="date" id="bDate" min="1900-01-01" max="${todayStr()}" value="${p ? p.d || '' : ''}"></label>
     <label>Hora de nascimento (opcional, para o ascendente)<input type="time" id="bTime" value="${p ? p.t || '' : ''}"></label>
     <label>Onde nasceste<select id="bCity">${opts(p ? p.c : 0)}</select></label>
@@ -223,7 +224,7 @@ function vEuMe() {
   h += `<div class="box num"><h3>🔢 Numerologia</h3><div class="nums"><button data-num="lp"><b>${lp}</b><span>Número da vida</span><i class="tap">toca para ver ›</i></button><button data-num="py"><b>${py}</b><span>Ano pessoal</span><i class="tap">toca para ver ›</i></button><button data-num="dia"><b>${pdn}</b><span>Dia de hoje</span><i class="tap">toca para ver ›</i></button></div><p>${cap1(NUM_MEAN[lp])}. Estás num ${YEAR_MEAN[py]}. Hoje: ${DAY_MEAN[pdn]}.</p></div>`;
   h += `<div class="box oracle"><h3>🔮 Oráculo</h3><p class="sub3">Pergunta o que quiseres sobre o teu dia. Responde com os cálculos do céu, sem internet.</p><div id="chat">${(ST.chat || []).map(c => `<div class="msg ${c.who}">${c.txt}</div>`).join('')}</div>
     <div class="chips">${ORACLE_SUGGEST.map(q => `<button class="qchip">${q}</button>`).join('')}</div><form id="askF" class="ask"><input type="text" id="askQ" placeholder="Escreve a tua pergunta…" autocomplete="off"><button class="btn main">↑</button></form></div>`;
-  h += cycleBox() + momentsBox(null, 'Momentos') + kidsBox();
+  h += (isMan() ? '' : cycleBox()) + momentsBox(null, 'Momentos') + kidsBox();
   const pets = P.list('ceu_pets');
   h += `<div class="box" id="sec-pets"><h3>🐾 Os meus animais</h3>${pets.map((a, i) => { const s = spOf(a), ps = sunSignAt(a.d, a.t), r2 = petize(readDay(ps, today, ST.modern)), v2 = petVerdict(r2), dd = daysToBirthday(a.d); return `<div class="pet" data-k="${i}"><span class="em">${s[1]}</span><div><b>${esc(a.name)} <span class="g2" style="color:${elc(SIGNS[ps])}">${G(SIGNS[ps].g)}</span></b><small>${s[2]} · ${SIGNS[ps].n} · ${dd === 0 ? '🎂 faz anos hoje!' : (dd === 1 ? 'anos amanhã' : 'anos em ' + dd + ' dias')}</small><small class="vv ${v2.k}">${esc(v2.txt)}</small></div><span class="chev">›</span></div>`; }).join('') || '<p>Junta o teu animal para veres o signo, o dia dele e criares o cartaz de anos.</p>'}
     <button class="btn" id="petNew" style="width:100%;margin-top:6px">＋ Juntar animal</button></div>`;
@@ -476,7 +477,7 @@ function bindEu() {
   document.querySelectorAll('[data-ev]').forEach(b => b.onclick = () => { ST.euView = b.dataset.ev; render(); });
   if (ST.euView === 'diario') { bindDiario(); return; }
   if (ST.euView === 'int') { bindInteresses(); return; }
-  if ($('#pSave')) { $('#pSave').onclick = () => { const d = $('#bDate').value; if (!d) { toast('Indica a data de nascimento'); return; } if (d < '1900-01-01' || d > todayStr()) { toast('Essa data não parece certa: escolhe entre 1900 e hoje'); return; } P.set({ name: $('#pName').value.trim(), d, t: $('#bTime').value, c: $('#bCity').value, favBook: $('#pFB').value.trim(), favShow: $('#pFS').value.trim(), favPlace: $('#pFP').value.trim(), dream: $('#pDT').value.trim() }); ST.editProfile = false; toast('Guardado neste telemóvel ✨'); render(); }; return; }
+  if ($('#pSave')) { $('#pSave').onclick = () => { const d = $('#bDate').value; if (!d) { toast('Indica a data de nascimento'); return; } if (d < '1900-01-01' || d > todayStr()) { toast('Essa data não parece certa: escolhe entre 1900 e hoje'); return; } P.set({ ...(P.get() || {}), sx: $('#pSx').value, name: $('#pName').value.trim(), d, t: $('#bTime').value, c: $('#bCity').value, favBook: $('#pFB').value.trim(), favShow: $('#pFS').value.trim(), favPlace: $('#pFP').value.trim(), dream: $('#pDT').value.trim() }); ST.editProfile = false; toast('Guardado neste telemóvel ✨'); render(); }; return; }
   $('#pEdit').onclick = () => { ST.editProfile = true; render(); };
   if ($('#monGo')) $('#monGo').onclick = () => openMonth(); if ($('#cnGo')) $('#cnGo').onclick = openChinese; bindTarot(); bindTarotNew(); bindMore(); bindFact(); bindEuChips(); bindRoutines(); document.querySelectorAll('[data-num]').forEach(b => b.onclick = () => openNum(b.dataset.num));
   const p = P.get(), si = profSign(p);
@@ -585,7 +586,7 @@ const SHARE_SVG = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" s
 async function shareCanvases(list, cap) {
   copySync(cap); ST.cap = cap;
   const files = await Promise.all(list.map(async x => new File([await blobOf(x.c)], `${x.name}.jpg`, { type: 'image/jpeg' })));
-  try { if (navigator.canShare && navigator.canShare({ files })) { const withTxt = cap && navigator.canShare({ files, text: cap }); await navigator.share(withTxt ? { files, text: cap } : { files }); toast(withTxt ? 'Se o texto não aparecer, está copiado: cola-o 📋' : 'Texto copiado: cola-o na publicação'); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+  try { if (navigator.canShare && navigator.canShare({ files })) { const withTxt = cap && !list.some(x => /story/.test(x.name)) && navigator.canShare({ files, text: cap }); await navigator.share(withTxt ? { files, text: cap } : { files }); toast(withTxt ? 'Se o texto não aparecer, está copiado: cola-o 📋' : 'Texto copiado: cola-o na publicação'); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
   // sem partilha nativa: mostrar as imagens para guardar
   ST.canvases = list;
   $('#imgsBody').innerHTML = list.map((x, i) => `<figure><img src="${stampOnce(x.c).toDataURL('image/jpeg', .9)}" alt=""><button class="btn" data-k="${i}">Guardar</button></figure>`).join('');

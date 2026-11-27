@@ -290,7 +290,7 @@ function bindTodayStrip() {
 }
 const EU_MAIN = [['💫', 'Alma', 'soul'], ['🃏', 'Carta', 'tarot'], ['🌙', 'Noite', 'night'], ['🐾', 'Animais', 'pets'], ['🌸', 'Ciclo', 'cyc']];
 const EU_MORE = [['📅', 'A minha semana', 'week'], ['⏳', 'Contagens', 'cd'], ['💭', 'Sonhos', 'dreams'], ['✂️', 'Rotinas pela Lua', 'rout'], ['🔢', 'Números', 'num'], ['🔮', 'Oráculo', 'oracle'], ['🎁', 'Vídeo do ano', 'wrap'], ['✨', 'Ano astral', 'ya'], ['📣', 'Posts para redes', 'posts']];
-function euChips() { return `<div class="euchips">${EU_MAIN.map(c => `<button data-jump="${c[2]}">${c[0]}<span>${c[1]}</span></button>`).join('')}<button data-jump="more">➕<span>Mais</span></button></div>`; } // 6 atalhos; o resto vive em «Mais»
+function euChips() { return `<div class="euchips">${(isMan() ? EU_MAIN.map(c => c[2] === 'cyc' ? ['💭', 'Sonhos', 'dreams'] : c) : EU_MAIN).map(c => `<button data-jump="${c[2]}">${c[0]}<span>${c[1]}</span></button>`).join('')}<button data-jump="more">➕<span>Mais</span></button></div>`; } // 6 atalhos; o resto vive em «Mais»
 function euMore() { // a lista «Mais»: tudo o que não precisa de estar sempre à vista
   $('#infoTitle').textContent = '➕ Mais no teu espaço';
   $('#infoBody').innerHTML = `<div class="eumore">${EU_MORE.map(c => `<button data-jm="${c[2]}"><b>${c[0]}</b><span>${c[1]}</span><i>›</i></button>`).join('')}</div>`;

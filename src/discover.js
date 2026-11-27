@@ -131,7 +131,7 @@ async function drawFact(f) {
 
 // ---------- Viagens × ciclo × céu ----------
 function predPeriods(fromD, toD) { // dias de período previstos num intervalo
-  try { const o = CY.get(); if (!o.on || o.preg) return []; const st = cycleStats(o); if (!st.last) return []; const out = []; let n = noonJd(st.next); const end = noonJd(toD);
+  try { const o = CY.get(); if (!o.on || o.preg || isMan()) return []; const st = cycleStats(o); if (!st.last) return []; const out = []; let n = noonJd(st.next); const end = noonJd(toD);
     if (st.ongoing) for (let k = 0; k < st.per; k++) out.push(dayStr(noonJd(st.last.d) + k));
     while (n <= end + st.per) { for (let k = 0; k < st.per; k++) out.push(dayStr(n + k)); n += st.avg; }
     return out.filter(d => d >= fromD && d <= toD); } catch (e) { return []; }

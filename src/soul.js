@@ -812,11 +812,11 @@ function soulStarsShare() {
     <div class="sttones">${Object.entries(STAR_TONES).map(([k, t]) => `<button data-t="${k}"${k === tone ? ' class="on"' : ''}><i style="background:linear-gradient(135deg,${t.bg[0]},${t.bg[1]});border-color:${t.acc}"></i>${t.nm}</button>`).join('')}</div>
     <div class="stfmt"><button data-f="0" class="on">📱 Post <i>4:5</i></button><button data-f="1">🎬 Story <i>9:16</i></button></div><img id="ssPrev" class="stprev" alt="A tua constelação"><div class="dlgfoot"><button class="btn" id="ssBack">Voltar</button><button class="btn main" id="ssGo">📤 Partilhar</button></div></div>`;
   if (!dlg.open) dlg.showModal(); dlg.scrollTop = 0;
-  const draw = async () => { cv = await soulStarsCanvas(tone, story); const im = $('#ssPrev'); if (im) im.src = cv.toDataURL('image/jpeg', .82); };
+  let cvKey = '', seq = 0; const draw = async () => { const my = ++seq, k = tone + '|' + story, c = await soulStarsCanvas(tone, story); if (my !== seq) return; cv = c; cvKey = k; const im = $('#ssPrev'); if (im) im.src = cv.toDataURL('image/jpeg', .82); };
   dlg.querySelectorAll('.stfmt button').forEach(b => b.onclick = () => { story = b.dataset.f === '1'; dlg.querySelectorAll('.stfmt button').forEach(z => z.classList.toggle('on', z === b)); draw(); });
   dlg.querySelectorAll('.sttones button').forEach(b => b.onclick = () => { tone = b.dataset.t; dlg.querySelectorAll('.sttones button').forEach(z => z.classList.toggle('on', z === b)); draw(); });
   $('#ssX').onclick = () => dlg.close(); $('#ssBack').onclick = soulLinksView;
-  $('#ssGo').onclick = async () => { if (!cv) await draw(); shareCanvases([{ c: cv, name: story ? 'a-minha-constelacao-story' : 'a-minha-constelacao' }], `✦ A minha constelação no Céu de Hoje: ${soulLinks().length} ${soulLinks().length === 1 ? 'estrela acesa' : 'estrelas acesas'}. Cada carta da alma que leio acende uma. Lê a tua em ceudehoje.com #CartaDaAlma`); };
+  $('#ssGo').onclick = async () => { if (!cv || cvKey !== tone + '|' + story) { cv = await soulStarsCanvas(tone, story); cvKey = tone + '|' + story; } shareCanvases([{ c: cv, name: story ? 'a-minha-constelacao-story' : 'a-minha-constelacao' }], `✦ A minha constelação no Céu de Hoje: ${soulLinks().length} ${soulLinks().length === 1 ? 'estrela acesa' : 'estrelas acesas'}. Cada carta da alma que leio acende uma. Lê a tua em ceudehoje.com #CartaDaAlma`); };
   draw();
 }
 // ---------- Tatuagem da constelação: traço fino, minimalista, pronta para levar ao tatuador ----------

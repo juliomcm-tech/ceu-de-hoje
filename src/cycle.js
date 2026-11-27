@@ -147,7 +147,7 @@ function bindCycle() {
   if ($('#cySig')) $('#cySig').onclick = () => openCycle(null, todayStr());
 }
 function cycleAlerts() {
-  const o = CY.get(); if (!o.on) return []; if (o.preg) return pregAlerts().filter(a => a.d === todayStr()).map(a => ({ ic: '🤰', t: a.t.replace(/^🤰 /, ''), s: a.b })); const st = cycleStats(o); if (!st.last) return []; const out = [];
+  const o = CY.get(); if (!o.on || isMan()) return []; if (o.preg) return pregAlerts().filter(a => a.d === todayStr()).map(a => ({ ic: '🤰', t: a.t.replace(/^🤰 /, ''), s: a.b })); const st = cycleStats(o); if (!st.last) return []; const out = [];
   if (o.alerts.period && st.daysTo >= 0 && st.daysTo <= 2 && !st.ongoing) out.push({ ic: '🩸', t: st.daysTo === 0 ? 'O período pode chegar hoje' : `O período deve chegar daqui a ${st.daysTo} dia${st.daysTo > 1 ? 's' : ''}`, s: 'Leva o que precisas na mala 💗' });
   if (o.alerts.fertile && todayStr() === st.fert[0]) out.push({ ic: '🌸', t: 'Começa hoje a tua janela fértil', s: `Até ${niceDate(st.fert[1]).replace(/^[^,]+, /, '')} (estimativa)` });
   if (o.ttc && st.level === 'pico') out.push({ ic: '🔥', t: 'Hoje é dia de pico de fertilidade', s: `Dias de pico: ${cyRange(st.peak[0], st.peak[1])}` });
@@ -158,13 +158,13 @@ function cycleAlerts() {
 // ---------- Avisos com a app fechada (o service worker lê esta lista) ----------
 function alertEvents() {
   const ev = [], add = (d, t, b, tag, url) => ev.push({ d, t, b: b || '', tag, url: url || './' }), today = todayStr(), lim = dayStr(noonJd(today) + 70);
-  try { pregAlerts().forEach(a => add(a.d, a.t, a.b, a.tag, a.url)); } catch (e) { }
+  try { if (!isMan()) pregAlerts().forEach(a => add(a.d, a.t, a.b, a.tag, a.url)); } catch (e) { }
   try { tarotAlerts().forEach(a => ev.push(a)); } catch (e) { }
   try { cdAlerts().forEach(a => ev.push(a)); } catch (e) { }
   try { soulAlerts().forEach(a => ev.push(a)); } catch (e) { }
   try { bkAlerts().forEach(a => ev.push(a)); } catch (e) { }
   try { [...giftAlerts(), ...nightAlerts(), ...wrapAlerts(), ...weekAlerts(), ...routineAlerts()].forEach(a => ev.push(a)); } catch (e) { }
-  try { const o = CY.get(); if (o.on && !o.preg) { const st = cycleStats(o); if (st.last) { if (o.alerts.period) { add(dayStr(noonJd(st.next) - 2), '🩸 O período deve chegar daqui a 2 dias', 'Leva o que precisas na mala 💗', 'cy-p2-' + st.next, './?ciclo'); add(st.next, '🩸 O período pode chegar hoje', 'Cuida bem de ti hoje 💗', 'cy-p0-' + st.next, './?ciclo'); } if (o.alerts.fertile) add(st.fert[0], '🌸 Começa hoje a tua janela fértil', `Até ${niceDate(st.fert[1]).replace(/^[^,]+, /, '')} (estimativa)`, 'cy-f-' + st.fert[0], './?ciclo'); if (o.ttc && o.alerts.fertile) add(st.peak[0], '🔥 Começam hoje os teus dias de pico', `${cyRange(st.peak[0], st.peak[1])}. Regista os sinais na app para afinar.`, 'cy-pk-' + st.peak[0], './?ciclo'); } } } catch (e) { }
+  try { const o = CY.get(); if (o.on && !o.preg && !isMan()) { const st = cycleStats(o); if (st.last) { if (o.alerts.period) { add(dayStr(noonJd(st.next) - 2), '🩸 O período deve chegar daqui a 2 dias', 'Leva o que precisas na mala 💗', 'cy-p2-' + st.next, './?ciclo'); add(st.next, '🩸 O período pode chegar hoje', 'Cuida bem de ti hoje 💗', 'cy-p0-' + st.next, './?ciclo'); } if (o.alerts.fertile) add(st.fert[0], '🌸 Começa hoje a tua janela fértil', `Até ${niceDate(st.fert[1]).replace(/^[^,]+, /, '')} (estimativa)`, 'cy-f-' + st.fert[0], './?ciclo'); if (o.ttc && o.alerts.fertile) add(st.peak[0], '🔥 Começam hoje os teus dias de pico', `${cyRange(st.peak[0], st.peak[1])}. Regista os sinais na app para afinar.`, 'cy-pk-' + st.peak[0], './?ciclo'); } } } catch (e) { }
   try { P.list('ceu_pets').forEach(a => ['vac', 'des'].forEach(k => { const n = careNext(a, k); if (!n) return; const lbl = `${CARE_T[k][1]} de ${a.name}`; add(dayStr(noonJd(n) - 1), `${CARE_T[k][0]} Amanhã: ${lbl}`, 'Já marcaste o veterinário?', `pet-${a.name}-${k}-${n}-1`, './?patudos'); add(n, `${CARE_T[k][0]} Hoje: ${lbl}`, 'Depois de tratar, carrega em ✅ Feito na app.', `pet-${a.name}-${k}-${n}-0`, './?patudos'); }));
     P.list('ceu_pets').filter(a => a.adopt).forEach(a => { for (const y of [+today.slice(0, 4), +today.slice(0, 4) + 1]) { const leap = (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0, d = y + (a.adopt.slice(4) === '-02-29' && !leap ? '-02-28' : a.adopt.slice(4)); if (d > a.adopt) add(d, `🏡 Faz ${y - +a.adopt.slice(0, 4)} ano${y - +a.adopt.slice(0, 4) > 1 ? 's' : ''} que ${a.name} chegou a casa!`, 'Toca para criar o cartaz do dia de adoção 🐾', `adopt-${a.name}-${y}`, './?patudos'); } }); } catch (e) { }
   try { skyAgenda(70).forEach(x => { if (x.rxStart) { add(dayStr(noonJd(x.d) - 1), '☿ Amanhã Mercúrio fica retrógrado', 'Revê mensagens e contratos com calma nas próximas semanas.', 'sky-rx-' + x.d); } if (/Eclipse/.test(x.t)) add(x.d, `${x.ic} Hoje há ${x.t.toLowerCase()}`, 'Dia de viragem: bom para refletir e recomeçar.', 'sky-ecl-' + x.d); }); } catch (e) { }
